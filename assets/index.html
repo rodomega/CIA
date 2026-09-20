@@ -1,479 +1,241 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
-<title>Controle de Fiscalização - 4ª Cia PMRv</title>
-
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background-color: #0a0a0a;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    color: #f0f0f0;
-    padding: 10px;
-    padding-top: 80px;
-    min-height: 100vh;
-}
-
-/* Barra superior */
-.top-bar {
-    background: #1a1a1a;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 2px solid #ffcc00;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    flex-wrap: wrap;
-}
-
-.logo-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logo-text h1 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #ffcc00;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    line-height: 1.2;
-}
-
-.logo-text span {
-    font-size: 0.7rem;
-    color: #cccccc;
-    font-weight: 400;
-    display: block;
-}
-
-/* BOTÕES DO TOPO */
-.topo-botoes {
-    display: flex;
-    gap: 10px;
-    z-index: 999;
-}
-
-.btn-topo {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: none;
-    font-size: 18px;
-    color: #fff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-topo:hover {
-    transform: scale(1.05);
-}
-
-.btn-topo.whats { 
-    background: #25d366; 
-}
-
-.btn-topo.encerrar { 
-    background: #c82333; 
-}
-
-/* título */
-h2 {
-    text-align: center;
-    color: #ffcc00;
-    font-size: 1.4rem;
-    margin: 20px 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* caixas */
-.box, .item {
-    background: #1a1a1a;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    overflow: hidden;
-    border: 1px solid #2a2a2a;
-}
-
-.header {
-    padding: 12px 15px;
-    font-weight: 600;
-    cursor: pointer;
-    background: #1f1f1f;
-    color: #ffcc00;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.2s;
-    border-bottom: 1px solid #2a2a2a;
-}
-
-.header:hover {
-    background: #2a2a2a;
-}
-
-.header .arrow {
-    transition: transform 0.3s;
-    font-size: 0.8rem;
-}
-
-.header.active .arrow {
-    transform: rotate(90deg);
-}
-
-.conteudo {
-    display: none;
-    padding: 12px;
-    background: #141414;
-}
-
-.linha {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #1f1f1f;
-}
-
-.linha:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-
-.linha span:first-child {
-    color: #cccccc;
-    font-size: 0.9rem;
-}
-
-.ctrl {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-}
-
-button {
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-button:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
-
-.add { 
-    background: #ffcc00; 
-    color: #000;
-}
-
-.menos { 
-    background: #dc3545; 
-}
-
-.contador {
-    min-width: 28px;
-    text-align: center;
-    font-weight: bold;
-    color: #ffcc00;
-    font-size: 1.1rem;
-}
-
-input {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    border: 1px solid #2a2a2a;
-    background: #1a1a1a;
-    color: #f0f0f0;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-}
-
-input:focus {
-    outline: none;
-    border-color: #ffcc00;
-    background: #222;
-}
-
-input::placeholder {
-    color: #666;
-}
-
-.box input:last-child {
-    margin-bottom: 0;
-}
-
-/* estilo dos artigos livres */
-.item-edit .header {
-    background: #1a1a1a;
-    border-left: 3px solid #ffcc00;
-}
-
-/* scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #0a0a0a;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #ffcc00;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #e6b800;
-}
-
-/* responsivo */
-@media (max-width: 768px) {
-    .top-bar {
-        padding: 10px 15px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Controle - Estilo Xiaomi</title>
+  <!-- Ícones do FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    
-    .logo-text h1 {
-        font-size: 0.9rem;
+
+    body {
+      background: linear-gradient(135deg, #1f242d, #0d1117);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
-    
-    .logo-text span {
-        font-size: 0.6rem;
+
+    /* Container Principal no Estilo HyperOS */
+    .control-center {
+      background: rgba(35, 38, 45, 0.7);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 32px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    
-    .btn-topo {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
+
+    /* Linha dos botões principais */
+    .buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
     }
-    
-    h2 {
-        font-size: 1.1rem;
-        margin: 15px 0;
+
+    /* Botões Circulares Principais */
+    .circle-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.12);
+      border: none;
+      color: #ffffff;
+      font-size: 22px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      outline: none;
     }
-}
-</style>
+
+    .circle-btn:hover {
+      background-color: rgba(255, 255, 255, 0.22);
+      transform: scale(1.05);
+    }
+
+    /* Estado ativo do botão */
+    .circle-btn.active {
+      background-color: #ffffff;
+      color: #111111;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Botão de Adicionar (+) */
+    .add-btn {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .add-btn:hover {
+      border-color: #ffffff;
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Painel de Submenus Expansível */
+    .submenu-panel {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 24px;
+      padding: 0 16px;
+    }
+
+    .submenu-panel.open {
+      max-height: 400px;
+      opacity: 1;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Grid dos Submenus */
+    .submenu-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      justify-items: center;
+    }
+
+    /* Links/Botões do Submenu */
+    .sub-item {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      font-size: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .sub-item:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #111;
+      transform: translateY(-2px);
+    }
+
+    .menu-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .header-title {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- BARRA SUPERIOR -->
-<header class="top-bar">
-    <div class="logo-area">
-        <div class="logo-text">
-            <h1>4ª Cia Limeira</h1>
-            <span>Policiamento Rodoviário</span>
+  <div class="control-center">
+    <div class="header-title">Minha Central de Controle</div>
+    
+    <!-- Área onde os botões e submenus ficarão -->
+    <div id="buttons-container" class="menu-group">
+      
+      <!-- Bloco do Primeiro Botão -->
+      <div class="button-wrapper" id="group-1">
+        <div class="buttons-row">
+          <button class="circle-btn" onclick="toggleSubmenu('sub-1', this)">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
         </div>
+
+        <!-- Submenu do Primeiro Botão -->
+        <div class="submenu-panel" id="sub-1">
+          <div class="submenu-grid">
+            <a href="https://google.com" target="_blank" class="sub-item" title="Google"><i class="fa-solid fa-magnifying-glass"></i></a>
+            <a href="https://youtube.com" target="_blank" class="sub-item" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://github.com" target="_blank" class="sub-item" title="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://spotify.com" target="_blank" class="sub-item" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-gear"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-wifi"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-bluetooth-b"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-moon"></i></a>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="topo-botoes">
-        <button class="btn-topo whats" onclick="enviarWhats()" title="Enviar WhatsApp">📤</button>
-        <button class="btn-topo encerrar" onclick="encerrarTurno()" title="Encerrar Turno">⛔</button>
+
+    <!-- Botão de Adicionar (+) -->
+    <div class="buttons-row">
+      <button class="circle-btn add-btn" onclick="addNewButton()" title="Adicionar Novo Menu">
+        <i class="fa-solid fa-plus"></i>
+      </button>
     </div>
-</header>
+  </div>
 
-<h2>Controle de Fiscalização</h2>
+  <script>
+    let buttonCount = 1;
 
-<!-- DADOS DA EQUIPE -->
-<div class="box">
-    <input id="encarregado" placeholder="Nome do Encarregado">
-    <input id="motorista" placeholder="Nome do Motorista">
-    <input id="auxiliar" placeholder="Nome do Auxiliar (opcional)">
-</div>
+    // Função para abrir/fechar o submenu correspondente
+    function toggleSubmenu(panelId, btnElement) {
+      const panel = document.getElementById(panelId);
+      
+      // Alterna classe 'active' no botão para acender/apagar
+      btnElement.classList.toggle('active');
+      
+      // Alterna exibição do submenu
+      panel.classList.toggle('open');
+    }
 
-<div id="lista"></div>
+    // Função para adicionar um novo botão com submenus
+    function addNewButton() {
+      buttonCount++;
+      const container = document.getElementById('buttons-container');
 
-<script>
-// ===== LISTA FIXA =====
-const itensFixos = [
- "AP Fiscalizado","CA Fiscalizado","OA Fiscalizado","MO Fiscalizado",
- "AI AP","AI CA","AI OA","AI MO",
- "AI Abordagem","AI Revelia",
- "ART. 167","ART. 168","ART. 252, VI / § ún.","ART. 203, V",
- "ART. 165","ART. 165-A","ART. 306",
- "Teste Ativo","Teste Passivo",
- "Pessoas abordadas","Pedestres abordados","Pedestres lançados no Google Forms",
- "Total ARV","Total ARD","Imagem Radar",
- "BO-e Com Vítima","BO-e Sem Vítima",
- "Vítimas Leves","Vítimas Graves","Vítimas Fatais",
- "Procurado Capturado","Flagrante","Presos",
- "BOPM ( exceto ART. 306 )"
-];
+      const newGroup = document.createElement('div');
+      newGroup.className = 'button-wrapper';
+      newGroup.id = `group-${buttonCount}`;
 
-const lista = document.getElementById("lista");
-let itens = [];
-
-// fixos
-itensFixos.forEach((n,i)=>itens.push({id:"f"+i,nome:n,edit:false}));
-
-// 8 livres
-for(let i=1;i<=8;i++) itens.push({id:"l"+i,nome:"",edit:true});
-
-// render
-itens.forEach(it=>{
-    const isEdit = it.edit;
-    const headerClass = isEdit ? 'header item-edit' : 'header';
-    
-    lista.innerHTML += `
-    <div class="item">
-        <div class="${headerClass}" onclick="toggle('${it.id}')">
-            <span>${isEdit ? '✏️ Artigo livre' : it.nome}</span>
-            <span class="arrow">▶</span>
+      newGroup.innerHTML = `
+        <div class="buttons-row" style="margin-top: 10px;">
+          <button class="circle-btn" onclick="toggleSubmenu('sub-${buttonCount}', this)">
+            <i class="fa-solid fa-border-all"></i>
+          </button>
         </div>
-        <div class="conteudo" id="c_${it.id}">
-            ${isEdit ? `<input id="nome_${it.id}" placeholder="Digite o artigo">` : ""}
-            ${linha("Encarregado","e",it.id)}
-            ${linha("Motorista","m",it.id)}
-            ${linha("Auxiliar","a",it.id)}
+
+        <div class="submenu-panel" id="sub-${buttonCount}">
+          <div class="submenu-grid">
+            <a href="https://instagram.com" target="_blank" class="sub-item"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://twitter.com" target="_blank" class="sub-item"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-envelope"></i></a>
+            <a href="#" class="sub-item"><i class="fa-solid fa-camera"></i></a>
+          </div>
         </div>
-    </div>`;
-});
+      `;
 
-function linha(t,p,id){
-    return `
-    <div class="linha">
-        <span>${t}</span>
-        <div class="ctrl">
-            <button class="menos" onclick="alterar('${p}${id}',-1)">-</button>
-            <span id="${p}${id}" class="contador">0</span>
-            <button class="add" onclick="alterar('${p}${id}',1)">+</button>
-        </div>
-    </div>`;
-}
-
-function toggle(id){
-    const el=document.getElementById("c_"+id);
-    const header=el.closest('.item').querySelector('.header');
-    
-    if(el.style.display === "block") {
-        el.style.display = "none";
-        header.classList.remove('active');
-    } else {
-        el.style.display = "block";
-        header.classList.add('active');
+      container.appendChild(newGroup);
     }
-}
-
-// salvar / carregar
-function salvar(){
-    const d={enc:encarregado.value,mot:motorista.value,aux:auxiliar.value,n:{},c:{}};
-    itens.forEach(it=>{
-        if(it.edit){
-            let n=document.getElementById("nome_"+it.id);
-            if(n) d.n[it.id]=n.value;
-        }
-        ["e","m","a"].forEach(p=>{
-            const el = document.getElementById(p+it.id);
-            if(el) d.c[p+it.id]=el.innerText;
-        });
-    });
-    localStorage.setItem("controleFiscalizacao",JSON.stringify(d));
-}
-
-function carregar(){
-    const d=JSON.parse(localStorage.getItem("controleFiscalizacao"));
-    if(!d) return;
-    encarregado.value=d.enc || '';
-    motorista.value=d.mot || '';
-    auxiliar.value=d.aux || '';
-
-    for(let k in d.n){
-        let e=document.getElementById("nome_"+k);
-        if(e)e.value=d.n[k];
-    }
-    for(let k in d.c){
-        let e=document.getElementById(k);
-        if(e)e.innerText=d.c[k];
-    }
-}
-
-function alterar(id,v){
-    const el=document.getElementById(id);
-    if(!el) return;
-    let n=parseInt(el.innerText)+v;
-    if(n<0)n=0;
-    el.innerText=n;
-    salvar();
-}
-
-["encarregado","motorista","auxiliar"].forEach(i=>{
-    document.getElementById(i).addEventListener("input",salvar);
-});
-
-window.onload=carregar;
-
-// WhatsApp - versão corrigida
-function enviarWhats(){
-    const enc = encarregado.value.trim();
-    const mot = motorista.value.trim();
-    const aux = auxiliar.value.trim();
-    
-    // Monta cabeçalho
-    let texto = "";
-    if(enc) texto += `Encarregado: ${enc}\n`;
-    if(mot) texto += `Motorista: ${mot}\n`;
-    if(aux) texto += `Auxiliar: ${aux}\n`;
-    
-    if(texto) texto += "\n";
-    
-    let temDados = false;
-    
-    itens.forEach(it=>{
-        let nome = it.edit ? document.getElementById("nome_"+it.id)?.value?.trim() : it.nome;
-        if(!nome) return;
-        
-        const e = parseInt(document.getElementById("e"+it.id)?.innerText) || 0;
-        const m = parseInt(document.getElementById("m"+it.id)?.innerText) || 0;
-        const a = parseInt(document.getElementById("a"+it.id)?.innerText) || 0;
-        
-        if(e + m + a === 0) return;
-        
-        temDados = true;
-        texto += `${nome}\n`;
-        if(e > 0) texto += `- Encarregado: ${e}\n`;
-        if(m > 0) texto += `- Motorista: ${m}\n`;
-        if(a > 0) texto += `- Auxiliar: ${a}\n`;
-        texto += "\n";
-    });
-
-    if(!temDados && !enc && !mot && !aux){ 
-        alert("Nada para enviar"); 
-        return; 
-    }
-    
-    // Remove último \n extra
-    texto = texto.trim();
-    window.open("https://wa.me/?text="+encodeURIComponent(texto),"_blank");
-}
-
-// Encerrar turno
-function encerrarTurno(){
-    if(confirm("Encerrar turno e apagar todos os dados?")){
-        localStorage.removeItem("controleFiscalizacao");
-        location.reload();
-    }
-}
-</script>
-
+  </script>
 </body>
 </html>
