@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Portal PM - Home</title>
+    <title>Portal PM</title>
 
-    <!-- Configurações PWA Tela Cheia -->
+    <!-- Configurações PWA e Tela Cheia -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Portal PM">
 
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Portal PM","short_name":"Portal PM","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png"}]}'>
+    <!-- Manifest corrigido para permitir instalação nativa em tela cheia -->
+    <link rel="manifest" href='data:application/manifest+json,{"id":"/portal-pm","name":"Portal PM","short_name":"Portal PM","start_url":"./index.html","display":"standalone","display_override":["standalone","fullscreen"],"background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <style>
         * {
@@ -310,7 +311,7 @@
     </div>
 </div>
 
-<!-- Modal Admin (Com upload para nuvem) -->
+<!-- Modal Admin -->
 <div class="modal-overlay" id="adminModal">
     <div class="modal-card">
         <div class="modal-title" id="adminFormTitle">Instalar Novo App</div>
@@ -395,9 +396,8 @@
     import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-    // Credenciais extraídas da sua imagem:
     const firebaseConfig = {
-        apiKey: "AIzaSyA1bivQVsA28xQwPEubNB4dyj1YBx2WONo",
+        apiKey: "AIzaSyA1bivqVsA28xQwPEubNB4dyj1YBx2WONo",
         authDomain: "portalpm-8bc1a.firebaseapp.com",
         projectId: "portalpm-8bc1a",
         storageBucket: "portalpm-8bc1a.firebasestorage.app",
@@ -406,7 +406,6 @@
         measurementId: "G-0CRSPHCMNX"
     };
 
-    // Inicialização
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
@@ -418,7 +417,6 @@
     let appEmEdicaoSub = null;
     let promptCallback = null;
 
-    // Relógio Digital
     function atualizarRelogio() {
         const now = new Date();
         document.getElementById('liveClock').innerText = now.toLocaleTimeString('pt-BR');
@@ -426,14 +424,19 @@
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
 
-    // Sincronização em Tempo Real (Qualquer alteração atualiza em TODOS os aparelhos)
+    // Registro do Service Worker para suporte PWA nativo
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGU9Pik7').catch(()=>{});
+        });
+    }
+
     onSnapshot(appsCol, (snapshot) => {
         globalApps = [];
         snapshot.forEach(docSnap => {
             globalApps.push({ docId: docSnap.id, ...docSnap.data() });
         });
         
-        // Ordena por data de criação
         globalApps.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
         renderizarGrid();
@@ -466,7 +469,6 @@
             grid.appendChild(div);
         });
 
-        // Botão + sempre no final da lista
         let btnPlus = document.createElement('div');
         btnPlus.className = 'app-item';
         btnPlus.onclick = window.abrirModalSenha;
