@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Portal PM">
 
     <!-- Manifest corrigido para permitir instalação nativa em tela cheia -->
-    <link rel="manifest" href='data:application/manifest+json,{"id":"/portal-pm","name":"Portal PM","short_name":"Portal PM","start_url":"./index.html","display":"standalone","display_override":["standalone","fullscreen"],"background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+    <link rel="manifest" href='data:application/manifest+json,{"id":"/portal-pm","name":"Portal PM","short_name":"Portal PM","start_url":"./index.html","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <style>
         * {
@@ -424,10 +424,12 @@
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
 
-    // Registro do Service Worker para suporte PWA nativo
+    // Registro NATIVO do arquivo Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGU9Pik7').catch(()=>{});
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("Service Worker Registrado!"))
+                .catch(err => console.log("Erro SW:", err));
         });
     }
 
