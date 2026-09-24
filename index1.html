@@ -2,14 +2,29 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Portal de Escalas e Acessos PM</title>
+
+    <!-- Configurações para Tela Cheia no Android (PWA) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Configurações para Tela Cheia no iPhone / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portal PM">
+
+    <!-- Web App Manifest (Garante o funcionamento sem barra de navegação) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Portal PM","short_name":"Portal PM","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png"}]}'>
+
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
         }
         body {
             background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -35,10 +50,18 @@
         }
         .header h1 {
             font-size: 1.2rem;
-            font-weight: 500;
-            color: #94a3b8;
+            font-weight: 600;
+            color: #cbd5e1;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
+        .header .clock {
+            font-size: 0.85rem;
+            color: #38bdf8;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
         /* Grade de Aplicativos */
         .grid-apps {
             display: grid;
@@ -58,17 +81,18 @@
             transform: scale(0.92);
         }
         .app-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 26px;
         }
         .app-icon img {
             width: 100%;
@@ -92,53 +116,62 @@
             text-overflow: ellipsis;
         }
         
-        /* Modais e Submenus */
+        /* Modais */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            padding: 20px;
+            padding: 15px;
         }
         .modal-card {
             background: #1e293b;
             border: 1px solid #334155;
             width: 100%;
-            max-width: 350px;
+            max-width: 360px;
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             animation: popUp 0.2s ease;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         @keyframes popUp {
-            from { transform: scale(0.8); opacity: 0; }
+            from { transform: scale(0.85); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
         .modal-title {
             font-size: 1.1rem;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-weight: 600;
             color: #38bdf8;
             text-align: center;
         }
+        .modal-card label {
+            display: block;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
         .modal-card input, .modal-card select {
             width: 100%;
-            padding: 10px 14px;
+            padding: 10px 12px;
             margin-bottom: 12px;
             background: #0f172a;
             border: 1px solid #475569;
             color: #fff;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 5px;
+            gap: 8px;
+            margin-top: 10px;
         }
         .btn {
             flex: 1;
@@ -147,19 +180,20 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
+            text-align: center;
         }
         .btn-primary { background: #0284c7; color: #fff; }
         .btn-danger { background: #ef4444; color: #fff; }
         .btn-secondary { background: #475569; color: #fff; }
 
-        /* Lista de itens no submenu ou gerenciador */
         .sub-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 250px;
+            max-height: 200px;
             overflow-y: auto;
+            margin-bottom: 12px;
         }
         .sub-item-btn {
             background: #0f172a;
@@ -169,7 +203,7 @@
             border-radius: 10px;
             text-align: left;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: background 0.1s;
         }
         .sub-item-btn:active { background: #334155; }
@@ -179,20 +213,39 @@
             justify-content: space-between;
             align-items: center;
             background: #0f172a;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             border: 1px solid #334155;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
-        .admin-item-row span { font-size: 0.85rem; }
+        .admin-item-row span { font-size: 0.8rem; }
         .delete-btn {
             background: #ef4444;
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.75rem;
+        }
+        .edit-btn {
+            background: #eab308;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-right: 4px;
+        }
+
+        .icon-option-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .icon-option-group div {
+            flex: 1;
         }
     </style>
 </head>
@@ -200,16 +253,27 @@
 
 <div class="phone-container">
     <div class="header">
-        <h1>SISTEMA OPERACIONAL PM</h1>
+        <h1>Sistema PM</h1>
+        <div class="clock" id="liveClock">00:00:00</div>
     </div>
 
-    <!-- Grade onde ficam os aplicativos -->
-    <div class="grid-apps" id="appGrid">
-        <!-- Preenchido via JavaScript -->
-    </div>
+    <!-- Grade de Aplicativos -->
+    <div class="grid-apps" id="appGrid"></div>
 
     <div style="text-align: center; font-size: 0.7rem; color: #64748b; padding-bottom: 10px;">
         Toque no + para gerenciar atalhos (Admin)
+    </div>
+</div>
+
+<!-- Modal para Digitar ID -->
+<div class="modal-overlay" id="promptModal">
+    <div class="modal-card">
+        <div class="modal-title" id="promptTitle">Digite a informação</div>
+        <input type="text" id="promptInput" placeholder="Digite aqui...">
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="fecharPromptModal(null)">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmarPromptModal()">Acessar</button>
+        </div>
     </div>
 </div>
 
@@ -218,9 +282,7 @@
     <div class="modal-card">
         <div class="modal-title" id="submenuModalTitle">Opções</div>
         <div class="sub-list" id="submenuList"></div>
-        <div style="margin-top: 15px;">
-            <button class="btn btn-secondary" onclick="fecharModais()">Fechar</button>
-        </div>
+        <button class="btn btn-secondary" style="width:100%" onclick="fecharModais()">Fechar</button>
     </div>
 </div>
 
@@ -228,7 +290,7 @@
 <div class="modal-overlay" id="passwordModal">
     <div class="modal-card">
         <div class="modal-title">Área Restrita</div>
-        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; text-align: center;">Digite a senha de administrador:</p>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; text-align: center;">Digite a senha do administrador:</p>
         <input type="password" id="adminPassword" placeholder="Senha" style="text-align: center; letter-spacing: 3px;">
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharModais()">Cancelar</button>
@@ -237,60 +299,114 @@
     </div>
 </div>
 
-<!-- Modal Painel do Administrador (Adicionar / Remover) -->
+<!-- Modal Painel do Administrador (Adicionar / Editar / Remover) -->
 <div class="modal-overlay" id="adminModal">
-    <div class="modal-card" style="max-width: 380px;">
-        <div class="modal-title">Gerenciar Atalhos</div>
+    <div class="modal-card">
+        <div class="modal-title" id="adminFormTitle">Novo Aplicativo</div>
         
-        <div style="font-size: 0.8rem; color: #38bdf8; margin-bottom: 6px; font-weight: bold;">Adicionar Novo App:</div>
-        <input type="text" id="newAppName" placeholder="Nome do App (ex: Escala ID)">
+        <input type="hidden" id="editAppIndex" value="-1">
+
+        <label>Nome do App:</label>
+        <input type="text" id="newAppName" placeholder="Ex: Escala ID">
+
+        <label>Tipo de Atalho:</label>
         <select id="newAppType" onchange="alternarCamposTipo()">
             <option value="link">Link Direto (URL única)</option>
             <option value="submenu">Com Submenu (Múltiplos Links)</option>
         </select>
+
         <div id="campoUrlUnica">
-            <input type="text" id="newAppUrl" placeholder="Link (ex: https://.../$gv(ID)$)">
+            <label>Link / URL:</label>
+            <input type="text" id="newAppUrl" placeholder="https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?">
         </div>
-        <input type="text" id="newAppIcon" placeholder="URL da Imagem/Ícone (opcional)">
-        
-        <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="salvarNovoApp()">Adicionar App</button>
 
-        <div style="font-size: 0.8rem; color: #ef4444; margin-bottom: 6px; font-weight: bold;">Apps Existentes (Remover):</div>
-        <div class="sub-list" id="adminAppList" style="max-height: 120px; margin-bottom: 15px;"></div>
+        <label>Tipo de Ícone:</label>
+        <select id="iconTypeSelect" onchange="alternarTipoIcone()">
+            <option value="url">URL da Imagem</option>
+            <option value="file">Enviar Imagem Local</option>
+            <option value="color">Cor + Emoji / Letra</option>
+        </select>
 
-        <button class="btn btn-secondary" style="width: 100%;" onclick="fecharModais()">Sair do Painel</button>
+        <div id="iconTypeUrl">
+            <label>Link da Imagem:</label>
+            <input type="text" id="newAppIcon" placeholder="https://exemplo.com/icone.png">
+        </div>
+
+        <div id="iconTypeFile" style="display:none;">
+            <label>Arquivo de Imagem:</label>
+            <input type="file" id="newAppIconFile" accept="image/*">
+        </div>
+
+        <div id="iconTypeColor" style="display:none;">
+            <div class="icon-option-group">
+                <div>
+                    <label>Cor de Fundo:</label>
+                    <input type="color" id="newAppBgColor" value="#0284c7" style="height: 40px; padding: 2px;">
+                </div>
+                <div>
+                    <label>Emoji/Letra:</label>
+                    <input type="text" id="newAppSymbol" placeholder="📋" maxlength="3">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-buttons" style="margin-bottom: 15px;">
+            <button class="btn btn-secondary" onclick="limparFormularioAdmin()">Cancelar</button>
+            <button class="btn btn-primary" onclick="salvarNovoApp()">Salvar App</button>
+        </div>
+
+        <div style="font-size: 0.8rem; color: #ef4444; margin-bottom: 6px; font-weight: bold;">Gerenciar Apps Existentes:</div>
+        <div class="sub-list" id="adminAppList" style="max-height: 120px;"></div>
+
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 5px;" onclick="fecharModais()">Sair</button>
     </div>
 </div>
 
-<!-- Modal de Gerenciamento de Submenus (Admin adiciona itens no submenu) -->
+<!-- Modal de Gerenciamento de Submenus -->
 <div class="modal-overlay" id="subItemsAdminModal">
     <div class="modal-card">
-        <div class="modal-title">Configurar Submenus</div>
-        <input type="text" id="subItemName" placeholder="Nome do Subitem (ex: Setor A)">
+        <div class="modal-title">Configurar Submenu</div>
+        
+        <input type="hidden" id="editSubIndex" value="-1">
+        <input type="text" id="subItemName" placeholder="Nome (ex: Setor A)">
         <input type="text" id="subItemUrl" placeholder="Link Correspondente">
-        <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="adicionarSubitemAtual()">Adicionar Subitem</button>
-        <div class="sub-list" id="subItemsListAdmin" style="max-height: 100px; margin-bottom: 10px;"></div>
-        <button class="btn btn-secondary" style="width: 100%;" onclick="fecharModais()">Concluir</button>
+        
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" id="btnSalvarSubitem" onclick="salvarSubitemAtual()">Adicionar Subitem</button>
+        
+        <div class="sub-list" id="subItemsListAdmin" style="max-height: 120px;"></div>
+        <button class="btn btn-secondary" style="width: 100%;" onclick="concluirSubitensAdmin()">Concluir</button>
     </div>
 </div>
 
 <script>
-    // Banco de dados inicial padrão (exemplo com a sua escala)
+    // Link padrão corrigido com '?' no final
+    const ESCALA_BASE_URL = 'https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?';
+
     let defaultApps = [
         {
             id: 'escala_padrao',
             name: 'Consultar Escala',
+            iconType: 'url',
             icon: 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png',
             type: 'link',
-            url: 'https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?$gv(ID)$'
+            url: ESCALA_BASE_URL
         }
     ];
 
-    let apps = JSON.parse(localStorage.getItem('pm_apps')) || defaultApps;
+    let apps = JSON.parse(localStorage.getItem('pm_apps_v2')) || defaultApps;
     let appEmEdicaoSub = null;
+    let promptCallback = null;
+
+    // Relógio Digital
+    function atualizarRelogio() {
+        const now = new Date();
+        document.getElementById('liveClock').innerText = now.toLocaleTimeString('pt-BR');
+    }
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
 
     function salvarAppsStorage() {
-        localStorage.setItem('pm_apps', JSON.stringify(apps));
+        localStorage.setItem('pm_apps_v2', JSON.stringify(apps));
     }
 
     function renderizarGrid() {
@@ -302,16 +418,22 @@
             div.className = 'app-item';
             div.onclick = () => clicarApp(index);
             
-            let iconContent = app.icon ? `<img src="${app.icon}" alt="${app.name}">` : `<span style="font-size:24px;">📁</span>`;
+            let iconHtml = '';
+            if (app.iconType === 'color') {
+                iconHtml = `<div class="app-icon" style="background:${app.bgColor || '#0284c7'}">${app.symbol || '📁'}</div>`;
+            } else {
+                let src = app.icon || 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png';
+                iconHtml = `<div class="app-icon"><img src="${src}" alt="${app.name}"></div>`;
+            }
             
             div.innerHTML = `
-                <div class="app-icon">${iconContent}</div>
+                ${iconHtml}
                 <div class="app-name">${app.name}</div>
             `;
             grid.appendChild(div);
         });
 
-        // Botão fixo de Adicionar (+)
+        // Botão + (Adicionar / Admin)
         let btnPlus = document.createElement('div');
         btnPlus.className = 'app-item';
         btnPlus.onclick = abrirModalSenha;
@@ -325,44 +447,59 @@
     function clicarApp(index) {
         let app = apps[index];
         if (app.type === 'link') {
-            // Se o link possui parâmetro de ID, pergunta ao usuário se deseja preencher
-            if (app.url.includes('$gv(ID)$') || app.url.includes('$gv()$')) {
-                let idDigitado = prompt("Digite o número do ID da escala:");
-                if (idDigitado) {
-                    let finalUrl = app.url.replace('$gv(ID)$', '$gv(' + idDigitado + ')$').replace('$gv()$', '$gv(' + idDigitado + ')$');
-                    window.location.href = finalUrl;
-                }
-            } else {
-                window.location.href = app.url;
-            }
+            abrirUrlComInput(app.url);
         } else if (app.type === 'submenu') {
             abrirSubmenu(app);
         }
     }
 
+    function abrirUrlComInput(url) {
+        // Se for o link padrão de escala (termina com '?') ou possui parâmetro
+        if (url.endsWith('?') || url.includes('$ID$')) {
+            abrirPromptModal("Digite o ID da Escala:", (idDigitado) => {
+                if (idDigitado) {
+                    let finalUrl = url.endsWith('?') ? url + idDigitado : url.replace('$ID$', idDigitado);
+                    window.location.href = finalUrl;
+                }
+            });
+        } else {
+            window.location.href = url;
+        }
+    }
+
+    /* Modal de entrada de dados personalizado */
+    function abrirPromptModal(titulo, callback) {
+        document.getElementById('promptTitle').innerText = titulo;
+        document.getElementById('promptInput').value = '';
+        promptCallback = callback;
+        document.getElementById('promptModal').style.display = 'flex';
+        document.getElementById('promptInput').focus();
+    }
+
+    function fecharPromptModal(valor) {
+        document.getElementById('promptModal').style.display = 'none';
+        if (promptCallback) promptCallback(valor);
+        promptCallback = null;
+    }
+
+    function confirmarPromptModal() {
+        let val = document.getElementById('promptInput').value.trim();
+        fecharPromptModal(val);
+    }
+
     function abrirSubmenu(app) {
-        document.getElementById('submenuModalTitleinnerText') = app.name;
         document.getElementById('submenuModalTitle').innerText = app.name;
         let list = document.getElementById('submenuList');
         list.innerHTML = '';
 
         if (!app.subitems || app.subitems.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.9rem;">Nenhum item cadastrado neste menu.</div>';
+            list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:10px;">Nenhum item cadastrado.</div>';
         } else {
             app.subitems.forEach(sub => {
                 let btn = document.createElement('button');
                 btn.className = 'sub-item-btn';
                 btn.innerText = sub.name;
-                btn.onclick = () => {
-                    if (sub.url.includes('$gv(ID)$')) {
-                        let id = prompt("Digite o ID:");
-                        if (id) {
-                            window.location.href = sub.url.replace('$gv(ID)$', '$gv(' + id + ')$');
-                        }
-                    } else {
-                        window.location.href = sub.url;
-                    }
-                };
+                btn.onclick = () => abrirUrlComInput(sub.url);
                 list.appendChild(btn);
             });
         }
@@ -372,6 +509,7 @@
     function abrirModalSenha() {
         document.getElementById('adminPassword').value = '';
         document.getElementById('passwordModal').style.display = 'flex';
+        document.getElementById('adminPassword').focus();
     }
 
     function verificarSenha() {
@@ -385,50 +523,126 @@
     }
 
     function abrirPainelAdmin() {
-        document.getElementById('newAppName').value = '';
-        document.getElementById('newAppUrl').value = '';
-        document.getElementById('newAppIcon').value = '';
+        limparFormularioAdmin();
         atualizarListaAdmin();
         document.getElementById('adminModal').style.display = 'flex';
     }
 
     function alternarCamposTipo() {
         let tipo = document.getElementById('newAppType').value;
-        let campoUrl = document.getElementById('campoUrlUnica');
-        campoUrl.style.display = (tipo === 'link') ? 'block' : 'none';
+        document.getElementById('campoUrlUnica').style.display = (tipo === 'link') ? 'block' : 'none';
     }
 
-    function salvarNovoApp() {
-        let name = document.getElementById('newAppName').value;
+    function alternarTipoIcone() {
+        let tipo = document.getElementById('iconTypeSelect').value;
+        document.getElementById('iconTypeUrl').style.display = (tipo === 'url') ? 'block' : 'none';
+        document.getElementById('iconTypeFile').style.display = (tipo === 'file') ? 'block' : 'none';
+        document.getElementById('iconTypeColor').style.display = (tipo === 'color') ? 'block' : 'none';
+    }
+
+    function limparFormularioAdmin() {
+        document.getElementById('adminFormTitle').innerText = 'Novo Aplicativo';
+        document.getElementById('editAppIndex').value = '-1';
+        document.getElementById('newAppName').value = '';
+        document.getElementById('newAppType').value = 'link';
+        document.getElementById('newAppUrl').value = ESCALA_BASE_URL;
+        document.getElementById('iconTypeSelect').value = 'url';
+        document.getElementById('newAppIcon').value = '';
+        document.getElementById('newAppIconFile').value = '';
+        document.getElementById('newAppBgColor').value = '#0284c7';
+        document.getElementById('newAppSymbol').value = '';
+        alternarCamposTipo();
+        alternarTipoIcone();
+    }
+
+    async function salvarNovoApp() {
+        let index = parseInt(document.getElementById('editAppIndex').value);
+        let name = document.getElementById('newAppName').value.trim();
         let type = document.getElementById('newAppType').value;
-        let url = document.getElementById('newAppUrl').value;
-        let icon = document.getElementById('newAppIcon').value;
+        let url = document.getElementById('newAppUrl').value.trim();
+        let iconType = document.getElementById('iconTypeSelect').value;
 
         if (!name) {
             alert('Preencha o nome do aplicativo!');
             return;
         }
 
-        let novoApp = {
-            id: 'app_' + Date.now(),
+        let iconData = '';
+        let bgColor = '';
+        let symbol = '';
+
+        if (iconType === 'url') {
+            iconData = document.getElementById('newAppIcon').value.trim();
+        } else if (iconType === 'file') {
+            let fileInput = document.getElementById('newAppIconFile');
+            if (fileInput.files && fileInput.files[0]) {
+                iconData = await converterArquivoBase64(fileInput.files[0]);
+            } else if (index >= 0) {
+                iconData = apps[index].icon;
+            }
+        } else if (iconType === 'color') {
+            bgColor = document.getElementById('newAppBgColor').value;
+            symbol = document.getElementById('newAppSymbol').value.trim() || name.charAt(0).toUpperCase();
+        }
+
+        let appObj = {
+            id: index >= 0 ? apps[index].id : 'app_' + Date.now(),
             name: name,
-            icon: icon,
             type: type,
+            iconType: iconType,
+            icon: iconData,
+            bgColor: bgColor,
+            symbol: symbol,
             url: type === 'link' ? url : '',
-            subitems: type === 'submenu' ? [] : undefined
+            subitems: type === 'submenu' ? (index >= 0 && apps[index].subitems ? apps[index].subitems : []) : undefined
         };
 
-        apps.push(novoApp);
+        if (index >= 0) {
+            apps[index] = appObj;
+        } else {
+            apps.push(appObj);
+        }
+
         salvarAppsStorage();
         renderizarGrid();
 
         if (type === 'submenu') {
             fecharModais();
-            abrirConfigSubitems(novoApp.id);
+            abrirConfigSubitems(appObj.id);
         } else {
-            fecharModais();
-            alert('App criado com sucesso!');
+            limparFormularioAdmin();
+            atualizarListaAdmin();
+            alert('Salvo com sucesso!');
         }
+    }
+
+    function converterArquivoBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    function editarApp(index) {
+        let app = apps[index];
+        document.getElementById('adminFormTitle').innerText = 'Editar Aplicativo';
+        document.getElementById('editAppIndex').value = index;
+        document.getElementById('newAppName').value = app.name;
+        document.getElementById('newAppType').value = app.type;
+        document.getElementById('newAppUrl').value = app.url || '';
+        document.getElementById('iconTypeSelect').value = app.iconType || 'url';
+        
+        if (app.iconType === 'url') {
+            document.getElementById('newAppIcon').value = app.icon || '';
+        } else if (app.iconType === 'color') {
+            document.getElementById('newAppBgColor').value = app.bgColor || '#0284c7';
+            document.getElementById('newAppSymbol').value = app.symbol || '';
+        }
+
+        alternarCamposTipo();
+        alternarTipoIcone();
     }
 
     function atualizarListaAdmin() {
@@ -438,9 +652,10 @@
             let row = document.createElement('div');
             row.className = 'admin-item-row';
             row.innerHTML = `
-                <span>${app.name} (${app.type})</span>
+                <span>${app.name}</span>
                 <div>
-                    ${app.type === 'submenu' ? `<button class="btn btn-primary" style="padding:4px 8px; font-size:0.7rem; margin-right:4px;" onclick="abrirConfigSubitems('${app.id}')">Subitens</button>` : ''}
+                    ${app.type === 'submenu' ? `<button class="btn btn-primary" style="padding:3px 6px; font-size:0.7rem; margin-right:4px;" onclick="abrirConfigSubitems('${app.id}')">Subitens</button>` : ''}
+                    <button class="edit-btn" onclick="editarApp(${index})">Editar</button>
                     <button class="delete-btn" onclick="removerApp(${index})">Excluir</button>
                 </div>
             `;
@@ -459,10 +674,16 @@
 
     function abrirConfigSubitems(appId) {
         appEmEdicaoSub = apps.find(a => a.id === appId);
+        limparSubitemForm();
         renderizarSubitemsAdmin();
-        document.getElementById('subItemName').value = '';
-        document.getElementById('subItemUrl').value = '';
         document.getElementById('subItemsAdminModal').style.display = 'flex';
+    }
+
+    function limparSubitemForm() {
+        document.getElementById('editSubIndex').value = '-1';
+        document.getElementById('subItemName').value = '';
+        document.getElementById('subItemUrl').value = ESCALA_BASE_URL;
+        document.getElementById('btnSalvarSubitem').innerText = 'Adicionar Subitem';
     }
 
     function renderizarSubitemsAdmin() {
@@ -475,25 +696,44 @@
             row.className = 'admin-item-row';
             row.innerHTML = `
                 <span>${sub.name}</span>
-                <button class="delete-btn" onclick="removerSubitem(${idx})">Excluir</button>
+                <div>
+                    <button class="edit-btn" onclick="editarSubitem(${idx})">Editar</button>
+                    <button class="delete-btn" onclick="removerSubitem(${idx})">Excluir</button>
+                </div>
             `;
             list.appendChild(row);
         });
     }
 
-    function adicionarSubitemAtual() {
-        let name = document.getElementById('subItemName').value;
-        let url = document.getElementById('subItemUrl').value;
+    function editarSubitem(idx) {
+        let sub = appEmEdicaoSub.subitems[idx];
+        document.getElementById('editSubIndex').value = idx;
+        document.getElementById('subItemName').value = sub.name;
+        document.getElementById('subItemUrl').value = sub.url;
+        document.getElementById('btnSalvarSubitem').innerText = 'Atualizar Subitem';
+    }
+
+    function salvarSubitemAtual() {
+        let idx = parseInt(document.getElementById('editSubIndex').value);
+        let name = document.getElementById('subItemName').value.trim();
+        let url = document.getElementById('subItemUrl').value.trim();
+        
         if (!name || !url) {
             alert('Preencha o nome e o link do subitem.');
             return;
         }
+
         if (!appEmEdicaoSub.subitems) appEmEdicaoSub.subitems = [];
-        appEmEdicaoSub.subitems.push({ name, url });
+
+        if (idx >= 0) {
+            appEmEdicaoSub.subitems[idx] = { name, url };
+        } else {
+            appEmEdicaoSub.subitems.push({ name, url });
+        }
+
         salvarAppsStorage();
+        limparSubitemForm();
         renderizarSubitemsAdmin();
-        document.getElementById('subItemName').value = '';
-        document.getElementById('subItemUrl').value = '';
     }
 
     function removerSubitem(idx) {
@@ -502,12 +742,17 @@
         renderizarSubitemsAdmin();
     }
 
+    function concluirSubitensAdmin() {
+        fecharModais();
+        abrirPainelAdmin();
+    }
+
     function fecharModais() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
         renderizarGrid();
     }
 
-    // Inicialização ao carregar a página
+    // Inicialização
     renderizarGrid();
 </script>
 
