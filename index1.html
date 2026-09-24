@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Portal de Escalas e Acessos PM</title>
+    <title>Portal PM - Home</title>
 
-    <!-- Configurações para Tela Cheia no Android (PWA) -->
+    <!-- Configurações PWA Tela Cheia -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
-
-    <!-- Configurações para Tela Cheia no iPhone / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Portal PM">
 
-    <!-- Web App Manifest (Garante o funcionamento sem barra de navegação) -->
     <link rel="manifest" href='data:application/manifest+json,{"name":"Portal PM","short_name":"Portal PM","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2838/2838912.png","sizes":"512x512","type":"image/png"}]}'>
 
     <style>
@@ -26,6 +23,7 @@
             user-select: none;
             -webkit-user-select: none;
         }
+        
         body {
             background: linear-gradient(135deg, #0f172a, #1e293b);
             color: #fff;
@@ -33,26 +31,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
             padding: 20px 10px;
+            overflow-x: hidden;
         }
+
         .phone-container {
             width: 100%;
             max-width: 420px;
-            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            flex: 1;
         }
+
         .header {
             text-align: center;
             padding: 10px 0 20px 0;
         }
         .header h1 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #cbd5e1;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
         }
         .header .clock {
@@ -62,61 +61,73 @@
             font-weight: 500;
         }
 
-        /* Grade de Aplicativos */
         .grid-apps {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px 10px;
-            padding: 10px;
+            gap: 20px 12px;
+            padding: 10px 5px;
             align-content: start;
+            flex: 1;
         }
+
         .app-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+            animation: installApp 0.3s ease-out;
         }
+
+        @keyframes installApp {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         .app-item:active {
-            transform: scale(0.92);
+            transform: scale(0.88);
         }
+
         .app-icon {
             width: 62px;
             height: 62px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.15);
             font-size: 26px;
         }
+
         .app-icon img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .app-icon span.plus-symbol {
             font-size: 32px;
             color: #38bdf8;
             font-weight: bold;
         }
+
         .app-name {
             margin-top: 6px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-align: center;
             color: #f1f5f9;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-weight: 400;
         }
-        
-        /* Modais */
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -128,6 +139,7 @@
             z-index: 1000;
             padding: 15px;
         }
+
         .modal-card {
             background: #1e293b;
             border: 1px solid #334155;
@@ -140,10 +152,12 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
         @keyframes popUp {
             from { transform: scale(0.85); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+
         .modal-title {
             font-size: 1.1rem;
             margin-bottom: 12px;
@@ -151,6 +165,7 @@
             color: #38bdf8;
             text-align: center;
         }
+
         .modal-card label {
             display: block;
             font-size: 0.75rem;
@@ -158,6 +173,7 @@
             margin-bottom: 4px;
             font-weight: 600;
         }
+
         .modal-card input, .modal-card select {
             width: 100%;
             padding: 10px 12px;
@@ -168,11 +184,13 @@
             border-radius: 8px;
             font-size: 0.9rem;
         }
+
         .modal-buttons {
             display: flex;
             gap: 8px;
             margin-top: 10px;
         }
+
         .btn {
             flex: 1;
             padding: 10px;
@@ -183,6 +201,7 @@
             font-size: 0.85rem;
             text-align: center;
         }
+
         .btn-primary { background: #0284c7; color: #fff; }
         .btn-danger { background: #ef4444; color: #fff; }
         .btn-secondary { background: #475569; color: #fff; }
@@ -195,6 +214,7 @@
             overflow-y: auto;
             margin-bottom: 12px;
         }
+
         .sub-item-btn {
             background: #0f172a;
             border: 1px solid #475569;
@@ -204,7 +224,6 @@
             text-align: left;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: background 0.1s;
         }
         .sub-item-btn:active { background: #334155; }
 
@@ -219,33 +238,23 @@
             margin-bottom: 6px;
         }
         .admin-item-row span { font-size: 0.8rem; }
+
         .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 5px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .edit-btn {
-            background: #eab308;
-            color: white;
-            border: none;
-            padding: 5px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-right: 4px;
+            background: #ef4444; color: white; border: none;
+            padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;
         }
 
-        .icon-option-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
+        .edit-btn {
+            background: #eab308; color: white; border: none;
+            padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-right: 4px;
         }
-        .icon-option-group div {
-            flex: 1;
+
+        .loading-text {
+            grid-column: span 4;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            padding: 20px 0;
         }
     </style>
 </head>
@@ -253,19 +262,21 @@
 
 <div class="phone-container">
     <div class="header">
-        <h1>Sistema PM</h1>
+        <h1>SISTEMA OPERACIONAL PM</h1>
         <div class="clock" id="liveClock">00:00:00</div>
     </div>
 
-    <!-- Grade de Aplicativos -->
-    <div class="grid-apps" id="appGrid"></div>
+    <!-- Grade sincronizada em tempo real via Firebase -->
+    <div class="grid-apps" id="appGrid">
+        <div class="loading-text">Carregando aplicativos...</div>
+    </div>
 
-    <div style="text-align: center; font-size: 0.7rem; color: #64748b; padding-bottom: 10px;">
+    <div style="text-align: center; font-size: 0.7rem; color: #64748b; padding: 15px 0;">
         Toque no + para gerenciar atalhos (Admin)
     </div>
 </div>
 
-<!-- Modal para Digitar ID -->
+<!-- Modal ID -->
 <div class="modal-overlay" id="promptModal">
     <div class="modal-card">
         <div class="modal-title" id="promptTitle">Digite a informação</div>
@@ -277,7 +288,7 @@
     </div>
 </div>
 
-<!-- Modal para Submenus -->
+<!-- Modal Submenus -->
 <div class="modal-overlay" id="submenuModal">
     <div class="modal-card">
         <div class="modal-title" id="submenuModalTitle">Opções</div>
@@ -286,7 +297,7 @@
     </div>
 </div>
 
-<!-- Modal de Senha Admin -->
+<!-- Modal Senha Admin -->
 <div class="modal-overlay" id="passwordModal">
     <div class="modal-card">
         <div class="modal-title">Área Restrita</div>
@@ -299,12 +310,12 @@
     </div>
 </div>
 
-<!-- Modal Painel do Administrador (Adicionar / Editar / Remover) -->
+<!-- Modal Admin (Com upload para nuvem) -->
 <div class="modal-overlay" id="adminModal">
     <div class="modal-card">
-        <div class="modal-title" id="adminFormTitle">Novo Aplicativo</div>
+        <div class="modal-title" id="adminFormTitle">Instalar Novo App</div>
         
-        <input type="hidden" id="editAppIndex" value="-1">
+        <input type="hidden" id="editAppDocId" value="">
 
         <label>Nome do App:</label>
         <input type="text" id="newAppName" placeholder="Ex: Escala ID">
@@ -322,28 +333,28 @@
 
         <label>Tipo de Ícone:</label>
         <select id="iconTypeSelect" onchange="alternarTipoIcone()">
-            <option value="url">URL da Imagem</option>
-            <option value="file">Enviar Imagem Local</option>
+            <option value="file">Selecionar da Galeria / Arquivos</option>
+            <option value="url">Link da Web (URL)</option>
             <option value="color">Cor + Emoji / Letra</option>
         </select>
 
-        <div id="iconTypeUrl">
+        <div id="iconTypeFile">
+            <label>Escolher Imagem dos Seus Arquivos:</label>
+            <input type="file" id="newAppIconFile" accept="image/*">
+        </div>
+
+        <div id="iconTypeUrl" style="display:none;">
             <label>Link da Imagem:</label>
             <input type="text" id="newAppIcon" placeholder="https://exemplo.com/icone.png">
         </div>
 
-        <div id="iconTypeFile" style="display:none;">
-            <label>Arquivo de Imagem:</label>
-            <input type="file" id="newAppIconFile" accept="image/*">
-        </div>
-
         <div id="iconTypeColor" style="display:none;">
-            <div class="icon-option-group">
-                <div>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <div style="flex:1;">
                     <label>Cor de Fundo:</label>
                     <input type="color" id="newAppBgColor" value="#0284c7" style="height: 40px; padding: 2px;">
                 </div>
-                <div>
+                <div style="flex:1;">
                     <label>Emoji/Letra:</label>
                     <input type="text" id="newAppSymbol" placeholder="📋" maxlength="3">
                 </div>
@@ -352,17 +363,17 @@
 
         <div class="modal-buttons" style="margin-bottom: 15px;">
             <button class="btn btn-secondary" onclick="limparFormularioAdmin()">Cancelar</button>
-            <button class="btn btn-primary" onclick="salvarNovoApp()">Salvar App</button>
+            <button class="btn btn-primary" id="btnSalvarApp" onclick="salvarNovoApp()">Instalar App</button>
         </div>
 
-        <div style="font-size: 0.8rem; color: #ef4444; margin-bottom: 6px; font-weight: bold;">Gerenciar Apps Existentes:</div>
+        <div style="font-size: 0.8rem; color: #ef4444; margin-bottom: 6px; font-weight: bold;">Apps no Banco de Dados:</div>
         <div class="sub-list" id="adminAppList" style="max-height: 120px;"></div>
 
         <button class="btn btn-secondary" style="width: 100%; margin-top: 5px;" onclick="fecharModais()">Sair</button>
     </div>
 </div>
 
-<!-- Modal de Gerenciamento de Submenus -->
+<!-- Modal Subitens Admin -->
 <div class="modal-overlay" id="subItemsAdminModal">
     <div class="modal-card">
         <div class="modal-title">Configurar Submenu</div>
@@ -378,22 +389,31 @@
     </div>
 </div>
 
-<script>
-    // Link padrão corrigido com '?' no final
+<!-- Módulos Firebase 10.x -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+    // 🔴 COLE SUAS CREDENCIAIS DO FIREBASE AQUI:
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "SEU_SENDER_ID",
+        appId: "SEU_APP_ID"
+    };
+
+    // Inicialização
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const appsCol = collection(db, "apps");
+
     const ESCALA_BASE_URL = 'https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?';
-
-    let defaultApps = [
-        {
-            id: 'escala_padrao',
-            name: 'Consultar Escala',
-            iconType: 'url',
-            icon: 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png',
-            type: 'link',
-            url: ESCALA_BASE_URL
-        }
-    ];
-
-    let apps = JSON.parse(localStorage.getItem('pm_apps_v2')) || defaultApps;
+    
+    let globalApps = [];
     let appEmEdicaoSub = null;
     let promptCallback = null;
 
@@ -405,38 +425,50 @@
     setInterval(atualizarRelogio, 1000);
     atualizarRelogio();
 
-    function salvarAppsStorage() {
-        localStorage.setItem('pm_apps_v2', JSON.stringify(apps));
-    }
+    // Sincronização em Tempo Real (Qualquer alteração atualiza em TODOS os aparelhos)
+    onSnapshot(appsCol, (snapshot) => {
+        globalApps = [];
+        snapshot.forEach(docSnap => {
+            globalApps.push({ docId: docSnap.id, ...docSnap.data() });
+        });
+        
+        // Ordena por data de criação
+        globalApps.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+        renderizarGrid();
+        if (document.getElementById('adminModal').style.display === 'flex') {
+            atualizarListaAdmin();
+        }
+    });
 
     function renderizarGrid() {
         const grid = document.getElementById('appGrid');
         grid.innerHTML = '';
 
-        apps.forEach((app, index) => {
+        globalApps.forEach((appItem) => {
             let div = document.createElement('div');
             div.className = 'app-item';
-            div.onclick = () => clicarApp(index);
+            div.onclick = () => clicarApp(appItem);
             
             let iconHtml = '';
-            if (app.iconType === 'color') {
-                iconHtml = `<div class="app-icon" style="background:${app.bgColor || '#0284c7'}">${app.symbol || '📁'}</div>`;
+            if (appItem.iconType === 'color') {
+                iconHtml = `<div class="app-icon" style="background:${appItem.bgColor || '#0284c7'}">${appItem.symbol || '📁'}</div>`;
             } else {
-                let src = app.icon || 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png';
-                iconHtml = `<div class="app-icon"><img src="${src}" alt="${app.name}"></div>`;
+                let src = appItem.icon || 'https://cdn-icons-png.flaticon.com/512/2838/2838912.png';
+                iconHtml = `<div class="app-icon"><img src="${src}" alt="${appItem.name}"></div>`;
             }
             
             div.innerHTML = `
                 ${iconHtml}
-                <div class="app-name">${app.name}</div>
+                <div class="app-name">${appItem.name}</div>
             `;
             grid.appendChild(div);
         });
 
-        // Botão + (Adicionar / Admin)
+        // Botão + sempre no final da lista
         let btnPlus = document.createElement('div');
         btnPlus.className = 'app-item';
-        btnPlus.onclick = abrirModalSenha;
+        btnPlus.onclick = window.abrirModalSenha;
         btnPlus.innerHTML = `
             <div class="app-icon"><span class="plus-symbol">+</span></div>
             <div class="app-name">Adicionar</div>
@@ -444,17 +476,15 @@
         grid.appendChild(btnPlus);
     }
 
-    function clicarApp(index) {
-        let app = apps[index];
-        if (app.type === 'link') {
-            abrirUrlComInput(app.url);
-        } else if (app.type === 'submenu') {
-            abrirSubmenu(app);
+    function clicarApp(appItem) {
+        if (appItem.type === 'link') {
+            abrirUrlComInput(appItem.url);
+        } else if (appItem.type === 'submenu') {
+            abrirSubmenu(appItem);
         }
     }
 
     function abrirUrlComInput(url) {
-        // Se for o link padrão de escala (termina com '?') ou possui parâmetro
         if (url.endsWith('?') || url.includes('$ID$')) {
             abrirPromptModal("Digite o ID da Escala:", (idDigitado) => {
                 if (idDigitado) {
@@ -467,7 +497,6 @@
         }
     }
 
-    /* Modal de entrada de dados personalizado */
     function abrirPromptModal(titulo, callback) {
         document.getElementById('promptTitle').innerText = titulo;
         document.getElementById('promptInput').value = '';
@@ -476,26 +505,26 @@
         document.getElementById('promptInput').focus();
     }
 
-    function fecharPromptModal(valor) {
+    window.fecharPromptModal = function(valor) {
         document.getElementById('promptModal').style.display = 'none';
         if (promptCallback) promptCallback(valor);
         promptCallback = null;
     }
 
-    function confirmarPromptModal() {
+    window.confirmarPromptModal = function() {
         let val = document.getElementById('promptInput').value.trim();
-        fecharPromptModal(val);
+        window.fecharPromptModal(val);
     }
 
-    function abrirSubmenu(app) {
-        document.getElementById('submenuModalTitle').innerText = app.name;
+    function abrirSubmenu(appItem) {
+        document.getElementById('submenuModalTitle').innerText = appItem.name;
         let list = document.getElementById('submenuList');
         list.innerHTML = '';
 
-        if (!app.subitems || app.subitems.length === 0) {
+        if (!appItem.subitems || appItem.subitems.length === 0) {
             list.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:10px;">Nenhum item cadastrado.</div>';
         } else {
-            app.subitems.forEach(sub => {
+            appItem.subitems.forEach(sub => {
                 let btn = document.createElement('button');
                 btn.className = 'sub-item-btn';
                 btn.innerText = sub.name;
@@ -506,16 +535,16 @@
         document.getElementById('submenuModal').style.display = 'flex';
     }
 
-    function abrirModalSenha() {
+    window.abrirModalSenha = function() {
         document.getElementById('adminPassword').value = '';
         document.getElementById('passwordModal').style.display = 'flex';
         document.getElementById('adminPassword').focus();
     }
 
-    function verificarSenha() {
+    window.verificarSenha = function() {
         let senha = document.getElementById('adminPassword').value;
         if (senha === '3303') {
-            fecharModais();
+            window.fecharModais();
             abrirPainelAdmin();
         } else {
             alert('Senha incorreta!');
@@ -523,157 +552,163 @@
     }
 
     function abrirPainelAdmin() {
-        limparFormularioAdmin();
+        window.limparFormularioAdmin();
         atualizarListaAdmin();
         document.getElementById('adminModal').style.display = 'flex';
     }
 
-    function alternarCamposTipo() {
+    window.alternarCamposTipo = function() {
         let tipo = document.getElementById('newAppType').value;
         document.getElementById('campoUrlUnica').style.display = (tipo === 'link') ? 'block' : 'none';
     }
 
-    function alternarTipoIcone() {
+    window.alternarTipoIcone = function() {
         let tipo = document.getElementById('iconTypeSelect').value;
-        document.getElementById('iconTypeUrl').style.display = (tipo === 'url') ? 'block' : 'none';
         document.getElementById('iconTypeFile').style.display = (tipo === 'file') ? 'block' : 'none';
+        document.getElementById('iconTypeUrl').style.display = (tipo === 'url') ? 'block' : 'none';
         document.getElementById('iconTypeColor').style.display = (tipo === 'color') ? 'block' : 'none';
     }
 
-    function limparFormularioAdmin() {
-        document.getElementById('adminFormTitle').innerText = 'Novo Aplicativo';
-        document.getElementById('editAppIndex').value = '-1';
+    window.limparFormularioAdmin = function() {
+        document.getElementById('adminFormTitle').innerText = 'Instalar Novo App';
+        document.getElementById('editAppDocId').value = '';
         document.getElementById('newAppName').value = '';
         document.getElementById('newAppType').value = 'link';
         document.getElementById('newAppUrl').value = ESCALA_BASE_URL;
-        document.getElementById('iconTypeSelect').value = 'url';
+        document.getElementById('iconTypeSelect').value = 'file';
         document.getElementById('newAppIcon').value = '';
         document.getElementById('newAppIconFile').value = '';
         document.getElementById('newAppBgColor').value = '#0284c7';
         document.getElementById('newAppSymbol').value = '';
-        alternarCamposTipo();
-        alternarTipoIcone();
+        document.getElementById('btnSalvarApp').innerText = 'Instalar App';
+        window.alternarCamposTipo();
+        window.alternarTipoIcone();
     }
 
-    async function salvarNovoApp() {
-        let index = parseInt(document.getElementById('editAppIndex').value);
+    window.salvarNovoApp = async function() {
+        let docId = document.getElementById('editAppDocId').value;
         let name = document.getElementById('newAppName').value.trim();
         let type = document.getElementById('newAppType').value;
         let url = document.getElementById('newAppUrl').value.trim();
         let iconType = document.getElementById('iconTypeSelect').value;
+        let btnSalvar = document.getElementById('btnSalvarApp');
 
         if (!name) {
             alert('Preencha o nome do aplicativo!');
             return;
         }
 
-        let iconData = '';
-        let bgColor = '';
-        let symbol = '';
+        btnSalvar.disabled = true;
+        btnSalvar.innerText = "Salvando...";
 
-        if (iconType === 'url') {
-            iconData = document.getElementById('newAppIcon').value.trim();
-        } else if (iconType === 'file') {
-            let fileInput = document.getElementById('newAppIconFile');
-            if (fileInput.files && fileInput.files[0]) {
-                iconData = await converterArquivoBase64(fileInput.files[0]);
-            } else if (index >= 0) {
-                iconData = apps[index].icon;
+        try {
+            let iconData = '';
+            let bgColor = '';
+            let symbol = '';
+
+            if (iconType === 'file') {
+                let fileInput = document.getElementById('newAppIconFile');
+                if (fileInput.files && fileInput.files[0]) {
+                    let file = fileInput.files[0];
+                    let fileRef = ref(storage, 'icones/' + Date.now() + '_' + file.name);
+                    let snapshot = await uploadBytes(fileRef, file);
+                    iconData = await getDownloadURL(snapshot.ref);
+                } else if (docId) {
+                    let appAtual = globalApps.find(a => a.docId === docId);
+                    iconData = appAtual ? appAtual.icon : '';
+                }
+            } else if (iconType === 'url') {
+                iconData = document.getElementById('newAppIcon').value.trim();
+            } else if (iconType === 'color') {
+                bgColor = document.getElementById('newAppBgColor').value;
+                symbol = document.getElementById('newAppSymbol').value.trim() || name.charAt(0).toUpperCase();
             }
-        } else if (iconType === 'color') {
-            bgColor = document.getElementById('newAppBgColor').value;
-            symbol = document.getElementById('newAppSymbol').value.trim() || name.charAt(0).toUpperCase();
-        }
 
-        let appObj = {
-            id: index >= 0 ? apps[index].id : 'app_' + Date.now(),
-            name: name,
-            type: type,
-            iconType: iconType,
-            icon: iconData,
-            bgColor: bgColor,
-            symbol: symbol,
-            url: type === 'link' ? url : '',
-            subitems: type === 'submenu' ? (index >= 0 && apps[index].subitems ? apps[index].subitems : []) : undefined
-        };
+            let appObj = {
+                name: name,
+                type: type,
+                iconType: iconType,
+                icon: iconData,
+                bgColor: bgColor,
+                symbol: symbol,
+                url: type === 'link' ? url : ''
+            };
 
-        if (index >= 0) {
-            apps[index] = appObj;
-        } else {
-            apps.push(appObj);
-        }
+            if (docId) {
+                await updateDoc(doc(db, "apps", docId), appObj);
+            } else {
+                appObj.createdAt = Date.now();
+                appObj.subitems = [];
+                let res = await addDoc(appsCol, appObj);
+                docId = res.id;
+            }
 
-        salvarAppsStorage();
-        renderizarGrid();
-
-        if (type === 'submenu') {
-            fecharModais();
-            abrirConfigSubitems(appObj.id);
-        } else {
-            limparFormularioAdmin();
-            atualizarListaAdmin();
-            alert('Salvo com sucesso!');
+            if (type === 'submenu') {
+                window.fecharModais();
+                abrirConfigSubitems(docId);
+            } else {
+                window.limparFormularioAdmin();
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao salvar no banco de dados. Verifique a conexão.');
+        } finally {
+            btnSalvar.disabled = false;
+            btnSalvar.innerText = docId ? "Atualizar App" : "Instalar App";
         }
     }
 
-    function converterArquivoBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-    }
+    function editarApp(docId) {
+        let appItem = globalApps.find(a => a.docId === docId);
+        if (!appItem) return;
 
-    function editarApp(index) {
-        let app = apps[index];
         document.getElementById('adminFormTitle').innerText = 'Editar Aplicativo';
-        document.getElementById('editAppIndex').value = index;
-        document.getElementById('newAppName').value = app.name;
-        document.getElementById('newAppType').value = app.type;
-        document.getElementById('newAppUrl').value = app.url || '';
-        document.getElementById('iconTypeSelect').value = app.iconType || 'url';
+        document.getElementById('editAppDocId').value = docId;
+        document.getElementById('newAppName').value = appItem.name;
+        document.getElementById('newAppType').value = appItem.type;
+        document.getElementById('newAppUrl').value = appItem.url || '';
+        document.getElementById('iconTypeSelect').value = appItem.iconType || 'url';
         
-        if (app.iconType === 'url') {
-            document.getElementById('newAppIcon').value = app.icon || '';
-        } else if (app.iconType === 'color') {
-            document.getElementById('newAppBgColor').value = app.bgColor || '#0284c7';
-            document.getElementById('newAppSymbol').value = app.symbol || '';
+        if (appItem.iconType === 'url') {
+            document.getElementById('newAppIcon').value = appItem.icon || '';
+        } else if (appItem.iconType === 'color') {
+            document.getElementById('newAppBgColor').value = appItem.bgColor || '#0284c7';
+            document.getElementById('newAppSymbol').value = appItem.symbol || '';
         }
 
-        alternarCamposTipo();
-        alternarTipoIcone();
+        document.getElementById('btnSalvarApp').innerText = 'Atualizar App';
+        window.alternarCamposTipo();
+        window.alternarTipoIcone();
     }
 
     function atualizarListaAdmin() {
         let list = document.getElementById('adminAppList');
         list.innerHTML = '';
-        apps.forEach((app, index) => {
+        globalApps.forEach((appItem) => {
             let row = document.createElement('div');
             row.className = 'admin-item-row';
             row.innerHTML = `
-                <span>${app.name}</span>
+                <span>${appItem.name}</span>
                 <div>
-                    ${app.type === 'submenu' ? `<button class="btn btn-primary" style="padding:3px 6px; font-size:0.7rem; margin-right:4px;" onclick="abrirConfigSubitems('${app.id}')">Subitens</button>` : ''}
-                    <button class="edit-btn" onclick="editarApp(${index})">Editar</button>
-                    <button class="delete-btn" onclick="removerApp(${index})">Excluir</button>
+                    ${appItem.type === 'submenu' ? `<button class="btn btn-primary" style="padding:3px 6px; font-size:0.7rem; margin-right:4px;" onclick="window.abrirConfigSubitems('${appItem.docId}')">Subitens</button>` : ''}
+                    <button class="edit-btn" onclick="window.editarApp('${appItem.docId}')">Editar</button>
+                    <button class="delete-btn" onclick="window.removerApp('${appItem.docId}')">Excluir</button>
                 </div>
             `;
             list.appendChild(row);
         });
     }
 
-    function removerApp(index) {
-        if (confirm('Deseja realmente remover este aplicativo?')) {
-            apps.splice(index, 1);
-            salvarAppsStorage();
-            atualizarListaAdmin();
-            renderizarGrid();
+    window.editarApp = editarApp;
+
+    window.removerApp = async function(docId) {
+        if (confirm('Deseja realmente remover este aplicativo para todos?')) {
+            await deleteDoc(doc(db, "apps", docId));
         }
     }
 
-    function abrirConfigSubitems(appId) {
-        appEmEdicaoSub = apps.find(a => a.id === appId);
+    window.abrirConfigSubitems = function(docId) {
+        appEmEdicaoSub = globalApps.find(a => a.docId === docId);
         limparSubitemForm();
         renderizarSubitemsAdmin();
         document.getElementById('subItemsAdminModal').style.display = 'flex';
@@ -697,15 +732,15 @@
             row.innerHTML = `
                 <span>${sub.name}</span>
                 <div>
-                    <button class="edit-btn" onclick="editarSubitem(${idx})">Editar</button>
-                    <button class="delete-btn" onclick="removerSubitem(${idx})">Excluir</button>
+                    <button class="edit-btn" onclick="window.editarSubitem(${idx})">Editar</button>
+                    <button class="delete-btn" onclick="window.removerSubitem(${idx})">Excluir</button>
                 </div>
             `;
             list.appendChild(row);
         });
     }
 
-    function editarSubitem(idx) {
+    window.editarSubitem = function(idx) {
         let sub = appEmEdicaoSub.subitems[idx];
         document.getElementById('editSubIndex').value = idx;
         document.getElementById('subItemName').value = sub.name;
@@ -713,7 +748,7 @@
         document.getElementById('btnSalvarSubitem').innerText = 'Atualizar Subitem';
     }
 
-    function salvarSubitemAtual() {
+    window.salvarSubitemAtual = async function() {
         let idx = parseInt(document.getElementById('editSubIndex').value);
         let name = document.getElementById('subItemName').value.trim();
         let url = document.getElementById('subItemUrl').value.trim();
@@ -731,29 +766,30 @@
             appEmEdicaoSub.subitems.push({ name, url });
         }
 
-        salvarAppsStorage();
+        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), {
+            subitems: appEmEdicaoSub.subitems
+        });
+
         limparSubitemForm();
         renderizarSubitemsAdmin();
     }
 
-    function removerSubitem(idx) {
+    window.removerSubitem = async function(idx) {
         appEmEdicaoSub.subitems.splice(idx, 1);
-        salvarAppsStorage();
+        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), {
+            subitems: appEmEdicaoSub.subitems
+        });
         renderizarSubitemsAdmin();
     }
 
-    function concluirSubitensAdmin() {
-        fecharModais();
+    window.concluirSubitensAdmin = function() {
+        window.fecharModais();
         abrirPainelAdmin();
     }
 
-    function fecharModais() {
+    window.fecharModais = function() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-        renderizarGrid();
     }
-
-    // Inicialização
-    renderizarGrid();
 </script>
 
 </body>
