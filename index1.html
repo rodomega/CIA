@@ -392,17 +392,18 @@
 <!-- Módulos Firebase 10.x -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-    // 🔴 COLE SUAS CREDENCIAIS DO FIREBASE AQUI:
+    // Credenciais extraídas da sua imagem:
     const firebaseConfig = {
-        apiKey: "SUA_API_KEY",
-        authDomain: "SEU_PROJETO.firebaseapp.com",
-        projectId: "SEU_PROJETO",
-        storageBucket: "SEU_PROJETO.appspot.com",
-        messagingSenderId: "SEU_SENDER_ID",
-        appId: "SEU_APP_ID"
+        apiKey: "AIzaSyA1bivQVsA28xQwPEubNB4dyj1YBx2WONo",
+        authDomain: "portalpm-8bc1a.firebaseapp.com",
+        projectId: "portalpm-8bc1a",
+        storageBucket: "portalpm-8bc1a.firebasestorage.app",
+        messagingSenderId: "901516748028",
+        appId: "1:901516748028:web:3961fbc955e9e184e2e379",
+        measurementId: "G-0CRSPHCMNX"
     };
 
     // Inicialização
