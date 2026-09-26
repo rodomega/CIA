@@ -4,18 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preenchimento PM O-004</title>
-  <!-- Tailwind CSS para interface responsiva -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- pdf-lib para modificar o PDF original preservando 100% do layout -->
+  <!-- pdf-lib para modificar o PDF original -->
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <!-- fontkit para suporte a fontes no pdf-lib -->
   <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-3">
 
   <!-- ==================== WIZARD / CAMPO POR CAMPO ==================== -->
   <div id="wizard-container" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4">
-    <!-- Barra de Progresso -->
     <div class="mb-6">
       <div class="flex justify-between items-center text-xs font-bold text-gray-500 mb-2">
         <span id="step-counter">Passo 1 de 1</span>
@@ -26,12 +24,10 @@
       </div>
     </div>
 
-    <!-- Conteúdo da Pergunta Atual -->
     <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-2">
       <!-- Injetado via JS -->
     </div>
 
-    <!-- Navegação -->
     <div class="flex justify-between items-center pt-6 border-t border-gray-100 mt-4">
       <button id="btn-prev" onclick="prevStep()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-bold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
         ← Voltar
@@ -46,14 +42,14 @@
   <div id="final-actions" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4 hidden text-center">
     <div class="text-green-600 text-5xl mb-2">✓</div>
     <h2 class="text-xl font-bold text-gray-800 mb-2">Formulário Concluído!</h2>
-    <p class="text-xs text-gray-500 mb-6">Todos os campos foram inseridos diretamente sobre o documento original PM O-004.</p>
+    <p class="text-xs text-gray-500 mb-6">Selecione uma das opções abaixo para baixar ou enviar.</p>
     
     <div class="space-y-3">
       <button onclick="generateAndDownloadPDF()" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
         📥 Baixar PDF Original Preenchido
       </button>
       <button onclick="toggleEmailModal()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
-        ✉️ Enviar Dados por E-mail
+        ✉️ Enviar Dados por E-mail (Sem Login)
       </button>
       <button onclick="goToStep(0)" class="w-full py-2 text-sm text-gray-600 font-semibold hover:underline">
         ✏️ Voltar e Editar Dados
@@ -61,21 +57,24 @@
     </div>
   </div>
 
-  <!-- MODAL DE E-MAIL -->
+  <!-- MODAL DE E-MAIL DIRETO -->
   <div id="email-modal" class="fixed inset-0 bg-black/60 flex justify-center items-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar por E-mail</h3>
-      <p class="text-xs text-gray-500 mb-4">Insira o e-mail de destino para abrir a sua aplicação com a ficha pronta para envio.</p>
+      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar sem Conta</h3>
+      <p class="text-xs text-gray-500 mb-4">Digite o e-mail de destino. O envio será feito de forma automática e direta.</p>
+      
       <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-3 border border-gray-300 rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500">
+      
+      <div id="email-status" class="text-xs mb-3 font-bold text-center"></div>
+
       <div class="flex justify-end gap-2">
         <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-xl">Cancelar</button>
-        <button onclick="sendEmailDirect()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl">Abrir E-mail</button>
+        <button id="btn-send-now" onclick="sendDirectWithoutLogin()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl">Enviar Agora</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Mapeamento das posições X, Y no documento original PM O-004
     const steps = [
       { id: 'nome', label: 'Nome Completo do Preso', type: 'text', x: 50, y: 720, page: 0 },
       { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text', x: 400, y: 720, page: 0 },
@@ -96,8 +95,6 @@
       { id: 'tel', label: 'Telefone Residencial', type: 'text', x: 480, y: 640, page: 0 },
       { id: 'end_trab', label: 'Endereço do Local de Trabalho', type: 'text', x: 50, y: 620, page: 0 },
       { id: 'antecedentes', label: 'Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'], x: 350, y: 620, page: 0 },
-      
-      // Características Físicas
       { id: 'altura', label: 'Altura Aproximada (m)', type: 'text', x: 50, y: 580, page: 0 },
       { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'text', x: 180, y: 580, page: 0 },
       { id: 'pele', label: 'Pele (Cútis)', type: 'text', x: 320, y: 580, page: 0 },
@@ -105,8 +102,6 @@
       { id: 'olhos', label: 'Olhos', type: 'text', x: 50, y: 560, page: 0 },
       { id: 'cod_anat', label: 'Codificação Anatômica / Marcas (D/M/S)', type: 'text', x: 180, y: 560, page: 0 },
       { id: 'desc_tat', label: 'Descrição Sucinta da Tatuagem', type: 'textarea', x: 50, y: 520, page: 0 },
-
-      // Ocorrência
       { id: 'bo_pm', label: 'Número do BO PM', type: 'text', x: 50, y: 460, page: 0 },
       { id: 'opm', label: 'Nome / Cód. OPM', type: 'text', x: 200, y: 460, page: 0 },
       { id: 'viatura', label: 'Prefixo Viatura', type: 'text', x: 400, y: 460, page: 0 },
@@ -115,12 +110,8 @@
       { id: 'hora_fato', label: 'Hora do Fato', type: 'text', x: 480, y: 440, page: 0 },
       { id: 'local_fato', label: 'Logradouro / Bairro / Local', type: 'text', x: 50, y: 420, page: 0 },
       { id: 'situacao', label: 'Situação da Ocorrência', type: 'text', x: 50, y: 400, page: 0 },
-
-      // Apreensões
       { id: 'armas', label: 'Apreensão de Armas de Fogo', type: 'textarea', x: 50, y: 340, page: 0 },
       { id: 'entorpecentes', label: 'Apreensão de Entorpecentes', type: 'textarea', x: 300, y: 340, page: 0 },
-
-      // Modus & DP
       { id: 'modus', label: 'Modus Operandi do Qualificado', type: 'textarea', x: 50, y: 260, page: 0 },
       { id: 'obs', label: 'Observações Gerais', type: 'textarea', x: 50, y: 200, page: 0 },
       { id: 'bo_pc', label: 'Número do DP e BO PC', type: 'text', x: 50, y: 120, page: 0 },
@@ -151,11 +142,11 @@
         `;
       } else if (step.type === 'textarea') {
         inputHtml = `
-          <textarea id="input-field" rows="3" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none" placeholder="${step.placeholder || ''}">${currentValue}</textarea>
+          <textarea id="input-field" rows="3" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">${currentValue}</textarea>
         `;
       } else {
         inputHtml = `
-          <input type="${step.type}" id="input-field" value="${currentValue}" placeholder="${step.placeholder || ''}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
+          <input type="${step.type}" id="input-field" value="${currentValue}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
         `;
       }
 
@@ -186,9 +177,7 @@
     function saveCurrentStepValue() {
       const step = steps[currentStep];
       const field = document.getElementById('input-field');
-      if (field) {
-        formData[step.id] = field.value.toUpperCase();
-      }
+      if (field) formData[step.id] = field.value.toUpperCase();
     }
 
     function nextStep() {
@@ -217,15 +206,12 @@
       renderStep();
     }
 
-    // Carrega modelo.pdf e preenche dinamicamente
     async function generateAndDownloadPDF() {
       try {
         const existingPdfBytes = await fetch('./modelo.pdf').then(res => res.arrayBuffer());
-        
         const { PDFDocument, rgb } = PDFLib;
         const pdfDoc = await PDFDocument.load(existingPdfBytes);
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
+        const firstPage = pdfDoc.getPages()[0];
 
         steps.forEach(step => {
           const val = formData[step.id];
@@ -240,15 +226,13 @@
         });
 
         const pdfBytes = await pdfDoc.save();
-        
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `PM_O-004_${formData.nome || 'PRESO'}.pdf`;
         link.click();
       } catch (err) {
-        alert('Atenção: Verifique se o ficheiro "modelo.pdf" está na mesma pasta no GitHub/Celular.');
-        console.error(err);
+        alert('Erro ao carregar o modelo.pdf. Certifique-se de que o ficheiro está na mesma pasta.');
       }
     }
 
@@ -256,25 +240,56 @@
       document.getElementById('email-modal').classList.toggle('hidden');
     }
 
-    function sendEmailDirect() {
-      const destEmail = document.getElementById('email-destination').value;
-      if (!destEmail) return alert('Insira um e-mail válido.');
+    // ENVIO DIRETO VIA ENDPOINT (SEM NECESSIDADE DE CONTA OU LOGINS NO TELEMÓVEL)
+    async function sendDirectWithoutLogin() {
+      const emailDest = document.getElementById('email-destination').value;
+      const statusDiv = document.getElementById('email-status');
+      const btnSend = document.getElementById('btn-send-now');
 
-      const subject = encodeURIComponent(`RELATÓRIO PM O-004: ${formData.nome || ''}`);
-      const body = encodeURIComponent(
-        `RELATÓRIO DA OCORRÊNCIA PM O-004\n\n` +
-        `NOME: ${formData.nome || ''}\n` +
-        `VULGO: ${formData.vulgo || ''}\n` +
-        `RG: ${formData.rg || ''}\n` +
-        `BO PM: ${formData.bo_pm || ''}\n` +
-        `NATUREZA: ${formData.natureza || ''}\n` +
-        `ARMAS: ${formData.armas || 'Nenhuma'}\n` +
-        `ENTORPECENTES: ${formData.entorpecentes || 'Nenhum'}\n` +
-        `ENCARREGADO: ${formData.encarregado || ''}`
-      );
+      if (!emailDest) {
+        statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
+        statusDiv.innerText = 'Por favor, insira o e-mail de destino.';
+        return;
+      }
 
-      window.location.href = `mailto:${destEmail}?subject=${subject}&body=${body}`;
-      toggleEmailModal();
+      btnSend.disabled = true;
+      statusDiv.className = 'text-xs mb-3 font-bold text-center text-blue-600';
+      statusDiv.innerText = 'A enviar...';
+
+      try {
+        // Envio direto usando serviço público de formulário estático
+        const response = await fetch('https://formsubmit.co/ajax/' + emailDest, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: `PM O-004: ${formData.nome || 'NOVA OCORRÊNCIA'}`,
+            NOME: formData.nome || '',
+            VULGO: formData.vulgo || '',
+            RG: formData.rg || '',
+            BO_PM: formData.bo_pm || '',
+            NATUREZA: formData.natureza || '',
+            ARMAS: formData.armas || 'Nenhuma',
+            ENTORPECENTES: formData.entorpecentes || 'Nenhum',
+            ENCARREGADO: formData.encarregado || ''
+          })
+        });
+
+        if (response.ok) {
+          statusDiv.className = 'text-xs mb-3 font-bold text-center text-green-600';
+          statusDiv.innerText = '✓ E-mail enviado com sucesso!';
+          setTimeout(() => toggleEmailModal(), 2000);
+        } else {
+          throw new Error('Falha no envio');
+        }
+      } catch (err) {
+        statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
+        statusDiv.innerText = 'Erro ao enviar. Verifique a conexão.';
+      } finally {
+        btnSend.disabled = false;
+      }
     }
 
     window.onload = renderStep;
