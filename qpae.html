@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preenchimento Formulário PM O-004</title>
+  <!-- Tailwind CSS para Design Responsivo -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js para gerar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- EmailJS para envio de e-mails diretamente pelo front-end -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      .print-area { display: block !important; }
+    }
+    .document-page {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .doc-border {
+      border: 1px solid #000;
+    }
+    .doc-table td, .doc-table th {
+      border: 1px solid #000;
+      padding: 2px 4px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-2 sm:p-4">
+
+  <!-- ==================== WIZARD / PASSO A PASSO (TELA DE ENTRADA) ==================== -->
+  <div id="wizard-container" class="no-print w-full max-w-2xl bg-white shadow-xl rounded-xl p-6 mb-6">
+    <!-- Barra de Progresso -->
+    <div class="mb-4">
+      <div class="flex justify-between items-center text-xs font-semibold text-gray-500 mb-1">
+        <span id="step-counter">Passo 1 de 1</span>
+        <span id="step-percent">0%</span>
+      </div>
+      <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
+        <div id="progress-bar" class="bg-red-700 h-2.5 transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Container da Pergunta Atual -->
+    <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-4">
+      <!-- O conteúdo do passo atual será injetado dinamicamente via JS -->
+    </div>
+
+    <!-- Botões de Controle -->
+    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+      <button id="btn-prev" onclick="prevStep()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+        ← Voltar
+      </button>
+      <button id="btn-next" onclick="nextStep()" class="px-6 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-semibold rounded-lg shadow transition">
+        Avançar →
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== OPÇÕES FINAIS (DOWNLOAD / EMAIL) ==================== -->
+  <div id="final-actions" class="no-print w-full max-w-2xl bg-white shadow-lg rounded-xl p-6 mb-6 hidden">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Formulário Concluído!</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <button onclick="downloadPDF()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow transition flex justify-center items-center gap-2">
+        📥 Baixar PDF Preenchido
+      </button>
+      <button onclick="toggleEmailModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition flex justify-center items-center gap-2">
+        ✉️ Enviar por E-mail
+      </button>
+    </div>
+    <button onclick="goToStep(0)" class="w-full text-center text-sm text-gray-600 hover:underline">
+      ✏️ Voltar e Editar Respostas
+    </button>
+  </div>
+
+  <!-- MODAL DE ENVIO DE EMAIL -->
+  <div id="email-modal" class="no-print fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 hidden z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-3 text-gray-800">Enviar Documento por E-mail</h3>
+      <p class="text-xs text-gray-500 mb-4">Digite o e-mail de destino para enviar os dados da ocorrência e o relatório.</p>
+      <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-2 border border-gray-300 rounded-lg text-sm mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+      <div class="flex justify-end gap-2">
+        <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg">Cancelar</button>
+        <button onclick="sendEmail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DOCUMENTO OFICIAL PM_O-004 (VISUALIZAÇÃO / IMPRESSÃO) ==================== -->
+  <div class="w-full flex justify-center overflow-x-auto pb-10">
+    <div id="documento-pm" class="document-page bg-white w-[800px] p-6 doc-border shadow-2xl text-black">
+      
+      <!-- Cabeçalho -->
+      <div class="flex items-center border-b-2 border-black pb-2 mb-2">
+        <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center border border-gray-300">
+          <span class="text-[9px] text-center font-bold">BRASÃO SP</span>
+        </div>
+        <div class="flex-grow text-center px-2">
+          <h1 class="text-xs font-bold uppercase">Polícia Militar do Estado de São Paulo</h1>
+          <h2 class="text-sm font-black uppercase tracking-wider mt-1">QUALIFICAÇÃO DE PRESO, ARMAS E ENTORPECENTES (PM O-004)</h2>
+        </div>
+      </div>
+
+      <!-- Seção 1: Qualificação do Preso -->
+      <div class="mb-3">
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">1. Qualificação do Preso</div>
+        <table class="w-full doc-table text-[10px]">
+          <tr>
+            <td colspan="3"><strong>NOME:</strong> <span id="out-nome" class="font-semibold text-blue-900"></span></td>
+            <td><strong>VULGO:</strong> <span id="out-vulgo" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>PAI:</strong> <span id="out-pai" class="font-semibold text-blue-900"></span></td>
+            <td colspan="2"><strong>MÃE:</strong> <span id="out-mae" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td><strong>RG:</strong> <span id="out-rg" class="font-semibold text-blue-900"></span></td>
+            <td><strong>CPF/OUTRO DOC:</strong> <span id="out-outro-doc" class="font-semibold text-blue-900"></span></td>
+            <td><strong>SEXO:</strong> <span id="out-sexo" class="font-semibold text-blue-900"></span></td>
+            <td><strong>DATA NASC.:</strong> <span id="out-data-nasc" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td><strong>ESTADO CIVIL:</strong> <span id="out-estado-civil" class="font-semibold text-blue-900"></span></td>
+            <td><strong>NATURALIDADE:</strong> <span id="out-naturalidade" class="font-semibold text-blue-900"></span></td>
+            <td><strong>NACIONALIDADE:</strong> <span id="out-nacionalidade" class="font-semibold text-blue-900"></span></td>
+            <td><strong>PROFISSÃO:</strong> <span id="out-profissao" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>ENDEREÇO RESIDENCIAL:</strong> <span id="out-end-res" class="font-semibold text-blue-900"></span></td>
+            <td><strong>BAIRRO/MUNÍCIPIO:</strong> <span id="out-bairro-mun" class="font-semibold text-blue-900"></span></td>
+            <td><strong>TELEFONE:</strong> <span id="out-tel" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>LOCAL DE TRABALHO:</strong> <span id="out-end-trab" class="font-semibold text-blue-900"></span></td>
+            <td colspan="2"><strong>ANTECEDENTES CRIMINAIS:</strong> <span id="out-antecedentes" class="font-semibold text-blue-900"></span></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Seção 2: Características Físicas -->
+      <div class="mb-3">
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">2. Características Físicas</div>
+        <table class="w-full doc-table text-[10px]">
+          <tr>
+            <td><strong>ALTURA:</strong> <span id="out-altura" class="font-semibold text-blue-900"></span> m</td>
+            <td><strong>COMPLEIÇÃO:</strong> <span id="out-compleicao" class="font-semibold text-blue-900"></span></td>
+            <td><strong>PELE:</strong> <span id="out-pele" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td><strong>CABELO:</strong> <span id="out-cabelo" class="font-semibold text-blue-900"></span></td>
+            <td><strong>OLHOS:</strong> <span id="out-olhos" class="font-semibold text-blue-900"></span></td>
+            <td><strong>TATUAGENS / MARCAS:</strong> <span id="out-tatuagem" class="font-semibold text-blue-900"></span></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Seção 3: Dados da Ocorrência -->
+      <div class="mb-3">
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">3. Dados da Ocorrência</div>
+        <table class="w-full doc-table text-[10px]">
+          <tr>
+            <td><strong>BO PM Nº:</strong> <span id="out-bo-pm" class="font-semibold text-blue-900"></span></td>
+            <td><strong>OPM:</strong> <span id="out-opm" class="font-semibold text-blue-900"></span></td>
+            <td><strong>VIATURA PREFIXO:</strong> <span id="out-viatura" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>NATUREZA:</strong> <span id="out-natureza" class="font-semibold text-blue-900"></span></td>
+            <td><strong>DATA / HORA FATO:</strong> <span id="out-data-fato" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>LOGRADOURO/LOCAL:</strong> <span id="out-local-fato" class="font-semibold text-blue-900"></span></td>
+            <td><strong>SITUAÇÃO:</strong> <span id="out-situacao" class="font-semibold text-blue-900"></span></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Seção 4: Apreensões -->
+      <div class="mb-3">
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">4. Apreensão de Armas e Entorpecentes</div>
+        <table class="w-full doc-table text-[10px]">
+          <tr>
+            <td width="50%"><strong>ARMAS APREENDIDAS:</strong><br><span id="out-armas" class="font-semibold text-blue-900 whitespace-pre-line"></span></td>
+            <td width="50%"><strong>ENTORPECENTES APREENDIDOS:</strong><br><span id="out-entorpecentes" class="font-semibold text-blue-900 whitespace-pre-line"></span></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Seção 5: Modus Operandi e Observações -->
+      <div class="mb-3">
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">5. Modus Operandi & Observações</div>
+        <div class="border border-black p-2 min-h-[50px] text-[10px]">
+          <strong>Modus Operandi:</strong> <span id="out-modus" class="font-semibold text-blue-900"></span><br><br>
+          <strong>Observações:</strong> <span id="out-obs" class="font-semibold text-blue-900"></span>
+        </div>
+      </div>
+
+      <!-- Rodapé / Dados do DP -->
+      <div>
+        <div class="bg-gray-200 font-bold px-1 text-[10px] border border-black uppercase">6. Dados da Delegacia (DP) / Encarregado</div>
+        <table class="w-full doc-table text-[10px]">
+          <tr>
+            <td><strong>Nº DP / MUNICÍPIO:</strong> <span id="out-dp" class="font-semibold text-blue-900"></span></td>
+            <td><strong>Nº BO POLÍCIA CIVIL:</strong> <span id="out-bo-pc" class="font-semibold text-blue-900"></span></td>
+          </tr>
+          <tr>
+            <td><strong>ENCARREGADO (POSTO/GRAD/RE/NOME):</strong> <span id="out-encarregado" class="font-semibold text-blue-900"></span></td>
+            <td><strong>VISTO COMANDANTE CIA:</strong> <span id="out-visto-cmt" class="font-semibold text-blue-900"></span></td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Estrutura de perguntas item a item (campo por campo)
+    const steps = [
+      // Qualificação do Preso
+      { id: 'nome', label: 'Nome Completo do Preso/Qualificado', type: 'text', target: 'out-nome' },
+      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text', target: 'out-vulgo' },
+      { id: 'pai', label: 'Nome do Pai', type: 'text', target: 'out-pai' },
+      { id: 'mae', label: 'Nome da Mãe', type: 'text', target: 'out-mae' },
+      { id: 'rg', label: 'Número do RG', type: 'text', target: 'out-rg' },
+      { id: 'outro_doc', label: 'CPF ou Outro Documento', type: 'text', target: 'out-outro-doc' },
+      { id: 'sexo', label: 'Sexo', type: 'select', options: ['Masculino', 'Feminino', 'Outro'], target: 'out-sexo' },
+      { id: 'data_nasc', label: 'Data de Nascimento', type: 'date', target: 'out-data-nasc' },
+      { id: 'estado_civil', label: 'Estado Civil', type: 'select', options: ['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Amiasiado(a)', 'Viúvo(a)'], target: 'out-estado-civil' },
+      { id: 'naturalidade', label: 'Naturalidade (Cidade/UF)', type: 'text', target: 'out-naturalidade' },
+      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', target: 'out-nacionalidade', default: 'Brasileira' },
+      { id: 'profissao', label: 'Profissão', type: 'text', target: 'out-profissao' },
+      { id: 'end_res', label: 'Endereço Residencial (Rua, Nº, Compl.)', type: 'text', target: 'out-end-res' },
+      { id: 'bairro_mun', label: 'Bairro e Município Residencial', type: 'text', target: 'out-bairro-mun' },
+      { id: 'tel', label: 'Telefone de Contato', type: 'tel', target: 'out-tel' },
+      { id: 'end_trab', label: 'Local de Trabalho', type: 'text', target: 'out-end-trab' },
+      { id: 'antecedentes', label: 'Possui Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'], target: 'out-antecedentes' },
+
+      // Características Físicas
+      { id: 'altura', label: 'Altura Aproximada (ex: 1.75)', type: 'text', target: 'out-altura' },
+      { id: 'compleicao', label: 'Tipo Físico / Compleição', type: 'select', options: ['Franzino', 'Magro', 'Médio', 'Forte', 'Muito Forte', 'Gordo'], target: 'out-compleicao' },
+      { id: 'pele', label: 'Cor da Pele (Cútis)', type: 'select', options: ['Branca', 'Parda Clara', 'Parda Escura', 'Preta', 'Amarela', 'Albina', 'Vermelha'], target: 'out-pele' },
+      { id: 'cabelo', label: 'Tipo e Cor do Cabelo', type: 'text', target: 'out-cabelo', placeholder: 'ex: Pretos e Crespos' },
+      { id: 'olhos', label: 'Cor dos Olhos', type: 'select', options: ['Castanhos Escuros', 'Castanhos Claros', 'Pretos', 'Verdes', 'Azuis', 'Grisalhos / Outros'], target: 'out-olhos' },
+      { id: 'tatuagem', label: 'Sinais, Marcas ou Tatuagens (Especificar local)', type: 'textarea', target: 'out-tatuagem', placeholder: 'ex: Tatuagem no braço direito (M01-D14)' },
+
+      // Dados da Ocorrência
+      { id: 'bo_pm', label: 'Número do BO PM', type: 'text', target: 'out-bo-pm' },
+      { id: 'opm', label: 'Nome / Código da OPM (Companhia/Batalhão)', type: 'text', target: 'out-opm' },
+      { id: 'viatura', label: 'Prefixo da Viatura', type: 'text', target: 'out-viatura' },
+      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text', target: 'out-natureza', placeholder: 'ex: Tráfico de Entorpecentes / Porte Ilegal de Arma' },
+      { id: 'data_fato', label: 'Data e Hora do Fato', type: 'datetime-local', target: 'out-data-fato' },
+      { id: 'local_fato', label: 'Logradouro / Bairro / Local do Fato', type: 'text', target: 'out-local-fato' },
+      { id: 'situacao', label: 'Situação da Ocorrência', type: 'select', options: ['Flagrante por Crime', 'Flagrante por Contravenção', 'Procurado pela Justiça', 'Evadido', 'Outros'], target: 'out-situacao' },
+
+      // Apreensões
+      { id: 'armas', label: 'Armas de Fogo Apreendidas (Tipo, Marca, Calibre, Nº Série)', type: 'textarea', target: 'out-armas', placeholder: 'ex: Revólver Calibre 38, Rossi, Nº 123456' },
+      { id: 'entorpecentes', label: 'Entorpecentes Apreendidos (Tipo e Quantidade)', type: 'textarea', target: 'out-entorpecentes', placeholder: 'ex: Cocaína - 50 invólucros (0,050kg)\nMaconha - 2 tijolos (1,200kg)' },
+
+      // Modus Operandi / Observações
+      { id: 'modus', label: 'Modus Operandi do Qualificado', type: 'textarea', target: 'out-modus' },
+      { id: 'obs', label: 'Observações Gerais', type: 'textarea', target: 'out-obs' },
+
+      // Dados DP
+      { id: 'dp', label: 'Número do DP e Município', type: 'text', target: 'out-dp' },
+      { id: 'bo_pc', label: 'Número do BO da Polícia Civil', type: 'text', target: 'out-bo-pc' },
+      { id: 'encarregado', label: 'Encarregado da Ocorrência (Posto/Grad., RE e Nome)', type: 'text', target: 'out-encarregado' },
+      { id: 'visto_cmt', label: 'Visto Comandante Cia / Observações Finais', type: 'text', target: 'out-visto-cmt' }
+    ];
+
+    let currentStep = 0;
+    const formData = {};
+
+    function renderStep() {
+      const step = steps[currentStep];
+      const stepContent = document.getElementById('step-content');
+      
+      // Atualizar contadores
+      document.getElementById('step-counter').innerText = `Passo ${currentStep + 1} de ${steps.length}`;
+      const percent = Math.round(((currentStep + 1) / steps.length) * 100);
+      document.getElementById('step-percent').innerText = `${percent}%`;
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+
+      // Renderizar Input do Campo Atual
+      let inputHtml = '';
+      const currentValue = formData[step.id] || step.default || '';
+
+      if (step.type === 'select') {
+        inputHtml = `
+          <select id="input-field" class="w-full p-3 border-2 border-red-700 rounded-lg text-base focus:outline-none bg-white">
+            <option value="">-- Selecione uma opção --</option>
+            ${step.options.map(opt => `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+          </select>
+        `;
+      } else if (step.type === 'textarea') {
+        inputHtml = `
+          <textarea id="input-field" rows="3" class="w-full p-3 border-2 border-red-700 rounded-lg text-base focus:outline-none" placeholder="${step.placeholder || ''}">${currentValue}</textarea>
+        `;
+      } else {
+        inputHtml = `
+          <input type="${step.type}" id="input-field" value="${currentValue}" placeholder="${step.placeholder || ''}" class="w-full p-3 border-2 border-red-700 rounded-lg text-base focus:outline-none">
+        `;
+      }
+
+      stepContent.innerHTML = `
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">${step.label}</label>
+        ${inputHtml}
+      `;
+
+      // Atualizar estado dos botões
+      document.getElementById('btn-prev').disabled = currentStep === 0;
+      
+      if (currentStep === steps.length - 1) {
+        document.getElementById('btn-next').innerText = 'Finalizar e Revisar ✔';
+        document.getElementById('btn-next').classList.replace('bg-red-700', 'bg-green-700');
+        document.getElementById('btn-next').classList.replace('hover:bg-red-800', 'hover:bg-green-800');
+      } else {
+        document.getElementById('btn-next').innerText = 'Avançar →';
+        document.getElementById('btn-next').classList.replace('bg-green-700', 'bg-red-700');
+        document.getElementById('btn-next').classList.replace('hover:bg-green-800', 'hover:bg-red-800');
+      }
+
+      // Foco automático e evento de Enter
+      const field = document.getElementById('input-field');
+      field.focus();
+      if (step.type !== 'textarea') {
+        field.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            nextStep();
+          }
+        });
+      }
+    }
+
+    function saveCurrentStepValue() {
+      const step = steps[currentStep];
+      const field = document.getElementById('input-field');
+      if (field) {
+        const value = field.value;
+        formData[step.id] = value;
+        // Atualizar visualização do documento em tempo real
+        const targetElement = document.getElementById(step.target);
+        if (targetElement) {
+          targetElement.innerText = value || '---';
+        }
+      }
+    }
+
+    function nextStep() {
+      saveCurrentStepValue();
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        renderStep();
+      } else {
+        // Exibir ações finais
+        document.getElementById('wizard-container').classList.add('hidden');
+        document.getElementById('final-actions').classList.remove('hidden');
+      }
+    }
+
+    function prevStep() {
+      saveCurrentStepValue();
+      if (currentStep > 0) {
+        currentStep--;
+        renderStep();
+      }
+    }
+
+    function goToStep(index) {
+      currentStep = index;
+      document.getElementById('wizard-container').classList.remove('hidden');
+      document.getElementById('final-actions').classList.add('hidden');
+      renderStep();
+    }
+
+    // Função para Download em PDF
+    function downloadPDF() {
+      const element = document.getElementById('documento-pm');
+      const filename = `PM_O-004_${formData.nome || 'Preso'}.pdf`;
+      
+      const opt = {
+        margin:       0.3,
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Modal de envio por e-mail
+    function toggleEmailModal() {
+      const modal = document.getElementById('email-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function sendEmail() {
+      const destEmail = document.getElementById('email-destination').value;
+      if (!destEmail) {
+        alert('Por favor, informe o e-mail de destino.');
+        return;
+      }
+
+      // Abre o cliente de e-mail padrão pré-preenchido com o resumo dos dados
+      const subject = encodeURIComponent(`Formulário PM O-004: ${formData.nome || 'Sem Nome'}`);
+      const body = encodeURIComponent(
+        `RELATÓRIO PM O-004 - QUALIFICAÇÃO DE PRESO\n\n` +
+        `Nome: ${formData.nome || ''}\n` +
+        `RG: ${formData.rg || ''}\n` +
+        `BO PM: ${formData.bo_pm || ''}\n` +
+        `Natureza: ${formData.natureza || ''}\n` +
+        `Data/Hora: ${formData.data_fato || ''}\n` +
+        `Armas: ${formData.armas || 'Nenhuma'}\n` +
+        `Entorpecentes: ${formData.entorpecentes || 'Nenhum'}\n\n` +
+        `Encarregado: ${formData.encarregado || ''}`
+      );
+
+      window.location.href = `mailto:${destEmail}?subject=${subject}&body=${body}`;
+      toggleEmailModal();
+    }
+
+    // Inicialização
+    window.onload = function() {
+      renderStep();
+    };
+  </script>
+</body>
+</html>
