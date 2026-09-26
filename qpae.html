@@ -3,66 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preenchimento PM O-004</title>
+  <title>Ficha PM O-004</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-3">
 
-  <!-- WIZARD -->
-  <div id="wizard-container" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4">
-    <div class="mb-6">
-      <div class="flex justify-between items-center text-xs font-bold text-gray-500 mb-2">
-        <span id="step-counter">Passo 1 de 1</span>
-        <span id="step-percent" class="text-red-700">0%</span>
-      </div>
-      <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-        <div id="progress-bar" class="bg-red-700 h-3 transition-all duration-300" style="width: 0%"></div>
-      </div>
+  <div class="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-6 mt-2 mb-10">
+    <div class="border-b pb-4 mb-6 text-center">
+      <h1 class="text-2xl font-black text-gray-800 uppercase">Qualificação de Preso (PM O-004)</h1>
+      <p class="text-xs text-gray-500 mt-1">Preencha os campos abaixo no estilo formulário contínuo.</p>
     </div>
 
-    <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-2"></div>
-
-    <div class="flex justify-between items-center pt-6 border-t border-gray-100 mt-4">
-      <button id="btn-prev" onclick="prevStep()" class="px-5 py-2.5 bg-gray-200 text-gray-800 text-sm font-bold rounded-xl disabled:opacity-40" disabled>
-        ← Voltar
-      </button>
-      <button id="btn-next" onclick="nextStep()" class="px-6 py-2.5 bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg">
-        Avançar →
-      </button>
-    </div>
-  </div>
-
-  <!-- PAINEL FINAL -->
-  <div id="final-actions" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4 hidden text-center">
-    <div class="text-green-600 text-5xl mb-2">✓</div>
-    <h2 class="text-xl font-bold text-gray-800 mb-2">Formulário Concluído!</h2>
-    <p class="text-xs text-gray-500 mb-6">Envie o PDF diretamente por e-mail ou faça o download.</p>
-    
-    <div class="space-y-3">
-      <button onclick="toggleEmailModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg text-base flex justify-center items-center gap-2">
-        ✉️ Enviar PDF por E-mail
-      </button>
+    <!-- FORMULÁRIO ESTILO GOOGLE FORMS -->
+    <form id="pm-form" onsubmit="event.preventDefault();" class="space-y-4">
       
-      <button onclick="generateAndDownloadPDF()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg text-sm">
-        📥 Apenas Baixar PDF
-      </button>
-      
-      <button onclick="goToStep(0)" class="w-full py-2 text-sm text-gray-600 font-semibold hover:underline">
-        ✏️ Voltar e Editar Dados
-      </button>
-    </div>
+      <!-- SEÇÃO 1: DADOS DO PRESO -->
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+        <h2 class="text-sm font-bold text-red-700 uppercase tracking-wider mb-2">1. Dados Pessoais do Preso</h2>
+        
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Nome Completo</label>
+          <input type="text" id="nome" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Vulgo / Apelido</label>
+            <input type="text" id="vulgo" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Sexo</label>
+            <select id="sexo" class="w-full p-3 border rounded-xl font-bold uppercase text-sm bg-white">
+              <option value="">-- SELECIONE --</option>
+              <option value="MASCULINO">MASCULINO</option>
+              <option value="FEMININO">FEMININO</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Nome do Pai</label>
+          <input type="text" id="pai" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Nome da Mãe</label>
+          <input type="text" id="mae" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">RG</label>
+            <input type="text" id="rg" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Data de Nascimento</label>
+            <input type="text" id="data_nasc" placeholder="DD/MM/AAAA" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Estado Civil</label>
+            <input type="text" id="estado_civil" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Profissão</label>
+            <input type="text" id="profissao" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Naturalidade / UF</label>
+          <input type="text" id="naturalidade" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Endereço Residencial</label>
+          <input type="text" id="end_res" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: DADOS DA OCORRÊNCIA -->
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+        <h2 class="text-sm font-bold text-red-700 uppercase tracking-wider mb-2">2. Dados da Ocorrência</h2>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Nº BO PM</label>
+            <input type="text" id="bo_pm" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Prefixo Viatura</label>
+            <input type="text" id="viatura" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Natureza da Ocorrência</label>
+          <input type="text" id="natureza" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Local do Fato</label>
+          <input type="text" id="local_fato" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Apreensão de Armas</label>
+          <textarea id="armas" rows="2" class="w-full p-3 border rounded-xl font-bold uppercase text-sm"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Apreensão de Entorpecentes</label>
+          <textarea id="entorpecentes" rows="2" class="w-full p-3 border rounded-xl font-bold uppercase text-sm"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">DP / BO PC</label>
+          <input type="text" id="bo_pc" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Encarregado (Grad./RE/Nome)</label>
+          <input type="text" id="encarregado" class="w-full p-3 border rounded-xl font-bold uppercase text-sm">
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <div class="pt-4 space-y-3">
+        <button type="button" onclick="toggleEmailModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg text-base">
+          ✉️ Enviar por E-mail (Com PDF Preenchido)
+        </button>
+        <button type="button" onclick="generateAndDownloadPDF()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg text-sm">
+          📥 Apenas Baixar PDF no Telemóvel
+        </button>
+      </div>
+
+    </form>
   </div>
 
   <!-- MODAL DE E-MAIL -->
   <div id="email-modal" class="fixed inset-0 bg-black/60 flex justify-center items-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar PDF por E-mail</h3>
-      <p class="text-xs text-gray-500 mb-4">Digite o e-mail de destino. O PDF será gerado e enviado com anexo automaticamente.</p>
-      
+      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar por E-mail</h3>
+      <p class="text-xs text-gray-500 mb-4">Insira o e-mail de destino para receber o PDF 100% preenchido em anexo.</p>
+
       <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-3 border border-gray-300 rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500">
-      
+
       <div id="email-status" class="text-xs mb-3 font-bold text-center"></div>
 
       <div class="flex justify-end gap-2">
@@ -73,151 +162,55 @@
   </div>
 
   <script>
-    // URL DO SEU GOOGLE APPS SCRIPT
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSE3ZgXcwHDqIKtCwWtCItwWt-wT8iCovi5SXf3SfEXfJTAMdCsVEbsImVBJ6x6IE/exec';
+    // COLE O SEU LINK DO GOOGLE APPS SCRIPT ABAIXO
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSE3ZgXcwHDqIKtCwWtCltwWt-wT8iCovi5SXf3SfExfJTAMdCsVEbsImVBJ6x6IE/exec';
 
-    const steps = [
-      { id: 'nome', label: 'Nome Completo do Preso', type: 'text' },
-      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text' },
-      { id: 'pai', label: 'Nome do Pai', type: 'text' },
-      { id: 'mae', label: 'Nome da Mãe', type: 'text' },
-      { id: 'rg', label: 'RG', type: 'text' },
-      { id: 'dc', label: 'DC / UF', type: 'text' },
-      { id: 'outro_doc', label: 'Outro Doc / CPF', type: 'text' },
-      { id: 'num_doc', label: 'Número / Série', type: 'text' },
-      { id: 'sexo', label: 'Sexo', type: 'select', options: ['MASCULINO', 'FEMININO'] },
-      { id: 'data_nasc', label: 'Data de Nascimento', type: 'text' },
-      { id: 'estado_civil', label: 'Estado Civil', type: 'text' },
-      { id: 'naturalidade', label: 'Naturalidade / UF', type: 'text' },
-      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', default: 'BRASILEIRA' },
-      { id: 'profissao', label: 'Profissão', type: 'text' },
-      { id: 'end_res', label: 'Endereço Residencial', type: 'text' },
-      { id: 'bairro_mun', label: 'Bairro e Município', type: 'text' },
-      { id: 'tel', label: 'Telefone Residencial', type: 'text' },
-      { id: 'end_trab', label: 'Endereço do Trabalho', type: 'text' },
-      { id: 'antecedentes', label: 'Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'] },
-      { id: 'altura', label: 'Altura (m)', type: 'text' },
-      { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'text' },
-      { id: 'pele', label: 'Pele (Cútis)', type: 'text' },
-      { id: 'cabelo', label: 'Cabelo', type: 'text' },
-      { id: 'olhos', label: 'Olhos', type: 'text' },
-      { id: 'bo_pm', label: 'BO PM / Viatura', type: 'text' },
-      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text' },
-      { id: 'data_fato', label: 'Data do Fato', type: 'text' },
-      { id: 'hora_fato', label: 'Hora do Fato', type: 'text' },
-      { id: 'local_fato', label: 'Local do Fato', type: 'text' },
-      { id: 'armas', label: 'Apreensão de Armas', type: 'textarea' },
-      { id: 'entorpecentes', label: 'Apreensão de Entorpecentes', type: 'textarea' },
-      { id: 'bo_pc', label: 'DP / BO PC / Unidade', type: 'text' },
-      { id: 'encarregado', label: 'Encarregado (RE / Nome)', type: 'text' }
-    ];
-
-    let currentStep = 0;
-    const formData = {};
-
-    function renderStep() {
-      const step = steps[currentStep];
-      const stepContent = document.getElementById('step-content');
-      
-      document.getElementById('step-counter').innerText = `Passo ${currentStep + 1} de ${steps.length}`;
-      const percent = Math.round(((currentStep + 1) / steps.length) * 100);
-      document.getElementById('step-percent').innerText = `${percent}%`;
-      document.getElementById('progress-bar').style.width = `${percent}%`;
-
-      let inputHtml = '';
-      const currentValue = formData[step.id] || step.default || '';
-
-      if (step.type === 'select') {
-        inputHtml = `
-          <select id="input-field" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold bg-white outline-none">
-            <option value="">-- SELECIONE --</option>
-            ${step.options.map(opt => `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-          </select>
-        `;
-      } else if (step.type === 'textarea') {
-        inputHtml = `
-          <textarea id="input-field" rows="3" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">${currentValue}</textarea>
-        `;
-      } else {
-        inputHtml = `
-          <input type="text" id="input-field" value="${currentValue}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
-        `;
-      }
-
-      stepContent.innerHTML = `
-        <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wider">${step.label}</label>
-        ${inputHtml}
-      `;
-
-      document.getElementById('btn-prev').disabled = currentStep === 0;
-      document.getElementById('btn-next').innerText = (currentStep === steps.length - 1) ? 'Finalizar ✔' : 'Avançar →';
-
-      const field = document.getElementById('input-field');
-      field.focus();
-    }
-
-    function saveCurrentStepValue() {
-      const step = steps[currentStep];
-      const field = document.getElementById('input-field');
-      if (field) formData[step.id] = field.value.toUpperCase();
-    }
-
-    function nextStep() {
-      saveCurrentStepValue();
-      if (currentStep < steps.length - 1) {
-        currentStep++;
-        renderStep();
-      } else {
-        document.getElementById('wizard-container').classList.add('hidden');
-        document.getElementById('final-actions').classList.remove('hidden');
-      }
-    }
-
-    function prevStep() {
-      saveCurrentStepValue();
-      if (currentStep > 0) {
-        currentStep--;
-        renderStep();
-      }
-    }
-
-    function goToStep(index) {
-      currentStep = index;
-      document.getElementById('wizard-container').classList.remove('hidden');
-      document.getElementById('final-actions').classList.add('hidden');
-      renderStep();
+    function getVal(id) {
+      return (document.getElementById(id).value || '').toUpperCase();
     }
 
     async function generatePDFArrayBuffer() {
       const existingPdfBytes = await fetch('./modelo.pdf').then(res => res.arrayBuffer());
-      const { PDFDocument } = PDFLib;
+      const { PDFDocument, rgb } = PDFLib;
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
-      const fields = form.getFields();
+      const page = pdfDoc.getPages()[0];
 
-      const valuesArray = [
-        formData.nome, formData.vulgo, formData.pai, formData.mae,
-        formData.rg, formData.dc, formData.outro_doc, formData.num_doc,
-        formData.sexo, formData.data_nasc, formData.estado_civil,
-        formData.naturalidade, formData.nacionalidade, formData.profissao,
-        formData.end_res, formData.bairro_mun, formData.tel, formData.end_trab,
-        formData.antecedentes, formData.altura, formData.compleicao, formData.pele,
-        formData.cabelo, formData.olhos, formData.bo_pm, formData.natureza,
-        formData.data_fato, formData.hora_fato, formData.local_fato,
-        formData.armas, formData.entorpecentes, formData.bo_pc, formData.encarregado
+      // Mapeamento exato de coordenadas (X, Y) na folha A4 oficial PM
+      const fields = [
+        { val: getVal('nome'), x: 45, y: 645, size: 9 },
+        { val: getVal('vulgo'), x: 410, y: 645, size: 9 },
+        { val: getVal('pai'), x: 45, y: 628, size: 8 },
+        { val: getVal('mae'), x: 310, y: 628, size: 8 },
+        { val: getVal('rg'), x: 45, y: 610, size: 8 },
+        { val: getVal('sexo'), x: 410, y: 610, size: 8 },
+        { val: getVal('data_nasc'), x: 480, y: 610, size: 8 },
+        { val: getVal('estado_civil'), x: 45, y: 593, size: 8 },
+        { val: getVal('profissao'), x: 410, y: 593, size: 8 },
+        { val: getVal('naturalidade'), x: 45, y: 575, size: 8 },
+        { val: getVal('end_res'), x: 45, y: 558, size: 8 },
+        
+        // Dados da ocorrência e rodapé
+        { val: getVal('bo_pm'), x: 45, y: 195, size: 8 },
+        { val: getVal('viatura'), x: 280, y: 195, size: 8 },
+        { val: getVal('natureza'), x: 45, y: 178, size: 8 },
+        { val: getVal('local_fato'), x: 45, y: 160, size: 8 },
+        { val: getVal('armas'), x: 45, y: 130, size: 8 },
+        { val: getVal('entorpecentes'), x: 300, y: 130, size: 8 },
+        { val: getVal('bo_pc'), x: 45, y: 45, size: 9 },
+        { val: getVal('encarregado'), x: 260, y: 45, size: 9 }
       ];
 
-      fields.forEach((field, index) => {
-        if (index < valuesArray.length && valuesArray[index]) {
-          try {
-            if (field.constructor.name === 'PDFTextField') {
-              field.setText(valuesArray[index]);
-            }
-          } catch (e) {}
+      fields.forEach(f => {
+        if (f.val) {
+          page.drawText(f.val, {
+            x: f.x,
+            y: f.y,
+            size: f.size,
+            color: rgb(0, 0, 0)
+          });
         }
       });
 
-      form.flatten();
       return await pdfDoc.save();
     }
 
@@ -227,10 +220,10 @@
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `PM_O-004_${formData.nome || 'PRESO'}.pdf`;
+        link.download = `PM_O-004_${getVal('nome') || 'OCORRENCIA'}.pdf`;
         link.click();
       } catch (err) {
-        alert('Erro ao carregar o modelo.pdf.');
+        alert('Erro ao gerar o PDF. Verifique o ficheiro modelo.pdf no GitHub.');
       }
     }
 
@@ -254,13 +247,13 @@
 
       if (!emailDest) {
         statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
-        statusDiv.innerText = 'Por favor, digite o e-mail de destino.';
+        statusDiv.innerText = 'Por favor, insira o e-mail de destino.';
         return;
       }
 
       btnSend.disabled = true;
       statusDiv.className = 'text-xs mb-3 font-bold text-center text-blue-600';
-      statusDiv.innerText = 'A gerando PDF e enviando...';
+      statusDiv.innerText = 'A gerar PDF e a enviar...';
 
       try {
         const pdfBytes = await generatePDFArrayBuffer();
@@ -268,8 +261,8 @@
 
         const payload = {
           emailDestino: emailDest,
-          nomePreso: formData.nome || '',
-          fileName: `PM_O-004_${formData.nome || 'OCORRENCIA'}.pdf`,
+          nomePreso: getVal('nome'),
+          fileName: `PM_O-004_${getVal('nome') || 'OCORRENCIA'}.pdf`,
           fileBase64: base64Pdf
         };
 
@@ -281,7 +274,7 @@
         });
 
         statusDiv.className = 'text-xs mb-3 font-bold text-center text-green-600';
-        statusDiv.innerText = '✓ E-mail enviado com sucesso com o PDF anexado!';
+        statusDiv.innerText = '✓ E-mail enviado com sucesso com o PDF totalmente preenchido!';
         setTimeout(() => toggleEmailModal(), 2500);
       } catch (err) {
         statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
@@ -290,8 +283,6 @@
         btnSend.disabled = false;
       }
     }
-
-    window.onload = renderStep;
   </script>
 </body>
 </html>
