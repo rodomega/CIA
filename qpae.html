@@ -3,346 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qualificação de Preso, Armas e Entorpecentes (PM O-004)</title>
-  <!-- Tailwind CSS para o assistente responsivo -->
+  <title>Preenchimento PM O-004</title>
+  <!-- Tailwind CSS para interface responsiva -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2pdf.js para gerar o PDF fiel ao layout -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    @media print {
-      .no-print { display: none !important; }
-      body { background: #fff !important; padding: 0 !important; }
-    }
-    .doc-page {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 8.5pt;
-      color: #000;
-      line-height: 1.15;
-    }
-    .doc-table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    .doc-table td, .doc-table th {
-      border: 1px solid #000;
-      padding: 1px 3px;
-      vertical-align: top;
-    }
-    .header-title {
-      font-weight: bold;
-      text-align: center;
-      font-size: 10pt;
-    }
-    .bg-gray-doc {
-      background-color: #e5e7eb;
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 8pt;
-    }
-    /* Estilo do dado preenchido em PRETO e MAIÚSCULO */
-    .field-val {
-      color: #000000 !important;
-      font-weight: bold;
-      text-transform: uppercase;
-      word-break: break-word;
-    }
-  </style>
+  <!-- pdf-lib para modificar o PDF original preservando 100% do layout -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <!-- fontkit para suporte a fontes no pdf-lib -->
+  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
 </head>
-<body class="bg-gray-200 min-h-screen flex flex-col items-center p-2 sm:p-4">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-3">
 
-  <!-- ==================== WIZARD / PASSO A PASSO (Apenas 1 campo por vez) ==================== -->
-  <div id="wizard-container" class="no-print w-full max-w-2xl bg-white shadow-xl rounded-xl p-6 mb-6">
-    <div class="mb-4">
-      <div class="flex justify-between items-center text-xs font-semibold text-gray-600 mb-1">
+  <!-- ==================== WIZARD / CAMPO POR CAMPO ==================== -->
+  <div id="wizard-container" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4">
+    <!-- Barra de Progresso -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center text-xs font-bold text-gray-500 mb-2">
         <span id="step-counter">Passo 1 de 1</span>
-        <span id="step-percent">0%</span>
+        <span id="step-percent" class="text-red-700">0%</span>
       </div>
-      <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
-        <div id="progress-bar" class="bg-red-800 h-2.5 transition-all duration-300" style="width: 0%"></div>
+      <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+        <div id="progress-bar" class="bg-red-700 h-3 transition-all duration-300" style="width: 0%"></div>
       </div>
     </div>
 
-    <!-- Campo Atual -->
-    <div id="step-content" class="min-h-[130px] flex flex-col justify-center my-3">
-      <!-- Injetado dinamicamente via JS -->
+    <!-- Conteúdo da Pergunta Atual -->
+    <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-2">
+      <!-- Injetado via JS -->
     </div>
 
     <!-- Navegação -->
-    <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-      <button id="btn-prev" onclick="prevStep()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+    <div class="flex justify-between items-center pt-6 border-t border-gray-100 mt-4">
+      <button id="btn-prev" onclick="prevStep()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-bold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
         ← Voltar
       </button>
-      <button id="btn-next" onclick="nextStep()" class="px-6 py-2 bg-red-800 hover:bg-red-900 text-white text-sm font-semibold rounded-lg shadow transition">
+      <button id="btn-next" onclick="nextStep()" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition">
         Avançar →
       </button>
     </div>
   </div>
 
-  <!-- ==================== PAINEL FINAL (DOWNLOAD / E-MAIL) ==================== -->
-  <div id="final-actions" class="no-print w-full max-w-2xl bg-white shadow-xl rounded-xl p-6 mb-6 hidden">
-    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Formulário PM O-004 Preenchido!</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-      <button onclick="downloadPDF()" class="w-full py-3 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg shadow transition flex justify-center items-center gap-2">
-        📥 Descarregar PDF do Documento
+  <!-- ==================== PAINEL FINAL ==================== -->
+  <div id="final-actions" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4 hidden text-center">
+    <div class="text-green-600 text-5xl mb-2">✓</div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Formulário Concluído!</h2>
+    <p class="text-xs text-gray-500 mb-6">Todos os campos foram inseridos diretamente sobre o documento original PM O-004.</p>
+    
+    <div class="space-y-3">
+      <button onclick="generateAndDownloadPDF()" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
+        📥 Baixar PDF Original Preenchido
       </button>
-      <button onclick="toggleEmailModal()" class="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg shadow transition flex justify-center items-center gap-2">
+      <button onclick="toggleEmailModal()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
         ✉️ Enviar Dados por E-mail
       </button>
+      <button onclick="goToStep(0)" class="w-full py-2 text-sm text-gray-600 font-semibold hover:underline">
+        ✏️ Voltar e Editar Dados
+      </button>
     </div>
-    <button onclick="goToStep(0)" class="w-full text-center text-sm text-gray-600 hover:underline">
-      ✏️ Voltar e Alterar Dados
-    </button>
   </div>
 
   <!-- MODAL DE E-MAIL -->
-  <div id="email-modal" class="no-print fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 hidden z-50">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar Ficha por E-mail</h3>
-      <p class="text-xs text-gray-600 mb-4">Digite o e-mail do destinatário. Será aberto a sua aplicação de e-mail pronta para envio com todos os dados preenchidos.</p>
-      <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+  <div id="email-modal" class="fixed inset-0 bg-black/60 flex justify-center items-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar por E-mail</h3>
+      <p class="text-xs text-gray-500 mb-4">Insira o e-mail de destino para abrir a sua aplicação com a ficha pronta para envio.</p>
+      <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-3 border border-gray-300 rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500">
       <div class="flex justify-end gap-2">
-        <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg">Cancelar</button>
-        <button onclick="sendEmailDirect()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-lg">Abrir E-mail e Enviar</button>
+        <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-xl">Cancelar</button>
+        <button onclick="sendEmailDirect()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl">Abrir E-mail</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== DOCUMENTO IMPRESSO IDENTICO AO ORIGINAL (PM O-004) ==================== -->
-  <div class="w-full flex justify-center overflow-x-auto pb-10">
-    <div id="documento-pm" class="doc-page bg-white w-[790px] p-4 border border-black shadow-2xl">
-      
-      <!-- Cabeçalho Oficial -->
-      <table class="doc-table mb-1">
-        <tr>
-          <td width="15%" class="text-center align-middle p-1">
-            <svg class="w-12 h-14 mx-auto" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 5 L85 25 V60 C85 85 50 110 50 110 C50 110 15 85 15 60 V25 L50 5 Z" fill="#D12621" stroke="#000" stroke-width="2"/>
-              <text x="50" y="55" font-size="28" font-weight="bold" fill="#FFF" text-anchor="middle">SP</text>
-              <polygon points="50,12 53,22 63,22 55,28 58,38 50,32 42,38 45,28 37,22 47,22" fill="#FFF"/>
-            </svg>
-            <span class="text-[7pt] font-bold block mt-0.5">ESTADO DE SÃO PAULO</span>
-          </td>
-          <td width="85%" class="text-center align-middle">
-            <div class="text-[11pt] font-bold">POLÍCIA MILITAR DO ESTADO DE SÃO PAULO</div>
-            <div class="text-[11pt] font-bold border-t border-black mt-1 pt-0.5">QUALIFICAÇÃO DE PRESO, ARMAS E ENTORPECENTES</div>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Seção: QUALIFICAÇÃO DO PRESO -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td colspan="6">QUALIFICAÇÃO DO PRESO</td></tr>
-        <tr>
-          <td colspan="4"><strong>NOME:</strong> <span id="out-nome" class="field-val"></span></td>
-          <td colspan="2"><strong>VULGO:</strong> <span id="out-vulgo" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="3"><strong>PAI:</strong> <span id="out-pai" class="field-val"></span></td>
-          <td colspan="3"><strong>MÃE:</strong> <span id="out-mae" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td><strong>RG:</strong> <span id="out-rg" class="field-val"></span></td>
-          <td><strong>DC/UF:</strong> <span id="out-dc-uf" class="field-val"></span></td>
-          <td><strong>OUTRO DOC:</strong> <span id="out-outro-doc" class="field-val"></span></td>
-          <td><strong>NÚMERO/SÉRIE/DÍGITO:</strong> <span id="out-num-serie" class="field-val"></span></td>
-          <td><strong>SEXO:</strong> <span id="out-sexo" class="field-val"></span></td>
-          <td><strong>DATA NASC.:</strong> <span id="out-data-nasc" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>ESTADO CIVIL:</strong> <span id="out-estado-civil" class="field-val"></span></td>
-          <td colspan="2"><strong>NATURALIDADE / UF:</strong> <span id="out-naturalidade" class="field-val"></span></td>
-          <td><strong>NACIONALIDADE:</strong> <span id="out-nacionalidade" class="field-val"></span></td>
-          <td><strong>PROFISSÃO:</strong> <span id="out-profissao" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="3"><strong>ENDEREÇO RESIDENCIAL:</strong> <span id="out-end-res" class="field-val"></span></td>
-          <td><strong>COMPL.:</strong> <span id="out-compl-res" class="field-val"></span></td>
-          <td><strong>BAIRRO:</strong> <span id="out-bairro-res" class="field-val"></span></td>
-          <td><strong>MUNICÍPIO / TEL:</strong> <span id="out-mun-tel" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="4"><strong>ENDEREÇO DO LOCAL DE TRABALHO:</strong> <span id="out-end-trab" class="field-val"></span></td>
-          <td colspan="2"><strong>TELEFONE TRABALHO:</strong> <span id="out-tel-trab" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="6">
-            <strong>POSSUI ANTECEDENTES CRIMINAIS?</strong>
-            <span id="out-antecedentes" class="field-val ml-2"></span>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Seção: CARACTERÍSTICAS FÍSICAS -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td colspan="4">CARACTERÍSTICAS FÍSICAS</td></tr>
-        <tr>
-          <td width="20%"><strong>ALTURA APROX.:</strong> <span id="out-altura" class="field-val"></span> m</td>
-          <td width="30%"><strong>TIPO FÍSICO (COMPLEIÇÃO):</strong> <span id="out-compleicao" class="field-val"></span></td>
-          <td width="25%"><strong>PELE (CÚTIS):</strong> <span id="out-pele" class="field-val"></span></td>
-          <td width="25%"><strong>CABELO:</strong> <span id="out-cabelo" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td><strong>OLHOS:</strong> <span id="out-olhos" class="field-val"></span></td>
-          <td colspan="3"><strong>REGIÕES ANATÔMICAS / MARCAS / TATUAGENS (CODIFICAÇÃO D/M/S):</strong> <span id="out-cod-anat" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="4"><strong>DESCRIÇÃO SUCINTA DA TATUAGEM:</strong> <span id="out-desc-tat" class="field-val"></span></td>
-        </tr>
-      </table>
-
-      <!-- Tabela Ilustrativa de Códigos Anatómicos (Fiel ao Original) -->
-      <table class="doc-table mb-1 text-[7pt]">
-        <tr class="bg-gray-doc"><td colspan="6" class="text-center">TABELA DE CODIFICAÇÕES DA REGIÃO ANATÔMICA (REG ANAT) E DEFEITO/MARCA/SINAL (D/M/S)</td></tr>
-        <tr>
-          <td width="16%"><strong>CABEÇA</strong><br>C01-Boca | C02-Crânio<br>C03-Dente | C04-Face D<br>C05-Face E | C06-Nariz<br>C08-Olho D | C09-Olho E</td>
-          <td width="16%"><strong>CABEÇA / TRONCO</strong><br>C10-Orelha D | C11-Orelha E<br>C12-Queixo | C13-Pescoço<br>T01-Barriga | T02-Costas<br>T03-Tórax</td>
-          <td width="17%"><strong>MEMBROS (M01-M08)</strong><br>M01-Braço D | M02-Braço E<br>M03-Coxa D | M04-Coxa E<br>M05-Dedo Mão D<br>M06-Dedo Mão E</td>
-          <td width="17%"><strong>MEMBROS (M09-M17)</strong><br>M09-Mão D | M10-Mão E<br>M12-Pé D | M13-Pé E<br>M14-Perna D | M15-Perna E<br>M16-Punho D | M17-Punho E</td>
-          <td width="17%"><strong>D / M / S</strong><br>D01-Atrofiado | D02-Cego<br>D03-Cicatriz | D08-Mancha<br>D11-Pinta | D12-Queimadura<br>D14-Tatuagem</td>
-          <td width="17%"><strong>EXEMPLOS</strong><br>M09D14 = Mão Direita Tatuada<br>T01D03 = Barriga c/ Cicatriz<br>M15D14 = Perna Esq. Tatuada<br>T01D11 = Barriga c/ Pinta</td>
-        </tr>
-      </table>
-
-      <!-- Seção: DADOS DA OCORRÊNCIA -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td colspan="4">DADOS DA OCORRÊNCIA</td></tr>
-        <tr>
-          <td><strong>EMISSÃO BO PM:</strong> <span id="out-emissao-bo" class="field-val"></span></td>
-          <td><strong>NÚMERO BO PM:</strong> <span id="out-bo-pm" class="field-val"></span></td>
-          <td><strong>NOME DA OPM:</strong> <span id="out-opm" class="field-val"></span></td>
-          <td><strong>CÓD. OPM / PREFIXO VIATURA:</strong> <span id="out-viatura" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>NATUREZA DA OCORRÊNCIA:</strong> <span id="out-natureza" class="field-val"></span></td>
-          <td><strong>DATA DO FATO:</strong> <span id="out-data-fato" class="field-val"></span></td>
-          <td><strong>HORA DO FATO:</strong> <span id="out-hora-fato" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>LOGRADOURO:</strong> <span id="out-logradouro" class="field-val"></span></td>
-          <td><strong>COMPL. / BAIRRO:</strong> <span id="out-bairro-fato" class="field-val"></span></td>
-          <td><strong>MUNICÍPIO / TIPO LOCAL:</strong> <span id="out-mun-local" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="4"><strong>SITUAÇÃO DA OCORRÊNCIA:</strong> <span id="out-situacao" class="field-val"></span></td>
-        </tr>
-      </table>
-
-      <!-- Seção: APREENSÃO DE ARMAS DE FOGO -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td colspan="5">APREENSÃO DE ARMAS DE FOGO</td></tr>
-        <tr class="font-bold text-[7.5pt] text-center">
-          <td width="20%">TIPO</td>
-          <td width="20%">MARCA</td>
-          <td width="15%">CALIBRE</td>
-          <td width="20%">ACABAMENTO (COR)</td>
-          <td width="25%">NÚMERO DE FABRICAÇÃO</td>
-        </tr>
-        <tr>
-          <td colspan="5" id="out-armas-list" class="field-val p-1 whitespace-pre-line">Nenhuma arma cadastrada</td>
-        </tr>
-      </table>
-
-      <!-- Seção: APREENSÃO DE ENTORPECENTES -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td colspan="2">APREENSÃO DE ENTORPECENTES</td></tr>
-        <tr class="font-bold text-[7.5pt] text-center">
-          <td width="60%">TIPO (MACONHA, COCAÍNA, CRACK, ETC)</td>
-          <td width="40%">QUANTIDADE / PESO</td>
-        </tr>
-        <tr>
-          <td colspan="2" id="out-entorpecentes-list" class="field-val p-1 whitespace-pre-line">Nenhum entorpecente cadastrado</td>
-        </tr>
-      </table>
-
-      <!-- Seção: MODUS OPERANDI E OBSERVAÇÕES -->
-      <table class="doc-table mb-1">
-        <tr class="bg-gray-doc"><td>"MODUS OPERANDI" DO QUALIFICADO</td></tr>
-        <tr><td id="out-modus" class="field-val min-h-[30px] p-1"></td></tr>
-        <tr class="bg-gray-doc"><td>OBSERVAÇÕES</td></tr>
-        <tr><td id="out-obs" class="field-val min-h-[30px] p-1"></td></tr>
-      </table>
-
-      <!-- Seção: DADOS DO DP / ENCARREGADO -->
-      <table class="doc-table">
-        <tr class="bg-gray-doc"><td colspan="4">DADOS DO DP / ENCARREGADO DA OCORRÊNCIA</td></tr>
-        <tr>
-          <td><strong>NÚMERO DO DP:</strong> <span id="out-num-dp" class="field-val"></span></td>
-          <td><strong>NÚMERO DO BO PC:</strong> <span id="out-bo-pc" class="field-val"></span></td>
-          <td><strong>MUNICÍPIO DO DP:</strong> <span id="out-mun-dp" class="field-val"></span></td>
-          <td><strong>ENCARREGADO (POSTO/GRAD/RE):</strong> <span id="out-encarregado" class="field-val"></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><strong>VISTO CMT CIA:</strong> <span id="out-visto-cmt" class="field-val"></span></td>
-          <td colspan="2"><strong>DATA / ASSINATURA:</strong> <span id="out-data-assinatura" class="field-val"></span></td>
-        </tr>
-      </table>
-
-    </div>
-  </div>
-
   <script>
-    // Definição item a item
+    // Mapeamento das posições X, Y no documento original PM O-004
     const steps = [
-      // Qualificação
-      { id: 'nome', label: 'Nome Completo do Preso/Qualificado', type: 'text', target: 'out-nome' },
-      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text', target: 'out-vulgo' },
-      { id: 'pai', label: 'Nome do Pai', type: 'text', target: 'out-pai' },
-      { id: 'mae', label: 'Nome da Mãe', type: 'text', target: 'out-mae' },
-      { id: 'rg', label: 'Número do RG', type: 'text', target: 'out-rg' },
-      { id: 'dc_uf', label: 'Dígito (DC) e UF do RG', type: 'text', target: 'out-dc-uf', placeholder: 'ex: 0 / SP' },
-      { id: 'outro_doc', label: 'Tipo do Outro Documento (CPF, CNH, etc)', type: 'text', target: 'out-outro-doc' },
-      { id: 'num_serie', label: 'Número / Série / Dígito do Documento', type: 'text', target: 'out-num-serie' },
-      { id: 'sexo', label: 'Sexo', type: 'select', options: ['MASCULINO', 'FEMININO'], target: 'out-sexo' },
-      { id: 'data_nasc', label: 'Data de Nascimento', type: 'date', target: 'out-data-nasc' },
-      { id: 'estado_civil', label: 'Estado Civil', type: 'select', options: ['SOLTEIRO(A)', 'CASADO(A)', 'DIVORCIADO(A)', 'AMASIADO(A)', 'VIÚVO(A)'], target: 'out-estado-civil' },
-      { id: 'naturalidade', label: 'Naturalidade e UF', type: 'text', target: 'out-naturalidade', placeholder: 'ex: São Paulo / SP' },
-      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', target: 'out-nacionalidade', default: 'BRASILEIRA' },
-      { id: 'profissao', label: 'Profissão', type: 'text', target: 'out-profissao' },
-      { id: 'end_res', label: 'Endereço Residencial (Av, Rua, Nº)', type: 'text', target: 'out-end-res' },
-      { id: 'compl_res', label: 'Complemento Residencial', type: 'text', target: 'out-compl-res' },
-      { id: 'bairro_res', label: 'Bairro Residencial', type: 'text', target: 'out-bairro-res' },
-      { id: 'mun_tel', label: 'Município e Telefone Residencial', type: 'text', target: 'out-mun-tel' },
-      { id: 'end_trab', label: 'Endereço do Local de Trabalho', type: 'text', target: 'out-end-trab' },
-      { id: 'tel_trab', label: 'Telefone do Trabalho', type: 'text', target: 'out-tel-trab' },
-      { id: 'antecedentes', label: 'Possui Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'], target: 'out-antecedentes' },
-
-      // Características
-      { id: 'altura', label: 'Altura Aproximada (em metros)', type: 'text', target: 'out-altura', placeholder: 'ex: 1.75' },
-      { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'select', options: ['100 - FRANZINO', '101 - MAGRO', '102 - MÉDIO', '103 - FORTE', '104 - MUITO FORTE', '105 - GORDO'], target: 'out-compleicao' },
-      { id: 'pele', label: 'Pele (Cútis)', type: 'select', options: ['110 - ALBINA', '111 - AMARELA', '112 - BRANCA', '113 - PARDA CLARA', '114 - PARDA ESCURA', '115 - PRETA', '116 - VERMELHA'], target: 'out-pele' },
-      { id: 'cabelo', label: 'Cabelo (Tipo e Cor)', type: 'text', target: 'out-cabelo', placeholder: 'ex: LISO E PRETO' },
-      { id: 'olhos', label: 'Olhos', type: 'select', options: ['140 - PRETOS', '141 - CASTANHOS ESCUROS', '142 - CASTANHOS CLAROS', '143 - VERDES', '144 - AZUIS', '145 - HETEROFTALMO'], target: 'out-olhos' },
-      { id: 'cod_anat', label: 'Codificação Anatômica (D/M/S)', type: 'text', target: 'out-cod-anat', placeholder: 'ex: M09D14 (Mão D Tatuada), T01D03 (Barriga c/ Cicatriz)' },
-      { id: 'desc_tat', label: 'Descrição Sucinta da Tatuagem / Sinal', type: 'textarea', target: 'out-desc-tat' },
+      { id: 'nome', label: 'Nome Completo do Preso', type: 'text', x: 50, y: 720, page: 0 },
+      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text', x: 400, y: 720, page: 0 },
+      { id: 'pai', label: 'Nome do Pai', type: 'text', x: 50, y: 700, page: 0 },
+      { id: 'mae', label: 'Nome da Mãe', type: 'text', x: 300, y: 700, page: 0 },
+      { id: 'rg', label: 'RG', type: 'text', x: 50, y: 680, page: 0 },
+      { id: 'dc', label: 'DC/UF', type: 'text', x: 150, y: 680, page: 0 },
+      { id: 'outro_doc', label: 'Outro Documento (CPF/CNH)', type: 'text', x: 220, y: 680, page: 0 },
+      { id: 'num_doc', label: 'Número / Série', type: 'text', x: 320, y: 680, page: 0 },
+      { id: 'sexo', label: 'Sexo', type: 'select', options: ['MASCULINO', 'FEMININO'], x: 420, y: 680, page: 0 },
+      { id: 'data_nasc', label: 'Data de Nascimento', type: 'date', x: 480, y: 680, page: 0 },
+      { id: 'estado_civil', label: 'Estado Civil', type: 'text', x: 50, y: 660, page: 0 },
+      { id: 'naturalidade', label: 'Naturalidade / UF', type: 'text', x: 200, y: 660, page: 0 },
+      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', x: 350, y: 660, page: 0, default: 'BRASILEIRA' },
+      { id: 'profissao', label: 'Profissão', type: 'text', x: 450, y: 660, page: 0 },
+      { id: 'end_res', label: 'Endereço Residencial', type: 'text', x: 50, y: 640, page: 0 },
+      { id: 'bairro_mun', label: 'Bairro e Município Residencial', type: 'text', x: 300, y: 640, page: 0 },
+      { id: 'tel', label: 'Telefone Residencial', type: 'text', x: 480, y: 640, page: 0 },
+      { id: 'end_trab', label: 'Endereço do Local de Trabalho', type: 'text', x: 50, y: 620, page: 0 },
+      { id: 'antecedentes', label: 'Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'], x: 350, y: 620, page: 0 },
+      
+      // Características Físicas
+      { id: 'altura', label: 'Altura Aproximada (m)', type: 'text', x: 50, y: 580, page: 0 },
+      { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'text', x: 180, y: 580, page: 0 },
+      { id: 'pele', label: 'Pele (Cútis)', type: 'text', x: 320, y: 580, page: 0 },
+      { id: 'cabelo', label: 'Cabelo', type: 'text', x: 420, y: 580, page: 0 },
+      { id: 'olhos', label: 'Olhos', type: 'text', x: 50, y: 560, page: 0 },
+      { id: 'cod_anat', label: 'Codificação Anatômica / Marcas (D/M/S)', type: 'text', x: 180, y: 560, page: 0 },
+      { id: 'desc_tat', label: 'Descrição Sucinta da Tatuagem', type: 'textarea', x: 50, y: 520, page: 0 },
 
       // Ocorrência
-      { id: 'emissao_bo', label: 'Emissão do BO PM (Data/Hora)', type: 'text', target: 'out-emissao-bo' },
-      { id: 'bo_pm', label: 'Número do BO PM', type: 'text', target: 'out-bo-pm' },
-      { id: 'opm', label: 'Nome da OPM (Companhia / Batalhão)', type: 'text', target: 'out-opm' },
-      { id: 'viatura', label: 'Cód. OPM / Prefixo da Viatura', type: 'text', target: 'out-viatura' },
-      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text', target: 'out-natureza' },
-      { id: 'data_fato', label: 'Data do Fato', type: 'date', target: 'out-data-fato' },
-      { id: 'hora_fato', label: 'Hora do Fato', type: 'text', target: 'out-hora-fato', placeholder: 'ex: 14:30' },
-      { id: 'logradouro', label: 'Logradouro do Fato', type: 'text', target: 'out-logradouro' },
-      { id: 'bairro_fato', label: 'Complemento / Bairro do Fato', type: 'text', target: 'out-bairro-fato' },
-      { id: 'mun_local', label: 'Município / Tipo de Local (Rua, Favela, Veículo)', type: 'text', target: 'out-mun-local' },
-      { id: 'situacao', label: 'Situação da Ocorrência', type: 'select', options: ['1 - FLAGRANTE POR CRIME', '2 - FLAGRANTE POR CONTRAVENÇÃO', '3 - FLAGRANTE ATO INFRACIONAL', '4 - PROCURADO PELA JUSTIÇA', '5 - EVADIDO', '6 - POSSUI BENEFÍCIO', '7 - OUTROS'], target: 'out-situacao' },
+      { id: 'bo_pm', label: 'Número do BO PM', type: 'text', x: 50, y: 460, page: 0 },
+      { id: 'opm', label: 'Nome / Cód. OPM', type: 'text', x: 200, y: 460, page: 0 },
+      { id: 'viatura', label: 'Prefixo Viatura', type: 'text', x: 400, y: 460, page: 0 },
+      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text', x: 50, y: 440, page: 0 },
+      { id: 'data_fato', label: 'Data do Fato', type: 'date', x: 350, y: 440, page: 0 },
+      { id: 'hora_fato', label: 'Hora do Fato', type: 'text', x: 480, y: 440, page: 0 },
+      { id: 'local_fato', label: 'Logradouro / Bairro / Local', type: 'text', x: 50, y: 420, page: 0 },
+      { id: 'situacao', label: 'Situação da Ocorrência', type: 'text', x: 50, y: 400, page: 0 },
 
       // Apreensões
-      { id: 'armas_list', label: 'Apreensão de Armas de Fogo (Tipo, Marca, Calibre, Cor, Nº Fabricação)', type: 'textarea', target: 'out-armas-list', placeholder: 'ex: REVÓLVER, ROSSI, CALIBRE 38, INOX, Nº 123456' },
-      { id: 'entorpecentes_list', label: 'Apreensão de Entorpecentes (Tipo e Quantidade/Peso)', type: 'textarea', target: 'out-entorpecentes-list', placeholder: 'ex: COCAÍNA - 50 PINOS (0,045 KG)\nMACONHA - 1 TIJOLO (0,800 KG)' },
+      { id: 'armas', label: 'Apreensão de Armas de Fogo', type: 'textarea', x: 50, y: 340, page: 0 },
+      { id: 'entorpecentes', label: 'Apreensão de Entorpecentes', type: 'textarea', x: 300, y: 340, page: 0 },
 
-      // Modus & Obs
-      { id: 'modus', label: 'Modus Operandi do Qualificado', type: 'textarea', target: 'out-modus' },
-      { id: 'obs', label: 'Observações Gerais', type: 'textarea', target: 'out-obs' },
-
-      // DP
-      { id: 'num_dp', label: 'Número do DP', type: 'text', target: 'out-num-dp' },
-      { id: 'bo_pc', label: 'Número do BO da Polícia Civil', type: 'text', target: 'out-bo-pc' },
-      { id: 'mun_dp', label: 'Município do DP', type: 'text', target: 'out-mun-dp' },
-      { id: 'encarregado', label: 'Encarregado (Posto/Grad., RE e Nome)', type: 'text', target: 'out-encarregado' },
-      { id: 'visto_cmt', label: 'Visto Comandante Cia', type: 'text', target: 'out-visto-cmt' },
-      { id: 'data_assinatura', label: 'Data e Local da Assinatura', type: 'text', target: 'out-data-assinatura' }
+      // Modus & DP
+      { id: 'modus', label: 'Modus Operandi do Qualificado', type: 'textarea', x: 50, y: 260, page: 0 },
+      { id: 'obs', label: 'Observações Gerais', type: 'textarea', x: 50, y: 200, page: 0 },
+      { id: 'bo_pc', label: 'Número do DP e BO PC', type: 'text', x: 50, y: 120, page: 0 },
+      { id: 'encarregado', label: 'Encarregado (Posto/Grad./RE/Nome)', type: 'text', x: 250, y: 120, page: 0 }
     ];
 
     let currentStep = 0;
@@ -362,43 +144,41 @@
 
       if (step.type === 'select') {
         inputHtml = `
-          <select id="input-field" class="w-full p-3 border-2 border-red-800 rounded-lg text-base focus:outline-none bg-white font-bold">
+          <select id="input-field" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold bg-white outline-none">
             <option value="">-- SELECIONE --</option>
             ${step.options.map(opt => `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
           </select>
         `;
       } else if (step.type === 'textarea') {
         inputHtml = `
-          <textarea id="input-field" rows="3" class="w-full p-3 border-2 border-red-800 rounded-lg text-base focus:outline-none font-bold uppercase" placeholder="${step.placeholder || ''}">${currentValue}</textarea>
+          <textarea id="input-field" rows="3" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none" placeholder="${step.placeholder || ''}">${currentValue}</textarea>
         `;
       } else {
         inputHtml = `
-          <input type="${step.type}" id="input-field" value="${currentValue}" placeholder="${step.placeholder || ''}" class="w-full p-3 border-2 border-red-800 rounded-lg text-base focus:outline-none font-bold uppercase">
+          <input type="${step.type}" id="input-field" value="${currentValue}" placeholder="${step.placeholder || ''}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
         `;
       }
 
       stepContent.innerHTML = `
-        <label class="block text-sm font-bold text-gray-800 mb-2 uppercase tracking-wide">${step.label}</label>
+        <label class="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wider">${step.label}</label>
         ${inputHtml}
       `;
 
       document.getElementById('btn-prev').disabled = currentStep === 0;
       
       if (currentStep === steps.length - 1) {
-        document.getElementById('btn-next').innerText = 'Finalizar e Concluir ✔';
-        document.getElementById('btn-next').className = 'px-6 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-lg shadow transition';
+        document.getElementById('btn-next').innerText = 'Finalizar ✔';
+        document.getElementById('btn-next').className = 'px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-lg transition';
       } else {
         document.getElementById('btn-next').innerText = 'Avançar →';
-        document.getElementById('btn-next').className = 'px-6 py-2 bg-red-800 hover:bg-red-900 text-white text-sm font-semibold rounded-lg shadow transition';
+        document.getElementById('btn-next').className = 'px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition';
       }
 
       const field = document.getElementById('input-field');
       field.focus();
       if (step.type !== 'textarea') {
         field.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            nextStep();
-          }
+          if (e.key === 'Enter') nextStep();
         });
       }
     }
@@ -407,13 +187,7 @@
       const step = steps[currentStep];
       const field = document.getElementById('input-field');
       if (field) {
-        const value = field.value.toUpperCase();
-        formData[step.id] = value;
-        
-        const targetElement = document.getElementById(step.target);
-        if (targetElement) {
-          targetElement.innerText = value || '';
-        }
+        formData[step.id] = field.value.toUpperCase();
       }
     }
 
@@ -443,97 +217,67 @@
       renderStep();
     }
 
-    // Gerar e Descarregar PDF Fiel
-    function downloadPDF() {
-      const element = document.getElementById('documento-pm');
-      const filename = `PM_O-004_${formData.nome || 'PRESO'}.pdf`;
-      
-      const opt = {
-        margin:       0.2,
-        filename:     filename,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
+    // Carrega modelo.pdf e preenche dinamicamente
+    async function generateAndDownloadPDF() {
+      try {
+        const existingPdfBytes = await fetch('./modelo.pdf').then(res => res.arrayBuffer());
+        
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
 
-      html2pdf().set(opt).from(element).save();
+        steps.forEach(step => {
+          const val = formData[step.id];
+          if (val) {
+            firstPage.drawText(String(val), {
+              x: step.x,
+              y: step.y,
+              size: 9,
+              color: rgb(0, 0, 0)
+            });
+          }
+        });
+
+        const pdfBytes = await pdfDoc.save();
+        
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `PM_O-004_${formData.nome || 'PRESO'}.pdf`;
+        link.click();
+      } catch (err) {
+        alert('Atenção: Verifique se o ficheiro "modelo.pdf" está na mesma pasta no GitHub/Celular.');
+        console.error(err);
+      }
     }
 
-    // Modal E-mail
     function toggleEmailModal() {
       document.getElementById('email-modal').classList.toggle('hidden');
     }
 
-    // Enviar por e-mail abrindo a aplicação padrão
     function sendEmailDirect() {
       const destEmail = document.getElementById('email-destination').value;
-      if (!destEmail) {
-        alert('Por favor, digite o e-mail de destino.');
-        return;
-      }
+      if (!destEmail) return alert('Insira um e-mail válido.');
 
-      const subject = encodeURIComponent(`RELATÓRIO PM O-004 - PRESO: ${formData.nome || 'NÃO INFORMADO'}`);
-      
-      const bodyText = 
-`RELATÓRIO DA OCORRÊNCIA - FICHA PM O-004
-============================================
+      const subject = encodeURIComponent(`RELATÓRIO PM O-004: ${formData.nome || ''}`);
+      const body = encodeURIComponent(
+        `RELATÓRIO DA OCORRÊNCIA PM O-004\n\n` +
+        `NOME: ${formData.nome || ''}\n` +
+        `VULGO: ${formData.vulgo || ''}\n` +
+        `RG: ${formData.rg || ''}\n` +
+        `BO PM: ${formData.bo_pm || ''}\n` +
+        `NATUREZA: ${formData.natureza || ''}\n` +
+        `ARMAS: ${formData.armas || 'Nenhuma'}\n` +
+        `ENTORPECENTES: ${formData.entorpecentes || 'Nenhum'}\n` +
+        `ENCARREGADO: ${formData.encarregado || ''}`
+      );
 
-QUALIFICAÇÃO DO PRESO:
---------------------------------------------
-- Nome: ${formData.nome || ''}
-- Vulgo: ${formData.vulgo || ''}
-- RG: ${formData.rg || ''} (DC/UF: ${formData.dc_uf || ''})
-- Outro Doc: ${formData.outro_doc || ''} - ${formData.num_serie || ''}
-- Pai: ${formData.pai || ''}
-- Mãe: ${formData.mae || ''}
-- Data Nascimento: ${formData.data_nasc || ''} | Sexo: ${formData.sexo || ''}
-- Estado Civil: ${formData.estado_civil || ''}
-- Endereço Residencial: ${formData.end_res || ''}, ${formData.bairro_res || ''}
-- Antecedentes Criminais: ${formData.antecedentes || ''}
-
-CARACTERÍSTICAS FÍSICAS:
---------------------------------------------
-- Altura: ${formData.altura || ''} m | Físico: ${formData.compleicao || ''}
-- Pele: ${formData.pele || ''} | Cabelo: ${formData.cabelo || ''} | Olhos: ${formData.olhos || ''}
-- Marcas/Tatuagens (Codificação): ${formData.cod_anat || ''}
-- Descrição Tatuagens: ${formData.desc_tat || ''}
-
-DADOS DA OCORRÊNCIA:
---------------------------------------------
-- BO PM Nº: ${formData.bo_pm || ''} | OPM: ${formData.opm || ''}
-- Viatura Prefixo: ${formData.viatura || ''}
-- Natureza: ${formData.natureza || ''}
-- Data/Hora do Fato: ${formData.data_fato || ''} às ${formData.hora_fato || ''}
-- Local: ${formData.logradouro || ''}, ${formData.bairro_fato || ''}
-- Situação: ${formData.situacao || ''}
-
-APREENSÕES:
---------------------------------------------
-- Armas de Fogo:
-${formData.armas_list || 'Nenhuma'}
-
-- Entorpecentes:
-${formData.entorpecentes_list || 'Nenhum'}
-
-MODUS OPERANDI E OBSERVAÇÕES:
---------------------------------------------
-- Modus Operandi: ${formData.modus || ''}
-- Observações: ${formData.obs || ''}
-
-DADOS DO DP:
---------------------------------------------
-- DP Nº: ${formData.num_dp || ''} | BO PC Nº: ${formData.bo_pc || ''}
-- Encarregado: ${formData.encarregado || ''}
-============================================`;
-
-      const mailtoUrl = `mailto:${destEmail}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
-      window.location.href = mailtoUrl;
+      window.location.href = `mailto:${destEmail}?subject=${subject}&body=${body}`;
       toggleEmailModal();
     }
 
-    window.onload = function() {
-      renderStep();
-    };
+    window.onload = renderStep;
   </script>
 </body>
 </html>
