@@ -4,15 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preenchimento PM O-004</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- pdf-lib para modificar o PDF original -->
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-3">
 
-  <!-- ==================== WIZARD / CAMPO POR CAMPO ==================== -->
+  <!-- WIZARD -->
   <div id="wizard-container" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4">
     <div class="mb-6">
       <div class="flex justify-between items-center text-xs font-bold text-gray-500 mb-2">
@@ -24,44 +22,44 @@
       </div>
     </div>
 
-    <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-2">
-      <!-- Injetado via JS -->
-    </div>
+    <div id="step-content" class="min-h-[140px] flex flex-col justify-center my-2"></div>
 
     <div class="flex justify-between items-center pt-6 border-t border-gray-100 mt-4">
-      <button id="btn-prev" onclick="prevStep()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-bold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+      <button id="btn-prev" onclick="prevStep()" class="px-5 py-2.5 bg-gray-200 text-gray-800 text-sm font-bold rounded-xl disabled:opacity-40" disabled>
         ← Voltar
       </button>
-      <button id="btn-next" onclick="nextStep()" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition">
+      <button id="btn-next" onclick="nextStep()" class="px-6 py-2.5 bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg">
         Avançar →
       </button>
     </div>
   </div>
 
-  <!-- ==================== PAINEL FINAL ==================== -->
+  <!-- PAINEL FINAL -->
   <div id="final-actions" class="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-6 mt-4 hidden text-center">
     <div class="text-green-600 text-5xl mb-2">✓</div>
     <h2 class="text-xl font-bold text-gray-800 mb-2">Formulário Concluído!</h2>
-    <p class="text-xs text-gray-500 mb-6">Selecione uma das opções abaixo para baixar ou enviar.</p>
+    <p class="text-xs text-gray-500 mb-6">Envie o PDF diretamente por e-mail ou faça o download.</p>
     
     <div class="space-y-3">
-      <button onclick="generateAndDownloadPDF()" class="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
-        📥 Baixar PDF Original Preenchido
+      <button onclick="toggleEmailModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg text-base flex justify-center items-center gap-2">
+        ✉️ Enviar PDF por E-mail
       </button>
-      <button onclick="toggleEmailModal()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition flex justify-center items-center gap-2">
-        ✉️ Enviar Dados por E-mail (Sem Login)
+      
+      <button onclick="generateAndDownloadPDF()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg text-sm">
+        📥 Apenas Baixar PDF
       </button>
+      
       <button onclick="goToStep(0)" class="w-full py-2 text-sm text-gray-600 font-semibold hover:underline">
         ✏️ Voltar e Editar Dados
       </button>
     </div>
   </div>
 
-  <!-- MODAL DE E-MAIL DIRETO -->
+  <!-- MODAL DE E-MAIL -->
   <div id="email-modal" class="fixed inset-0 bg-black/60 flex justify-center items-center p-4 hidden z-50">
     <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar sem Conta</h3>
-      <p class="text-xs text-gray-500 mb-4">Digite o e-mail de destino. O envio será feito de forma automática e direta.</p>
+      <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar PDF por E-mail</h3>
+      <p class="text-xs text-gray-500 mb-4">Digite o e-mail de destino. O PDF será gerado e enviado com anexo automaticamente.</p>
       
       <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br" class="w-full p-3 border border-gray-300 rounded-xl text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500">
       
@@ -69,53 +67,49 @@
 
       <div class="flex justify-end gap-2">
         <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-xl">Cancelar</button>
-        <button id="btn-send-now" onclick="sendDirectWithoutLogin()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl">Enviar Agora</button>
+        <button id="btn-send-now" onclick="sendPDFByEmail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl">Enviar Agora</button>
       </div>
     </div>
   </div>
 
   <script>
+    // URL DO SEU GOOGLE APPS SCRIPT
+    const GOOGLE_SCRIPT_URL = 'COLE_SEU_LINK_DO_GOOGLE_AQUI';
+
     const steps = [
-      { id: 'nome', label: 'Nome Completo do Preso', type: 'text', x: 50, y: 720, page: 0 },
-      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text', x: 400, y: 720, page: 0 },
-      { id: 'pai', label: 'Nome do Pai', type: 'text', x: 50, y: 700, page: 0 },
-      { id: 'mae', label: 'Nome da Mãe', type: 'text', x: 300, y: 700, page: 0 },
-      { id: 'rg', label: 'RG', type: 'text', x: 50, y: 680, page: 0 },
-      { id: 'dc', label: 'DC/UF', type: 'text', x: 150, y: 680, page: 0 },
-      { id: 'outro_doc', label: 'Outro Documento (CPF/CNH)', type: 'text', x: 220, y: 680, page: 0 },
-      { id: 'num_doc', label: 'Número / Série', type: 'text', x: 320, y: 680, page: 0 },
-      { id: 'sexo', label: 'Sexo', type: 'select', options: ['MASCULINO', 'FEMININO'], x: 420, y: 680, page: 0 },
-      { id: 'data_nasc', label: 'Data de Nascimento', type: 'date', x: 480, y: 680, page: 0 },
-      { id: 'estado_civil', label: 'Estado Civil', type: 'text', x: 50, y: 660, page: 0 },
-      { id: 'naturalidade', label: 'Naturalidade / UF', type: 'text', x: 200, y: 660, page: 0 },
-      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', x: 350, y: 660, page: 0, default: 'BRASILEIRA' },
-      { id: 'profissao', label: 'Profissão', type: 'text', x: 450, y: 660, page: 0 },
-      { id: 'end_res', label: 'Endereço Residencial', type: 'text', x: 50, y: 640, page: 0 },
-      { id: 'bairro_mun', label: 'Bairro e Município Residencial', type: 'text', x: 300, y: 640, page: 0 },
-      { id: 'tel', label: 'Telefone Residencial', type: 'text', x: 480, y: 640, page: 0 },
-      { id: 'end_trab', label: 'Endereço do Local de Trabalho', type: 'text', x: 50, y: 620, page: 0 },
-      { id: 'antecedentes', label: 'Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'], x: 350, y: 620, page: 0 },
-      { id: 'altura', label: 'Altura Aproximada (m)', type: 'text', x: 50, y: 580, page: 0 },
-      { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'text', x: 180, y: 580, page: 0 },
-      { id: 'pele', label: 'Pele (Cútis)', type: 'text', x: 320, y: 580, page: 0 },
-      { id: 'cabelo', label: 'Cabelo', type: 'text', x: 420, y: 580, page: 0 },
-      { id: 'olhos', label: 'Olhos', type: 'text', x: 50, y: 560, page: 0 },
-      { id: 'cod_anat', label: 'Codificação Anatômica / Marcas (D/M/S)', type: 'text', x: 180, y: 560, page: 0 },
-      { id: 'desc_tat', label: 'Descrição Sucinta da Tatuagem', type: 'textarea', x: 50, y: 520, page: 0 },
-      { id: 'bo_pm', label: 'Número do BO PM', type: 'text', x: 50, y: 460, page: 0 },
-      { id: 'opm', label: 'Nome / Cód. OPM', type: 'text', x: 200, y: 460, page: 0 },
-      { id: 'viatura', label: 'Prefixo Viatura', type: 'text', x: 400, y: 460, page: 0 },
-      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text', x: 50, y: 440, page: 0 },
-      { id: 'data_fato', label: 'Data do Fato', type: 'date', x: 350, y: 440, page: 0 },
-      { id: 'hora_fato', label: 'Hora do Fato', type: 'text', x: 480, y: 440, page: 0 },
-      { id: 'local_fato', label: 'Logradouro / Bairro / Local', type: 'text', x: 50, y: 420, page: 0 },
-      { id: 'situacao', label: 'Situação da Ocorrência', type: 'text', x: 50, y: 400, page: 0 },
-      { id: 'armas', label: 'Apreensão de Armas de Fogo', type: 'textarea', x: 50, y: 340, page: 0 },
-      { id: 'entorpecentes', label: 'Apreensão de Entorpecentes', type: 'textarea', x: 300, y: 340, page: 0 },
-      { id: 'modus', label: 'Modus Operandi do Qualificado', type: 'textarea', x: 50, y: 260, page: 0 },
-      { id: 'obs', label: 'Observações Gerais', type: 'textarea', x: 50, y: 200, page: 0 },
-      { id: 'bo_pc', label: 'Número do DP e BO PC', type: 'text', x: 50, y: 120, page: 0 },
-      { id: 'encarregado', label: 'Encarregado (Posto/Grad./RE/Nome)', type: 'text', x: 250, y: 120, page: 0 }
+      { id: 'nome', label: 'Nome Completo do Preso', type: 'text' },
+      { id: 'vulgo', label: 'Vulgo / Apelido', type: 'text' },
+      { id: 'pai', label: 'Nome do Pai', type: 'text' },
+      { id: 'mae', label: 'Nome da Mãe', type: 'text' },
+      { id: 'rg', label: 'RG', type: 'text' },
+      { id: 'dc', label: 'DC / UF', type: 'text' },
+      { id: 'outro_doc', label: 'Outro Doc / CPF', type: 'text' },
+      { id: 'num_doc', label: 'Número / Série', type: 'text' },
+      { id: 'sexo', label: 'Sexo', type: 'select', options: ['MASCULINO', 'FEMININO'] },
+      { id: 'data_nasc', label: 'Data de Nascimento', type: 'text' },
+      { id: 'estado_civil', label: 'Estado Civil', type: 'text' },
+      { id: 'naturalidade', label: 'Naturalidade / UF', type: 'text' },
+      { id: 'nacionalidade', label: 'Nacionalidade', type: 'text', default: 'BRASILEIRA' },
+      { id: 'profissao', label: 'Profissão', type: 'text' },
+      { id: 'end_res', label: 'Endereço Residencial', type: 'text' },
+      { id: 'bairro_mun', label: 'Bairro e Município', type: 'text' },
+      { id: 'tel', label: 'Telefone Residencial', type: 'text' },
+      { id: 'end_trab', label: 'Endereço do Trabalho', type: 'text' },
+      { id: 'antecedentes', label: 'Antecedentes Criminais?', type: 'select', options: ['SIM', 'NÃO', 'NÃO PESQUISADO'] },
+      { id: 'altura', label: 'Altura (m)', type: 'text' },
+      { id: 'compleicao', label: 'Tipo Físico (Compleição)', type: 'text' },
+      { id: 'pele', label: 'Pele (Cútis)', type: 'text' },
+      { id: 'cabelo', label: 'Cabelo', type: 'text' },
+      { id: 'olhos', label: 'Olhos', type: 'text' },
+      { id: 'bo_pm', label: 'BO PM / Viatura', type: 'text' },
+      { id: 'natureza', label: 'Natureza da Ocorrência', type: 'text' },
+      { id: 'data_fato', label: 'Data do Fato', type: 'text' },
+      { id: 'hora_fato', label: 'Hora do Fato', type: 'text' },
+      { id: 'local_fato', label: 'Local do Fato', type: 'text' },
+      { id: 'armas', label: 'Apreensão de Armas', type: 'textarea' },
+      { id: 'entorpecentes', label: 'Apreensão de Entorpecentes', type: 'textarea' },
+      { id: 'bo_pc', label: 'DP / BO PC / Unidade', type: 'text' },
+      { id: 'encarregado', label: 'Encarregado (RE / Nome)', type: 'text' }
     ];
 
     let currentStep = 0;
@@ -146,7 +140,7 @@
         `;
       } else {
         inputHtml = `
-          <input type="${step.type}" id="input-field" value="${currentValue}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
+          <input type="text" id="input-field" value="${currentValue}" class="w-full p-4 border-2 border-red-700 rounded-xl text-base font-bold uppercase outline-none">
         `;
       }
 
@@ -156,22 +150,10 @@
       `;
 
       document.getElementById('btn-prev').disabled = currentStep === 0;
-      
-      if (currentStep === steps.length - 1) {
-        document.getElementById('btn-next').innerText = 'Finalizar ✔';
-        document.getElementById('btn-next').className = 'px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-lg transition';
-      } else {
-        document.getElementById('btn-next').innerText = 'Avançar →';
-        document.getElementById('btn-next').className = 'px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white text-sm font-bold rounded-xl shadow-lg transition';
-      }
+      document.getElementById('btn-next').innerText = (currentStep === steps.length - 1) ? 'Finalizar ✔' : 'Avançar →';
 
       const field = document.getElementById('input-field');
       field.focus();
-      if (step.type !== 'textarea') {
-        field.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') nextStep();
-        });
-      }
     }
 
     function saveCurrentStepValue() {
@@ -206,33 +188,49 @@
       renderStep();
     }
 
+    async function generatePDFArrayBuffer() {
+      const existingPdfBytes = await fetch('./modelo.pdf').then(res => res.arrayBuffer());
+      const { PDFDocument } = PDFLib;
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+
+      const valuesArray = [
+        formData.nome, formData.vulgo, formData.pai, formData.mae,
+        formData.rg, formData.dc, formData.outro_doc, formData.num_doc,
+        formData.sexo, formData.data_nasc, formData.estado_civil,
+        formData.naturalidade, formData.nacionalidade, formData.profissao,
+        formData.end_res, formData.bairro_mun, formData.tel, formData.end_trab,
+        formData.antecedentes, formData.altura, formData.compleicao, formData.pele,
+        formData.cabelo, formData.olhos, formData.bo_pm, formData.natureza,
+        formData.data_fato, formData.hora_fato, formData.local_fato,
+        formData.armas, formData.entorpecentes, formData.bo_pc, formData.encarregado
+      ];
+
+      fields.forEach((field, index) => {
+        if (index < valuesArray.length && valuesArray[index]) {
+          try {
+            if (field.constructor.name === 'PDFTextField') {
+              field.setText(valuesArray[index]);
+            }
+          } catch (e) {}
+        }
+      });
+
+      form.flatten();
+      return await pdfDoc.save();
+    }
+
     async function generateAndDownloadPDF() {
       try {
-        const existingPdfBytes = await fetch('./modelo.pdf').then(res => res.arrayBuffer());
-        const { PDFDocument, rgb } = PDFLib;
-        const pdfDoc = await PDFDocument.load(existingPdfBytes);
-        const firstPage = pdfDoc.getPages()[0];
-
-        steps.forEach(step => {
-          const val = formData[step.id];
-          if (val) {
-            firstPage.drawText(String(val), {
-              x: step.x,
-              y: step.y,
-              size: 9,
-              color: rgb(0, 0, 0)
-            });
-          }
-        });
-
-        const pdfBytes = await pdfDoc.save();
+        const pdfBytes = await generatePDFArrayBuffer();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `PM_O-004_${formData.nome || 'PRESO'}.pdf`;
         link.click();
       } catch (err) {
-        alert('Erro ao carregar o modelo.pdf. Certifique-se de que o ficheiro está na mesma pasta.');
+        alert('Erro ao carregar o modelo.pdf.');
       }
     }
 
@@ -240,53 +238,54 @@
       document.getElementById('email-modal').classList.toggle('hidden');
     }
 
-    // ENVIO DIRETO VIA ENDPOINT (SEM NECESSIDADE DE CONTA OU LOGINS NO TELEMÓVEL)
-    async function sendDirectWithoutLogin() {
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    async function sendPDFByEmail() {
       const emailDest = document.getElementById('email-destination').value;
       const statusDiv = document.getElementById('email-status');
       const btnSend = document.getElementById('btn-send-now');
 
       if (!emailDest) {
         statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
-        statusDiv.innerText = 'Por favor, insira o e-mail de destino.';
+        statusDiv.innerText = 'Por favor, digite o e-mail de destino.';
         return;
       }
 
       btnSend.disabled = true;
       statusDiv.className = 'text-xs mb-3 font-bold text-center text-blue-600';
-      statusDiv.innerText = 'A enviar...';
+      statusDiv.innerText = 'A gerando PDF e enviando...';
 
       try {
-        // Envio direto usando serviço público de formulário estático
-        const response = await fetch('https://formsubmit.co/ajax/' + emailDest, {
+        const pdfBytes = await generatePDFArrayBuffer();
+        const base64Pdf = arrayBufferToBase64(pdfBytes);
+
+        const payload = {
+          emailDestino: emailDest,
+          nomePreso: formData.nome || '',
+          fileName: `PM_O-004_${formData.nome || 'OCORRENCIA'}.pdf`,
+          fileBase64: base64Pdf
+        };
+
+        await fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: `PM O-004: ${formData.nome || 'NOVA OCORRÊNCIA'}`,
-            NOME: formData.nome || '',
-            VULGO: formData.vulgo || '',
-            RG: formData.rg || '',
-            BO_PM: formData.bo_pm || '',
-            NATUREZA: formData.natureza || '',
-            ARMAS: formData.armas || 'Nenhuma',
-            ENTORPECENTES: formData.entorpecentes || 'Nenhum',
-            ENCARREGADO: formData.encarregado || ''
-          })
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-          statusDiv.className = 'text-xs mb-3 font-bold text-center text-green-600';
-          statusDiv.innerText = '✓ E-mail enviado com sucesso!';
-          setTimeout(() => toggleEmailModal(), 2000);
-        } else {
-          throw new Error('Falha no envio');
-        }
+        statusDiv.className = 'text-xs mb-3 font-bold text-center text-green-600';
+        statusDiv.innerText = '✓ E-mail enviado com sucesso com o PDF anexado!';
+        setTimeout(() => toggleEmailModal(), 2500);
       } catch (err) {
         statusDiv.className = 'text-xs mb-3 font-bold text-center text-red-600';
-        statusDiv.innerText = 'Erro ao enviar. Verifique a conexão.';
+        statusDiv.innerText = 'Erro ao enviar. Tente novamente.';
       } finally {
         btnSend.disabled = false;
       }
