@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>PM O-004 — Preenchimento</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+
+  <style>
+    body { -webkit-tap-highlight-color: transparent; }
+    input, select, textarea { font-size: 16px !important; }
+    .section-title { color:#b91c1c; }
+    .code-select { font-size: 14px !important; }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-3">
+<div class="w-full max-w-2xl mx-auto bg-white shadow-2xl rounded-2xl p-4 sm:p-6 mb-8">
+
+  <div class="border-b pb-4 mb-4 text-center">
+    <h1 class="text-xl sm:text-2xl font-black text-gray-800 uppercase">Qualificação de Preso — PM O-004</h1>
+    <p class="text-xs text-gray-500 mt-1">O arquivo Word final usa o modelo oficial original, sem reconstruir o formulário.</p>
+  </div>
+
+  <form id="pm-form" onsubmit="event.preventDefault();" class="space-y-4">
+
+    <!-- 1 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">1. Qualificação do preso</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Field id="NOME" label="Nome completo" required></Field>
+        <Field id="VULGO" label="Vulgo / apelido"></Field>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Field id="PAI" label="Pai"></Field>
+        <Field id="MAE" label="Mãe"></Field>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <Field id="RG" label="RG"></Field>
+        <Field id="DC" label="DC"></Field>
+        <Field id="UF_RG" label="UF"></Field>
+        <Field id="OUTRO_DOC" label="Outro doc."></Field>
+        <Field id="NUM_DOC" label="Número / série / dígito"></Field>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <SelectField id="SEXO" label="Sexo" options='["MASCULINO","FEMININO"]'></SelectField>
+        <Field id="DATA_NASC" label="Nascimento" placeholder="DD/MM/AAAA"></Field>
+        <Field id="ESTADO_CIVIL" label="Estado civil"></Field>
+        <Field id="NACIONALIDADE" label="Nacionalidade" value="BRASILEIRA"></Field>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-2 gap-2">
+        <Field id="NATURALIDADE" label="Naturalidade"></Field>
+        <Field id="UF_NAT" label="UF"></Field>
+      </div>
+
+      <Field id="PROFISSAO" label="Profissão"></Field>
+      <Field id="END_RES" label="Endereço residencial"></Field>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <Field id="COMPLEMENTO_RES" label="Complemento"></Field>
+        <Field id="BAIRRO_RES" label="Bairro"></Field>
+        <Field id="MUNICIPIO_RES" label="Município"></Field>
+        <Field id="TEL_RES" label="Telefone"></Field>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Field id="END_TRAB" label="Endereço do trabalho"></Field>
+        <Field id="TEL_TRAB" label="Telefone do trabalho"></Field>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Antecedentes criminais</label>
+        <select id="ANTECEDENTES" class="w-full p-3 border rounded-xl font-bold bg-white">
+          <option value="">SELECIONE</option>
+          <option value="SIM">SIM</option>
+          <option value="NAO">NÃO</option>
+          <option value="NAO_PESQ">NÃO PESQUISADO</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">2. Características físicas</h2>
+
+      <div class="grid grid-cols-2 gap-2">
+        <Field id="ALTURA" label="Altura aproximada" placeholder="Ex.: 1,80"></Field>
+        <SelectField id="COMPLEICAO" label="Tipo físico (compleição)" options='[
+          {"v":"100","t":"100 — FRANZINO"},{"v":"101","t":"101 — MAGRO"},{"v":"102","t":"102 — MÉDIO"},
+          {"v":"103","t":"103 — FORTE"},{"v":"104","t":"104 — MUITO FORTE"},{"v":"105","t":"105 — GORDO"}
+        ]'></SelectField>
+      </div>
+
+      <SelectField id="PELE" label="Pele (cútis)" options='[
+        {"v":"110","t":"110 — ALBINA"},{"v":"111","t":"111 — AMARELA"},{"v":"112","t":"112 — BRANCA"},
+        {"v":"113","t":"113 — PARDA CLARA"},{"v":"114","t":"114 — PARDA ESCURA"},{"v":"115","t":"115 — PRETA"},{"v":"116","t":"116 — VERMELHA"}
+      ]'></SelectField>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <SelectField id="CABELO_TIPO" label="Cabelo — tipo" options='[
+          {"v":"120","t":"120 — CARAPINHAS"},{"v":"121","t":"121 — CRESPOS"},{"v":"122","t":"122 — LISOS"},{"v":"123","t":"123 — ONDULADOS"}
+        ]'></SelectField>
+        <SelectField id="CABELO_QTDA" label="Cabelo — quantidade" options='[
+          {"v":"125","t":"125 — CALVÍCE TOTAL"},{"v":"126","t":"126 — CALVÍCE PARCIAL"},{"v":"127","t":"127 — NORMAL"}
+        ]'></SelectField>
+        <SelectField id="CABELO_COR" label="Cabelo — cor" options='[
+          {"v":"130","t":"130 — PRETOS"},{"v":"131","t":"131 — CASTANHOS ESCUROS"},{"v":"132","t":"132 — CASTANHOS CLAROS"},
+          {"v":"133","t":"133 — RUIVOS"},{"v":"134","t":"134 — LOIROS"},{"v":"135","t":"135 — GRISALHOS"},{"v":"136","t":"136 — BRANCOS"}
+        ]'></SelectField>
+      </div>
+
+      <SelectField id="OLHOS" label="Olhos" options='[
+        {"v":"140","t":"140 — PRETOS"},{"v":"141","t":"141 — CASTANHOS ESCUROS"},{"v":"142","t":"142 — CASTANHOS CLAROS"},
+        {"v":"143","t":"143 — VERDES"},{"v":"144","t":"144 — AZUIS"},{"v":"145","t":"145 — HETEROFTALMO"}
+      ]'></SelectField>
+    </section>
+
+    <!-- 3 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">3. Codificação das regiões anatômicas</h2>
+      <p class="text-xs text-gray-600">Selecione a região anatômica e o defeito/marca/sinal. O Word final preencherá os códigos nas 17 linhas existentes no formulário oficial.</p>
+      <div id="codigos-container" class="space-y-2"></div>
+      <Field id="TATUAGEM_DESC" label="Descrição sucinta da tatuagem"></Field>
+    </section>
+
+    <!-- 4 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">4. Dados da ocorrência</h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <Field id="EMISSAO_BO_PM" label="Emissão do BO PM" placeholder="DD/MM/AAAA"></Field>
+        <Field id="NUM_BO_PM" label="Número BO PM"></Field>
+        <Field id="NOME_OPM" label="Nome da OPM"></Field>
+        <Field id="CODIGO_OPM" label="Código da OPM"></Field>
+        <Field id="PREFIXO_VTR" label="Prefixo da viatura"></Field>
+      </div>
+
+      <Field id="NATUREZA" label="Natureza da ocorrência"></Field>
+
+      <div class="grid grid-cols-2 gap-2">
+        <Field id="DATA_FATO" label="Data do fato" placeholder="DD/MM/AAAA"></Field>
+        <Field id="HORA_FATO" label="Hora do fato" placeholder="HH:MM"></Field>
+      </div>
+
+      <Field id="LOGRADOURO" label="Logradouro"></Field>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <Field id="COMPLEMENTO_FATO" label="Complemento"></Field>
+        <Field id="BAIRRO_FATO" label="Bairro"></Field>
+        <Field id="MUNICIPIO_FATO" label="Município"></Field>
+      </div>
+
+      <Field id="TIPO_LOCAL" label="Tipo de local"></Field>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Situação da ocorrência</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white border rounded-xl p-3">
+          <label><input type="checkbox" class="sit-check mr-2" value="1">1 — Flagrante por crime</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="5">5 — Evadido de estabelecimento penal</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="2">2 — Flagrante por contravenção</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="6">6 — Possui benefício</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="3">3 — Flagrante por ato infracional</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="7">7 — Outros</label>
+          <label><input type="checkbox" class="sit-check mr-2" value="4">4 — Procurado pela Justiça</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">5. Apreensão de armas de fogo</h2>
+      <p class="text-xs text-gray-600">Até 7 linhas, exatamente como no formulário original.</p>
+      <div id="armas-container" class="space-y-3"></div>
+
+      <SelectField id="ARMA_COND" label="Condição da apreensão" options='[
+        {"v":"1","t":"1 — EM PODER DO QUALIFICADO"},{"v":"2","t":"2 — PORTADOR EVADIU-SE"},
+        {"v":"3","t":"3 — PORTADOR FALECIDO (SEM IDENTIFICAÇÃO)"},{"v":"4","t":"4 — ABANDONADA / ENCONTRADA"}
+      ]'></SelectField>
+    </section>
+
+    <!-- 6 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">6. Apreensão de entorpecentes</h2>
+      <div id="entorpecentes-container" class="space-y-3"></div>
+    </section>
+
+    <!-- 7 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">7. Modus operandi e observações</h2>
+      <TextAreaField id="MODUS_OPERANDI" label="“Modus operandi” do qualificado" rows="5"></TextAreaField>
+      <TextAreaField id="OBSERVACOES" label="Observações" rows="5"></TextAreaField>
+    </section>
+
+    <!-- 8 -->
+    <section class="bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3">
+      <h2 class="text-sm font-bold section-title uppercase tracking-wider">8. Dados do DP / encarregado / SIOPM</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <Field id="NUM_DP" label="Número do DP"></Field>
+        <Field id="NUM_BO_DP" label="Número do BO"></Field>
+        <Field id="POSTO_GRAD" label="Posto / graduação"></Field>
+        <Field id="NUM_INCLUSAO" label="Número de inclusão"></Field>
+        <Field id="MUNICIPIO_DP" label="Município do DP"></Field>
+        <Field id="RE_ENCARREGADO" label="RE"></Field>
+        <Field id="RE_DIGITADOR" label="RE do digitador"></Field>
+        <Field id="ASSINATURA" label="Assinatura"></Field>
+        <Field id="DATA_DP" label="Data" placeholder="DD/MM/AAAA"></Field>
+      </div>
+    </section>
+
+    <div class="pt-2 space-y-2">
+      <button type="button" onclick="toggleEmailModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">
+        ✉️ Enviar por e-mail (.docx)
+      </button>
+      <button type="button" onclick="generateAndDownloadDoc()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg">
+        📥 Baixar Word (.docx)
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- modal -->
+<div id="email-modal" class="fixed inset-0 bg-black/60 flex justify-center items-center p-4 hidden z-50">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+    <h3 class="text-lg font-bold mb-2 text-gray-800">Enviar por E-mail</h3>
+    <p class="text-xs text-gray-500 mb-4">O Word será gerado a partir do modelo oficial preenchível.</p>
+    <input type="email" id="email-destination" placeholder="exemplo@policiamilitar.sp.gov.br"
+           class="w-full p-3 border border-gray-300 rounded-xl text-sm mb-4">
+    <div id="email-status" class="text-xs mb-3 font-bold text-center"></div>
+    <div class="flex justify-end gap-2">
+      <button onclick="toggleEmailModal()" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-xl">Cancelar</button>
+      <button id="btn-send-now" onclick="sendDocByEmail()" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl">Enviar Agora</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSE3ZgXcwHDqIKtCwWtCltwWt-wT8iCovi5SXf3SfExfJTAMdCsVEbsImVBJ6x6IE/exec';
+const MODEL_URL = './modelo_PM_O004_preenchivel_v2.docx';
+
+const regionOptions = [
+  ["","Selecione"],["C01","C01 — BOCA"],["C02","C02 — CRÂNIO"],["C03","C03 — DENTE(S)"],
+  ["C04","C04 — FACE DIREITA"],["C05","C05 — FACE ESQUERDA"],["C06","C06 — NARIZ"],["C07","C07 — NUCA"],
+  ["C08","C08 — OLHO DIREITO"],["C09","C09 — OLHO ESQUERDO"],["C10","C10 — ORELHA DIREITA"],
+  ["C11","C11 — ORELHA ESQUERDA"],["C12","C12 — QUEIXO"],["C13","C13 — PESCOÇO"],["C14","C14 — TESTA"],
+  ["T01","T01 — BARRIGA"],["T02","T02 — COSTAS"],["T03","T03 — TÓRAX"],["T04","T04 — OUTROS"],
+  ["M01","M01 — BRAÇO DIREITO"],["M02","M02 — BRAÇO ESQUERDO"],["M03","M03 — COXA DIREITA"],
+  ["M04","M04 — COXA ESQUERDA"],["M05","M05 — DEDO(S) DA MÃO DIREITA"],["M06","M06 — DEDO(S) DA MÃO ESQUERDA"],
+  ["M07","M07 — DEDO(S) DO PÉ DIREITO"],["M08","M08 — DEDO(S) DO PÉ ESQUERDO"],["M09","M09 — MÃO DIREITA"],
+  ["M10","M10 — MÃO ESQUERDA"],["M11","M11 — NÁDEGAS"],["M12","M12 — PÉ DIREITO"],["M13","M13 — PÉ ESQUERDO"],
+  ["M14","M14 — PERNA DIREITA"],["M15","M15 — PERNA ESQUERDA"],["M16","M16 — PUNHO DIREITO"],
+  ["M17","M17 — PUNHO ESQUERDO"],["M99","M99 — OUTROS"]
+];
+
+const dmsOptions = [
+  ["","Selecione"],["D01","D01 — ATROFIADO"],["D02","D02 — CEGO"],["D03","D03 — CICATRIZ"],
+  ["D04","D04 — A MAIS (DEDOS)"],["D05","D05 — UNIDOS (DEDOS)"],["D06","D06 — DEFORMADO"],["D07","D07 — FALTA"],
+  ["D08","D08 — MANCHA"],["D09","D09 — MANCO"],["D10","D10 — PARALISADO"],["D11","D11 — PINTA"],
+  ["D12","D12 — QUEIMADURA"],["D13","D13 — SALIENTE"],["D14","D14 — TATUAGEM"],["D15","D15 — TORTO"],
+  ["D16","D16 — VERRUGA"],["D17","D17 — VITILIGO"],["D99","D99 — OUTROS"]
+];
+
+function optionsHtml(options) {
+  return options.map(([v,t]) => `<option value="${v}">${t}</option>`).join('');
+}
+
+function makeCodeRows() {
+  const c = document.getElementById('codigos-container');
+  for (let i=1;i<=17;i++) {
+    c.insertAdjacentHTML('beforeend', `
+      <div class="bg-white border rounded-xl p-2">
+        <div class="text-[11px] font-bold text-gray-500 mb-1">LINHA ${i}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <select id="COD${i}_REG" class="w-full p-3 border rounded-lg code-select bg-white">
+            ${optionsHtml(regionOptions)}
+          </select>
+          <select id="COD${i}_DMS" class="w-full p-3 border rounded-lg code-select bg-white">
+            ${optionsHtml(dmsOptions)}
+          </select>
+        </div>
+      </div>`);
+  }
+}
+
+function makeArms() {
+  const c = document.getElementById('armas-container');
+  for (let i=1;i<=7;i++) {
+    c.insertAdjacentHTML('beforeend', `
+      <div class="bg-white border rounded-xl p-3">
+        <div class="text-xs font-black text-gray-500 mb-2">ARMA ${i}</div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <input id="ARMA${i}_TIPO" placeholder="Tipo" class="p-3 border rounded-lg uppercase">
+          <input id="ARMA${i}_MARCA" placeholder="Marca" class="p-3 border rounded-lg uppercase">
+          <input id="ARMA${i}_CALIBRE" placeholder="Calibre" class="p-3 border rounded-lg uppercase">
+          <input id="ARMA${i}_ACABAMENTO" placeholder="Acabamento / cor" class="p-3 border rounded-lg uppercase">
+          <input id="ARMA${i}_NUM_FAB" placeholder="Nº fabricação" class="p-3 border rounded-lg uppercase">
+        </div>
+      </div>`);
+  }
+}
+
+function makeDrugs() {
+  const c = document.getElementById('entorpecentes-container');
+  for (let i=1;i<=6;i++) {
+    c.insertAdjacentHTML('beforeend', `
+      <div class="grid grid-cols-2 gap-2 bg-white border rounded-xl p-2">
+        <input id="ENT${i}_TIPO" placeholder="Tipo (maconha, cocaína...)" class="p-3 border rounded-lg uppercase">
+        <input id="ENT${i}_QTD" placeholder="Quantidade" class="p-3 border rounded-lg uppercase">
+      </div>`);
+  }
+}
+
+function initComponents() {
+  document.querySelectorAll('Field').forEach(el => {
+    const id=el.getAttribute('id'), label=el.getAttribute('label')||id;
+    const ph=el.getAttribute('placeholder')||'';
+    const val=el.getAttribute('value')||'';
+    const required=el.hasAttribute('required')?'required':'';
+    el.outerHTML=`<div><label class="block text-xs font-bold text-gray-700 mb-1 uppercase">${label}</label>
+      <input type="text" id="${id}" value="${val}" placeholder="${ph}" ${required}
+      class="w-full p-3 border rounded-xl font-bold uppercase"></div>`;
+  });
+
+  document.querySelectorAll('SelectField').forEach(el => {
+    const id=el.getAttribute('id'), label=el.getAttribute('label')||id;
+    const options=JSON.parse(el.getAttribute('options'));
+    el.outerHTML=`<div><label class="block text-xs font-bold text-gray-700 mb-1 uppercase">${label}</label>
+      <select id="${id}" class="w-full p-3 border rounded-xl font-bold bg-white">
+        <option value="">SELECIONE</option>${options.map(o=>typeof o==='string'?`<option value="${o}">${o}</option>`:`<option value="${o.v}">${o.t}</option>`).join('')}
+      </select></div>`;
+  });
+
+  document.querySelectorAll('TextAreaField').forEach(el => {
+    const id=el.getAttribute('id'), label=el.getAttribute('label')||id, rows=el.getAttribute('rows')||5;
+    el.outerHTML=`<div><label class="block text-xs font-bold text-gray-700 mb-1 uppercase">${label}</label>
+      <textarea id="${id}" rows="${rows}" class="w-full p-3 border rounded-xl font-bold uppercase resize-y"></textarea></div>`;
+  });
+}
+
+initComponents();
+makeCodeRows();
+makeArms();
+makeDrugs();
+
+function val(id) {
+  const el=document.getElementById(id);
+  return el ? (el.value || '').toUpperCase() : '';
+}
+
+function getFormData() {
+  const data={};
+  document.querySelectorAll('#pm-form input[id], #pm-form select[id], #pm-form textarea[id]').forEach(el=>{
+    data[el.id]=(el.value||'').toUpperCase();
+  });
+
+  // O modelo oficial tem 3 células para REG ANAT e 3 para D/M/S.
+  for(let i=1;i<=17;i++){
+    const reg=val(`COD${i}_REG`);
+    const dms=val(`COD${i}_DMS`);
+    data[`COD${i}_RA`] = reg ? reg[0] : '';
+    data[`COD${i}_RB`] = reg ? reg[1] : '';
+    data[`COD${i}_RC`] = reg ? reg[2] : '';
+    data[`COD${i}_DA`] = dms ? dms[0] : '';
+    data[`COD${i}_DB`] = dms ? dms[1] : '';
+    data[`COD${i}_DC`] = dms ? dms[2] : '';
+  }
+
+  return data;
+}
+
+function checkboxStates() {
+  const states={};
+
+  // antecedentes
+  states.ANTECEDENTES_SIM = val('ANTECEDENTES')==='SIM';
+  states.ANTECEDENTES_NAO = val('ANTECEDENTES')==='NAO';
+  states.ANTECEDENTES_NAO_PESQ = val('ANTECEDENTES')==='NAO_PESQ';
+
+  // compleição
+  const comp=val('COMPLEICAO');
+  ['100','101','102','103','104','105'].forEach(x=>states[`COMP_${x}`]=comp===x);
+
+  // physical
+  const pele=val('PELE'), ct=val('CABELO_TIPO'), cq=val('CABELO_QTDA'), cc=val('CABELO_COR'), olhos=val('OLHOS');
+  ['110','111','112','113','114','115','116'].forEach(x=>states[`PELE_${x}`]=pele===x);
+  ['120','121','122','123'].forEach(x=>states[`CABELO_TIPO_${x}`]=ct===x);
+  ['125','126','127'].forEach(x=>states[`CABELO_TIPO_${x}`]=cq===x);
+  ['130','131','132','133','134','135','136'].forEach(x=>states[`CABELO_COR_${x}`]=cc===x);
+  ['140','141','142','143','144','145'].forEach(x=>states[`OLHOS_${x}`]=olhos===x);
+
+  // situação
+  document.querySelectorAll('.sit-check').forEach(ch=>{
+    states[`SIT_${ch.value}`]=ch.checked;
+  });
+
+  // condição das armas
+  const cond=val('ARMA_COND');
+  ['1','2','3','4'].forEach(x=>states[`ARMA_COND_${x}`]=cond===x);
+
+  return states;
+}
+
+function applyCheckboxes(zip) {
+  let xml=zip.file('word/document.xml').asText();
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(xml,'application/xml');
+  const ns='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const states=checkboxStates();
+
+  doc.getElementsByTagNameNS(ns,'ffData').forEach(ff=>{
+    const nameEl=ff.getElementsByTagNameNS(ns,'name')[0];
+    const cb=ff.getElementsByTagNameNS(ns,'checkBox')[0];
+    if(!nameEl || !cb) return;
+    const name=nameEl.getAttributeNS(ns,'val');
+    const def=cb.getElementsByTagNameNS(ns,'default')[0];
+    if(def) def.setAttributeNS(ns,'w:val', states[name] ? '1' : '0');
+  });
+
+  zip.file('word/document.xml', new XMLSerializer().serializeToString(doc));
+}
+
+async function generateDocxBlob() {
+  const response = await fetch(MODEL_URL, { cache: 'no-store' });
+
+  if (!response.ok) {
+    throw new Error(`Não foi possível carregar o modelo. HTTP ${response.status}`);
+  }
+
+  const content = await response.arrayBuffer();
+
+  let zip;
+  try {
+    zip = new PizZip(content);
+  } catch (e) {
+    throw new Error(
+      'O arquivo foi encontrado, mas não pôde ser aberto como DOCX: ' +
+      (e.message || e)
+    );
+  }
+
+  let doc;
+  try {
+    doc = new docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true
+    });
+  } catch (e) {
+    throw new Error(
+      'Erro ao abrir o modelo no Docxtemplater: ' +
+      (e.message || e)
+    );
+  }
+
+  try {
+    doc.render(getFormData());
+  } catch (e) {
+    console.error('ERRO DOCXTEMPLATER:', e);
+    let detalhe = e.message || String(e);
+
+    if (e.properties && e.properties.errors) {
+      detalhe += '\n\n' + e.properties.errors
+        .map(err => err.properties?.explanation || err.message)
+        .join('\n');
+    }
+
+    throw new Error('Erro ao preencher o modelo:\n' + detalhe);
+  }
+
+  try {
+    applyCheckboxes(doc.getZip());
+  } catch (e) {
+    throw new Error(
+      'Erro ao processar as caixas de seleção: ' +
+      (e.message || e)
+    );
+  }
+
+  return doc.getZip().generate({
+    type: 'blob',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  });
+}
+
+async function generateAndDownloadDoc() {
+  try {
+    const out=await generateDocxBlob();
+    const data=getFormData();
+    saveAs(out,`PM_O-004_${data.NOME || 'DOCUMENTO'}.docx`);
+  } catch(err) {
+    console.error('ERRO COMPLETO:', err);
+    alert('ERRO AO GERAR O WORD:\n\n' + (err.message || err));
+  }
+}
+
+function toggleEmailModal() {
+  document.getElementById('email-modal').classList.toggle('hidden');
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onloadend=()=>resolve(reader.result.split(',')[1]);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function sendDocByEmail() {
+  const emailDest=document.getElementById('email-destination').value.trim();
+  const statusDiv=document.getElementById('email-status');
+  const btnSend=document.getElementById('btn-send-now');
+
+  if(!emailDest){
+    statusDiv.className='text-xs mb-3 font-bold text-center text-red-600';
+    statusDiv.innerText='Informe o e-mail de destino.';
+    return;
+  }
+
+  btnSend.disabled=true;
+  statusDiv.className='text-xs mb-3 font-bold text-center text-blue-600';
+  statusDiv.innerText='Gerando o Word oficial e enviando...';
+
+  try {
+    const docxBlob=await generateDocxBlob();
+    const base64Doc=await blobToBase64(docxBlob);
+    const data=getFormData();
+
+    const payload={
+      emailDestino:emailDest,
+      nomePreso:data.NOME,
+      fileName:`PM_O-004_${data.NOME || 'OCORRENCIA'}.docx`,
+      fileBase64:base64Doc
+    };
+
+    await fetch(GOOGLE_SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+
+    statusDiv.className='text-xs mb-3 font-bold text-center text-green-600';
+    statusDiv.innerText='✓ E-mail enviado com o Word preenchido.';
+    setTimeout(toggleEmailModal,1800);
+  } catch(err) {
+    console.error(err);
+    statusDiv.className='text-xs mb-3 font-bold text-center text-red-600';
+    statusDiv.innerText='Erro ao gerar/enviar o documento.';
+  } finally {
+    btnSend.disabled=false;
+  }
+}
+</script>
+</body>
+</html>
