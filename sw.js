@@ -1,12 +1,79 @@
-// sw.js - Service Worker Básico
-self.addEventListener('install', (event) => {
-    self.skipWaiting();
+const CACHE_NAME = 'portal-pm-v1';
+
+const FILES_TO_CACHE = [
+    '/CIA/',
+    '/CIA/index.html',
+    '/CIA/manifest.json'
+];
+
+
+self.addEventListener('install', event => {
+
+    event.waitUntil(
+
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(FILES_TO_CACHE))
+            .then(() => self.skipWaiting())
+
+    );
+
 });
 
-self.addEventListener('activate', (event) => {
-    event.waitUntil(clients.claim());
+
+self.addEventListener('activate', event => {
+
+    event.waitUntil(
+
+        caches.keys().then(cacheNames => {
+
+            return Promise.all(
+
+                cacheNames
+                    .filter(name => name !== CACHE_NAME)
+                    .map(name => caches.delete(name))
+
+            );
+
+        }).then(() => self.clients.claim())
+
+    );
+
 });
 
-self.addEventListener('fetch', (event) => {
-    // Interceptação de requisições se necessário futuramente
+
+self.addEventListener('fetch', event => {
+
+    event.respondWith(
+
+        fetch(event.request)
+
+            .then(response => {
+
+                const responseClone =
+                    response.clone();
+
+                caches.open(CACHE_NAME)
+                    .then(cache => {
+
+                        cache.put(
+                            event.request,
+                            responseClone
+                        );
+
+                    });
+
+                return response;
+
+            })
+
+            .catch(() => {
+
+                return caches.match(
+                    event.request
+                );
+
+            })
+
+    );
+
 });
