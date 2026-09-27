@@ -416,7 +416,7 @@
 
         <!-- BOTÃO NATIVO DE INSTALAÇÃO -->
 
-        <button id="installButton" hidden onclick="instalarPWA()">
+        <button id="installButton" onclick="instalarPWA()">
             📲 Instalar aplicativo
         </button>
 
@@ -964,96 +964,135 @@
     }
 
 
+   
+<script>
+/* ==========================================
+   PWA - INSTALAÇÃO
+   ========================================== */
 
-    /* ==========================================
-       PWA - INSTALAÇÃO
-       ========================================== */
+let deferredInstallPrompt = null;
 
-    let deferredInstallPrompt = null;
+const installButton =
+    document.getElementById('installButton');
 
-    const installButton =
-        document.getElementById('installButton');
+/*
+ * O Chrome dispara este evento quando entende
+ * que o site pode ser instalado como aplicativo.
+ */
+window.addEventListener(
+    'beforeinstallprompt',
+    (event) => {
 
+        console.log(
+            'PWA disponível para instalação.'
+        );
 
-    window.addEventListener(
-        'beforeinstallprompt',
-        (event) => {
+        event.preventDefault();
 
-            console.log(
-                'Portal PM disponível para instalação.'
-            );
+        deferredInstallPrompt = event;
 
-            event.preventDefault();
-
-            deferredInstallPrompt = event;
-
-            if (installButton) {
-
-                installButton.hidden = false;
-
-            }
-
+        if (installButton) {
+            installButton.hidden = false;
         }
-    );
+    }
+);
 
 
-    window.instalarPWA = async function() {
+/*
+ * Instalação manual pelo botão
+ */
+window.instalarPWA = async function () {
 
-        if (!deferredInstallPrompt) {
+    if (!deferredInstallPrompt) {
 
-            alert(
-                'A instalação ainda não está disponível.\n\n' +
-                'Abra o Portal PM pelo Google Chrome e aguarde alguns segundos.'
-            );
+        alert(
+            'O Chrome ainda não liberou a instalação do Portal PM.\n\n' +
+            'Verifique se o manifest.json e o Service Worker estão funcionando.'
+        );
 
-            return;
+        console.log(
+            'beforeinstallprompt ainda não foi disparado.'
+        );
 
-        }
+        return;
+    }
 
+    try {
 
         deferredInstallPrompt.prompt();
 
-
         const resultado =
             await deferredInstallPrompt.userChoice;
-
 
         console.log(
             'Resultado da instalação:',
             resultado.outcome
         );
 
+    } catch (erro) {
+
+        console.error(
+            'Erro durante a instalação do PWA:',
+            erro
+        );
+
+    }
+
+    deferredInstallPrompt = null;
+
+    if (installButton) {
+        installButton.hidden = true;
+    }
+};
+
+
+/*
+ * Aplicativo instalado
+ */
+window.addEventListener(
+    'appinstalled',
+    () => {
+
+        console.log(
+            'Portal PM instalado com sucesso.'
+        );
 
         deferredInstallPrompt = null;
 
-
         if (installButton) {
-
             installButton.hidden = true;
-
         }
+    }
+);
 
-    };
 
+/*
+ * Diagnóstico
+ */
+window.addEventListener(
+    'load',
+    () => {
 
-    window.addEventListener(
-        'appinstalled',
-        () => {
+        console.log(
+            'Portal PM carregado.'
+        );
 
-            console.log(
-                'Portal PM instalado com sucesso.'
-            );
+        console.log(
+            'Service Worker disponível:',
+            'serviceWorker' in navigator
+        );
 
-            deferredInstallPrompt = null;
+        console.log(
+            'Manifest:',
+            document.querySelector(
+                'link[rel="manifest"]'
+            )?.href
+        );
 
-            if (installButton) {
+    }
+);
 
-                installButton.hidden = true;
-
-            }
-
-        }
-    );
+</script>
 
 
 
