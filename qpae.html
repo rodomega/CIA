@@ -397,54 +397,14 @@ function checkboxStates() {
 
   // compleição
   const comp=val('COMPLEICAO');
-
-['100','101','102','103','104','105'].forEach(x => {
-  states[`COMP_${x}`] = comp === x;
-});
-
-// Correção das posições do modelo Word
-if (comp === '102') {
-  states.COMP_102 = false;
-  states.COMP_103 = true;
-}
-
-if (comp === '103') {
-  states.COMP_102 = true;
-  states.COMP_103 = false;
-}
+  ['100','101','102','103','104','105'].forEach(x=>states[`COMP_${x}`]=comp===x);
 
   // physical
   const pele=val('PELE'), ct=val('CABELO_TIPO'), cq=val('CABELO_QTDA'), cc=val('CABELO_COR'), olhos=val('OLHOS');
-  ['110','111','112','113','114','115','116'].forEach(x => {
-  states[`PELE_${x}`] = pele === x;
-});
-
-// Correção das posições do modelo Word
-if (pele === '112') {
-  states.PELE_112 = false;
-  states.PELE_116 = true;
-}
-
-if (pele === '116') {
-  states.PELE_112 = true;
-  states.PELE_116 = false;
-}
+  ['110','111','112','113','114','115','116'].forEach(x=>states[`PELE_${x}`]=pele===x);
   ['120','121','122','123'].forEach(x=>states[`CABELO_TIPO_${x}`]=ct===x);
   ['125','126','127'].forEach(x=>states[`CABELO_TIPO_${x}`]=cq===x);
-  ['130','131','132','133','134','135','136'].forEach(x => {
-  states[`CABELO_COR_${x}`] = cc === x;
-});
-
-// Correção das posições do modelo Word
-if (cc === '131') {
-  states.CABELO_COR_131 = false;
-  states.CABELO_COR_130 = true;
-}
-
-if (cc === '130') {
-  states.CABELO_COR_131 = true;
-  states.CABELO_COR_130 = false;
-}
+  ['130','131','132','133','134','135','136'].forEach(x=>states[`CABELO_COR_${x}`]=cc===x);
   ['140','141','142','143','144','145'].forEach(x=>states[`OLHOS_${x}`]=olhos===x);
 
   // situação
