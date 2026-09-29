@@ -42,7 +42,21 @@ body{
 .phone-container{width:100%;max-width:420px;display:flex;flex-direction:column;flex:1}
 .header{text-align:center;padding:10px 0 20px}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
-.header .clock{font-size:.85rem;color:var(--accent);margin-top:4px;font-weight:500}
+
+.location-button{
+    font-size:1.15rem;
+    color:var(--accent);
+    margin-top:4px;
+    font-weight:500;
+    background:none;
+    border:0;
+    padding:2px 6px;
+    cursor:pointer;
+    line-height:1;
+}
+.location-button:active{transform:scale(.85)}
+.location-button.copied{color:#22c55e}
+
 #installButton{
     margin-top:12px;background:var(--primary);color:#fff;border:0;border-radius:10px;padding:10px 18px;
     font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35)
@@ -129,12 +143,16 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 <div class="phone-container">
     <div class="header">
         <h1 id="portalTitle">SISTEMA OPERACIONAL PM</h1>
-        <div class="clock" id="liveClock">00:00:00</div>
+
+        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Copiar localização">📍</button>
+
         <button id="installButton" hidden onclick="instalarPWA()">📲 Instalar aplicativo</button>
     </div>
+
     <div class="grid-apps" id="appGrid">
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
+
     <div style="text-align:center;font-size:.7rem;color:var(--muted);padding:15px 0">
         Toque no + para gerenciar atalhos (Admin)
     </div>
@@ -568,6 +586,7 @@ function uploadArquivo(file, pasta, onProgress) {
 window.salvarLogo = async function() {
     const btn = $("btnSalvarLogo");
     const file = $("portalLogoFile").files?.[0];
+
     if (!file) {
         alert("Escolha uma imagem primeiro.");
         return;
@@ -600,6 +619,7 @@ window.salvarLogo = async function() {
 
 $("portalLogoFile").addEventListener("change", e => {
     const file = e.target.files?.[0];
+
     if (file) {
         const reader = new FileReader();
         reader.onload = () => $("logoPreview").src = reader.result;
@@ -610,6 +630,7 @@ $("portalLogoFile").addEventListener("change", e => {
 async function carregarConfigPortal() {
     try {
         const snap = await getDoc(portalConfigRef);
+
         if (snap.exists() && snap.data().theme) {
             aplicarTema(snap.data().theme);
         } else {
@@ -622,48 +643,124 @@ async function carregarConfigPortal() {
 }
 
 onSnapshot(portalConfigRef, snap => {
-    if (snap.exists() && snap.data().theme) aplicarTema(snap.data().theme);
+    if (snap.exists() && snap.data().theme) {
+        aplicarTema(snap.data().theme);
+    }
 });
 
-function atualizarRelogio() {
-    $("liveClock").textContent = new Date().toLocaleTimeString("pt-BR");
-}
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
+
+/* ============================================================
+   GEOLOCALIZAÇÃO
+   ============================================================ */
+
+window.copiarGeolocalizacao = function() {
+    const button = $("locationButton");
+
+    if (!navigator.geolocation) {
+        alert("A localização não é suportada neste dispositivo.");
+        return;
+    }
+
+    button.textContent = "⌛";
+
+    navigator.geolocation.getCurrentPosition(
+        async position => {
+            const latitude = position.coords.latitude.toFixed(6);
+            const longitude = position.coords.longitude.toFixed(6);
+
+            const coordenadas = `${latitude}, ${longitude}`;
+
+            try {
+                await navigator.clipboard.writeText(coordenadas);
+
+                button.textContent = "✓";
+                button.classList.add("copied");
+
+                setTimeout(() => {
+                    button.textContent = "📍";
+                    button.classList.remove("copied");
+                }, 1000);
+
+            } catch (error) {
+                console.error("Erro ao copiar localização:", error);
+                button.textContent = "📍";
+            }
+        },
+
+        error => {
+            console.error("Erro ao obter localização:", error);
+            button.textContent = "📍";
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+};
+
+
+/* ============================================================
+   SERVICE WORKER / PWA
+   ============================================================ */
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(err => console.error("Erro Service Worker:", err));
+        navigator.serviceWorker.register("./sw.js")
+            .catch(err => console.error("Erro Service Worker:", err));
     });
 }
 
 const installButton = $("installButton");
+
 window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     deferredInstallPrompt = event;
     installButton.hidden = false;
 });
+
 window.instalarPWA = async function() {
     if (!deferredInstallPrompt) {
         alert("A instalação ainda não está disponível.\n\nAbra o Portal PM pelo Google Chrome e aguarde alguns segundos.");
         return;
     }
+
     deferredInstallPrompt.prompt();
+
     await deferredInstallPrompt.userChoice;
+
     deferredInstallPrompt = null;
     installButton.hidden = true;
 };
+
 window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
     installButton.hidden = true;
 });
 
+
+/* ============================================================
+   APLICATIVOS
+   ============================================================ */
+
 onSnapshot(appsCol, snapshot => {
     globalApps = [];
-    snapshot.forEach(s => globalApps.push({docId:s.id, ...s.data()}));
-    globalApps.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+
+    snapshot.forEach(s => {
+        globalApps.push({
+            docId:s.id,
+            ...s.data()
+        });
+    });
+
+    globalApps.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+
     renderizarGrid();
-    if ($("adminModal").style.display === "flex") atualizarListaAdmin();
+
+    if ($("adminModal").style.display === "flex") {
+        atualizarListaAdmin();
+    }
 });
 
 function renderizarGrid() {
@@ -672,38 +769,58 @@ function renderizarGrid() {
 
     globalApps.forEach(appItem => {
         const div = document.createElement("div");
+
         div.className = "app-item";
         div.onclick = () => clicarApp(appItem);
 
         let iconHtml;
+
         if (appItem.iconType === "color") {
-            iconHtml = `<div class="app-icon" style="background:${escapeHtml(appItem.bgColor || "#0284c7")}">${escapeHtml(appItem.symbol || "📁")}</div>`;
+            iconHtml =
+                `<div class="app-icon" style="background:${escapeHtml(appItem.bgColor || "#0284c7")}">${escapeHtml(appItem.symbol || "📁")}</div>`;
         } else {
-            const src = appItem.icon || "https://cdn-icons-png.flaticon.com/512/2838/2838912.png";
-            iconHtml = `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" onerror="this.style.display='none'"></div>`;
+            const src =
+                appItem.icon ||
+                "https://cdn-icons-png.flaticon.com/512/2838/2838912.png";
+
+            iconHtml =
+                `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" onerror="this.style.display='none'"></div>`;
         }
 
-        div.innerHTML = `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
+        div.innerHTML =
+            `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
+
         grid.appendChild(div);
     });
 
     const plus = document.createElement("div");
+
     plus.className = "app-item";
     plus.onclick = window.abrirModalSenha;
-    plus.innerHTML = `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
+
+    plus.innerHTML =
+        `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
+
     grid.appendChild(plus);
 }
 
 function clicarApp(appItem) {
-    if (appItem.type === "link") abrirUrlComInput(appItem.url || "");
-    else if (appItem.type === "submenu") abrirSubmenu(appItem);
+    if (appItem.type === "link") {
+        abrirUrlComInput(appItem.url || "");
+    } else if (appItem.type === "submenu") {
+        abrirSubmenu(appItem);
+    }
 }
 
 function abrirUrlComInput(url) {
     if (url.endsWith("?") || url.includes("$ID$")) {
         abrirPromptModal("Digite o ID da Escala:", idDigitado => {
             if (idDigitado) {
-                const finalUrl = url.endsWith("?") ? url + idDigitado : url.replace("$ID$", idDigitado);
+                const finalUrl =
+                    url.endsWith("?")
+                        ? url + idDigitado
+                        : url.replace("$ID$", idDigitado);
+
                 window.location.href = finalUrl;
             }
         });
@@ -719,33 +836,51 @@ function abrirPromptModal(titulo, callback) {
     $("promptModal").style.display = "flex";
     $("promptInput").focus();
 }
+
 window.fecharPromptModal = function(valor) {
     $("promptModal").style.display = "none";
-    if (promptCallback) promptCallback(valor);
+
+    if (promptCallback) {
+        promptCallback(valor);
+    }
+
     promptCallback = null;
 };
+
 window.confirmarPromptModal = function() {
-    window.fecharPromptModal($("promptInput").value.trim());
+    window.fecharPromptModal(
+        $("promptInput").value.trim()
+    );
 };
 
 function abrirSubmenu(appItem) {
     $("submenuModalTitle").textContent = appItem.name;
+
     const list = $("submenuList");
     list.innerHTML = "";
 
     if (!appItem.subitems?.length) {
-        list.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:10px">Nenhum item cadastrado.</div>`;
+        list.innerHTML =
+            `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:10px">Nenhum item cadastrado.</div>`;
     } else {
         appItem.subitems.forEach(sub => {
             const btn = document.createElement("button");
+
             btn.className = "sub-item-btn";
             btn.textContent = sub.name;
             btn.onclick = () => abrirUrlComInput(sub.url);
+
             list.appendChild(btn);
         });
     }
+
     $("submenuModal").style.display = "flex";
 }
+
+
+/* ============================================================
+   ADMIN
+   ============================================================ */
 
 window.abrirModalSenha = function() {
     $("adminPassword").value = "";
@@ -769,14 +904,21 @@ function abrirPainelAdmin() {
 }
 
 window.alternarCamposTipo = function() {
-    $("campoUrlUnica").style.display = $("newAppType").value === "link" ? "block" : "none";
+    $("campoUrlUnica").style.display =
+        $("newAppType").value === "link" ? "block" : "none";
 };
 
 window.alternarTipoIcone = function() {
     const tipo = $("iconTypeSelect").value;
-    $("iconTypeFile").style.display = tipo === "file" ? "block" : "none";
-    $("iconTypeUrl").style.display = tipo === "url" ? "block" : "none";
-    $("iconTypeColor").style.display = tipo === "color" ? "block" : "none";
+
+    $("iconTypeFile").style.display =
+        tipo === "file" ? "block" : "none";
+
+    $("iconTypeUrl").style.display =
+        tipo === "url" ? "block" : "none";
+
+    $("iconTypeColor").style.display =
+        tipo === "color" ? "block" : "none";
 };
 
 window.limparFormularioAdmin = function() {
@@ -791,6 +933,7 @@ window.limparFormularioAdmin = function() {
     $("newAppBgColor").value = "#0284c7";
     $("newAppSymbol").value = "";
     $("btnSalvarApp").textContent = "Instalar App";
+
     window.alternarCamposTipo();
     window.alternarTipoIcone();
 };
@@ -807,6 +950,7 @@ window.salvarNovoApp = async function() {
         alert("Preencha o nome do aplicativo!");
         return;
     }
+
     if (type === "link" && !url) {
         alert("Preencha o link / URL.");
         return;
@@ -825,32 +969,65 @@ window.salvarNovoApp = async function() {
 
             if (file) {
                 validarImagem(file, 8);
-                iconData = await uploadArquivo(file, "icones", pct => {
-                    btn.textContent = `Enviando ${pct}%...`;
-                });
+
+                iconData = await uploadArquivo(
+                    file,
+                    "icones",
+                    pct => {
+                        btn.textContent = `Enviando ${pct}%...`;
+                    }
+                );
             } else if (docId) {
-                const atual = globalApps.find(a => a.docId === docId);
+                const atual = globalApps.find(
+                    a => a.docId === docId
+                );
+
                 iconData = atual?.icon || "";
             }
+
         } else if (iconType === "url") {
+
             iconData = $("newAppIcon").value.trim();
-            if (!iconData && !docId) throw new Error("Informe a URL da imagem.");
+
+            if (!iconData && !docId) {
+                throw new Error("Informe a URL da imagem.");
+            }
+
         } else if (iconType === "color") {
+
             bgColor = $("newAppBgColor").value;
-            symbol = $("newAppSymbol").value.trim() || name.charAt(0).toUpperCase();
+
+            symbol =
+                $("newAppSymbol").value.trim() ||
+                name.charAt(0).toUpperCase();
         }
 
         const appObj = {
-            name, type, iconType, icon:iconData, bgColor, symbol,
+            name,
+            type,
+            iconType,
+            icon:iconData,
+            bgColor,
+            symbol,
             url:type === "link" ? url : ""
         };
 
         if (docId) {
-            await updateDoc(doc(db, "apps", docId), appObj);
+
+            await updateDoc(
+                doc(db, "apps", docId),
+                appObj
+            );
+
         } else {
+
             appObj.createdAt = Date.now();
             appObj.subitems = [];
-            const res = await addDoc(appsCol, appObj);
+
+            const res = await addDoc(
+                appsCol,
+                appObj
+            );
 
             if (type === "submenu") {
                 fecharModais();
@@ -860,35 +1037,71 @@ window.salvarNovoApp = async function() {
         }
 
         limparFormularioAdmin();
-        alert(docId ? "Aplicativo atualizado com sucesso." : "Aplicativo instalado com sucesso.");
+
+        alert(
+            docId
+                ? "Aplicativo atualizado com sucesso."
+                : "Aplicativo instalado com sucesso."
+        );
+
     } catch (err) {
+
         console.error("ERRO AO SALVAR APP:", err);
-        let detalhe = err?.code || err?.message || String(err);
-        alert("Não foi possível salvar o aplicativo.\n\n" + detalhe +
-              "\n\nSe o erro for permission-denied no Storage, verifique as regras do Firebase Storage.");
+
+        let detalhe =
+            err?.code ||
+            err?.message ||
+            String(err);
+
+        alert(
+            "Não foi possível salvar o aplicativo.\n\n" +
+            detalhe +
+            "\n\nSe o erro for permission-denied no Storage, verifique as regras do Firebase Storage."
+        );
+
     } finally {
+
         btn.disabled = false;
-        btn.textContent = $("editAppDocId").value ? "Atualizar App" : "Instalar App";
+
+        btn.textContent =
+            $("editAppDocId").value
+                ? "Atualizar App"
+                : "Instalar App";
     }
 };
 
 window.editarApp = function(docId) {
-    const appItem = globalApps.find(a => a.docId === docId);
+    const appItem =
+        globalApps.find(a => a.docId === docId);
+
     if (!appItem) return;
 
-    $("adminFormTitle").textContent = "Editar Aplicativo";
+    $("adminFormTitle").textContent =
+        "Editar Aplicativo";
+
     $("editAppDocId").value = docId;
     $("newAppName").value = appItem.name || "";
     $("newAppType").value = appItem.type || "link";
     $("newAppUrl").value = appItem.url || "";
-    $("iconTypeSelect").value = appItem.iconType || "url";
+    $("iconTypeSelect").value =
+        appItem.iconType || "url";
 
-    $("newAppIcon").value = appItem.iconType === "url" ? (appItem.icon || "") : "";
-    $("newAppBgColor").value = appItem.bgColor || "#0284c7";
-    $("newAppSymbol").value = appItem.symbol || "";
+    $("newAppIcon").value =
+        appItem.iconType === "url"
+            ? (appItem.icon || "")
+            : "";
+
+    $("newAppBgColor").value =
+        appItem.bgColor || "#0284c7";
+
+    $("newAppSymbol").value =
+        appItem.symbol || "";
+
     $("newAppIconFile").value = "";
 
-    $("btnSalvarApp").textContent = "Atualizar App";
+    $("btnSalvarApp").textContent =
+        "Atualizar App";
+
     window.alternarCamposTipo();
     window.alternarTipoIcone();
 };
@@ -899,145 +1112,258 @@ function atualizarListaAdmin() {
 
     globalApps.forEach(appItem => {
         const row = document.createElement("div");
-        row.className = "admin-item-row";
+
+        row.className =
+            "admin-item-row";
 
         const span = document.createElement("span");
-        span.textContent = appItem.name || "(sem nome)";
 
-        const actions = document.createElement("div");
-        actions.className = "admin-actions";
+        span.textContent =
+            appItem.name || "(sem nome)";
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "admin-actions";
 
         if (appItem.type === "submenu") {
-            const sub = document.createElement("button");
+            const sub =
+                document.createElement("button");
+
             sub.className = "sub-btn";
             sub.textContent = "Subitens";
-            sub.onclick = () => abrirConfigSubitems(appItem.docId);
+
+            sub.onclick = () =>
+                abrirConfigSubitems(appItem.docId);
+
             actions.appendChild(sub);
         }
 
-        const edit = document.createElement("button");
+        const edit =
+            document.createElement("button");
+
         edit.className = "edit-btn";
         edit.textContent = "Editar";
-        edit.onclick = () => editarApp(appItem.docId);
 
-        const del = document.createElement("button");
+        edit.onclick = () =>
+            editarApp(appItem.docId);
+
+        const del =
+            document.createElement("button");
+
         del.className = "delete-btn";
         del.textContent = "Excluir";
-        del.onclick = () => removerApp(appItem.docId);
+
+        del.onclick = () =>
+            removerApp(appItem.docId);
 
         actions.append(edit, del);
+
         row.append(span, actions);
+
         list.appendChild(row);
     });
 }
 
 window.removerApp = async function(docId) {
-    const appItem = globalApps.find(a => a.docId === docId);
-    if (!confirm(`Deseja realmente remover "${appItem?.name || "este aplicativo"}" para todos?`)) return;
+    const appItem =
+        globalApps.find(a => a.docId === docId);
+
+    if (!confirm(
+        `Deseja realmente remover "${appItem?.name || "este aplicativo"}" para todos?`
+    )) {
+        return;
+    }
 
     try {
-        await deleteDoc(doc(db, "apps", docId));
+
+        await deleteDoc(
+            doc(db, "apps", docId)
+        );
+
     } catch (err) {
+
         console.error(err);
-        alert("Erro ao excluir.\n\n" + (err.code || err.message || err));
+
+        alert(
+            "Erro ao excluir.\n\n" +
+            (err.code || err.message || err)
+        );
     }
 };
 
 window.abrirConfigSubitems = function(docId) {
-    appEmEdicaoSub = globalApps.find(a => a.docId === docId);
+    appEmEdicaoSub =
+        globalApps.find(a => a.docId === docId);
+
     if (!appEmEdicaoSub) return;
 
     limparSubitemForm();
     renderizarSubitemsAdmin();
-    $("subItemsAdminModal").style.display = "flex";
+
+    $("subItemsAdminModal").style.display =
+        "flex";
 };
 
 function limparSubitemForm() {
     $("editSubIndex").value = "-1";
     $("subItemName").value = "";
     $("subItemUrl").value = "";
-    $("btnSalvarSubitem").textContent = "Adicionar Subitem";
+    $("btnSalvarSubitem").textContent =
+        "Adicionar Subitem";
 }
 
 function renderizarSubitemsAdmin() {
-    const list = $("subItemsListAdmin");
+    const list =
+        $("subItemsListAdmin");
+
     list.innerHTML = "";
 
-    (appEmEdicaoSub?.subitems || []).forEach((sub, idx) => {
-        const row = document.createElement("div");
-        row.className = "admin-item-row";
+    (appEmEdicaoSub?.subitems || [])
+        .forEach((sub, idx) => {
 
-        const span = document.createElement("span");
-        span.textContent = sub.name;
+            const row =
+                document.createElement("div");
 
-        const actions = document.createElement("div");
-        actions.className = "admin-actions";
+            row.className =
+                "admin-item-row";
 
-        const edit = document.createElement("button");
-        edit.className = "edit-btn";
-        edit.textContent = "Editar";
-        edit.onclick = () => editarSubitem(idx);
+            const span =
+                document.createElement("span");
 
-        const del = document.createElement("button");
-        del.className = "delete-btn";
-        del.textContent = "Excluir";
-        del.onclick = () => removerSubitem(idx);
+            span.textContent = sub.name;
 
-        actions.append(edit, del);
-        row.append(span, actions);
-        list.appendChild(row);
-    });
+            const actions =
+                document.createElement("div");
+
+            actions.className =
+                "admin-actions";
+
+            const edit =
+                document.createElement("button");
+
+            edit.className = "edit-btn";
+            edit.textContent = "Editar";
+
+            edit.onclick = () =>
+                editarSubitem(idx);
+
+            const del =
+                document.createElement("button");
+
+            del.className = "delete-btn";
+            del.textContent = "Excluir";
+
+            del.onclick = () =>
+                removerSubitem(idx);
+
+            actions.append(edit, del);
+
+            row.append(span, actions);
+
+            list.appendChild(row);
+        });
 }
 
 window.editarSubitem = function(idx) {
-    const sub = appEmEdicaoSub.subitems[idx];
+    const sub =
+        appEmEdicaoSub.subitems[idx];
+
     $("editSubIndex").value = idx;
     $("subItemName").value = sub.name;
     $("subItemUrl").value = sub.url;
-    $("btnSalvarSubitem").textContent = "Atualizar Subitem";
+
+    $("btnSalvarSubitem").textContent =
+        "Atualizar Subitem";
 };
 
 window.salvarSubitemAtual = async function() {
-    const idx = parseInt($("editSubIndex").value, 10);
-    const name = $("subItemName").value.trim();
-    const url = $("subItemUrl").value.trim();
+    const idx =
+        parseInt(
+            $("editSubIndex").value,
+            10
+        );
+
+    const name =
+        $("subItemName").value.trim();
+
+    const url =
+        $("subItemUrl").value.trim();
 
     if (!name || !url) {
-        alert("Preencha o nome e o link do subitem.");
+        alert(
+            "Preencha o nome e o link do subitem."
+        );
         return;
     }
 
-    if (!appEmEdicaoSub.subitems) appEmEdicaoSub.subitems = [];
+    if (!appEmEdicaoSub.subitems) {
+        appEmEdicaoSub.subitems = [];
+    }
 
-    const item = {name, url};
-    if (idx >= 0) appEmEdicaoSub.subitems[idx] = item;
-    else appEmEdicaoSub.subitems.push(item);
+    const item = {
+        name,
+        url
+    };
+
+    if (idx >= 0) {
+        appEmEdicaoSub.subitems[idx] = item;
+    } else {
+        appEmEdicaoSub.subitems.push(item);
+    }
 
     try {
-        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), {
-            subitems: appEmEdicaoSub.subitems
-        });
+
+        await updateDoc(
+            doc(db, "apps", appEmEdicaoSub.docId),
+            {
+                subitems:
+                    appEmEdicaoSub.subitems
+            }
+        );
+
         limparSubitemForm();
         renderizarSubitemsAdmin();
+
     } catch (err) {
+
         console.error(err);
-        alert("Erro ao salvar subitem.\n\n" + (err.code || err.message || err));
+
+        alert(
+            "Erro ao salvar subitem.\n\n" +
+            (err.code || err.message || err)
+        );
     }
 };
 
 window.removerSubitem = async function(idx) {
-    if (!confirm("Excluir este subitem?")) return;
+    if (!confirm("Excluir este subitem?")) {
+        return;
+    }
 
     appEmEdicaoSub.subitems.splice(idx, 1);
 
     try {
-        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), {
-            subitems: appEmEdicaoSub.subitems
-        });
+
+        await updateDoc(
+            doc(db, "apps", appEmEdicaoSub.docId),
+            {
+                subitems:
+                    appEmEdicaoSub.subitems
+            }
+        );
+
         renderizarSubitemsAdmin();
+
     } catch (err) {
+
         console.error(err);
-        alert("Erro ao excluir subitem.\n\n" + (err.code || err.message || err));
+
+        alert(
+            "Erro ao excluir subitem.\n\n" +
+            (err.code || err.message || err)
+        );
     }
 };
 
@@ -1047,12 +1373,18 @@ window.concluirSubitensAdmin = function() {
 };
 
 window.fecharModais = function() {
-    document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
+    document
+        .querySelectorAll(".modal-overlay")
+        .forEach(m => {
+            m.style.display = "none";
+        });
 };
 
 carregarConfigPortal();
+
 window.alternarCamposTipo();
 window.alternarTipoIcone();
+
 </script>
 </body>
 </html>
