@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<title>Revelia - Policiamento Rodoviário</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+            linear-gradient(135deg, #161616 25%, #1c1c1c 25%, #1c1c1c 50%, #161616 50%, #161616 75%, #1c1c1c 75%);
+        background-size: 12px 12px;
+        color: #fff;
+        min-height: 100vh;
+    }
+
+    /* FAIXA SUPERIOR */
+    header {
+        background: #111;
+        border-bottom: 4px solid #f5c400;
+        padding: 16px 14px 14px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 3px 12px rgba(0,0,0,.5);
+    }
+
+    .titulo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .icone {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        background: #f5c400;
+        color: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        font-weight: bold;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 21px;
+        color: #f5c400;
+        letter-spacing: .5px;
+    }
+
+    .subtitulo {
+        font-size: 11px;
+        color: #aaa;
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* CONTEÚDO */
+    main {
+        width: 100%;
+        max-width: 650px;
+        margin: auto;
+        padding: 14px;
+    }
+
+    /* FORMULÁRIO */
+    .painel {
+        background: #111;
+        border: 1px solid #333;
+        border-left: 4px solid #f5c400;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.35);
+    }
+
+    .linha {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-bottom: 9px;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 10px;
+        color: #f5c400;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    input {
+        width: 100%;
+        height: 43px;
+        border: 1px solid #444;
+        border-radius: 7px;
+        background: #222;
+        color: #fff;
+        padding: 0 11px;
+        font-size: 15px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #f5c400;
+        box-shadow: 0 0 0 2px rgba(245,196,0,.12);
+    }
+
+    .botao-adicionar {
+        width: 100%;
+        height: 46px;
+        border: 0;
+        border-radius: 7px;
+        background: #f5c400;
+        color: #111;
+        font-size: 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 2px;
+    }
+
+    .botao-adicionar:active {
+        transform: scale(.98);
+    }
+
+    /* CABEÇALHO DA LISTA */
+    .barra-lista {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 2px 9px;
+    }
+
+    .contador {
+        font-size: 13px;
+        font-weight: bold;
+        color: #f5c400;
+    }
+
+    .botao-limpar {
+        background: #8b1515;
+        color: #fff;
+        border: 0;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* LISTA */
+    #lista {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding-bottom: 30px;
+    }
+
+    .item {
+        position: relative;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 9px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        transition: .2s;
+    }
+
+    .item.marcado {
+        opacity: .55;
+        border-color: #555;
+    }
+
+    .item.marcado .dados {
+        text-decoration: line-through;
+    }
+
+    /* CHECKBOX */
+    .check {
+        width: 25px;
+        height: 25px;
+        min-width: 25px;
+        accent-color: #f5c400;
+        cursor: pointer;
+    }
+
+    .dados {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .placa {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+    .placa strong {
+        background: #f5c400;
+        color: #111;
+        padding: 4px 7px;
+        border-radius: 4px;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .horario {
+        font-size: 11px;
+        color: #aaa;
+    }
+
+    .informacoes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 10px;
+        font-size: 12px;
+        color: #ddd;
+    }
+
+    .informacoes span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .informacoes b {
+        color: #f5c400;
+    }
+
+    .botao-remover {
+        width: 31px;
+        height: 31px;
+        min-width: 31px;
+        border: 1px solid #552020;
+        background: #271313;
+        color: #ff5c5c;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* VAZIO */
+    .vazio {
+        text-align: center;
+        padding: 35px 20px;
+        color: #777;
+        background: #111;
+        border: 1px dashed #444;
+        border-radius: 9px;
+        font-size: 13px;
+    }
+
+    .vazio .icone-vazio {
+        font-size: 30px;
+        margin-bottom: 8px;
+        color: #f5c400;
+    }
+
+    /* RESPONSIVO */
+    @media (max-width: 430px) {
+        main {
+            padding: 10px;
+        }
+
+        .linha {
+            gap: 7px;
+        }
+
+        input {
+            font-size: 14px;
+        }
+
+        .informacoes {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="titulo">
+        <div class="icone">⚠</div>
+        <div>
+            <h1>CONTROLE DE REVELIA</h1>
+            <div class="subtitulo">Policiamento Rodoviário</div>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <section class="painel">
+
+        <div class="linha">
+
+            <div class="campo">
+                <label>Placa</label>
+                <input
+                    type="text"
+                    id="placa"
+                    placeholder="ABC1D23"
+                    maxlength="8"
+                    autocomplete="off">
+            </div>
+
+            <div class="campo">
+                <label>Veículo</label>
+                <input
+                    type="text"
+                    id="veiculo"
+                    placeholder="Ex.: VW Gol"
+                    autocomplete="off">
+            </div>
+
+        </div>
+
+        <div class="linha">
+
+            <div class="campo">
+                <label>Cor</label>
+                <input
+                    type="text"
+                    id="cor"
+                    placeholder="Ex.: Prata"
+                    autocomplete="off">
+            </div>
+
+            <div class="campo">
+                <label>Artigo</label>
+                <input
+                    type="text"
+                    id="artigo"
+                    placeholder="Ex.: Art. 230"
+                    autocomplete="off">
+            </div>
+
+        </div>
+
+        <button class="botao-adicionar" onclick="adicionar()">
+            + Adicionar ocorrência
+        </button>
+
+    </section>
+
+    <div class="barra-lista">
+        <div class="contador" id="contador">0 ocorrências</div>
+
+        <button class="botao-limpar" onclick="limparTudo()">
+            Apagar geral
+        </button>
+    </div>
+
+    <section id="lista"></section>
+
+</main>
+
+<script>
+
+    const CHAVE = "revelia_ocorrencias";
+
+    let ocorrencias = JSON.parse(
+        localStorage.getItem(CHAVE) || "[]"
+    );
+
+    function salvar() {
+        localStorage.setItem(
+            CHAVE,
+            JSON.stringify(ocorrencias)
+        );
+    }
+
+    function adicionar() {
+
+        const placa = document
+            .getElementById("placa")
+            .value
+            .trim()
+            .toUpperCase();
+
+        const veiculo = document
+            .getElementById("veiculo")
+            .value
+            .trim();
+
+        const cor = document
+            .getElementById("cor")
+            .value
+            .trim();
+
+        const artigo = document
+            .getElementById("artigo")
+            .value
+            .trim();
+
+        if (!placa || !veiculo || !cor || !artigo) {
+            alert("Preencha todos os campos.");
+            return;
+        }
+
+        const agora = new Date();
+
+        const horario =
+            agora.toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+        const data = agora.toLocaleDateString("pt-BR");
+
+        const nova = {
+            id: Date.now(),
+            placa: placa,
+            veiculo: veiculo,
+            cor: cor,
+            artigo: artigo,
+            horario: horario,
+            data: data,
+            marcado: false
+        };
+
+        ocorrencias.push(nova);
+
+        salvar();
+
+        limparCampos();
+
+        renderizar();
+
+        // Deixa o novo item visível
+        setTimeout(() => {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "smooth"
+            });
+        }, 50);
+    }
+
+    function limparCampos() {
+        document.getElementById("placa").value = "";
+        document.getElementById("veiculo").value = "";
+        document.getElementById("cor").value = "";
+        document.getElementById("artigo").value = "";
+
+        document.getElementById("placa").focus();
+    }
+
+    function marcar(id) {
+
+        const item = ocorrencias.find(
+            ocorrencia => ocorrencia.id === id
+        );
+
+        if (!item) return;
+
+        item.marcado = !item.marcado;
+
+        salvar();
+
+        renderizar();
+    }
+
+    function remover(id) {
+
+        const confirmar = confirm(
+            "Remover esta ocorrência?"
+        );
+
+        if (!confirmar) return;
+
+        ocorrencias = ocorrencias.filter(
+            ocorrencia => ocorrencia.id !== id
+        );
+
+        salvar();
+
+        renderizar();
+    }
+
+    function limparTudo() {
+
+        if (ocorrencias.length === 0) {
+            return;
+        }
+
+        const confirmar = confirm(
+            "ATENÇÃO!\n\nApagar todas as ocorrências da lista?"
+        );
+
+        if (!confirmar) return;
+
+        ocorrencias = [];
+
+        salvar();
+
+        renderizar();
+    }
+
+    function renderizar() {
+
+        const lista = document.getElementById("lista");
+
+        const contador = document.getElementById("contador");
+
+        const total = ocorrencias.length;
+
+        contador.textContent =
+            total === 1
+                ? "1 ocorrência"
+                : `${total} ocorrências`;
+
+        if (total === 0) {
+
+            lista.innerHTML = `
+                <div class="vazio">
+                    <div class="icone-vazio">⚠</div>
+                    Nenhuma ocorrência adicionada.
+                </div>
+            `;
+
+            return;
+        }
+
+        lista.innerHTML = ocorrencias.map(item => `
+
+            <div class="item ${item.marcado ? "marcado" : ""}">
+
+                <input
+                    class="check"
+                    type="checkbox"
+                    ${item.marcado ? "checked" : ""}
+                    onchange="marcar(${item.id})"
+                    aria-label="Marcar ocorrência">
+
+                <div class="dados">
+
+                    <div class="placa">
+
+                        <strong>${escapar(item.placa)}</strong>
+
+                        <span class="horario">
+                            ${item.data} • ${item.horario}
+                        </span>
+
+                    </div>
+
+                    <div class="informacoes">
+
+                        <span>
+                            <b>Veículo:</b>
+                            ${escapar(item.veiculo)}
+                        </span>
+
+                        <span>
+                            <b>Cor:</b>
+                            ${escapar(item.cor)}
+                        </span>
+
+                        <span>
+                            <b>Artigo:</b>
+                            ${escapar(item.artigo)}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="botao-remover"
+                    onclick="remover(${item.id})"
+                    aria-label="Remover">
+                    ×
+                </button>
+
+            </div>
+
+        `).join("");
+    }
+
+    function escapar(texto) {
+
+        return String(texto)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Permite adicionar pressionando ENTER
+    document.addEventListener("keydown", function(event) {
+
+        if (
+            event.key === "Enter" &&
+            document.activeElement.tagName === "INPUT"
+        ) {
+            event.preventDefault();
+            adicionar();
+        }
+
+    });
+
+    renderizar();
+
+</script>
+
+</body>
+</html>
