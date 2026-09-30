@@ -1012,7 +1012,14 @@ window.salvarNovoApp = async function() {
             url:type === "link" ? url : ""
         };
 
+        // Preserva os subitens existentes ao editar o aplicativo.
+        // Isso evita que eles sejam apagados quando o app é salvo novamente.
         if (docId) {
+            const atual = globalApps.find(a => a.docId === docId);
+
+            if (atual?.subitems) {
+                appObj.subitems = atual.subitems;
+            }
 
             await updateDoc(
                 doc(db, "apps", docId),
@@ -1127,18 +1134,19 @@ function atualizarListaAdmin() {
         actions.className =
             "admin-actions";
 
-        if (appItem.type === "submenu") {
-            const sub =
-                document.createElement("button");
+        // O botão Subitens fica disponível para qualquer aplicativo.
+        // Se o app ainda for um link direto, abrir o editor de subitens
+        // o converte automaticamente para submenu.
+        const sub =
+            document.createElement("button");
 
-            sub.className = "sub-btn";
-            sub.textContent = "Subitens";
+        sub.className = "sub-btn";
+        sub.textContent = "Subitens";
 
-            sub.onclick = () =>
-                abrirConfigSubitems(appItem.docId);
+        sub.onclick = () =>
+            abrirConfigSubitems(appItem.docId);
 
-            actions.appendChild(sub);
-        }
+        actions.appendChild(sub);
 
         const edit =
             document.createElement("button");
@@ -1193,11 +1201,45 @@ window.removerApp = async function(docId) {
     }
 };
 
-window.abrirConfigSubitems = function(docId) {
+window.abrirConfigSubitems = async function(docId) {
     appEmEdicaoSub =
         globalApps.find(a => a.docId === docId);
 
     if (!appEmEdicaoSub) return;
+
+    // Se o aplicativo ainda for um link direto, transforma-o em submenu
+    // sem apagar os dados existentes.
+    if (appEmEdicaoSub.type !== "submenu") {
+        try {
+            await updateDoc(
+                doc(db, "apps", docId),
+                {
+                    type: "submenu",
+                    url: "",
+                    subitems: appEmEdicaoSub.subitems || []
+                }
+            );
+
+            appEmEdicaoSub.type = "submenu";
+            appEmEdicaoSub.url = "";
+            appEmEdicaoSub.subitems =
+                appEmEdicaoSub.subitems || [];
+
+        } catch (err) {
+            console.error(err);
+
+            alert(
+                "Não foi possível transformar este app em submenu.\n\n" +
+                (err.code || err.message || err)
+            );
+
+            return;
+        }
+    }
+
+    if (!appEmEdicaoSub.subitems) {
+        appEmEdicaoSub.subitems = [];
+    }
 
     limparSubitemForm();
     renderizarSubitemsAdmin();
