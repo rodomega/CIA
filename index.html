@@ -144,7 +144,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     <div class="header">
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
 
-        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Copiar localização">📌</button>
+        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Copiar localização">> GPS <</button>
 
         <button id="installButton" hidden onclick="instalarPWA()">📲 Instalar aplicativo</button>
     </div>
@@ -677,19 +677,19 @@ window.copiarGeolocalizacao = function() {
                 button.classList.add("copied");
 
                 setTimeout(() => {
-                    button.textContent = "📍";
+                    button.textContent = "> GPS <";
                     button.classList.remove("copied");
                 }, 1000);
 
             } catch (error) {
                 console.error("Erro ao copiar localização:", error);
-                button.textContent = "📍";
+                button.textContent = "> GPS <";
             }
         },
 
         error => {
             console.error("Erro ao obter localização:", error);
-            button.textContent = "📍";
+            button.textContent = "> GPS <";
         },
 
         {
