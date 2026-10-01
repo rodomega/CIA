@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>Revelia - Policiamento Rodoviário</title>
 
@@ -12,326 +12,520 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-body {
+html, body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background:
-        linear-gradient(135deg,
-        #161616 25%,
-        #1c1c1c 25%,
-        #1c1c1c 50%,
-        #161616 50%,
-        #161616 75%,
-        #1c1c1c 75%);
-    background-size: 12px 12px;
-    color: #fff;
-    min-height: 100vh;
+    padding: 0;
+    min-height: 100%;
 }
 
-/* CABEÇALHO */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #141414 25%,
+            #1c1c1c 25%,
+            #1c1c1c 50%,
+            #141414 50%,
+            #141414 75%,
+            #1c1c1c 75%
+        );
+
+    background-size: 14px 14px;
+}
+
+/* =========================
+   CABEÇALHO
+========================= */
 
 header {
-    background: #111;
+    background: #0d0d0d;
     border-bottom: 4px solid #f5c400;
-    padding: 16px 14px 14px;
+    padding: 15px;
     position: sticky;
     top: 0;
-    z-index: 10;
-    box-shadow: 0 3px 12px rgba(0,0,0,.5);
+    z-index: 20;
+    box-shadow: 0 3px 14px rgba(0,0,0,.55);
 }
 
 .titulo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
 }
 
-.icone {
+.logo {
     width: 42px;
     height: 42px;
-    border-radius: 8px;
+    border-radius: 9px;
+
     background: #f5c400;
     color: #111;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 23px;
-    font-weight: bold;
+
+    font-size: 22px;
+    font-weight: 900;
 }
 
 h1 {
     margin: 0;
-    font-size: 21px;
+    font-size: 20px;
     color: #f5c400;
     letter-spacing: .5px;
 }
 
 .subtitulo {
-    font-size: 11px;
-    color: #aaa;
     margin-top: 3px;
+    font-size: 10px;
+    color: #aaa;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-/* CONTEÚDO */
+/* =========================
+   CONTEÚDO
+========================= */
 
 main {
     width: 100%;
     max-width: 650px;
     margin: auto;
-    padding: 14px;
+    padding: 18px 12px 35px;
 }
 
-/* PAINEL DO FORMULÁRIO */
+/* =========================
+   BOTÃO DE FALA
+========================= */
 
-.painel {
+.area-fala {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px 0 25px;
+}
+
+.botao-fala {
+    width: 125px;
+    height: 125px;
+
+    border-radius: 50%;
+
+    border: 5px solid #111;
+
+    background: #f5c400;
+
+    box-shadow:
+        0 0 0 4px #f5c400,
+        0 8px 22px rgba(0,0,0,.55);
+
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: none;
+
+    transition:
+        transform .12s ease,
+        box-shadow .12s ease,
+        background .12s ease;
+}
+
+.botao-fala:active {
+    transform: scale(.94);
+}
+
+.botao-fala.gravando {
+    background: #ffdd32;
+
+    box-shadow:
+        0 0 0 5px #f5c400,
+        0 0 0 10px rgba(245,196,0,.20),
+        0 0 30px rgba(245,196,0,.45);
+    
+    animation: pulsar 1s infinite;
+}
+
+@keyframes pulsar {
+
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.texto-falar {
+    margin-top: 12px;
+
+    color: #f5c400;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    text-transform: lowercase;
+}
+
+.status-voz {
+    min-height: 18px;
+
+    margin-top: 8px;
+
+    color: #aaa;
+
+    font-size: 11px;
+
+    text-align: center;
+}
+
+/* =========================
+   CONFERÊNCIA
+========================= */
+
+#painelConferencia {
+    display: none;
+
     background: #111;
+
     border: 1px solid #333;
     border-left: 4px solid #f5c400;
+
     border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.35);
+
+    padding: 15px;
+
+    margin-bottom: 18px;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,.45);
 }
 
-.linha {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 9px;
-    margin-bottom: 9px;
+.titulo-conferencia {
+    color: #f5c400;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    margin-bottom: 13px;
 }
 
 .campo {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 10px;
 }
 
-label {
-    font-size: 10px;
+.campo label {
+    display: block;
+
     color: #f5c400;
+
+    font-size: 10px;
     font-weight: bold;
+
     text-transform: uppercase;
+
     margin-bottom: 4px;
 }
 
-input {
+.campo input {
     width: 100%;
-    height: 43px;
+    height: 42px;
+
+    padding: 0 11px;
+
     border: 1px solid #444;
     border-radius: 7px;
+
     background: #222;
     color: #fff;
-    padding: 0 11px;
-    font-size: 15px;
+
+    font-size: 14px;
+
     outline: none;
 }
 
-input:focus {
+.campo input:focus {
     border-color: #f5c400;
-    box-shadow: 0 0 0 2px rgba(245,196,0,.12);
+
+    box-shadow:
+        0 0 0 2px rgba(245,196,0,.12);
 }
 
-/* LOCAL OCUPA A LINHA INTEIRA */
+.botoes-conferencia {
+    display: grid;
 
-.local {
-    margin-bottom: 9px;
+    grid-template-columns: 1fr 1.5fr;
+
+    gap: 8px;
+
+    margin-top: 13px;
 }
 
-.botao-adicionar {
-    width: 100%;
-    height: 46px;
+.btn-cancelar,
+.btn-confirmar {
+    height: 45px;
+
     border: 0;
+
     border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+}
+
+.btn-cancelar {
+    background: #333;
+    color: #ddd;
+}
+
+.btn-confirmar {
     background: #f5c400;
     color: #111;
-    font-size: 15px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 2px;
 }
 
-.botao-adicionar:active {
-    transform: scale(.98);
-}
-
-/* BARRA DA LISTA */
+/* =========================
+   LISTA
+========================= */
 
 .barra-lista {
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
-    margin: 8px 2px 9px;
+    justify-content: space-between;
+
+    margin: 5px 2px 10px;
 }
 
 .contador {
+    color: #f5c400;
+
     font-size: 13px;
     font-weight: bold;
-    color: #f5c400;
 }
 
-.botao-limpar {
-    background: #8b1515;
-    color: #fff;
+.btn-apagar {
     border: 0;
+
+    background: #8c1717;
+    color: #fff;
+
     border-radius: 6px;
+
     padding: 8px 10px;
-    font-size: 11px;
+
+    font-size: 10px;
     font-weight: bold;
+
     text-transform: uppercase;
 }
 
-/* LISTA */
-
 #lista {
     display: flex;
+
     flex-direction: column;
+
     gap: 9px;
-    padding-bottom: 30px;
 }
 
+/* =========================
+   ITEM
+========================= */
+
 .item {
-    position: relative;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 9px;
-    padding: 12px;
     display: flex;
+
     align-items: center;
-    gap: 11px;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    background: #111;
+
+    border: 1px solid #333;
+
+    border-radius: 9px;
+
+    box-shadow: 0 2px 7px rgba(0,0,0,.25);
+
     transition: .2s;
 }
 
 .item.marcado {
-    opacity: .55;
-    border-color: #555;
+    opacity: .52;
 }
 
 .item.marcado .dados {
     text-decoration: line-through;
 }
 
-/* CHECKBOX */
-
 .check {
     width: 25px;
     height: 25px;
-    min-width: 25px;
-    accent-color: #f5c400;
-    cursor: pointer;
-}
 
-/* DADOS */
+    min-width: 25px;
+
+    accent-color: #f5c400;
+}
 
 .dados {
     flex: 1;
     min-width: 0;
 }
 
-.placa {
+.topo-item {
     display: flex;
+
     align-items: center;
-    gap: 8px;
-    margin-bottom: 7px;
+
+    gap: 7px;
+
     flex-wrap: wrap;
+
+    margin-bottom: 7px;
 }
 
-.placa strong {
+.placa {
     background: #f5c400;
+
     color: #111;
-    padding: 4px 7px;
+
     border-radius: 4px;
+
+    padding: 4px 7px;
+
     font-size: 14px;
+    font-weight: bold;
+
     letter-spacing: 1px;
 }
 
 .horario {
-    font-size: 11px;
-    color: #aaa;
+    color: #999;
+
+    font-size: 10px;
 }
 
 .informacoes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 10px;
-    font-size: 12px;
-    color: #ddd;
-}
 
-.informacoes .local-info {
-    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 5px 9px;
+
+    color: #ddd;
+
+    font-size: 12px;
 }
 
 .informacoes span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.informacoes .local-info {
-    white-space: normal;
-    overflow: visible;
+    min-width: 0;
 }
 
 .informacoes b {
     color: #f5c400;
 }
 
-/* BOTÃO REMOVER */
+.local {
+    grid-column: 1 / -1;
 
-.botao-remover {
+    line-height: 1.3;
+}
+
+.btn-remover {
     width: 31px;
     height: 31px;
+
     min-width: 31px;
+
     border: 1px solid #552020;
-    background: #271313;
-    color: #ff5c5c;
+
     border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
+
+    background: #271313;
+
+    color: #ff5c5c;
+
+    font-size: 17px;
 }
 
-/* LISTA VAZIA */
+/* =========================
+   VAZIO
+========================= */
 
 .vazio {
-    text-align: center;
-    padding: 35px 20px;
-    color: #777;
     background: #111;
+
     border: 1px dashed #444;
+
     border-radius: 9px;
-    font-size: 13px;
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #777;
+
+    font-size: 12px;
 }
 
-.vazio .icone-vazio {
-    font-size: 30px;
-    margin-bottom: 8px;
-    color: #f5c400;
+/* =========================
+   RECONHECIMENTO
+========================= */
+
+.transcricao {
+    margin-top: 8px;
+
+    padding: 9px;
+
+    background: #1b1b1b;
+
+    border-radius: 6px;
+
+    color: #aaa;
+
+    font-size: 11px;
+
+    display: none;
 }
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 430px) {
 
     main {
-        padding: 10px;
-    }
-
-    .linha {
-        gap: 7px;
-    }
-
-    input {
-        font-size: 14px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .informacoes {
         grid-template-columns: 1fr;
     }
 
-    .informacoes .local-info {
+    .local {
         grid-column: auto;
+    }
+
+    .botao-fala {
+        width: 115px;
+        height: 115px;
     }
 }
 </style>
@@ -343,14 +537,16 @@ input:focus {
 
     <div class="titulo">
 
-        <div class="icone">⚠</div>
+        <div class="logo">R</div>
 
         <div>
+
             <h1>CONTROLE DE REVELIA</h1>
 
             <div class="subtitulo">
                 Policiamento Rodoviário
             </div>
+
         </div>
 
     </div>
@@ -360,96 +556,140 @@ input:focus {
 
 <main>
 
-    <!-- FORMULÁRIO -->
+    <!-- =========================
+         BOTÃO DE VOZ
+    ========================== -->
 
-    <section class="painel">
+    <section class="area-fala">
 
-        <div class="linha">
+        <button
+            id="botaoFala"
+            class="botao-fala"
+            aria-label="Segure para falar">
+        </button>
 
-            <div class="campo">
-                <label>Placa</label>
+        <div class="texto-falar">
+            falar
+        </div>
 
-                <input
-                    type="text"
-                    id="placa"
-                    placeholder="ABC1D23"
-                    maxlength="8"
-                    autocomplete="off">
-            </div>
+        <div
+            id="statusVoz"
+            class="status-voz">
+            pressione e segure
+        </div>
+
+        <div
+            id="transcricao"
+            class="transcricao">
+        </div>
+
+    </section>
 
 
-            <div class="campo">
-                <label>Veículo</label>
+    <!-- =========================
+         CONFERÊNCIA
+    ========================== -->
 
-                <input
-                    type="text"
-                    id="veiculo"
-                    placeholder="Ex.: VW Gol"
-                    autocomplete="off">
-            </div>
+    <section id="painelConferencia">
 
+        <div class="titulo-conferencia">
+            Conferir revelia
         </div>
 
 
-        <div class="linha">
+        <div class="campo">
 
-            <div class="campo">
-                <label>Cor</label>
-
-                <input
-                    type="text"
-                    id="cor"
-                    placeholder="Ex.: Prata"
-                    autocomplete="off">
-            </div>
-
-
-            <div class="campo">
-                <label>Artigo</label>
-
-                <input
-                    type="text"
-                    id="artigo"
-                    placeholder="Ex.: Art. 230"
-                    autocomplete="off">
-            </div>
-
-        </div>
-
-
-        <!-- LOCAL -->
-
-        <div class="campo local">
-
-            <label>Local</label>
+            <label>Placa</label>
 
             <input
+                id="confPlaca"
                 type="text"
-                id="local"
-                placeholder="Ex.: SP 330 KM 151,600 S"
                 autocomplete="off">
 
         </div>
 
 
-        <button
-            class="botao-adicionar"
-            onclick="adicionar()">
+        <div class="campo">
 
-            + Adicionar ocorrência
+            <label>Veículo</label>
 
-        </button>
+            <input
+                id="confVeiculo"
+                type="text"
+                autocomplete="off">
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Cor</label>
+
+            <input
+                id="confCor"
+                type="text"
+                autocomplete="off">
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Local</label>
+
+            <input
+                id="confLocal"
+                type="text"
+                autocomplete="off">
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Artigo</label>
+
+            <input
+                id="confArtigo"
+                type="text"
+                autocomplete="off">
+
+        </div>
+
+
+        <div class="botoes-conferencia">
+
+            <button
+                class="btn-cancelar"
+                onclick="cancelarConferencia()">
+
+                Cancelar
+
+            </button>
+
+
+            <button
+                class="btn-confirmar"
+                onclick="confirmarRevelia()">
+
+                Confirmar e adicionar
+
+            </button>
+
+        </div>
 
     </section>
 
 
-    <!-- CABEÇALHO DA LISTA -->
+    <!-- =========================
+         LISTA
+    ========================== -->
 
     <div class="barra-lista">
 
         <div
-            class="contador"
-            id="contador">
+            id="contador"
+            class="contador">
 
             0 ocorrências
 
@@ -457,8 +697,8 @@ input:focus {
 
 
         <button
-            class="botao-limpar"
-            onclick="limparTudo()">
+            class="btn-apagar"
+            onclick="apagarTudo()">
 
             Apagar geral
 
@@ -467,8 +707,6 @@ input:focus {
     </div>
 
 
-    <!-- LISTA -->
-
     <section id="lista"></section>
 
 </main>
@@ -476,87 +714,689 @@ input:focus {
 
 <script>
 
-const CHAVE = "revelia_ocorrencias";
+/* =====================================================
+   CONFIGURAÇÃO
+===================================================== */
 
-let ocorrencias = JSON.parse(
-    localStorage.getItem(CHAVE) || "[]"
-);
+const CHAVE =
+    "revelia_ocorrencias";
 
 
-/* SALVAR */
-
-function salvar() {
-
-    localStorage.setItem(
-        CHAVE,
-        JSON.stringify(ocorrencias)
+let ocorrencias =
+    JSON.parse(
+        localStorage.getItem(CHAVE) || "[]"
     );
+
+
+let reconhecimento = null;
+
+let reconhecendo = false;
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const botaoFala =
+    document.getElementById("botaoFala");
+
+const statusVoz =
+    document.getElementById("statusVoz");
+
+const transcricao =
+    document.getElementById("transcricao");
+
+
+/* =====================================================
+   RECONHECIMENTO DE VOZ
+===================================================== */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+if (SpeechRecognition) {
+
+    reconhecimento =
+        new SpeechRecognition();
+
+    reconhecimento.lang =
+        "pt-BR";
+
+    reconhecimento.continuous =
+        false;
+
+    reconhecimento.interimResults =
+        true;
+
+    reconhecimento.maxAlternatives =
+        3;
+
+
+    reconhecimento.onstart = function() {
+
+        reconhecendo = true;
+
+        botaoFala.classList.add(
+            "gravando"
+        );
+
+        statusVoz.textContent =
+            "ouvindo...";
+
+        transcricao.style.display =
+            "block";
+
+        transcricao.textContent =
+            "";
+
+    };
+
+
+    reconhecimento.onresult =
+        function(event) {
+
+            let texto = "";
+
+            for (
+                let i = event.resultIndex;
+                i < event.results.length;
+                i++
+            ) {
+
+                texto +=
+                    event.results[i][0].transcript;
+
+            }
+
+            transcricao.textContent =
+                texto;
+
+        };
+
+
+    reconhecimento.onerror =
+        function(event) {
+
+            reconhecendo = false;
+
+            botaoFala.classList.remove(
+                "gravando"
+            );
+
+            statusVoz.textContent =
+                "não foi possível reconhecer a fala";
+
+            console.log(
+                "Erro de voz:",
+                event.error
+            );
+
+        };
+
+
+    reconhecimento.onend =
+        function() {
+
+            reconhecendo = false;
+
+            botaoFala.classList.remove(
+                "gravando"
+            );
+
+            const texto =
+                transcricao.textContent.trim();
+
+
+            if (!texto) {
+
+                statusVoz.textContent =
+                    "nenhuma fala identificada";
+
+                return;
+
+            }
+
+
+            statusVoz.textContent =
+                "confira os dados abaixo";
+
+
+            interpretarFala(texto);
+
+        };
+
+} else {
+
+    statusVoz.textContent =
+        "reconhecimento de voz não disponível neste navegador";
 
 }
 
 
-/* ADICIONAR */
+/* =====================================================
+   PRESSIONAR E SEGURAR
+===================================================== */
 
-function adicionar() {
+function iniciarFala(event) {
 
-    const placa =
-        document
-        .getElementById("placa")
-        .value
+    event.preventDefault();
+
+    if (!reconhecimento) {
+
+        alert(
+            "O reconhecimento de voz não está disponível neste navegador."
+        );
+
+        return;
+
+    }
+
+
+    if (reconhecendo) return;
+
+
+    transcricao.textContent =
+        "";
+
+
+    try {
+
+        reconhecimento.start();
+
+    } catch (erro) {
+
+        console.log(erro);
+
+    }
+
+}
+
+
+function pararFala(event) {
+
+    event.preventDefault();
+
+    if (
+        reconhecimento &&
+        reconhecendo
+    ) {
+
+        reconhecimento.stop();
+
+    }
+
+}
+
+
+/* Eventos para celular */
+
+botaoFala.addEventListener(
+    "pointerdown",
+    iniciarFala
+);
+
+botaoFala.addEventListener(
+    "pointerup",
+    pararFala
+);
+
+botaoFala.addEventListener(
+    "pointercancel",
+    pararFala
+);
+
+botaoFala.addEventListener(
+    "pointerleave",
+    function(event) {
+
+        /*
+           Não encerra automaticamente
+           quando o dedo desliza um pouco.
+        */
+
+    }
+);
+
+
+/* =====================================================
+   INTERPRETAÇÃO DA FALA
+===================================================== */
+
+function interpretarFala(texto) {
+
+    let original =
+        texto.trim();
+
+
+    let normalizado =
+        original
+        .replace(/\s+/g, " ")
+        .trim();
+
+
+    /*
+       Criamos uma versão para facilitar
+       a identificação dos marcadores.
+    */
+
+    let minusculo =
+        normalizado.toLowerCase();
+
+
+    let placa = "";
+    let veiculo = "";
+    let cor = "";
+    let local = "";
+    let artigo = "";
+
+
+    /*
+       PLACA
+
+       Procura sequências parecidas com:
+       ABC1D23
+       ABC1234
+       ABC-1234
+    */
+
+    const placaRegex =
+        /\b([A-Z]{3}[-\s]?[0-9][A-Z0-9][0-9]{2,4})\b/i;
+
+
+    const encontradaPlaca =
+        normalizado.match(placaRegex);
+
+
+    if (encontradaPlaca) {
+
+        placa =
+            encontradaPlaca[1]
+            .replace(/[-\s]/g, "")
+            .toUpperCase();
+
+    }
+
+
+    /*
+       ARTIGO
+
+       Procura:
+       artigo 230
+       art. 230
+       art 230
+    */
+
+    const artigoRegex =
+        /(?:artigo|art\.?|art)\s*(?:n[ºo°]?\s*)?([0-9]{1,3}(?:[-/][A-Z0-9]+)?)/i;
+
+
+    const encontradoArtigo =
+        normalizado.match(artigoRegex);
+
+
+    if (encontradoArtigo) {
+
+        artigo =
+            encontradoArtigo[1];
+
+    }
+
+
+    /*
+       LOCAL
+
+       Procura a partir de:
+       local
+       rodovia
+       SP 330
+       km
+
+       Primeiro tentamos localizar
+       "local ..."
+    */
+
+    const localRegex =
+        /(?:local\s+)(.*?)(?=\s+(?:artigo|art\.?|art)\s*|$)/i;
+
+
+    const encontradoLocal =
+        normalizado.match(localRegex);
+
+
+    if (encontradoLocal) {
+
+        local =
+            limparLocal(
+                encontradoLocal[1]
+            );
+
+    } else {
+
+        /*
+           Segunda tentativa:
+           captura algo como
+
+           SP 330 KM 151,600 S
+        */
+
+        const rodoviaRegex =
+            /\b(SP\s*\d{1,3}\s+KM\s*[\d.,]+\s*[NSLSO]?)\b/i;
+
+
+        const encontradaRodovia =
+            normalizado.match(rodoviaRegex);
+
+
+        if (encontradaRodovia) {
+
+            local =
+                encontradaRodovia[1];
+
+        }
+
+    }
+
+
+    /*
+       COR
+    */
+
+    const cores = [
+        "preta",
+        "preto",
+        "branca",
+        "branco",
+        "prata",
+        "cinza",
+        "vermelha",
+        "vermelho",
+        "azul",
+        "verde",
+        "amarela",
+        "amarelo",
+        "marrom",
+        "bege",
+        "dourada",
+        "dourado"
+    ];
+
+
+    for (const nomeCor of cores) {
+
+        if (
+            minusculo.includes(
+                nomeCor
+            )
+        ) {
+
+            cor =
+                nomeCor;
+
+            break;
+
+        }
+
+    }
+
+
+    /*
+       VEÍCULO
+
+       Se a pessoa disser:
+       "veículo Gol"
+
+       pegamos o conteúdo até:
+       cor / local / artigo
+    */
+
+    const veiculoRegex =
+        /(?:veículo|veiculo|carro)\s+(.+?)(?=\s+(?:cor|local|artigo|art\.?|art)\b|$)/i;
+
+
+    const encontradoVeiculo =
+        normalizado.match(
+            veiculoRegex
+        );
+
+
+    if (encontradoVeiculo) {
+
+        veiculo =
+            encontradoVeiculo[1]
+            .trim();
+
+    }
+
+
+    /*
+       Se não encontrou veículo,
+       tentamos pegar uma palavra após
+       a placa e antes da cor/local/artigo.
+    */
+
+    if (!veiculo) {
+
+        let textoSemPlaca =
+            normalizado;
+
+
+        if (placa) {
+
+            textoSemPlaca =
+                textoSemPlaca.replace(
+                    new RegExp(
+                        placa,
+                        "i"
+                    ),
+                    ""
+                );
+
+        }
+
+
+        const partes =
+            textoSemPlaca.split(
+                /\s+(?=cor\b|local\b|artigo\b|art\.?\b)/i
+            );
+
+
+        if (
+            partes.length > 0 &&
+            partes[0].trim()
+        ) {
+
+            let tentativa =
+                partes[0]
+                .trim()
+                .replace(
+                    /^,?\s*(?:veículo|veiculo|carro)\s*/i,
+                    ""
+                )
+                .trim();
+
+
+            if (
+                tentativa &&
+                tentativa.length < 50
+            ) {
+
+                veiculo =
+                    tentativa
+                    .replace(
+                        /^(?:e|,)\s*/i,
+                        ""
+                    )
+                    .trim();
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       Limpeza dos campos
+    */
+
+    placa =
+        limparCampo(placa);
+
+    veiculo =
+        limparCampo(veiculo);
+
+    cor =
+        limparCampo(cor);
+
+    local =
+        limparLocal(local);
+
+    artigo =
+        limparCampo(artigo);
+
+
+    /*
+       Preenche a tela de conferência
+    */
+
+    document.getElementById(
+        "confPlaca"
+    ).value =
+        placa;
+
+
+    document.getElementById(
+        "confVeiculo"
+    ).value =
+        veiculo;
+
+
+    document.getElementById(
+        "confCor"
+    ).value =
+        cor;
+
+
+    document.getElementById(
+        "confLocal"
+    ).value =
+        local;
+
+
+    document.getElementById(
+        "confArtigo"
+    ).value =
+        artigo;
+
+
+    document.getElementById(
+        "painelConferencia"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "painelConferencia"
+    ).scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+}
+
+
+/* =====================================================
+   LIMPEZA
+===================================================== */
+
+function limparCampo(valor) {
+
+    return String(valor || "")
+        .replace(/^[,\s]+|[,\s]+$/g, "")
+        .trim();
+
+}
+
+
+function limparLocal(valor) {
+
+    return String(valor || "")
+        .replace(
+            /^(?:local\s*:?\s*)/i,
+            ""
+        )
+        .replace(
+            /^[,\s]+|[,\s]+$/g,
+            ""
+        )
         .trim()
         .toUpperCase();
 
+}
+
+
+/* =====================================================
+   CONFIRMAR REVELIA
+===================================================== */
+
+function confirmarRevelia() {
+
+    const placa =
+        document.getElementById(
+            "confPlaca"
+        ).value.trim().toUpperCase();
+
 
     const veiculo =
-        document
-        .getElementById("veiculo")
-        .value
-        .trim();
+        document.getElementById(
+            "confVeiculo"
+        ).value.trim();
 
 
     const cor =
-        document
-        .getElementById("cor")
-        .value
-        .trim();
-
-
-    const artigo =
-        document
-        .getElementById("artigo")
-        .value
-        .trim();
+        document.getElementById(
+            "confCor"
+        ).value.trim();
 
 
     const local =
-        document
-        .getElementById("local")
-        .value
-        .trim();
+        document.getElementById(
+            "confLocal"
+        ).value.trim();
+
+
+    const artigo =
+        document.getElementById(
+            "confArtigo"
+        ).value.trim();
 
 
     if (
         !placa ||
         !veiculo ||
         !cor ||
-        !artigo ||
-        !local
+        !local ||
+        !artigo
     ) {
 
         alert(
-            "Preencha todos os campos."
+            "Confira e preencha todos os campos antes de adicionar."
         );
 
         return;
+
     }
 
 
     /*
-       HORÁRIO CAPTURADO
-       NO MOMENTO DA INCLUSÃO
+       A DATA/HORA É DEFINIDA AQUI,
+       NO MOMENTO EXATO DA CONFIRMAÇÃO.
     */
 
-    const agora = new Date();
+    const agora =
+        new Date();
 
 
     const horario =
@@ -575,42 +1415,48 @@ function adicionar() {
         );
 
 
-    const nova = {
+    ocorrencias.push({
 
-        id: Date.now(),
+        id:
+            Date.now(),
 
-        placa: placa,
+        placa:
+            placa,
 
-        veiculo: veiculo,
+        veiculo:
+            veiculo,
 
-        cor: cor,
+        cor:
+            cor,
 
-        artigo: artigo,
+        local:
+            local,
 
-        local: local,
+        artigo:
+            artigo,
 
-        horario: horario,
+        data:
+            data,
 
-        data: data,
+        horario:
+            horario,
 
-        marcado: false
+        marcado:
+            false
 
-    };
-
-
-    ocorrencias.push(nova);
+    });
 
 
     salvar();
 
-
-    limparCampos();
-
+    limparConferencia();
 
     renderizar();
 
 
-    /* DESCE ATÉ O NOVO REGISTRO */
+    /*
+       Vai para o novo registro.
+    */
 
     setTimeout(() => {
 
@@ -619,55 +1465,96 @@ function adicionar() {
             top:
                 document.body.scrollHeight,
 
-            behavior: "smooth"
+            behavior:
+                "smooth"
 
         });
 
-    }, 50);
+    }, 100);
 
 }
 
 
-/* LIMPAR CAMPOS */
+/* =====================================================
+   CANCELAR CONFERÊNCIA
+===================================================== */
 
-function limparCampos() {
+function cancelarConferencia() {
 
-    document.getElementById(
-        "placa"
-    ).value = "";
-
-    document.getElementById(
-        "veiculo"
-    ).value = "";
-
-    document.getElementById(
-        "cor"
-    ).value = "";
-
-    document.getElementById(
-        "artigo"
-    ).value = "";
-
-    document.getElementById(
-        "local"
-    ).value = "";
-
-
-    document.getElementById(
-        "placa"
-    ).focus();
+    limparConferencia();
 
 }
 
 
-/* MARCAR / DESMARCAR */
+function limparConferencia() {
+
+    document.getElementById(
+        "painelConferencia"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "confPlaca"
+    ).value = "";
+
+
+    document.getElementById(
+        "confVeiculo"
+    ).value = "";
+
+
+    document.getElementById(
+        "confCor"
+    ).value = "";
+
+
+    document.getElementById(
+        "confLocal"
+    ).value = "";
+
+
+    document.getElementById(
+        "confArtigo"
+    ).value = "";
+
+
+    transcricao.textContent =
+        "";
+
+    transcricao.style.display =
+        "none";
+
+
+    statusVoz.textContent =
+        "pressione e segure";
+
+}
+
+
+/* =====================================================
+   SALVAR
+===================================================== */
+
+function salvar() {
+
+    localStorage.setItem(
+        CHAVE,
+        JSON.stringify(ocorrencias)
+    );
+
+}
+
+
+/* =====================================================
+   MARCAR
+===================================================== */
 
 function marcar(id) {
 
     const item =
         ocorrencias.find(
-            ocorrencia =>
-                ocorrencia.id === id
+            x => x.id === id
         );
 
 
@@ -680,73 +1567,79 @@ function marcar(id) {
 
     salvar();
 
-
     renderizar();
 
 }
 
 
-/* REMOVER INDIVIDUAL */
+/* =====================================================
+   REMOVER
+===================================================== */
 
 function remover(id) {
 
-    const confirmar =
-        confirm(
+    if (
+        !confirm(
             "Remover esta ocorrência?"
-        );
-
-
-    if (!confirmar) return;
-
-
-    ocorrencias =
-        ocorrencias.filter(
-            ocorrencia =>
-                ocorrencia.id !== id
-        );
-
-
-    salvar();
-
-
-    renderizar();
-
-}
-
-
-/* APAGAR TUDO */
-
-function limparTudo() {
-
-    if (ocorrencias.length === 0) {
+        )
+    ) {
 
         return;
 
     }
 
 
-    const confirmar =
-        confirm(
-            "ATENÇÃO!\n\n" +
-            "Apagar TODAS as ocorrências da lista?"
+    ocorrencias =
+        ocorrencias.filter(
+            x => x.id !== id
         );
 
 
-    if (!confirmar) return;
-
-
-    ocorrencias = [];
-
-
     salvar();
-
 
     renderizar();
 
 }
 
 
-/* RENDERIZAR LISTA */
+/* =====================================================
+   APAGAR TUDO
+===================================================== */
+
+function apagarTudo() {
+
+    if (
+        ocorrencias.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !confirm(
+            "ATENÇÃO!\n\nApagar todas as ocorrências?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    ocorrencias = [];
+
+    salvar();
+
+    renderizar();
+
+}
+
+
+/* =====================================================
+   RENDERIZAR
+===================================================== */
 
 function renderizar() {
 
@@ -778,10 +1671,6 @@ function renderizar() {
 
             <div class="vazio">
 
-                <div class="icone-vazio">
-                    ⚠
-                </div>
-
                 Nenhuma ocorrência adicionada.
 
             </div>
@@ -796,36 +1685,28 @@ function renderizar() {
     lista.innerHTML =
         ocorrencias.map(item => `
 
-        <div
-            class="item
+        <div class="item
             ${item.marcado ? "marcado" : ""}">
-
-            <!-- CHECKBOX -->
 
             <input
                 class="check"
                 type="checkbox"
                 ${item.marcado ? "checked" : ""}
-                onchange="marcar(${item.id})"
-                aria-label="Marcar ocorrência">
+                onchange="marcar(${item.id})">
 
-
-            <!-- DADOS -->
 
             <div class="dados">
 
-                <div class="placa">
+                <div class="topo-item">
 
-                    <strong>
+                    <span class="placa">
                         ${escapar(item.placa)}
-                    </strong>
+                    </span>
 
                     <span class="horario">
-
-                        ${item.data}
+                        ${escapar(item.data)}
                         •
-                        ${item.horario}
-
+                        ${escapar(item.horario)}
                     </span>
 
                 </div>
@@ -834,34 +1715,26 @@ function renderizar() {
                 <div class="informacoes">
 
                     <span>
-
                         <b>Veículo:</b>
                         ${escapar(item.veiculo)}
-
                     </span>
 
 
                     <span>
-
                         <b>Cor:</b>
                         ${escapar(item.cor)}
-
                     </span>
 
 
                     <span>
-
                         <b>Artigo:</b>
                         ${escapar(item.artigo)}
-
                     </span>
 
 
-                    <span class="local-info">
-
+                    <span class="local">
                         <b>Local:</b>
                         ${escapar(item.local)}
-
                     </span>
 
                 </div>
@@ -869,12 +1742,9 @@ function renderizar() {
             </div>
 
 
-            <!-- REMOVER -->
-
             <button
-                class="botao-remover"
-                onclick="remover(${item.id})"
-                aria-label="Remover">
+                class="btn-remover"
+                onclick="remover(${item.id})">
 
                 ×
 
@@ -887,7 +1757,9 @@ function renderizar() {
 }
 
 
-/* SEGURANÇA CONTRA HTML DIGITADO NOS CAMPOS */
+/* =====================================================
+   PROTEÇÃO CONTRA HTML
+===================================================== */
 
 function escapar(texto) {
 
@@ -921,28 +1793,9 @@ function escapar(texto) {
 }
 
 
-/* ENTER = ADICIONAR */
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Enter" &&
-            document.activeElement.tagName === "INPUT"
-        ) {
-
-            event.preventDefault();
-
-            adicionar();
-
-        }
-
-    }
-);
-
-
-/* INICIAR */
+/* =====================================================
+   INICIAR
+===================================================== */
 
 renderizar();
 
