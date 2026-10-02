@@ -2,530 +2,410 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
 
-<title>Revelia - Policiamento Rodoviário</title>
+<title>Controle de Revelia</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
+html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#111;
+    color:#fff;
 }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #fff;
-
+body{
     background:
-        linear-gradient(
-            135deg,
-            #141414 25%,
-            #1c1c1c 25%,
-            #1c1c1c 50%,
-            #141414 50%,
-            #141414 75%,
-            #1c1c1c 75%
+        repeating-linear-gradient(
+            -45deg,
+            #101010 0px,
+            #101010 18px,
+            #171717 18px,
+            #171717 36px
         );
-
-    background-size: 14px 14px;
 }
 
-/* =========================
-   CABEÇALHO
-========================= */
-
-header {
-    background: #0d0d0d;
-    border-bottom: 4px solid #f5c400;
-    padding: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    box-shadow: 0 3px 14px rgba(0,0,0,.55);
+header{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:#111;
+    border-bottom:3px solid #f5c400;
+    padding:14px 15px;
+    text-align:center;
 }
 
-.titulo {
-    display: flex;
-    align-items: center;
-    gap: 11px;
+header h1{
+    margin:0;
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:1px;
+    color:#f5c400;
 }
 
-.logo {
-    width: 42px;
-    height: 42px;
-    border-radius: 9px;
-
-    background: #f5c400;
-    color: #111;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 22px;
-    font-weight: 900;
+header p{
+    margin:4px 0 0;
+    font-size:11px;
+    color:#bbb;
+    text-transform:uppercase;
 }
 
-h1 {
-    margin: 0;
-    font-size: 20px;
-    color: #f5c400;
-    letter-spacing: .5px;
+.container{
+    width:100%;
+    max-width:650px;
+    margin:auto;
+    padding:20px 14px 40px;
 }
 
-.subtitulo {
-    margin-top: 3px;
-    font-size: 10px;
-    color: #aaa;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/* PERGUNTA */
+
+.question-box{
+    text-align:center;
+    margin-top:10px;
 }
 
-/* =========================
-   CONTEÚDO
-========================= */
-
-main {
-    width: 100%;
-    max-width: 650px;
-    margin: auto;
-    padding: 18px 12px 35px;
+.question-label{
+    font-size:12px;
+    color:#aaa;
+    text-transform:uppercase;
+    letter-spacing:1px;
 }
 
-/* =========================
-   BOTÃO DE FALA
-========================= */
-
-.area-fala {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px 0 25px;
+.question{
+    margin-top:7px;
+    font-size:27px;
+    font-weight:900;
+    color:#fff;
 }
 
-.botao-fala {
-    width: 125px;
-    height: 125px;
+/* BOTÃO DE FALAR */
 
-    border-radius: 50%;
+.speak-area{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin:30px 0 18px;
+}
 
-    border: 5px solid #111;
-
-    background: #f5c400;
-
+.speak-button{
+    width:145px;
+    height:145px;
+    border-radius:50%;
+    border:5px solid #f5c400;
+    background:#171717;
     box-shadow:
-        0 0 0 4px #f5c400,
-        0 8px 22px rgba(0,0,0,.55);
-
-    cursor: pointer;
-
-    user-select: none;
-    -webkit-user-select: none;
-
-    touch-action: none;
-
-    transition:
-        transform .12s ease,
-        box-shadow .12s ease,
-        background .12s ease;
+        0 0 0 7px rgba(245,196,0,.08),
+        0 8px 25px rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#f5c400;
+    font-size:20px;
+    font-weight:900;
+    user-select:none;
+    touch-action:none;
+    cursor:pointer;
+    transition:.15s;
 }
 
-.botao-fala:active {
-    transform: scale(.94);
-}
-
-.botao-fala.gravando {
-    background: #ffdd32;
-
+.speak-button:active,
+.speak-button.recording{
+    transform:scale(.94);
+    background:#f5c400;
+    color:#111;
     box-shadow:
-        0 0 0 5px #f5c400,
-        0 0 0 10px rgba(245,196,0,.20),
-        0 0 30px rgba(245,196,0,.45);
-    
-    animation: pulsar 1s infinite;
+        0 0 0 12px rgba(245,196,0,.15),
+        0 0 35px rgba(245,196,0,.35);
 }
 
-@keyframes pulsar {
+.speak-text{
+    margin-top:10px;
+    color:#aaa;
+    font-size:13px;
+    text-transform:lowercase;
+}
 
-    0% {
-        transform: scale(1);
+.status{
+    min-height:22px;
+    text-align:center;
+    font-size:13px;
+    color:#f5c400;
+    font-weight:bold;
+    margin-top:5px;
+}
+
+/* TRANSCRIÇÃO */
+
+.transcription{
+    display:none;
+    background:#181818;
+    border:1px solid #333;
+    border-radius:12px;
+    padding:13px;
+    margin-top:15px;
+}
+
+.transcription-title{
+    font-size:10px;
+    color:#888;
+    text-transform:uppercase;
+    margin-bottom:5px;
+}
+
+.transcription-text{
+    font-size:15px;
+    line-height:1.4;
+    color:#fff;
+}
+
+/* CONFIRMAÇÃO DA RESPOSTA */
+
+.answer-box{
+    display:none;
+    margin-top:18px;
+    background:#171717;
+    border:1px solid #3b3b3b;
+    border-radius:14px;
+    padding:15px;
+}
+
+.answer-title{
+    font-size:11px;
+    color:#f5c400;
+    font-weight:bold;
+    text-transform:uppercase;
+    margin-bottom:9px;
+}
+
+.answer-input{
+    width:100%;
+    background:#0d0d0d;
+    border:1px solid #444;
+    border-radius:9px;
+    color:#fff;
+    padding:13px;
+    font-size:17px;
+    outline:none;
+}
+
+.answer-input:focus{
+    border-color:#f5c400;
+}
+
+.answer-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+.btn{
+    flex:1;
+    border:0;
+    border-radius:9px;
+    padding:12px;
+    font-weight:900;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.btn-confirm{
+    background:#f5c400;
+    color:#111;
+}
+
+.btn-repeat{
+    background:#2b2b2b;
+    color:#fff;
+}
+
+/* CONFERÊNCIA FINAL */
+
+.final-box{
+    display:none;
+    margin-top:22px;
+}
+
+.final-title{
+    color:#f5c400;
+    font-size:18px;
+    font-weight:900;
+    text-align:center;
+    margin-bottom:14px;
+}
+
+.field{
+    margin-bottom:10px;
+}
+
+.field label{
+    display:block;
+    color:#999;
+    font-size:10px;
+    text-transform:uppercase;
+    margin-bottom:4px;
+}
+
+.field input{
+    width:100%;
+    background:#161616;
+    border:1px solid #444;
+    border-radius:8px;
+    padding:12px;
+    color:#fff;
+    font-size:15px;
+    outline:none;
+}
+
+.field input:focus{
+    border-color:#f5c400;
+}
+
+.save-button{
+    width:100%;
+    margin-top:8px;
+    padding:15px;
+    border:0;
+    border-radius:10px;
+    background:#f5c400;
+    color:#111;
+    font-weight:900;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.cancel-button{
+    width:100%;
+    margin-top:8px;
+    padding:12px;
+    border:1px solid #444;
+    border-radius:10px;
+    background:#181818;
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* LISTA */
+
+.list-section{
+    margin-top:30px;
+}
+
+.list-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.list-title{
+    color:#f5c400;
+    font-size:16px;
+    font-weight:900;
+}
+
+.counter{
+    color:#999;
+    font-size:12px;
+}
+
+.clear-button{
+    width:100%;
+    margin-bottom:12px;
+    padding:11px;
+    background:#242424;
+    color:#ff6666;
+    border:1px solid #444;
+    border-radius:9px;
+    font-weight:bold;
+}
+
+.record{
+    background:#171717;
+    border:1px solid #353535;
+    border-left:4px solid #f5c400;
+    border-radius:11px;
+    padding:13px;
+    margin-bottom:10px;
+}
+
+.record.completed{
+    opacity:.55;
+    border-left-color:#4caf50;
+}
+
+.record-top{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.record-check{
+    width:22px;
+    height:22px;
+    flex:none;
+    accent-color:#f5c400;
+    margin-top:2px;
+}
+
+.record-info{
+    flex:1;
+    min-width:0;
+}
+
+.record-main{
+    font-weight:900;
+    font-size:16px;
+}
+
+.record-details{
+    margin-top:5px;
+    color:#bbb;
+    font-size:12px;
+    line-height:1.55;
+}
+
+.record-time{
+    color:#f5c400;
+    font-size:11px;
+    margin-top:6px;
+}
+
+.delete-button{
+    border:0;
+    background:#292929;
+    color:#ff6b6b;
+    border-radius:7px;
+    padding:7px 9px;
+    font-weight:bold;
+}
+
+.empty{
+    text-align:center;
+    padding:25px 10px;
+    color:#666;
+    font-size:13px;
+}
+
+/* RESPONSIVO */
+
+@media(max-width:420px){
+    .question{
+        font-size:24px;
     }
 
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-.texto-falar {
-    margin-top: 12px;
-
-    color: #f5c400;
-
-    font-size: 12px;
-    font-weight: bold;
-
-    text-transform: lowercase;
-}
-
-.status-voz {
-    min-height: 18px;
-
-    margin-top: 8px;
-
-    color: #aaa;
-
-    font-size: 11px;
-
-    text-align: center;
-}
-
-/* =========================
-   CONFERÊNCIA
-========================= */
-
-#painelConferencia {
-    display: none;
-
-    background: #111;
-
-    border: 1px solid #333;
-    border-left: 4px solid #f5c400;
-
-    border-radius: 10px;
-
-    padding: 15px;
-
-    margin-bottom: 18px;
-
-    box-shadow: 0 4px 15px rgba(0,0,0,.45);
-}
-
-.titulo-conferencia {
-    color: #f5c400;
-
-    font-size: 14px;
-    font-weight: bold;
-
-    text-transform: uppercase;
-
-    margin-bottom: 13px;
-}
-
-.campo {
-    margin-bottom: 10px;
-}
-
-.campo label {
-    display: block;
-
-    color: #f5c400;
-
-    font-size: 10px;
-    font-weight: bold;
-
-    text-transform: uppercase;
-
-    margin-bottom: 4px;
-}
-
-.campo input {
-    width: 100%;
-    height: 42px;
-
-    padding: 0 11px;
-
-    border: 1px solid #444;
-    border-radius: 7px;
-
-    background: #222;
-    color: #fff;
-
-    font-size: 14px;
-
-    outline: none;
-}
-
-.campo input:focus {
-    border-color: #f5c400;
-
-    box-shadow:
-        0 0 0 2px rgba(245,196,0,.12);
-}
-
-.botoes-conferencia {
-    display: grid;
-
-    grid-template-columns: 1fr 1.5fr;
-
-    gap: 8px;
-
-    margin-top: 13px;
-}
-
-.btn-cancelar,
-.btn-confirmar {
-    height: 45px;
-
-    border: 0;
-
-    border-radius: 7px;
-
-    font-size: 12px;
-    font-weight: bold;
-
-    text-transform: uppercase;
-}
-
-.btn-cancelar {
-    background: #333;
-    color: #ddd;
-}
-
-.btn-confirmar {
-    background: #f5c400;
-    color: #111;
-}
-
-/* =========================
-   LISTA
-========================= */
-
-.barra-lista {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    margin: 5px 2px 10px;
-}
-
-.contador {
-    color: #f5c400;
-
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.btn-apagar {
-    border: 0;
-
-    background: #8c1717;
-    color: #fff;
-
-    border-radius: 6px;
-
-    padding: 8px 10px;
-
-    font-size: 10px;
-    font-weight: bold;
-
-    text-transform: uppercase;
-}
-
-#lista {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 9px;
-}
-
-/* =========================
-   ITEM
-========================= */
-
-.item {
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 12px;
-
-    background: #111;
-
-    border: 1px solid #333;
-
-    border-radius: 9px;
-
-    box-shadow: 0 2px 7px rgba(0,0,0,.25);
-
-    transition: .2s;
-}
-
-.item.marcado {
-    opacity: .52;
-}
-
-.item.marcado .dados {
-    text-decoration: line-through;
-}
-
-.check {
-    width: 25px;
-    height: 25px;
-
-    min-width: 25px;
-
-    accent-color: #f5c400;
-}
-
-.dados {
-    flex: 1;
-    min-width: 0;
-}
-
-.topo-item {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    flex-wrap: wrap;
-
-    margin-bottom: 7px;
-}
-
-.placa {
-    background: #f5c400;
-
-    color: #111;
-
-    border-radius: 4px;
-
-    padding: 4px 7px;
-
-    font-size: 14px;
-    font-weight: bold;
-
-    letter-spacing: 1px;
-}
-
-.horario {
-    color: #999;
-
-    font-size: 10px;
-}
-
-.informacoes {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 5px 9px;
-
-    color: #ddd;
-
-    font-size: 12px;
-}
-
-.informacoes span {
-    min-width: 0;
-}
-
-.informacoes b {
-    color: #f5c400;
-}
-
-.local {
-    grid-column: 1 / -1;
-
-    line-height: 1.3;
-}
-
-.btn-remover {
-    width: 31px;
-    height: 31px;
-
-    min-width: 31px;
-
-    border: 1px solid #552020;
-
-    border-radius: 6px;
-
-    background: #271313;
-
-    color: #ff5c5c;
-
-    font-size: 17px;
-}
-
-/* =========================
-   VAZIO
-========================= */
-
-.vazio {
-    background: #111;
-
-    border: 1px dashed #444;
-
-    border-radius: 9px;
-
-    padding: 35px 20px;
-
-    text-align: center;
-
-    color: #777;
-
-    font-size: 12px;
-}
-
-/* =========================
-   RECONHECIMENTO
-========================= */
-
-.transcricao {
-    margin-top: 8px;
-
-    padding: 9px;
-
-    background: #1b1b1b;
-
-    border-radius: 6px;
-
-    color: #aaa;
-
-    font-size: 11px;
-
-    display: none;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 430px) {
-
-    main {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    .informacoes {
-        grid-template-columns: 1fr;
-    }
-
-    .local {
-        grid-column: auto;
-    }
-
-    .botao-fala {
-        width: 115px;
-        height: 115px;
+    .speak-button{
+        width:130px;
+        height:130px;
     }
 }
 </style>
@@ -534,1270 +414,1313 @@ main {
 <body>
 
 <header>
+    <h1>CONTROLE DE REVELIA</h1>
+    <p>Policiamento Rodoviário</p>
+</header>
 
-    <div class="titulo">
+<div class="container">
 
-        <div class="logo">R</div>
+    <div id="wizard">
 
-        <div>
+        <div class="question-box">
+            <div class="question-label">Informe</div>
+            <div class="question" id="questionText">Qual veículo?</div>
+        </div>
 
-            <h1>CONTROLE DE REVELIA</h1>
+        <div class="speak-area">
 
-            <div class="subtitulo">
-                Policiamento Rodoviário
+            <div
+                class="speak-button"
+                id="speakButton"
+                role="button"
+                aria-label="Segure para falar"
+            >
+                falar
+            </div>
+
+            <div class="speak-text">segure para falar</div>
+
+            <div class="status" id="status"></div>
+
+        </div>
+
+        <div class="transcription" id="transcription">
+            <div class="transcription-title">Você disse</div>
+            <div class="transcription-text" id="transcriptionText"></div>
+        </div>
+
+        <div class="answer-box" id="answerBox">
+
+            <div class="answer-title">
+                Confira a resposta
+            </div>
+
+            <input
+                type="text"
+                id="answerInput"
+                class="answer-input"
+                autocomplete="off"
+            >
+
+            <div class="answer-actions">
+                <button class="btn btn-repeat" id="repeatButton">
+                    REPETIR
+                </button>
+
+                <button class="btn btn-confirm" id="answerConfirmButton">
+                    CONFIRMAR
+                </button>
             </div>
 
         </div>
 
     </div>
 
-</header>
+    <!-- CONFERÊNCIA FINAL -->
 
+    <div class="final-box" id="finalBox">
 
-<main>
+        <div class="final-title">
+            CONFERÊNCIA DA REVELIA
+        </div>
 
-    <!-- =========================
-         BOTÃO DE VOZ
-    ========================== -->
+        <div class="field">
+            <label>Veículo</label>
+            <input id="finalVehicle">
+        </div>
 
-    <section class="area-fala">
+        <div class="field">
+            <label>Placa</label>
+            <input id="finalPlate">
+        </div>
 
-        <button
-            id="botaoFala"
-            class="botao-fala"
-            aria-label="Segure para falar">
+        <div class="field">
+            <label>Cor</label>
+            <input id="finalColor">
+        </div>
+
+        <div class="field">
+            <label>Local</label>
+            <input id="finalLocation">
+        </div>
+
+        <div class="field">
+            <label>Artigo</label>
+            <input id="finalArticle">
+        </div>
+
+        <button class="save-button" id="saveButton">
+            CONFIRMAR E ADICIONAR
         </button>
 
-        <div class="texto-falar">
-            falar
-        </div>
-
-        <div
-            id="statusVoz"
-            class="status-voz">
-            pressione e segure
-        </div>
-
-        <div
-            id="transcricao"
-            class="transcricao">
-        </div>
-
-    </section>
-
-
-    <!-- =========================
-         CONFERÊNCIA
-    ========================== -->
-
-    <section id="painelConferencia">
-
-        <div class="titulo-conferencia">
-            Conferir revelia
-        </div>
-
-
-        <div class="campo">
-
-            <label>Placa</label>
-
-            <input
-                id="confPlaca"
-                type="text"
-                autocomplete="off">
-
-        </div>
-
-
-        <div class="campo">
-
-            <label>Veículo</label>
-
-            <input
-                id="confVeiculo"
-                type="text"
-                autocomplete="off">
-
-        </div>
-
-
-        <div class="campo">
-
-            <label>Cor</label>
-
-            <input
-                id="confCor"
-                type="text"
-                autocomplete="off">
-
-        </div>
-
-
-        <div class="campo">
-
-            <label>Local</label>
-
-            <input
-                id="confLocal"
-                type="text"
-                autocomplete="off">
-
-        </div>
-
-
-        <div class="campo">
-
-            <label>Artigo</label>
-
-            <input
-                id="confArtigo"
-                type="text"
-                autocomplete="off">
-
-        </div>
-
-
-        <div class="botoes-conferencia">
-
-            <button
-                class="btn-cancelar"
-                onclick="cancelarConferencia()">
-
-                Cancelar
-
-            </button>
-
-
-            <button
-                class="btn-confirmar"
-                onclick="confirmarRevelia()">
-
-                Confirmar e adicionar
-
-            </button>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================
-         LISTA
-    ========================== -->
-
-    <div class="barra-lista">
-
-        <div
-            id="contador"
-            class="contador">
-
-            0 ocorrências
-
-        </div>
-
-
-        <button
-            class="btn-apagar"
-            onclick="apagarTudo()">
-
-            Apagar geral
-
+        <button class="cancel-button" id="cancelFinalButton">
+            CANCELAR
         </button>
 
     </div>
 
+    <!-- LISTA -->
 
-    <section id="lista"></section>
+    <div class="list-section">
 
-</main>
+        <div class="list-header">
+            <div class="list-title">REVELIAS REGISTRADAS</div>
+            <div class="counter" id="counter">0 registros</div>
+        </div>
 
+        <button class="clear-button" id="clearButton">
+            APAGAR TODOS OS REGISTROS
+        </button>
+
+        <div id="records"></div>
+
+    </div>
+
+</div>
 
 <script>
-
-/* =====================================================
+/* =========================================================
    CONFIGURAÇÃO
-===================================================== */
+========================================================= */
 
-const CHAVE =
-    "revelia_ocorrencias";
+const STORAGE_KEY = "revelia_ocorrencias";
 
+const steps = [
+    {
+        key: "vehicle",
+        question: "Qual veículo?"
+    },
+    {
+        key: "plate",
+        question: "Qual placa?"
+    },
+    {
+        key: "color",
+        question: "Qual cor?"
+    },
+    {
+        key: "location",
+        question: "Qual local?"
+    },
+    {
+        key: "article",
+        question: "Qual artigo?"
+    }
+];
 
-let ocorrencias =
-    JSON.parse(
-        localStorage.getItem(CHAVE) || "[]"
-    );
+let currentStep = 0;
 
+let currentData = {
+    vehicle: "",
+    plate: "",
+    color: "",
+    location: "",
+    article: ""
+};
 
-let reconhecimento = null;
+let recognition = null;
+let isRecording = false;
+let finalTranscript = "";
 
-let reconhecendo = false;
-
-
-/* =====================================================
+/* =========================================================
    ELEMENTOS
-===================================================== */
+========================================================= */
 
-const botaoFala =
-    document.getElementById("botaoFala");
+const questionText = document.getElementById("questionText");
+const speakButton = document.getElementById("speakButton");
+const statusEl = document.getElementById("status");
 
-const statusVoz =
-    document.getElementById("statusVoz");
+const transcription = document.getElementById("transcription");
+const transcriptionText = document.getElementById("transcriptionText");
 
-const transcricao =
-    document.getElementById("transcricao");
+const answerBox = document.getElementById("answerBox");
+const answerInput = document.getElementById("answerInput");
 
+const repeatButton = document.getElementById("repeatButton");
+const answerConfirmButton = document.getElementById("answerConfirmButton");
 
-/* =====================================================
-   RECONHECIMENTO DE VOZ
-===================================================== */
+const wizard = document.getElementById("wizard");
+const finalBox = document.getElementById("finalBox");
+
+const finalVehicle = document.getElementById("finalVehicle");
+const finalPlate = document.getElementById("finalPlate");
+const finalColor = document.getElementById("finalColor");
+const finalLocation = document.getElementById("finalLocation");
+const finalArticle = document.getElementById("finalArticle");
+
+const saveButton = document.getElementById("saveButton");
+const cancelFinalButton = document.getElementById("cancelFinalButton");
+
+const recordsContainer = document.getElementById("records");
+const counter = document.getElementById("counter");
+const clearButton = document.getElementById("clearButton");
+
+/* =========================================================
+   SPEECH RECOGNITION
+========================================================= */
 
 const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
-
 if (SpeechRecognition) {
 
-    reconhecimento =
-        new SpeechRecognition();
+    recognition = new SpeechRecognition();
 
-    reconhecimento.lang =
-        "pt-BR";
+    recognition.lang = "pt-BR";
 
-    reconhecimento.continuous =
-        false;
+    recognition.continuous = false;
 
-    reconhecimento.interimResults =
-        true;
+    recognition.interimResults = true;
 
-    reconhecimento.maxAlternatives =
-        3;
+    recognition.maxAlternatives = 5;
 
+    recognition.onstart = function(){
 
-    reconhecimento.onstart = function() {
+        isRecording = true;
 
-        reconhecendo = true;
+        speakButton.classList.add("recording");
 
-        botaoFala.classList.add(
-            "gravando"
-        );
+        statusEl.textContent = "ouvindo...";
 
-        statusVoz.textContent =
-            "ouvindo...";
-
-        transcricao.style.display =
-            "block";
-
-        transcricao.textContent =
-            "";
-
+        finalTranscript = "";
     };
 
+    recognition.onresult = function(event){
 
-    reconhecimento.onresult =
-        function(event) {
+        let interim = "";
+        let finalText = "";
 
-            let texto = "";
+        for(let i = event.resultIndex; i < event.results.length; i++){
 
-            for (
-                let i = event.resultIndex;
-                i < event.results.length;
-                i++
-            ) {
+            const text = event.results[i][0].transcript;
 
-                texto +=
-                    event.results[i][0].transcript;
-
+            if(event.results[i].isFinal){
+                finalText += text;
+            }else{
+                interim += text;
             }
-
-            transcricao.textContent =
-                texto;
-
-        };
-
-
-    reconhecimento.onerror =
-        function(event) {
-
-            reconhecendo = false;
-
-            botaoFala.classList.remove(
-                "gravando"
-            );
-
-            statusVoz.textContent =
-                "não foi possível reconhecer a fala";
-
-            console.log(
-                "Erro de voz:",
-                event.error
-            );
-
-        };
-
-
-    reconhecimento.onend =
-        function() {
-
-            reconhecendo = false;
-
-            botaoFala.classList.remove(
-                "gravando"
-            );
-
-            const texto =
-                transcricao.textContent.trim();
-
-
-            if (!texto) {
-
-                statusVoz.textContent =
-                    "nenhuma fala identificada";
-
-                return;
-
-            }
-
-
-            statusVoz.textContent =
-                "confira os dados abaixo";
-
-
-            interpretarFala(texto);
-
-        };
-
-} else {
-
-    statusVoz.textContent =
-        "reconhecimento de voz não disponível neste navegador";
-
-}
-
-
-/* =====================================================
-   PRESSIONAR E SEGURAR
-===================================================== */
-
-function iniciarFala(event) {
-
-    event.preventDefault();
-
-    if (!reconhecimento) {
-
-        alert(
-            "O reconhecimento de voz não está disponível neste navegador."
-        );
-
-        return;
-
-    }
-
-
-    if (reconhecendo) return;
-
-
-    transcricao.textContent =
-        "";
-
-
-    try {
-
-        reconhecimento.start();
-
-    } catch (erro) {
-
-        console.log(erro);
-
-    }
-
-}
-
-
-function pararFala(event) {
-
-    event.preventDefault();
-
-    if (
-        reconhecimento &&
-        reconhecendo
-    ) {
-
-        reconhecimento.stop();
-
-    }
-
-}
-
-
-/* Eventos para celular */
-
-botaoFala.addEventListener(
-    "pointerdown",
-    iniciarFala
-);
-
-botaoFala.addEventListener(
-    "pointerup",
-    pararFala
-);
-
-botaoFala.addEventListener(
-    "pointercancel",
-    pararFala
-);
-
-botaoFala.addEventListener(
-    "pointerleave",
-    function(event) {
-
-        /*
-           Não encerra automaticamente
-           quando o dedo desliza um pouco.
-        */
-
-    }
-);
-
-
-/* =====================================================
-   INTERPRETAÇÃO DA FALA
-===================================================== */
-
-function interpretarFala(texto) {
-
-    let original =
-        texto.trim();
-
-
-    let normalizado =
-        original
-        .replace(/\s+/g, " ")
-        .trim();
-
-
-    /*
-       Criamos uma versão para facilitar
-       a identificação dos marcadores.
-    */
-
-    let minusculo =
-        normalizado.toLowerCase();
-
-
-    let placa = "";
-    let veiculo = "";
-    let cor = "";
-    let local = "";
-    let artigo = "";
-
-
-    /*
-       PLACA
-
-       Procura sequências parecidas com:
-       ABC1D23
-       ABC1234
-       ABC-1234
-    */
-
-    const placaRegex =
-        /\b([A-Z]{3}[-\s]?[0-9][A-Z0-9][0-9]{2,4})\b/i;
-
-
-    const encontradaPlaca =
-        normalizado.match(placaRegex);
-
-
-    if (encontradaPlaca) {
-
-        placa =
-            encontradaPlaca[1]
-            .replace(/[-\s]/g, "")
-            .toUpperCase();
-
-    }
-
-
-    /*
-       ARTIGO
-
-       Procura:
-       artigo 230
-       art. 230
-       art 230
-    */
-
-    const artigoRegex =
-        /(?:artigo|art\.?|art)\s*(?:n[ºo°]?\s*)?([0-9]{1,3}(?:[-/][A-Z0-9]+)?)/i;
-
-
-    const encontradoArtigo =
-        normalizado.match(artigoRegex);
-
-
-    if (encontradoArtigo) {
-
-        artigo =
-            encontradoArtigo[1];
-
-    }
-
-
-    /*
-       LOCAL
-
-       Procura a partir de:
-       local
-       rodovia
-       SP 330
-       km
-
-       Primeiro tentamos localizar
-       "local ..."
-    */
-
-    const localRegex =
-        /(?:local\s+)(.*?)(?=\s+(?:artigo|art\.?|art)\s*|$)/i;
-
-
-    const encontradoLocal =
-        normalizado.match(localRegex);
-
-
-    if (encontradoLocal) {
-
-        local =
-            limparLocal(
-                encontradoLocal[1]
-            );
-
-    } else {
-
-        /*
-           Segunda tentativa:
-           captura algo como
-
-           SP 330 KM 151,600 S
-        */
-
-        const rodoviaRegex =
-            /\b(SP\s*\d{1,3}\s+KM\s*[\d.,]+\s*[NSLSO]?)\b/i;
-
-
-        const encontradaRodovia =
-            normalizado.match(rodoviaRegex);
-
-
-        if (encontradaRodovia) {
-
-            local =
-                encontradaRodovia[1];
-
         }
 
+        if(finalText){
+            finalTranscript += " " + finalText;
+        }
+
+        const display =
+            (finalTranscript + " " + interim).trim();
+
+        transcriptionText.textContent = display;
+
+        transcription.style.display = display
+            ? "block"
+            : "none";
+    };
+
+    recognition.onerror = function(event){
+
+        stopRecording();
+
+        let message = "Não foi possível reconhecer.";
+
+        if(event.error === "not-allowed"){
+            message = "Permissão do microfone negada.";
+        }
+
+        if(event.error === "no-speech"){
+            message = "Não ouvi sua resposta. Tente novamente.";
+        }
+
+        if(event.error === "network"){
+            message = "Erro de conexão do reconhecimento.";
+        }
+
+        statusEl.textContent = message;
+    };
+
+    recognition.onend = function(){
+
+        stopRecording();
+
+        if(finalTranscript.trim()){
+
+            processAnswer(finalTranscript.trim());
+
+        }else{
+
+            statusEl.textContent =
+                "Nenhuma resposta reconhecida.";
+        }
+    };
+
+}else{
+
+    speakButton.style.opacity = ".45";
+    speakButton.style.pointerEvents = "none";
+
+    statusEl.textContent =
+        "Reconhecimento de voz não disponível neste navegador.";
+}
+
+/* =========================================================
+   INICIAR / PARAR GRAVAÇÃO
+========================================================= */
+
+function startRecording(){
+
+    if(!recognition){
+        return;
     }
 
+    if(isRecording){
+        return;
+    }
+
+    finalTranscript = "";
+
+    transcriptionText.textContent = "";
+
+    transcription.style.display = "none";
+
+    answerBox.style.display = "none";
+
+    statusEl.textContent = "preparando...";
+
+    try{
+        recognition.start();
+    }catch(error){
+        console.log(error);
+    }
+}
+
+function stopRecording(){
+
+    isRecording = false;
+
+    speakButton.classList.remove("recording");
+
+    if(!recognition){
+        return;
+    }
+
+    try{
+        recognition.stop();
+    }catch(error){}
+}
+
+/* =========================================================
+   PRESSÃO E SEGURA
+========================================================= */
+
+speakButton.addEventListener("pointerdown", function(event){
+
+    event.preventDefault();
+
+    speakButton.setPointerCapture?.(event.pointerId);
+
+    startRecording();
+
+});
+
+speakButton.addEventListener("pointerup", function(event){
+
+    event.preventDefault();
+
+    if(isRecording){
+        stopRecording();
+    }
+
+});
+
+speakButton.addEventListener("pointercancel", function(){
+
+    if(isRecording){
+        stopRecording();
+    }
+
+});
+
+speakButton.addEventListener("pointerleave", function(event){
 
     /*
-       COR
+      Não encerra ao sair do círculo.
+      Isso permite que o usuário segure e mova
+      ligeiramente o dedo sem interromper.
     */
 
-    const cores = [
-        "preta",
+});
+
+/* =========================================================
+   PROCESSAMENTO INDIVIDUAL
+========================================================= */
+
+function processAnswer(text){
+
+    const clean = text.trim();
+
+    if(!clean){
+
+        statusEl.textContent =
+            "Não consegui entender. Tente novamente.";
+
+        return;
+    }
+
+    let processed = clean;
+
+    const key = steps[currentStep].key;
+
+    if(key === "plate"){
+        processed = normalizePlate(clean);
+    }
+
+    if(key === "location"){
+        processed = normalizeLocation(clean);
+    }
+
+    if(key === "article"){
+        processed = normalizeArticle(clean);
+    }
+
+    if(key === "color"){
+        processed = normalizeColor(clean);
+    }
+
+    transcriptionText.textContent = clean;
+
+    answerInput.value = processed;
+
+    answerBox.style.display = "block";
+
+    statusEl.textContent = "Confira a resposta.";
+
+    setTimeout(() => {
+
+        answerInput.focus();
+
+        answerInput.select();
+
+    },100);
+
+}
+
+/* =========================================================
+   NORMALIZAÇÃO DA PLACA
+========================================================= */
+
+function normalizePlate(text){
+
+    let s = text
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"");
+
+    s = s
+        .replace(/\bPLACA\b/g," ")
+        .replace(/\bE\b/g," ")
+        .replace(/-/g," ")
+        .replace(/\s+/g," ")
+        .trim();
+
+    /*
+      Converte números falados.
+    */
+
+    const numberWords = {
+        "ZERO":"0",
+        "UM":"1",
+        "UMA":"1",
+        "DOIS":"2",
+        "DUAS":"2",
+        "TRES":"3",
+        "QUATRO":"4",
+        "CINCO":"5",
+        "SEIS":"6",
+        "SETE":"7",
+        "OITO":"8",
+        "NOVE":"9"
+    };
+
+    const words = s.split(" ");
+
+    const converted = words.map(word => {
+
+        if(numberWords[word]){
+            return numberWords[word];
+        }
+
+        return word;
+    });
+
+    s = converted.join("");
+
+    /*
+      Remove tudo que não seja letra ou número.
+    */
+
+    s = s.replace(/[^A-Z0-9]/g,"");
+
+    return s;
+}
+
+/* =========================================================
+   NÚMEROS POR EXTENSO
+========================================================= */
+
+function numberToDigits(text){
+
+    let s = text
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"");
+
+    const units = {
+        "ZERO":0,
+        "UM":1,
+        "UMA":1,
+        "DOIS":2,
+        "DUAS":2,
+        "TRES":3,
+        "QUATRO":4,
+        "CINCO":5,
+        "SEIS":6,
+        "SETE":7,
+        "OITO":8,
+        "NOVE":9,
+        "DEZ":10,
+        "ONZE":11,
+        "DOZE":12,
+        "TREZE":13,
+        "QUATORZE":14,
+        "CATORZE":14,
+        "QUINZE":15,
+        "DEZESSEIS":16,
+        "DEZESSETE":17,
+        "DEZOITO":18,
+        "DEZENOVE":19,
+        "VINTE":20,
+        "TRINTA":30,
+        "QUARENTA":40,
+        "CINQUENTA":50,
+        "SESSENTA":60,
+        "SETENTA":70,
+        "OITENTA":80,
+        "NOVENTA":90,
+        "CEM":100,
+        "CENTO":100,
+        "DUZENTOS":200,
+        "DUZENTAS":200,
+        "TREZENTOS":300,
+        "TREZENTAS":300,
+        "QUATROCENTOS":400,
+        "QUATROCENTAS":400,
+        "QUINHENTOS":500,
+        "QUINHENTAS":500,
+        "SEISCENTOS":600,
+        "SEISCENTAS":600,
+        "SETECENTOS":700,
+        "SETECENTAS":700,
+        "OITOCENTOS":800,
+        "OITOCENTAS":800,
+        "NOVECENTOS":900
+    };
+
+    /*
+      Primeiro trata expressões simples:
+      trezentos e trinta -> 330
+      cento e cinquenta -> 150
+    */
+
+    const tokens = s
+        .replace(/,/g," ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+    let total = 0;
+    let current = 0;
+    let found = false;
+
+    for(const token of tokens){
+
+        if(token === "E"){
+            continue;
+        }
+
+        if(units[token] !== undefined){
+
+            current += units[token];
+
+            found = true;
+
+        }else if(/^\d+$/.test(token)){
+
+            current += Number(token);
+
+            found = true;
+        }
+    }
+
+    if(found){
+        total += current;
+        return String(total);
+    }
+
+    return s;
+}
+
+/* =========================================================
+   NORMALIZAÇÃO DO LOCAL
+========================================================= */
+
+function normalizeLocation(text){
+
+    let s = text
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .trim();
+
+    /*
+      Reconhece variações de "sentido".
+    */
+
+    s = s.replace(/\bSENTIDO\b/g,"");
+
+    s = s.replace(/\bNORTE\b/g,"N");
+    s = s.replace(/\bSUL\b/g,"S");
+    s = s.replace(/\bLESTE\b/g,"L");
+    s = s.replace(/\bOESTE\b/g,"O");
+
+    /*
+      Reconhece "SP 330".
+    */
+
+    const spMatch = s.match(
+        /\bSP[\s-]*(\d{1,4})\b/i
+    );
+
+    let road = "";
+
+    if(spMatch){
+
+        road = "SP " + spMatch[1];
+
+    }else{
+
+        /*
+          Pode aparecer como:
+          "SP trezentos e trinta"
+        */
+
+        const spWords = s.match(
+            /\bSP\b(.{0,60}?)(?:KM|QUILOMETRO|QUILOMETRO|SENTIDO|NORTE|SUL|LESTE|OESTE|$)/i
+        );
+
+        if(spWords){
+
+            const digits = numberToDigits(spWords[1]);
+
+            if(/^\d+$/.test(digits)){
+                road = "SP " + digits;
+            }
+        }
+    }
+
+    /*
+      Quilometragem.
+    */
+
+    let km = "";
+
+    const kmMatch = s.match(
+        /\bKM\s*([0-9]+(?:[.,][0-9]+)?)\b/i
+    );
+
+    if(kmMatch){
+
+        km = kmMatch[1].replace(",",".");
+    }
+
+    /*
+      Caso tenha sido falado "quilômetro".
+    */
+
+    if(!km){
+
+        const kmWords = s.match(
+            /\bQUILOMETRO[S]?\b(.{0,80})/i
+        );
+
+        if(kmWords){
+
+            let part = kmWords[1];
+
+            part = part
+                .split(/\bSENTIDO\b/i)[0]
+                .split(/\bNORTE\b/i)[0]
+                .split(/\bSUL\b/i)[0]
+                .split(/\bLESTE\b/i)[0]
+                .split(/\bOESTE\b/i)[0];
+
+            const commaMatch = part.match(
+                /(\d+)\s*(?:VIRGULA|PONTO)\s*(\d+)/i
+            );
+
+            if(commaMatch){
+
+                km =
+                    commaMatch[1] +
+                    "." +
+                    commaMatch[2];
+
+            }else{
+
+                const digits = numberToDigits(part);
+
+                if(/^\d+$/.test(digits)){
+                    km = digits;
+                }
+            }
+        }
+    }
+
+    /*
+      Sentido.
+    */
+
+    let direction = "";
+
+    if(/\bNORTE\b|\bN\b/.test(s)){
+        direction = "N";
+    }
+
+    if(/\bSUL\b|\bS\b/.test(s)){
+        direction = "S";
+    }
+
+    if(/\bLESTE\b|\bL\b/.test(s)){
+        direction = "L";
+    }
+
+    if(/\bOESTE\b|\bO\b/.test(s)){
+        direction = "O";
+    }
+
+    /*
+      Formata a quilometragem.
+    */
+
+    if(km){
+
+        km = km.replace(",", ".");
+
+        const parts = km.split(".");
+
+        if(parts.length === 2){
+
+            const decimal =
+                parts[1].padEnd(3,"0").slice(0,3);
+
+            km =
+                parts[0] +
+                "," +
+                decimal;
+        }
+    }
+
+    let result = "";
+
+    if(road){
+        result += road;
+    }
+
+    if(km){
+        result += (result ? " " : "") + "KM " + km;
+    }
+
+    if(direction){
+        result += (result ? " " : "") + direction;
+    }
+
+    /*
+      Se não conseguiu estruturar,
+      mantém o texto original para edição.
+    */
+
+    if(!result){
+
+        result = text
+            .replace(/\s+/g," ")
+            .trim();
+    }
+
+    return result;
+}
+
+/* =========================================================
+   NORMALIZAÇÃO DA COR
+========================================================= */
+
+function normalizeColor(text){
+
+    let s = text
+        .trim()
+        .toLowerCase();
+
+    const colors = [
         "preto",
-        "branca",
+        "preta",
         "branco",
+        "branca",
         "prata",
         "cinza",
-        "vermelha",
         "vermelho",
+        "vermelha",
         "azul",
         "verde",
-        "amarela",
         "amarelo",
+        "amarela",
         "marrom",
         "bege",
+        "dourado",
         "dourada",
-        "dourado"
+        "rosa",
+        "roxo",
+        "roxa",
+        "laranja"
     ];
 
+    for(const color of colors){
 
-    for (const nomeCor of cores) {
-
-        if (
-            minusculo.includes(
-                nomeCor
-            )
-        ) {
-
-            cor =
-                nomeCor;
-
-            break;
-
+        if(s.includes(color)){
+            return color;
         }
-
     }
 
-
-    /*
-       VEÍCULO
-
-       Se a pessoa disser:
-       "veículo Gol"
-
-       pegamos o conteúdo até:
-       cor / local / artigo
-    */
-
-    const veiculoRegex =
-        /(?:veículo|veiculo|carro)\s+(.+?)(?=\s+(?:cor|local|artigo|art\.?|art)\b|$)/i;
-
-
-    const encontradoVeiculo =
-        normalizado.match(
-            veiculoRegex
-        );
-
-
-    if (encontradoVeiculo) {
-
-        veiculo =
-            encontradoVeiculo[1]
-            .trim();
-
-    }
-
-
-    /*
-       Se não encontrou veículo,
-       tentamos pegar uma palavra após
-       a placa e antes da cor/local/artigo.
-    */
-
-    if (!veiculo) {
-
-        let textoSemPlaca =
-            normalizado;
-
-
-        if (placa) {
-
-            textoSemPlaca =
-                textoSemPlaca.replace(
-                    new RegExp(
-                        placa,
-                        "i"
-                    ),
-                    ""
-                );
-
-        }
-
-
-        const partes =
-            textoSemPlaca.split(
-                /\s+(?=cor\b|local\b|artigo\b|art\.?\b)/i
-            );
-
-
-        if (
-            partes.length > 0 &&
-            partes[0].trim()
-        ) {
-
-            let tentativa =
-                partes[0]
-                .trim()
-                .replace(
-                    /^,?\s*(?:veículo|veiculo|carro)\s*/i,
-                    ""
-                )
-                .trim();
-
-
-            if (
-                tentativa &&
-                tentativa.length < 50
-            ) {
-
-                veiculo =
-                    tentativa
-                    .replace(
-                        /^(?:e|,)\s*/i,
-                        ""
-                    )
-                    .trim();
-
-            }
-
-        }
-
-    }
-
-
-    /*
-       Limpeza dos campos
-    */
-
-    placa =
-        limparCampo(placa);
-
-    veiculo =
-        limparCampo(veiculo);
-
-    cor =
-        limparCampo(cor);
-
-    local =
-        limparLocal(local);
-
-    artigo =
-        limparCampo(artigo);
-
-
-    /*
-       Preenche a tela de conferência
-    */
-
-    document.getElementById(
-        "confPlaca"
-    ).value =
-        placa;
-
-
-    document.getElementById(
-        "confVeiculo"
-    ).value =
-        veiculo;
-
-
-    document.getElementById(
-        "confCor"
-    ).value =
-        cor;
-
-
-    document.getElementById(
-        "confLocal"
-    ).value =
-        local;
-
-
-    document.getElementById(
-        "confArtigo"
-    ).value =
-        artigo;
-
-
-    document.getElementById(
-        "painelConferencia"
-    ).style.display =
-        "block";
-
-
-    document.getElementById(
-        "painelConferencia"
-    ).scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-    });
-
+    return text.trim();
 }
 
+/* =========================================================
+   NORMALIZAÇÃO DO ARTIGO
+========================================================= */
 
-/* =====================================================
-   LIMPEZA
-===================================================== */
+function normalizeArticle(text){
 
-function limparCampo(valor) {
-
-    return String(valor || "")
-        .replace(/^[,\s]+|[,\s]+$/g, "")
+    let s = text
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
         .trim();
 
-}
+    s = s
+        .replace(/\bARTIGO\b/g,"")
+        .replace(/\bART\.?\b/g,"")
+        .trim();
 
+    /*
+      Mantém o número informado.
+    */
 
-function limparLocal(valor) {
+    const numeric = s.match(/\d+(?:\s*[-/]\s*\d+)?/);
 
-    return String(valor || "")
-        .replace(
-            /^(?:local\s*:?\s*)/i,
-            ""
-        )
-        .replace(
-            /^[,\s]+|[,\s]+$/g,
-            ""
-        )
-        .trim()
-        .toUpperCase();
+    if(numeric){
 
-}
-
-
-/* =====================================================
-   CONFIRMAR REVELIA
-===================================================== */
-
-function confirmarRevelia() {
-
-    const placa =
-        document.getElementById(
-            "confPlaca"
-        ).value.trim().toUpperCase();
-
-
-    const veiculo =
-        document.getElementById(
-            "confVeiculo"
-        ).value.trim();
-
-
-    const cor =
-        document.getElementById(
-            "confCor"
-        ).value.trim();
-
-
-    const local =
-        document.getElementById(
-            "confLocal"
-        ).value.trim();
-
-
-    const artigo =
-        document.getElementById(
-            "confArtigo"
-        ).value.trim();
-
-
-    if (
-        !placa ||
-        !veiculo ||
-        !cor ||
-        !local ||
-        !artigo
-    ) {
-
-        alert(
-            "Confira e preencha todos os campos antes de adicionar."
-        );
-
-        return;
-
+        return numeric[0]
+            .replace(/\s+/g,"");
     }
 
-
     /*
-       A DATA/HORA É DEFINIDA AQUI,
-       NO MOMENTO EXATO DA CONFIRMAÇÃO.
+      Caso o número venha por extenso.
     */
 
-    const agora =
-        new Date();
+    const converted = numberToDigits(s);
 
+    return converted || text.trim();
+}
 
-    const horario =
-        agora.toLocaleTimeString(
-            "pt-BR",
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+/* =========================================================
+   CONFIRMAR RESPOSTA INDIVIDUAL
+========================================================= */
 
+answerConfirmButton.addEventListener("click", function(){
 
-    const data =
-        agora.toLocaleDateString(
-            "pt-BR"
-        );
+    let value = answerInput.value.trim();
 
+    if(!value){
 
-    ocorrencias.push({
+        answerInput.focus();
 
-        id:
-            Date.now(),
+        return;
+    }
 
-        placa:
-            placa,
+    const key = steps[currentStep].key;
 
-        veiculo:
-            veiculo,
+    currentData[key] = value;
 
-        cor:
-            cor,
+    currentStep++;
 
-        local:
-            local,
+    answerBox.style.display = "none";
 
-        artigo:
-            artigo,
+    transcription.style.display = "none";
 
-        data:
-            data,
+    if(currentStep < steps.length){
 
-        horario:
-            horario,
+        showNextQuestion();
 
-        marcado:
-            false
+    }else{
 
-    });
+        showFinalConfirmation();
+    }
 
+});
 
-    salvar();
+/* =========================================================
+   REPETIR
+========================================================= */
 
-    limparConferencia();
+repeatButton.addEventListener("click", function(){
 
-    renderizar();
+    answerBox.style.display = "none";
 
+    transcription.style.display = "none";
 
-    /*
-       Vai para o novo registro.
-    */
+    statusEl.textContent = "";
+
+    setTimeout(() => {
+        startRecording();
+    },150);
+
+});
+
+/* =========================================================
+   PRÓXIMA PERGUNTA
+========================================================= */
+
+function showNextQuestion(){
+
+    questionText.textContent =
+        steps[currentStep].question;
+
+    statusEl.textContent = "";
+
+    transcriptionText.textContent = "";
 
     setTimeout(() => {
 
         window.scrollTo({
+            top:0,
+            behavior:"smooth"
+        });
 
-            top:
-                document.body.scrollHeight,
+    },50);
+}
 
-            behavior:
-                "smooth"
+/* =========================================================
+   CONFERÊNCIA FINAL
+========================================================= */
+
+function showFinalConfirmation(){
+
+    wizard.style.display = "none";
+
+    finalBox.style.display = "block";
+
+    finalVehicle.value = currentData.vehicle;
+    finalPlate.value = currentData.plate;
+    finalColor.value = currentData.color;
+    finalLocation.value = currentData.location;
+    finalArticle.value = currentData.article;
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+/* =========================================================
+   CANCELAR
+========================================================= */
+
+cancelFinalButton.addEventListener("click", function(){
+
+    resetWizard();
+
+});
+
+/* =========================================================
+   SALVAR
+========================================================= */
+
+saveButton.addEventListener("click", function(){
+
+    const vehicle = finalVehicle.value.trim();
+    const plate = finalPlate.value.trim();
+    const color = finalColor.value.trim();
+    const location = finalLocation.value.trim();
+    const article = finalArticle.value.trim();
+
+    const now = new Date();
+
+    const record = {
+
+        id:
+            Date.now().toString() +
+            Math.random().toString(16).slice(2),
+
+        vehicle,
+        plate,
+        color,
+        location,
+        article,
+
+        date:
+            now.toLocaleDateString("pt-BR"),
+
+        time:
+            now.toLocaleTimeString("pt-BR",{
+                hour:"2-digit",
+                minute:"2-digit"
+            }),
+
+        completed:false
+    };
+
+    const records = getRecords();
+
+    records.unshift(record);
+
+    saveRecords(records);
+
+    resetWizard();
+
+    renderRecords();
+
+});
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetWizard(){
+
+    currentStep = 0;
+
+    currentData = {
+        vehicle:"",
+        plate:"",
+        color:"",
+        location:"",
+        article:""
+    };
+
+    wizard.style.display = "block";
+
+    finalBox.style.display = "none";
+
+    answerBox.style.display = "none";
+
+    transcription.style.display = "none";
+
+    transcriptionText.textContent = "";
+
+    answerInput.value = "";
+
+    questionText.textContent =
+        steps[0].question;
+
+    statusEl.textContent = "";
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+/* =========================================================
+   LOCAL STORAGE
+========================================================= */
+
+function getRecords(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(STORAGE_KEY)
+        ) || [];
+
+    }catch(error){
+
+        return [];
+    }
+}
+
+function saveRecords(records){
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(records)
+    );
+}
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+/* =========================================================
+   RENDERIZAR REGISTROS
+========================================================= */
+
+function renderRecords(){
+
+    const records = getRecords();
+
+    counter.textContent =
+        records.length +
+        (records.length === 1
+            ? " registro"
+            : " registros");
+
+    recordsContainer.innerHTML = "";
+
+    if(!records.length){
+
+        recordsContainer.innerHTML =
+            '<div class="empty">Nenhuma revelia registrada.</div>';
+
+        return;
+    }
+
+    records.forEach(record => {
+
+        const div = document.createElement("div");
+
+        div.className =
+            "record" +
+            (record.completed ? " completed" : "");
+
+        div.innerHTML = `
+            <div class="record-top">
+
+                <input
+                    type="checkbox"
+                    class="record-check"
+                    ${record.completed ? "checked" : ""}
+                    data-id="${escapeHTML(record.id)}"
+                >
+
+                <div class="record-info">
+
+                    <div class="record-main">
+                        ${escapeHTML(record.plate)}
+                        — ${escapeHTML(record.vehicle)}
+                    </div>
+
+                    <div class="record-details">
+
+                        <strong>Cor:</strong>
+                        ${escapeHTML(record.color)}
+                        <br>
+
+                        <strong>Local:</strong>
+                        ${escapeHTML(record.location)}
+                        <br>
+
+                        <strong>Artigo:</strong>
+                        ${escapeHTML(record.article)}
+
+                    </div>
+
+                    <div class="record-time">
+                        ${escapeHTML(record.date)}
+                        — ${escapeHTML(record.time)}
+                    </div>
+
+                </div>
+
+                <button
+                    class="delete-button"
+                    data-id="${escapeHTML(record.id)}"
+                    type="button"
+                >
+                    EXCLUIR
+                </button>
+
+            </div>
+        `;
+
+        recordsContainer.appendChild(div);
+    });
+
+    /*
+      Checkbox
+    */
+
+    recordsContainer
+        .querySelectorAll(".record-check")
+        .forEach(check => {
+
+            check.addEventListener("change", function(){
+
+                toggleCompleted(this.dataset.id);
+
+            });
 
         });
 
-    }, 100);
+    /*
+      Exclusão individual
+    */
 
+    recordsContainer
+        .querySelectorAll(".delete-button")
+        .forEach(button => {
+
+            button.addEventListener("click", function(){
+
+                deleteRecord(this.dataset.id);
+
+            });
+
+        });
 }
 
+/* =========================================================
+   CONCLUIR REGISTRO
+========================================================= */
 
-/* =====================================================
-   CANCELAR CONFERÊNCIA
-===================================================== */
+function toggleCompleted(id){
 
-function cancelarConferencia() {
+    const records = getRecords();
 
-    limparConferencia();
-
-}
-
-
-function limparConferencia() {
-
-    document.getElementById(
-        "painelConferencia"
-    ).style.display =
-        "none";
-
-
-    document.getElementById(
-        "confPlaca"
-    ).value = "";
-
-
-    document.getElementById(
-        "confVeiculo"
-    ).value = "";
-
-
-    document.getElementById(
-        "confCor"
-    ).value = "";
-
-
-    document.getElementById(
-        "confLocal"
-    ).value = "";
-
-
-    document.getElementById(
-        "confArtigo"
-    ).value = "";
-
-
-    transcricao.textContent =
-        "";
-
-    transcricao.style.display =
-        "none";
-
-
-    statusVoz.textContent =
-        "pressione e segure";
-
-}
-
-
-/* =====================================================
-   SALVAR
-===================================================== */
-
-function salvar() {
-
-    localStorage.setItem(
-        CHAVE,
-        JSON.stringify(ocorrencias)
+    const record = records.find(
+        item => item.id === id
     );
 
+    if(record){
+
+        record.completed = !record.completed;
+
+        saveRecords(records);
+
+        renderRecords();
+    }
 }
 
+/* =========================================================
+   EXCLUIR REGISTRO
+========================================================= */
 
-/* =====================================================
-   MARCAR
-===================================================== */
+function deleteRecord(id){
 
-function marcar(id) {
-
-    const item =
-        ocorrencias.find(
-            x => x.id === id
-        );
-
-
-    if (!item) return;
-
-
-    item.marcado =
-        !item.marcado;
-
-
-    salvar();
-
-    renderizar();
-
-}
-
-
-/* =====================================================
-   REMOVER
-===================================================== */
-
-function remover(id) {
-
-    if (
-        !confirm(
-            "Remover esta ocorrência?"
-        )
-    ) {
-
+    if(!confirm("Excluir esta revelia?")){
         return;
-
     }
 
+    const records = getRecords()
+        .filter(item => item.id !== id);
 
-    ocorrencias =
-        ocorrencias.filter(
-            x => x.id !== id
-        );
+    saveRecords(records);
 
-
-    salvar();
-
-    renderizar();
-
+    renderRecords();
 }
 
+/* =========================================================
+   APAGAR TODOS
+========================================================= */
 
-/* =====================================================
-   APAGAR TUDO
-===================================================== */
+clearButton.addEventListener("click", function(){
 
-function apagarTudo() {
+    const records = getRecords();
 
-    if (
-        ocorrencias.length === 0
-    ) {
-
+    if(!records.length){
         return;
-
     }
 
-
-    if (
-        !confirm(
-            "ATENÇÃO!\n\nApagar todas as ocorrências?"
-        )
-    ) {
-
+    if(!confirm(
+        "Tem certeza que deseja apagar TODOS os registros?"
+    )){
         return;
-
     }
 
+    localStorage.removeItem(STORAGE_KEY);
 
-    ocorrencias = [];
+    renderRecords();
+});
 
-    salvar();
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
 
-    renderizar();
-
-}
-
-
-/* =====================================================
-   RENDERIZAR
-===================================================== */
-
-function renderizar() {
-
-    const lista =
-        document.getElementById(
-            "lista"
-        );
-
-
-    const contador =
-        document.getElementById(
-            "contador"
-        );
-
-
-    const total =
-        ocorrencias.length;
-
-
-    contador.textContent =
-        total === 1
-            ? "1 ocorrência"
-            : `${total} ocorrências`;
-
-
-    if (total === 0) {
-
-        lista.innerHTML = `
-
-            <div class="vazio">
-
-                Nenhuma ocorrência adicionada.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    lista.innerHTML =
-        ocorrencias.map(item => `
-
-        <div class="item
-            ${item.marcado ? "marcado" : ""}">
-
-            <input
-                class="check"
-                type="checkbox"
-                ${item.marcado ? "checked" : ""}
-                onchange="marcar(${item.id})">
-
-
-            <div class="dados">
-
-                <div class="topo-item">
-
-                    <span class="placa">
-                        ${escapar(item.placa)}
-                    </span>
-
-                    <span class="horario">
-                        ${escapar(item.data)}
-                        •
-                        ${escapar(item.horario)}
-                    </span>
-
-                </div>
-
-
-                <div class="informacoes">
-
-                    <span>
-                        <b>Veículo:</b>
-                        ${escapar(item.veiculo)}
-                    </span>
-
-
-                    <span>
-                        <b>Cor:</b>
-                        ${escapar(item.cor)}
-                    </span>
-
-
-                    <span>
-                        <b>Artigo:</b>
-                        ${escapar(item.artigo)}
-                    </span>
-
-
-                    <span class="local">
-                        <b>Local:</b>
-                        ${escapar(item.local)}
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <button
-                class="btn-remover"
-                onclick="remover(${item.id})">
-
-                ×
-
-            </button>
-
-        </div>
-
-    `).join("");
-
-}
-
-
-/* =====================================================
-   PROTEÇÃO CONTRA HTML
-===================================================== */
-
-function escapar(texto) {
-
-    return String(texto)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* =====================================================
-   INICIAR
-===================================================== */
-
-renderizar();
+renderRecords();
 
 </script>
 
