@@ -1,550 +1,796 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
-  <title>PMRv</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
+<title>Controle de Fiscalização - 4ª Cia PMRv</title>
 
-    body {
-      background-color: #0a0a0a; /* preto quase puro */
-      font-family: 'Segoe UI', 'Arial', sans-serif;
-      color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+<!-- SDK Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    /* Barra superior - identidade visual */
-    .top-bar {
-      background: #1a1a1a;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid #ffcc00; /* amarelo destacando */
-      flex-wrap: wrap;
-    }
+<style>
+* {
+    margem: 0;
+    preenchimento: 0;
+    box-sized: caixa com borda;
+}
 
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+corpo {
+    cor de fundo: #0a0a0a;
+    família de fontes: 'Segoe UI', 'Arial', sem serifa;
+    cor: #f0f0f0;
+    preenchimento: 10px;
+    preenchimento superior: 80px;
+    altura mínima: 100vh;
+}
 
-    .logo-img {
-      width: 50px;
-      height: auto;
-      filter: drop-shadow(0 0 4px #000);
-      object-fit: contain;
-    }
+/* Barra superior */
+.barra-superior {
+    fundo: #1a1a1a;
+    preenchimento: 12px 20px;
+    Exibir: flexível;
+    alinhamento-itens: centro;
+    justify-content: espaço-entre;
+    borda inferior: 2px sólida #ffcc00;
+    posição: fixa;
+    topo: 0;
+    esquerda: 0;
+    direita: 0;
+    Índice z: 1000;
+    flex-wrap: envolver;
+}
 
+.logo-area {
+    Exibir: flexível;
+    alinhamento-itens: centro;
+    espaçamento: 10px;
+}
+
+.logo-text h1 {
+    tamanho da fonte: 1,1rem;
+    peso da fonte: 700;
+    cor: #ffcc00;
+    espaçamento entre letras: 0,5px;
+    text-transform: maiúsculas;
+    altura da linha: 1,2;
+}
+
+.logo-texto span {
+    tamanho da fonte: 0,7rem;
+    cor: #cccccc;
+    peso da fonte: 400;
+    exibir: bloco;
+}
+
+/* BOTÕES DO TOPO */
+.topo-botoes {
+    Exibir: flexível;
+    espaçamento: 10px;
+    Índice z: 999;
+    alinhamento-itens: centro;
+}
+
+.btn-topo {
+    largura: 45px;
+    altura: 45px;
+    raio-da-borda: 50%;
+    fronteira: nenhuma;
+    tamanho da fonte: 18px;
+    cor: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    cursor: ponteiro;
+    transição: todos os 0,3s;
+}
+
+.btn-topo:hover {
+    transformar: escala(1.05);
+}
+
+.btn-topo.whats {
+    fundo: #25d366;
+}
+
+.btn-topo.encerrar {
+    fundo: #c82333;
+}
+
+/* Status da sincronização */
+.status-sync {
+    exibição: inline-block;
+    largura: 12px;
+    altura: 12px;
+    raio-da-borda: 50%;
+    margem-direita: 5px;
+}
+
+.status-sync.online {
+    fundo: #4CAF50;
+    box-shadow: 0 0 10px #4CAF50;
+    animação: verde-pulso 2s infinito;
+}
+
+.status-sync.offline {
+    fundo: #f44336;
+    box-shadow: 0 0 10px #f44336;
+}
+
+.status-sync.saving {
+    fundo: #ffcc00;
+    animação: pulso amarelo 1s infinito;
+}
+
+@keyframes verde-pulso {
+    0% { opacidade: 1; }
+    50% { opacidade: 0,5; }
+    100% { opacidade: 1; }
+}
+
+@keyframes pulso-amarelo {
+    0% { opacidade: 1; transformação: escala(1); }
+    50% { opacidade: 0,5; transformação: escala(1,2); }
+    100% { opacidade: 1; transformação: escala(1); }
+}
+
+/* título */
+h2 {
+    alinhamento do texto: centralizado;
+    cor: #ffcc00;
+    tamanho da fonte: 1,4rem;
+    margem: 20px 0;
+    text-transform: maiúsculas;
+    espaçamento entre letras: 1px;
+}
+
+/* ４
+.caixa, .item {
+    fundo: #1a1a1a;
+    raio da borda: 8px;
+    margem-inferior: 8px;
+    overflow: oculto;
+    borda: 1px sólida #2a2a2a;
+}
+
+.header {
+    preenchimento: 12px 15px;
+    peso da fonte: 600;
+    cursor: ponteiro;
+    fundo: #1f1f1f;
+    cor: #ffcc00;
+    Exibir: flexível;
+    justify-content: espaço-entre;
+    alinhamento-itens: centro;
+    transição: todos os 0,2s;
+    borda inferior: 1px sólida #2a2a2a;
+}
+
+.header:hover {
+    fundo: #2a2a2a;
+}
+
+.cabeçalho .seta {
+    transição: transformar 0,3s;
+    tamanho da fonte: 0,8rem;
+}
+
+.header.active .arrow {
+    transformar: rotacionar(90 graus);
+}
+
+.conteudo {
+    exibir: nenhum;
+    preenchimento: 12px;
+    fundo: #141414;
+}
+
+.linha {
+    Exibir: flexível;
+    justify-content: espaço-entre;
+    alinhamento-itens: centro;
+    margem-inferior: 8px;
+    preenchimento: 6px 0;
+    borda inferior: 1px sólida #1f1f1f;
+}
+
+.linha:último-filho {
+    borda inferior: nenhuma;
+    margem-inferior: 0;
+}
+
+.linha span:first-child {
+    cor: #cccccc;
+    tamanho da fonte: 0,9rem;
+}
+
+.ctrl {
+    Exibir: flexível;
+    espaçamento: 6px;
+    alinhamento-itens: centro;
+}
+
+botão {
+    fronteira: nenhuma;
+    raio-da-borda: 6px;
+    preenchimento: 6px 12px;
+    cor: #fff;
+    tamanho da fonte: 14px;
+    peso da fonte: 600;
+    cursor: ponteiro;
+    transição: todos os 0,2s;
+}
+
+botão:passar o mouse {
+    transformar: escala(1.05);
+    opacidade: 0,9;
+}
+
+.adicionar {
+    fundo: #ffcc00;
+    cor: #000;
+}
+
+.menos {
+    fundo: #dc3545;
+}
+
+.contador {
+    largura mínima: 28px;
+    alinhamento do texto: centralizado;
+    peso da fonte: negrito;
+    cor: #ffcc00;
+    tamanho da fonte: 1,1rem;
+}
+
+entrada {
+    largura: 100%;
+    preenchimento: 10px 12px;
+    margem-inferior: 8px;
+    raio-da-borda: 6px;
+    borda: 1px sólida #2a2a2a;
+    fundo: #1a1a1a;
+    cor: #f0f0f0;
+    tamanho da fonte: 0,95rem;
+    transição: todos os 0,2s;
+}
+
+input:focus {
+    Esboço: nenhum;
+    cor da borda: #ffcc00;
+    fundo: #222;
+}
+
+input::placeholder {
+    cor: #666;
+}
+
+.box input:last-child {
+    margem-inferior: 0;
+}
+
+/* estilo dos artigos livres */
+.item-edit .header {
+    fundo: #1a1a1a;
+    borda esquerda: 3px sólida #ffcc00;
+}
+
+/* Botões de mira */
+.botos-acao {
+    Exibir: flexível;
+    espaçamento: 10px;
+    justificar-conteúdo: centralizado;
+    margem: 15px 0;
+    flex-wrap: envolver;
+}
+
+.btn-salvar-supabase {
+    fundo: #ffcc00;
+    cor: #000;
+    preenchimento: 12px 25px;
+    fronteira: nenhuma;
+    raio-da-borda: 6px;
+    peso da fonte: 600;
+    tamanho da fonte: 1rem;
+    cursor: ponteiro;
+    transição: todos os 0,3s;
+    flex: 1;
+    largura mínima: 150px;
+}
+
+.btn-salvar-supabase:hover {
+    transformar: escala(1.05);
+    box-shadow: 0 0 30px rgba(255, 204, 0, 0.3);
+}
+
+.btn-finalizar {
+    fundo: #c82333;
+    cor: #fff;
+    preenchimento: 12px 25px;
+    fronteira: nenhuma;
+    raio-da-borda: 6px;
+    peso da fonte: 600;
+    tamanho da fonte: 1rem;
+    cursor: ponteiro;
+    transição: todos os 0,3s;
+    flex: 1;
+    largura mínima: 150px;
+}
+
+.btn-finalizar:hover {
+    transformar: escala(1.05);
+    box-shadow: 0 0 30px rgba(200, 35, 51, 0.3);
+}
+
+/* barra de rolagem */
+::-webkit-scrollbar {
+    largura: 8px;
+}
+
+::-webkit-scrollbar-track {
+    fundo: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    fundo: #ffcc00;
+    raio da borda: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    fundo: #e6b800;
+}
+
+/* responsivo */
+@media (max-width: 768px) {
+    .barra-superior {
+        preenchimento: 10px 15px;
+    }
+    
     .logo-text h1 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #ffcc00;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      line-height: 1.2;
+        tamanho da fonte: 0,9rem;
     }
-
-    .logo-text span {
-      font-size: 0.8rem;
-      color: #cccccc;
-      font-weight: 400;
-      display: block;
+    
+    .logo-texto span {
+        tamanho da fonte: 0,6rem;
     }
-
-    .mobile-menu-toggle {
-      background: transparent;
-      border: 2px solid #ffcc00;
-      color: #ffcc00;
-      font-size: 1.8rem;
-      padding: 0.2rem 0.7rem;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none; /* visível apenas no mobile */
-      transition: 0.2s;
+    
+    .btn-topo {
+        largura: 40px;
+        altura: 40px;
+        tamanho da fonte: 16px;
     }
-
-    .mobile-menu-toggle:hover {
-      background: #ffcc00;
-      color: #000;
+    
+    h2 {
+        tamanho da fonte: 1,1rem;
+        margem: 15px 0;
     }
-
-    /* layout principal */
-    .main-container {
-      display: flex;
-      flex: 1;
-      background-color: #0f0f0f;
+    
+    .botos-acao {
+        flex-direction: coluna;
     }
-
-    /* Sidebar (menu esquerdo) */
-    .sidebar {
-      width: 260px;
-      background: #0d0d0d;
-      border-right: 2px solid #2a2a2a;
-      padding: 1.2rem 0;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease;
-      z-index: 10;
+    
+    .btn-salvar-supabase, .btn-finalizar {
+        largura: 100%;
     }
-
-    .sidebar nav ul {
-      list-style: none;
-      padding: 0 10px;
-    }
-
-    .sidebar li {
-      margin-bottom: 5px;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 15px;
-      color: #ffcc00;
-      font-weight: 600;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: all 0.2s;
-      cursor: pointer;
-      background: transparent;
-      border: none;
-      width: 100%;
-      text-align: left;
-      font-size: 0.95rem;
-    }
-
-    .menu-item i {
-      font-style: normal;
-      font-size: 1.2rem;
-      width: 24px;
-      text-align: center;
-    }
-
-    .menu-item:hover {
-      background: #2a2a2a;
-      color: #ffe55c;
-    }
-
-    /* submenu */
-    .submenu {
-      list-style: none;
-      margin-left: 20px;
-      margin-top: 4px;
-      margin-bottom: 6px;
-      display: none;
-      border-left: 2px solid #ffcc00;
-      padding-left: 12px;
-    }
-
-    .submenu.open {
-      display: block;
-    }
-
-    .submenu li a {
-      display: block;
-      padding: 8px 12px;
-      color: #dddddd;
-      text-decoration: none;
-      font-size: 0.9rem;
-      border-radius: 5px;
-      transition: 0.2s;
-      font-weight: 500;
-    }
-
-    .submenu li a:hover {
-      background: #1e1e1e;
-      color: #ffcc00;
-    }
-
-    .has-submenu {
-      position: relative;
-    }
-
-    .arrow-icon {
-      margin-left: auto;
-      font-size: 0.8rem;
-      transition: transform 0.2s;
-      color: #ffcc00;
-    }
-
-    .menu-item.active .arrow-icon {
-      transform: rotate(90deg);
-    }
-
-    /* área central */
-    .content-area {
-      flex: 1;
-      padding: 1.8rem;
-      background-color: #0a0a0a;
-      overflow-y: auto;
-    }
-
-    .avisos-section {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
-    }
-
-    .avisos-section h2 {
-      color: #ffcc00;
-      font-size: 1.6rem;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #3a3a3a;
-      padding-bottom: 10px;
-    }
-
-    .aviso-item {
-      background: #262626;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-      border-left: 5px solid #ffcc00;
-      color: #e0e0e0;
-    }
-
-    .aviso-item strong {
-      color: #ffcc00;
-    }
-
-    .galeria-imagens {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 1.5rem;
-      border: 1px solid #333;
-    }
-
-    .galeria-imagens h2 {
-      color: #ffcc00;
-      font-size: 1.6rem;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #3a3a3a;
-      padding-bottom: 10px;
-    }
-
-    .imagens-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1.2rem;
-      margin-top: 1rem;
-    }
-
-    .card-imagem {
-      background: #2c2c2c;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #444;
-      transition: 0.3s;
-    }
-
-    .card-imagem:hover {
-      border-color: #ffcc00;
-      transform: translateY(-3px);
-    }
-
-    .card-imagem img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      display: block;
-      background: #1e1e1e;
-    }
-
-    .card-imagem .legenda {
-      padding: 10px;
-      color: #ffcc00;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-align: center;
-      background: #1f1f1f;
-    }
-
-    /* placeholder para imagens (caso use links quebrados) */
-    .img-placeholder {
-      background: #3a3a3a;
-      height: 150px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffcc00;
-      font-size: 2rem;
-    }
-
-    footer {
-      background: #0d0d0d;
-      text-align: center;
-      padding: 12px;
-      color: #aaa;
-      font-size: 0.8rem;
-      border-top: 1px solid #2a2a2a;
-    }
-
-    /* classes de controle mobile */
-    @media (max-width: 768px) {
-      .mobile-menu-toggle {
-        display: block;
-      }
-
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 260px;
-        transform: translateX(-100%);
-        background: #0d0d0d;
-        padding-top: 80px;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.8);
-        z-index: 999;
-        border-right: 2px solid #ffcc00;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main-container {
-        flex-direction: column;
-      }
-
-      .content-area {
-        padding: 1.2rem;
-      }
-
-      .top-bar {
-        padding: 10px 15px;
-      }
-
-      .logo-img {
-        width: 40px;
-      }
-    }
-
-    /* transição suave no menu */
-    .sidebar, .overlay {
-      transition: all 0.3s ease;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 99;
-      display: none;
-    }
-
-    .overlay.active {
-      display: block;
-    }
-  </style>
+}
+</style>
 </head>
 <body>
-  <header class="top-bar">
+
+<!-- BARRA SUPERIOR -->
+<header class="top-bar">
     <div class="logo-area">
-      <img src="img/logo/icon-pmrv.png" alt="Logo PM Rodoviária" class="logo-img">
-      <div class="logo-text">
-        <h1>4ª Cia Limeira</h1>
-        <span>Policiamento Rodoviário</span>
-      </div>
+        <div class="logo-text">
+            <h1>4ª Cia Limeira</h1>
+            <span>Policiamento Rodoviário</span>
+        </div>
     </div>
-    <button class="mobile-menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
-  </header>
+    <div class="topo-botoes">
+        <span class="status-sync offline" id="statusSync" title="Status da conexão"></span>
+        <button class="btn-topo whats" onclick="enviarWhats()" title="Enviar WhatsApp">📤</button>
+        <button class="btn-topo encerrar" onclick="encerrarTurno()" title="Finalizar Turno">⛔</button>
+    </div>
+</header>
 
-  <div class="overlay" id="overlay"></div>
+<h2>Controle de Fiscalização</h2>
 
-  <div class="main-container">
-    <!-- Menu lateral esquerdo -->
-    <aside class="sidebar" id="sidebar">
-      <nav>
-        <ul>
-          <!-- Item com submenu -->
-          <li class="has-submenu">
-            <button class="menu-item" data-submenu="submenu1">
-              <i>🌐</i> Acesso VPN
-              <span class="arrow-icon">▶</span>
-            </button>
-            <ul class="submenu" id="submenu1">
-              <li><a href="http://www.intranet.policiamilitar.sp.gov.br/" target="_blank">Intranet</a></li>
-              <li><a href="http://10.61.15.39/Login" target="_blank">PPRI</a></li>
-              <li><a href="http://cobomonline.ccb.policiamilitar.sp.gov.br/Singes/#/login" target="_blank">Assentamento</a></li>
-              <li><a href="https://marcosmunhoz.github.io/4CIA/consulta.html" target="_blank">Dejem/Delegada</a></li>
-              <li><a href="http://10.200.82.36/Emulador/(S(u1xfpy0ztrr02bwuahuor3vj))/pages/McpT27/ePortalDynamic.aspx" target="_blank">Prodesp</a></li>
-              <li><a href="https://sistemasopr.intranet.policiamilitar.sp.gov.br/Pmesp.Rso" target="_blank">RSO Web</a></li>
-              <li><a href="https://cop.pmesp.br.evm.online/app/login" target="_blank">COP</a></li>
-            </ul>
-          </li>
+<!-- DADOS DA EQUIPE -->
+<div class="box">
+    <input id="carregado" placeholder="Nome do Carregador" onchange="salvarDados()">
+    <input id="motorista" placeholder="Nome do Motorista" onchange="salvarDados()">
+    <input id="auxiliar" placeholder="Nome do Auxiliar (opcional)" onchange="salvarDados()">
+</div>
 
-          <li class="has-submenu">
-            <button class="menu-item" data-submenu="submenu2">
-              <i>📋</i> Utilidades
-              <span class="arrow-icon">▶</span>
-            </button>
-            <ul class="submenu" id="submenu2">
-              <li><a href="https://correio.policiamilitar.sp.gov.br/iwaredir.nsf" target="_blank">Email Corporativo</a></li>
-              <li><a href="https://www.simsgmder.der.sp.gov.br/simsgmder/" target="_blank">SimDER</a></li>
-              <li><a href="https://minhaarea.sp.gov.br/plataformasp" target="_blank">SEI</a></li>
-              <li><a href="https://cronotacografo.rbmlq.gov.br/certificados/consultar" target="_blank">Cronotacógrafo</a></li>
-            </ul>
-          </li>
+<div id="lista"></div>
 
-          <li class="has-submenu">
-            <button class="menu-item" data-submenu="submenu3">
-              <i>📊</i> Formulários
-              <span class="arrow-icon">▶</span>
-            </button>
-            <ul class="submenu" id="submenu3">
-              <li><a href="https://docs.google.com/forms/d/e/1FAIpQLScAsayIw8JXcY8sIYy2ZQViqbAoKUSZOoKL27mnwXDIPjgK5w/viewform" target="_blank">Manut. 1º Escalão</a></li>
-              <li><a href="https://forms.office.com/Pages/ResponsePage.aspx?id=VAxWvfUh9UqnCmelKDNpc2he-LboKNBOl8SkVLbrZWFUME1BQ1dWUVJFVUI2WTM1RkNVQTA4OVJPWi4u&origin=QRCode" target="_blank">Amigos do Trecho</a></li>
-              <li><a href="https://marcosmunhoz.github.io/4CIA/assets/index.html" target="_blank">Mandar Atividade</a></li>
-              <li><a href="https://marcosmunhoz.github.io/4CIA/nota%20de%20empenho.html" target="_blank">Nota de Empenho</a></li>
-              <li><a href="https://marcosmunhoz.github.io/4CIA/Mensagem%20PDR.html" target="_blank">Mensagem PDR</a></li>
-            </ul>
-          </li>
+<!-- Botões de credit -->
+<div class="botoes-acao">
+    <button class="btn-salvar-supabase" onclick="salvarNoSupabase()">
+        💾 Salvar no Banco
+    </button>
+    <button class="btn-finalizar" onclick="finalizarFiscalizacao()">
+        🏁 Finalizar Fiscalização
+    </button>
+</div>
 
-          <li>
-            <a href="efetivo.html" target="_blank" class="menu-item">
-              <i>👮</i> RE Efetivo
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+<script>
+// ===== CONFIGURAÇÃO SUPABASE (SUAS CREDENCIAIS) =====
+const SUPABASE_URL = 'https://hgokcxjselfmwodbclvs.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhnb2tjeGpzZWxmbXdvZGJjbHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMjAzNzksImV4cCI6MjA5ODY5NjM3OX0.WdEw6u4pKkmTlXlcP2NO8Jix-Z2kLHMdop0xFqlU5F8';
 
-    <!-- Área central com avisos e imagens -->
-    <main class="content-area">
-      <section class="avisos-section">
-        <h2><span>⚠️</span> Avisos e Comunicados</h2>
-        <div class="aviso-item">
-          <strong>🔹 </strong>
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+seja fiscalizacaoId = nulo;
+let dadosLocais = {};
+
+// ===== LISTA FIXA =====
+const itensFixos = [
+ "AP Fiscalizado","CA Fiscalizado","OA Fiscalizado","MO Fiscalizado",
+ "AI AP","AI CA","AI OA","AI MO",
+ "AI Abordagem","AI Revelia",
+ "ART. 167","ART. 168","ART. 252, VI / §ún.","ART. 203, V",
+ "ART. 165", "ART. 165-A", "ART. 306",
+ "Teste Ativo","Teste Passivo",
+ "Pessoas abordadas","Pedestres envolvidos","Pedestres lançados no Google Forms",
+ "Total ARV","Total ARD","Imagem Radar",
+ "BO-e Com Vítima","BO-e Sem Vítima",
+ "Vítimas Leves","Vítimas Graves","Vítimas Fatais",
+ "Procurado Capturado","Flagrante","Presos",
+ "BOPM (exceto ART. 306)"
+];
+
+const lista = document.getElementById("lista");
+seja itens = [];
+
+// fixos
+itensFixos.forEach((n,i)=>itens.push({id:"f"+i,nome:n,edit:false}));
+
+// 8 livres
+for(let i=1;i<=8;i++) itens.push({id:"l"+i,nome:"",edit:true});
+
+// render
+itens.forEach(it=>{
+    const isEdit = it.edit;
+    const headerClass = isEdit ? 'header item-edit' : 'header';
+    
+    lista.innerHTML += `
+    <div class="item">
+        <div class="${headerClass}" onclick="toggle('${it.id}')">
+            <span>${éEditar ? '✏️ Artigo livre' : it.nome}</span>
+            <span class="arrow">▶</span>
         </div>
-        <div class="aviso-item">
-          <strong>🔹 </strong>
+        <div class="conteudo" id="c_${it.id}">
+            ${éEditar ? `<input id="nome_${it.id}" placeholder="Digite o artigo" onchange="salvarDados()">` : ""}
+            ${linha("Comprado","e",it.id)}
+            ${linha("Motorista","m",it.id)}
+            ${linha("Auxiliar","a",it.id)}
         </div>
-        <div class="aviso-item">
-          <strong>🔹 </strong>
+    </div>`;
+});
+
+função linha(t,p,id){
+    retornar `
+    <div class="linha">
+        <span>${tsolspan>
+        <div class="ctrl">
+            <button class="menos" onclick="alterar('${p}${id}',-1)">-</button>
+            <span id="${p}${id}" class="contador">0</span>
+            <button class="add" onclick="alterar('${p}${id}',1)">+</button>
         </div>
-      </section>
+    </div>`;
+}
 
-      <section class="galeria-imagens">
-        <h2><span>📸</span> Galeria de Imagens</h2>
-        <div class="imagens-grid">
-          <div class="card-imagem">
-            <!-- Imagem ilustrativa (substitua pelos links desejados) -->
-            <img src="https://images.unsplash.com/photo-1617575520283-4c2a4b6b5c7e?w=400&h=250&fit=crop&auto=format" alt="Viatura policial" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🚓</div><div class=\'legenda\'>Viatura PRv</div>';">
-            <div class="legenda">Viatura Tática</div>
-          </div>
-          <div class="card-imagem">
-            <img src="https://images.unsplash.com/photo-1590073242678-70ee3fc28e8b?w=400&h=250&fit=crop&auto=format" alt="Rodovia" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🛣️</div><div class=\'legenda\'>Rodovia SP</div>';">
-            <div class="legenda">Monitoramento</div>
-          </div>
-          <div class="card-imagem">
-            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=250&fit=crop&auto=format" alt="Policial" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>👮</div><div class=\'legenda\'>Policial PRv</div>';">
-            <div class="legenda">Equipe em Ação</div>
-          </div>
-          <div class="card-imagem">
-            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop&auto=format" alt="Base móvel" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🏍️</div><div class=\'legenda\'>Motocicleta</div>';">
-            <div class="legenda">Patrulha Motos</div>
-          </div>
-        </div>
-        <p style="color:#aaa; margin-top:15px; font-size:0.8rem;">* Polícia Militar Rodoviária do Estado de São Paulo.</p>
-      </section>
-    </main>
-  </div>
+função toggle(id){
+    const el=document.getElementById("c_"+id);
+    const header=el.closest('.item').querySelector('.header');
+    
+    if(el.style.display === "block") {
+        el.style.display = "nenhum";
+        header.classList.remove('active');
+    } outro {
+        el.style.display = "bloco";
+        header.classList.add('ativo');
+    }
+}
 
-  <footer>
-    © 2026 Polícia Rodoviária Militar · Limeira/SP · Sd PM 194528-9 Guidini.
-  </footer>
+// ===== FUNÇÕES DE SALVAMENTO =====
 
-  <script>
-    (function() {
-      const sidebar = document.getElementById('sidebar');
-      const menuToggle = document.getElementById('menuToggle');
-      const overlay = document.getElementById('overlay');
-
-      // Abre/fecha sidebar mobile
-      function toggleSidebar() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-      }
-
-      menuToggle.addEventListener('click', toggleSidebar);
-      overlay.addEventListener('click', function() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-      });
-
-      // Fecha menu ao clicar em link (mobile)
-      const sidebarLinks = sidebar.querySelectorAll('a');
-      sidebarLinks.forEach(link => {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 768) {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-          }
-        });
-      });
-
-      // Controle dos submenus (toggle com classe)
-      const menuButtons = document.querySelectorAll('.menu-item[data-submenu]');
-
-      menuButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          e.preventDefault();
-          const submenuId = this.getAttribute('data-submenu');
-          const submenu = document.getElementById(submenuId);
-
-          if (submenu) {
-            // Fecha outros submenus? Opcional: manter apenas um aberto.
-            // Vamos permitir múltiplos abertos ou comportamento de acordeão simples:
-            const allSubmenus = document.querySelectorAll('.submenu');
-            allSubmenus.forEach(sm => {
-              if (sm.id !== submenuId) {
-                sm.classList.remove('open');
-                // também remove active dos botões correspondentes
-                const relatedBtn = document.querySelector(`.menu-item[data-submenu="${sm.id}"]`);
-                if (relatedBtn) relatedBtn.classList.remove('active');
-              }
-            });
-
-            submenu.classList.toggle('open');
-            this.classList.toggle('active');
-          }
-        });
-      });
-
-      // Ajuste de redimensionamento
-      window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-          sidebar.classList.remove('open');
-          overlay.classList.remove('active');
+// Salvar localmente
+função salvarDados(){
+    const d={enc:carregado.value,mot:motorista.value,aux:auxiliar.value,n:{},c:{}};
+    itens.forEach(it=>{
+        se(it.edit){
+            let n=document.getElementById("nome_"+it.id);
+            se(n) dn[it.id]=n.valor;
         }
-      });
+        ["e","m","a"].forEach(p=>{
+            const el = document.getElementById(p+it.id);
+            if(el) dc[p+it.id]=el.innerText;
+        });
+    });
+    localStorage.setItem("controleFiscalizacao",JSON.stringify(d));
+    dadosLocais = d;
+}
 
-      // Iniciar com submenus fechados
-      document.querySelectorAll('.submenu').forEach(sm => sm.classList.remove('open'));
-      document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
-    })();
-  </script>
+função carregarDados(){
+    const d=JSON.parse(localStorage.getItem("controleFiscalizacao"));
+    se(!d) retornar;
+    
+    encarregado.value=d.enc || '';
+    motorista.valor=d.mot || '';
+    auxiliar.value=d.aux || '';
+
+    para (seja k em dn){
+        let e=document.getElementById("nome_"+k);
+        se(e)e.valor=dn[k];
+    }
+    para (seja k em dc){
+        let e=document.getElementById(k);
+        se(e)e.textointerno=dc[k];
+    }
+    dadosLocais = d;
+}
+
+// ===== FUNÇÕES SUPABASE =====
+
+// Atualizar status da conexão
+função atualizarStatus(status) {
+    const el = document.getElementById('statusSync');
+    el.className = 'status-sync ' + status;
+}
+
+//Verifica conexão com Supabase
+função assíncrona verificarConexao() {
+    tentar {
+        const { data, error } = await supabase.from('fiscalizacoes').select('count', { count: 'exact', head: true });
+        se (erro) lançar erro;
+        atualizarStatus('online');
+        retornar verdadeiro;
+    } catch (e) {
+        atualizarStatus('offline');
+        console.log('Offline: ', e.message);
+        retornar falso;
+    }
+}
+
+// Coletar dados atuais
+function riquezaDadosAtuais() {
+    dadosLocais.enc = encarregado.valor || '';
+    dadosLocais.mot = motorista.valor || '';
+    dadosLocalis.aux = auxiliar.valor || '';
+    
+    itens.forEach(it => {
+        se (it.edit) {
+            const el = document.getElementById("nome_"+it.id);
+            if (el) dadosLocais.n[it.id] = el.valor || '';
+        }
+        ['e','m','a'].forEach(p => {
+            const el = document.getElementById(p+it.id);
+            if (el) dadosLocais.c[p+it.id] = el.innerText || '0';
+        });
+    });
+}
+
+// Salvar no Supabase
+função assíncrona salvarNoSupabase() {
+    const online = await verificarConexao();
+    se (!online) {
+        alert('⚠️ Sem conexão com o banco de dados. Os dados serão salvos localmente e sincronizados quando a conexão for restabelecida.');
+        salvarDados();
+        retornar;
+    }
+
+    tentar {
+        atualizarStatus('salvando');
+        
+        // Coleta dados atuais
+        coletarDadosAtuais();
+        
+        // Se não tem ID, cria nova fiscalização
+        se (!fiscalizacaoId) {
+            // Verifica se já existe uma ativa
+            const { dados: ativa, erro: errAtiva } = aguarda supabase
+                .from('fiscalizacoes')
+                .select('id')
+                .eq('status', 'ativo')
+                .limit(1);
+            
+            if (ativa && ativa.length > 0) {
+                fiscalizacaoId = ativa[0].id;
+            } outro {
+                // Cria nova
+                const { data: nova, error: errNova } = await supabase
+                    .from('fiscalizacoes')
+                    .inserir({
+                        encarregado: dadosLocais.enc || '',
+                        motorista: dadosLocais.mot || '',
+                        auxiliar: dadosLocalis.aux || '',
+                        status: 'ativo'
+                    })
+                    .selecionar()
+                    .solteiro();
+                
+                se (errNova) lance errNova;
+                fiscalizacaoId = nova.id;
+            }
+        }
+        
+        // Atualiza a ficha
+        aguarde a superbase
+            .from('fiscalizacoes')
+            .atualizar({
+                encarregado: dadosLocais.enc || '',
+                motorista: dadosLocais.mot || '',
+                auxiliar: dadosLocalis.aux || ''
+            })
+            .eq('id', fiscalizacaoId);
+        
+        // Remover itens antigos
+        aguarde a superbase
+            .from('itens_fiscalizacao')
+            .excluir()
+            .eq('fiscalizacao_id', fiscalizacaoId);
+        
+        // Insere novos itens
+        const itensParaSalvar = [];
+        itens.forEach((it, index) => {
+            const nome = it.edit ?
+                document.getElementById("nome_"+it.id)?.valor || `Artigo ${index+1}` :
+                ele.nome;
+            
+            const enc = parseInt(document.getElementById("e"+it.id)?.innerText) || 0;
+            const mot = parseInt(document.getElementById("m"+it.id)?.innerText) || 0;
+            const aux = parseInt(document.getElementById("a"+it.id)?.innerText) || 0;
+            
+            se (enc + mot + aux > 0) {
+                itensParaSalvar.push({
+                    fiscalizacao_id: fiscalizacaoId,
+                    nome_item: nome,
+                    tipo_item: it.edit ? 'livre' : 'fixo',
+                    _valor: enc,
+                    médico_valor: mot,
+                    auxiliar_valor: aux,
+                    ordem: índice
+                });
+            }
+        });
+        
+        se (itensParaSalvar.length > 0) {
+            const { error: errItens } = await supabase
+                .from('itens_fiscalizacao')
+                .insert(itensParaSalvar);
+            
+            se (errItens) lance errItens;
+        }
+        
+        atualizarStatus('online');
+        alert('✅ Dados salvos com sucesso no banco de dados!');
+        
+        // Salva também localmente
+        salvarDados();
+        
+    } catch (erro) {
+        console.error('Erro ao salvar:', erro);
+        atualizarStatus('offline');
+        alert('❌ Erro ao salvar: ' + error.message);
+    }
+}
+
+// Finalizar
+função assíncrona finalizarFiscalizacao() {
+    se (!fiscalizacaoId) {
+        alert('Salve os dados primeiro!');
+        retornar;
+    }
+    
+    if (confirm('Confirmar finalização da fiscalização atual?')) {
+        tentar {
+            aguarde a superbase
+                .from('fiscalizacoes')
+                .update({ status: 'finalizado' })
+                .eq('id', fiscalizacaoId);
+            
+            fiscalizacaoId = nulo;
+            alert('✅ Fiscalização finalizada com sucesso!');
+            
+            // Opção: limpar dados ou começar nova
+            if (confirm('Deseja limpar os dados para uma nova fiscalização?')) {
+                localStorage.removeItem('controleFiscalizacao');
+                localização.recarregar();
+            }
+            
+        } catch (erro) {
+            alert('❌ Erro ao finalizar: ' + error.message);
+        }
+    }
+}
+
+// ===== FUNÇÕES EXISTENTES =====
+
+função alterar(id,v){
+    const el=document.getElementById(id);
+    se(!el) retornar;
+    deixe n=parseInt(el.innerText)+v;
+    se(n<0)n=0;
+    el.innerText=n;
+    salvarDados();
+}
+
+função enviarWhats(){
+    const enc = encarregado.value.trim();
+    const motor = motorista.value.trim();
+    const aux = auxiliar.value.trim();
+    
+    let texto = "";
+    if(enc) texto += `Carregado: ${enc}\n`;
+    if(mot) texto += `Motorista: ${mot}\n`;
+    if(aux) texto += `Auxiliar: ${aux}\n`;
+    se(texto) texto += "\n";
+    
+    let temDados = falso;
+    
+    itens.forEach(it=>{
+        let nome = it.edit ? document.getElementById("nome_"+it.id)?.value?.trim() : it.nome;
+        se(!nome) retornar;
+        
+        const e = parseInt(document.getElementById("e"+it.id)?.innerText) || 0;
+        const m = parseInt(document.getElementById("m"+it.id)?.innerText) || 0;
+        const a = parseInt(document.getElementById("a"+it.id)?.innerText) || 0;
+        
+        se (e + m + a === 0) retorne;
+        
+        temDados = verdadeiro;
+        texto += `${nome}\n`;
+        if(e > 0) texto += `- Carregado: ${e}\n`;
+        if(m > 0) texto += `- Motorista: ${m}\n`;
+        if(a > 0) texto += `- Auxiliar: ${a}\n`;
+        texto += "\n";
+    });
+
+    if(!temDados && !enc && !mot && !aux){
+        alert("Nada para enviar");
+        retornar;
+    }
+    
+    texto = texto.trim();
+    window.open("https://wa.me/?text="+encodeURIComponent(texto),"_blank");
+}
+
+função encerrarTurno(){
+    if(confirm("Encerrar turno e apagar todos os dados?")){
+        localStorage.removeItem("controleFiscalizacao");
+        localização.recarregar();
+    }
+}
+
+// ===== INICIALIZAÇÃO =====
+
+// configurar ouvintes
+["carregado","motorista","auxiliar"].forEach(i=>{
+    document.getElementById(i).addEventListener("input",salvarDados);
+});
+
+// Carregar dados e verificar conexão
+janela.onload = função assíncrona() {
+    carregarDados();
+    aguarde verificarConexao();
+    
+    // Tenta carga de fiscalização ativa
+    tentar {
+        const { data, error } = await supabase
+            .from('fiscalizacoes')
+            .select('id')
+            .eq('status', 'ativo')
+            .limit(1);
+        
+        se (dados && comprimento dos dados > 0) {
+            fiscalizacaoId = data[0].id;
+        }
+    } catch (e) {
+        console.log('Erro ao buscar fiscalização:', e);
+    }
+    
+    // Verifica a conexão a cada 30 segundos
+    setInterval(verificarConexão, 30000);
+};
+</script>
+
 </body>
 </html>
