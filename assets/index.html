@@ -2,240 +2,549 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central de Controle</title>
-  <!-- Ícones do FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
+  <title>PMRv</title>
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      box-sizing: border-box;
     }
 
     body {
-      background: linear-gradient(135deg, #1f242d, #0d1117);
+      background-color: #0a0a0a; /* preto quase puro */
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
+    }
+
+    /* Barra superior - identidade visual */
+    .top-bar {
+      background: #1a1a1a;
+      padding: 12px 20px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      padding: 20px;
-    }
-
-    /* Container Principal no Estilo HyperOS */
-    .control-center {
-      background: rgba(35, 38, 45, 0.7);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 32px;
-      padding: 24px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Linha dos botões principais */
-    .buttons-row {
-      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #ffcc00; /* amarelo destacando */
       flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
     }
 
-    /* Botões Circulares Principais */
-    .circle-btn {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.12);
-      border: none;
-      color: #ffffff;
-      font-size: 22px;
+    .logo-area {
       display: flex;
-      justify-content: center;
       align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      width: 50px;
+      height: auto;
+      filter: drop-shadow(0 0 4px #000);
+      object-fit: contain;
+    }
+
+    .logo-text h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffcc00;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .logo-text span {
+      font-size: 0.8rem;
+      color: #cccccc;
+      font-weight: 400;
+      display: block;
+    }
+
+    .mobile-menu-toggle {
+      background: transparent;
+      border: 2px solid #ffcc00;
+      color: #ffcc00;
+      font-size: 1.8rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.25s ease;
-      outline: none;
+      display: none; /* visível apenas no mobile */
+      transition: 0.2s;
     }
 
-    .circle-btn:hover {
-      background-color: rgba(255, 255, 255, 0.22);
-      transform: scale(1.05);
+    .mobile-menu-toggle:hover {
+      background: #ffcc00;
+      color: #000;
     }
 
-    /* Estado ativo do botão */
-    .circle-btn.active {
-      background-color: #ffffff;
-      color: #111111;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    }
-
-    /* Botão de Adicionar (+) */
-    .add-btn {
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .add-btn:hover {
-      border-color: #ffffff;
-      color: #ffffff;
-      background-color: rgba(255, 255, 255, 0.15);
-    }
-
-    /* Painel de Submenus Expansível */
-    .submenu-panel {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 24px;
-      padding: 0 16px;
-    }
-
-    .submenu-panel.open {
-      max-height: 400px;
-      opacity: 1;
-      padding: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* Grid dos Submenus */
-    .submenu-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      justify-items: center;
-    }
-
-    /* Links/Botões do Submenu */
-    .sub-item {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.08);
-      color: #ffffff;
+    /* layout principal */
+    .main-container {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-      font-size: 18px;
-      transition: all 0.2s ease;
+      flex: 1;
+      background-color: #0f0f0f;
     }
 
-    .sub-item:hover {
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #111;
-      transform: translateY(-2px);
-    }
-
-    .menu-group {
+    /* Sidebar (menu esquerdo) */
+    .sidebar {
+      width: 260px;
+      background: #0d0d0d;
+      border-right: 2px solid #2a2a2a;
+      padding: 1.2rem 0;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      width: 100%;
+      transition: transform 0.3s ease;
+      z-index: 10;
     }
 
-    .header-title {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0 10px;
+    }
+
+    .sidebar li {
+      margin-bottom: 5px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 15px;
+      color: #ffcc00;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    .menu-item i {
+      font-style: normal;
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .menu-item:hover {
+      background: #2a2a2a;
+      color: #ffe55c;
+    }
+
+    /* submenu */
+    .submenu {
+      list-style: none;
+      margin-left: 20px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+      display: none;
+      border-left: 2px solid #ffcc00;
+      padding-left: 12px;
+    }
+
+    .submenu.open {
+      display: block;
+    }
+
+    .submenu li a {
+      display: block;
+      padding: 8px 12px;
+      color: #dddddd;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-radius: 5px;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+
+    .submenu li a:hover {
+      background: #1e1e1e;
+      color: #ffcc00;
+    }
+
+    .has-submenu {
+      position: relative;
+    }
+
+    .arrow-icon {
+      margin-left: auto;
+      font-size: 0.8rem;
+      transition: transform 0.2s;
+      color: #ffcc00;
+    }
+
+    .menu-item.active .arrow-icon {
+      transform: rotate(90deg);
+    }
+
+    /* área central */
+    .content-area {
+      flex: 1;
+      padding: 1.8rem;
+      background-color: #0a0a0a;
+      overflow-y: auto;
+    }
+
+    .avisos-section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    }
+
+    .avisos-section h2 {
+      color: #ffcc00;
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #3a3a3a;
+      padding-bottom: 10px;
+    }
+
+    .aviso-item {
+      background: #262626;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border-left: 5px solid #ffcc00;
+      color: #e0e0e0;
+    }
+
+    .aviso-item strong {
+      color: #ffcc00;
+    }
+
+    .galeria-imagens {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid #333;
+    }
+
+    .galeria-imagens h2 {
+      color: #ffcc00;
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #3a3a3a;
+      padding-bottom: 10px;
+    }
+
+    .imagens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .card-imagem {
+      background: #2c2c2c;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #444;
+      transition: 0.3s;
+    }
+
+    .card-imagem:hover {
+      border-color: #ffcc00;
+      transform: translateY(-3px);
+    }
+
+    .card-imagem img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+      background: #1e1e1e;
+    }
+
+    .card-imagem .legenda {
+      padding: 10px;
+      color: #ffcc00;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      background: #1f1f1f;
+    }
+
+    /* placeholder para imagens (caso use links quebrados) */
+    .img-placeholder {
+      background: #3a3a3a;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffcc00;
+      font-size: 2rem;
+    }
+
+    footer {
+      background: #0d0d0d;
+      text-align: center;
+      padding: 12px;
+      color: #aaa;
+      font-size: 0.8rem;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    /* classes de controle mobile */
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 260px;
+        transform: translateX(-100%);
+        background: #0d0d0d;
+        padding-top: 80px;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.8);
+        z-index: 999;
+        border-right: 2px solid #ffcc00;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-container {
+        flex-direction: column;
+      }
+
+      .content-area {
+        padding: 1.2rem;
+      }
+
+      .top-bar {
+        padding: 10px 15px;
+      }
+
+      .logo-img {
+        width: 40px;
+      }
+    }
+
+    /* transição suave no menu */
+    .sidebar, .overlay {
+      transition: all 0.3s ease;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 99;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
     }
   </style>
 </head>
 <body>
+  <header class="top-bar">
+    <div class="logo-area">
+      <img src="img/logo/icon-pmrv.png" alt="Logo PM Rodoviária" class="logo-img">
+      <div class="logo-text">
+        <h1>4ª Cia Limeira</h1>
+        <span>Policiamento Rodoviário</span>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+  </header>
 
-  <div class="control-center">
-    <div class="header-title">Minha Central de Controle</div>
-    
-    <!-- Área onde os botões e submenus ficarão -->
-    <div id="buttons-container" class="menu-group">
-      
-      <!-- Bloco do Primeiro Botão -->
-      <div class="button-wrapper" id="group-1">
-        <div class="buttons-row">
-          <button class="circle-btn" onclick="toggleSubmenu('sub-1', this)">
-            <i class="fa-solid fa-sliders"></i>
-          </button>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="main-container">
+    <!-- Menu lateral esquerdo -->
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <ul>
+          <!-- Item com submenu -->
+          <li class="has-submenu">
+            <button class="menu-item" data-submenu="submenu1">
+              <i>🌐</i> Acesso VPN
+              <span class="arrow-icon">▶</span>
+            </button>
+            <ul class="submenu" id="submenu1">
+              <li><a href="http://www.intranet.policiamilitar.sp.gov.br/" target="_blank">Intranet</a></li>
+              <li><a href="http://10.61.15.39/Login" target="_blank">PPRI</a></li>
+              <li><a href="http://cobomonline.ccb.policiamilitar.sp.gov.br/Singes/#/login" target="_blank">Assentamento</a></li>
+              <li><a href="https://marcosmunhoz.github.io/4CIA/consulta.html" target="_blank">Dejem/Delegada</a></li>
+              <li><a href="http://10.200.82.36/Emulador/(S(u1xfpy0ztrr02bwuahuor3vj))/pages/McpT27/ePortalDynamic.aspx" target="_blank">Prodesp</a></li>
+              <li><a href="https://sistemasopr.intranet.policiamilitar.sp.gov.br/Pmesp.Rso" target="_blank">RSO Web</a></li>
+              <li><a href="https://cop.pmesp.br.evm.online/app/login" target="_blank">COP</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
+            <button class="menu-item" data-submenu="submenu2">
+              <i>📋</i> Utilidades
+              <span class="arrow-icon">▶</span>
+            </button>
+            <ul class="submenu" id="submenu2">
+              <li><a href="https://correio.policiamilitar.sp.gov.br/iwaredir.nsf" target="_blank">Email Corporativo</a></li>
+              <li><a href="https://www.simsgmder.der.sp.gov.br/simsgmder/" target="_blank">SimDER</a></li>
+              <li><a href="https://minhaarea.sp.gov.br/plataformasp" target="_blank">SEI</a></li>
+              <li><a href="https://cronotacografo.rbmlq.gov.br/certificados/consultar" target="_blank">Cronotacógrafo</a></li>
+            </ul>
+          </li>
+
+          <li class="has-submenu">
+            <button class="menu-item" data-submenu="submenu3">
+              <i>📊</i> Formulários
+              <span class="arrow-icon">▶</span>
+            </button>
+            <ul class="submenu" id="submenu3">
+              <li><a href="https://docs.google.com/forms/d/e/1FAIpQLScAsayIw8JXcY8sIYy2ZQViqbAoKUSZOoKL27mnwXDIPjgK5w/viewform" target="_blank">Manut. 1º Escalão</a></li>
+              <li><a href="https://forms.office.com/Pages/ResponsePage.aspx?id=VAxWvfUh9UqnCmelKDNpc2he-LboKNBOl8SkVLbrZWFUME1BQ1dWUVJFVUI2WTM1RkNVQTA4OVJPWi4u&origin=QRCode" target="_blank">Amigos do Trecho</a></li>
+              <li><a href="https://marcosmunhoz.github.io/4CIA/assets/index.html" target="_blank">Mandar Atividade</a></li>
+              <li><a href="https://marcosmunhoz.github.io/4CIA/nota%20de%20empenho.html" target="_blank">Nota de Empenho</a></li>
+              <li><a href="https://marcosmunhoz.github.io/4CIA/Mensagem%20PDR.html" target="_blank">Mensagem PDR</a></li>
+            </ul>
+          </li>
+
+          <li>
+            <a href="efetivo.html" target="_blank" class="menu-item">
+              <i>👮</i> RE Efetivo
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Área central com avisos e imagens -->
+    <main class="content-area">
+      <section class="avisos-section">
+        <h2><span>⚠️</span> Avisos e Comunicados</h2>
+        <div class="aviso-item">
+          <strong>🔹 </strong>
         </div>
+        <div class="aviso-item">
+          <strong>🔹 </strong>
+        </div>
+        <div class="aviso-item">
+          <strong>🔹 </strong>
+        </div>
+      </section>
 
-        <!-- Submenu do Primeiro Botão -->
-        <div class="submenu-panel" id="sub-1">
-          <div class="submenu-grid">
-            <a href="https://google.com" target="_blank" class="sub-item" title="Google"><i class="fa-solid fa-magnifying-glass"></i></a>
-            <a href="https://youtube.com" target="_blank" class="sub-item" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://github.com" target="_blank" class="sub-item" title="GitHub"><i class="fa-brands fa-github"></i></a>
-            <a href="https://spotify.com" target="_blank" class="sub-item" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-gear"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-wifi"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-bluetooth-b"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-moon"></i></a>
+      <section class="galeria-imagens">
+        <h2><span>📸</span> Galeria de Imagens</h2>
+        <div class="imagens-grid">
+          <div class="card-imagem">
+            <!-- Imagem ilustrativa (substitua pelos links desejados) -->
+            <img src="https://images.unsplash.com/photo-1617575520283-4c2a4b6b5c7e?w=400&h=250&fit=crop&auto=format" alt="Viatura policial" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🚓</div><div class=\'legenda\'>Viatura PRv</div>';">
+            <div class="legenda">Viatura Tática</div>
+          </div>
+          <div class="card-imagem">
+            <img src="https://images.unsplash.com/photo-1590073242678-70ee3fc28e8b?w=400&h=250&fit=crop&auto=format" alt="Rodovia" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🛣️</div><div class=\'legenda\'>Rodovia SP</div>';">
+            <div class="legenda">Monitoramento</div>
+          </div>
+          <div class="card-imagem">
+            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=250&fit=crop&auto=format" alt="Policial" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>👮</div><div class=\'legenda\'>Policial PRv</div>';">
+            <div class="legenda">Equipe em Ação</div>
+          </div>
+          <div class="card-imagem">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop&auto=format" alt="Base móvel" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'img-placeholder\'>🏍️</div><div class=\'legenda\'>Motocicleta</div>';">
+            <div class="legenda">Patrulha Motos</div>
           </div>
         </div>
-      </div>
-
-    </div>
-
-    <!-- Botão de Adicionar (+) -->
-    <div class="buttons-row">
-      <button class="circle-btn add-btn" onclick="addNewButton()" title="Adicionar Novo Menu">
-        <i class="fa-solid fa-plus"></i>
-      </button>
-    </div>
+        <p style="color:#aaa; margin-top:15px; font-size:0.8rem;">* Polícia Militar Rodoviária do Estado de São Paulo.</p>
+      </section>
+    </main>
   </div>
 
+  <footer>
+    © 2026 Polícia Rodoviária Militar · Limeira/SP · Sd PM 194528-9 Guidini.
+  </footer>
+
   <script>
-    let buttonCount = 1;
+    (function() {
+      const sidebar = document.getElementById('sidebar');
+      const menuToggle = document.getElementById('menuToggle');
+      const overlay = document.getElementById('overlay');
 
-    // Função para abrir/fechar o submenu correspondente
-    function toggleSubmenu(panelId, btnElement) {
-      const panel = document.getElementById(panelId);
-      
-      // Alterna classe 'active' no botão para acender/apagar
-      btnElement.classList.toggle('active');
-      
-      // Alterna exibição do submenu
-      panel.classList.toggle('open');
-    }
+      // Abre/fecha sidebar mobile
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      }
 
-    // Função para adicionar um novo botão com submenus
-    function addNewButton() {
-      buttonCount++;
-      const container = document.getElementById('buttons-container');
+      menuToggle.addEventListener('click', toggleSidebar);
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      });
 
-      const newGroup = document.createElement('div');
-      newGroup.className = 'button-wrapper';
-      newGroup.id = `group-${buttonCount}`;
+      // Fecha menu ao clicar em link (mobile)
+      const sidebarLinks = sidebar.querySelectorAll('a');
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+          }
+        });
+      });
 
-      newGroup.innerHTML = `
-        <div class="buttons-row" style="margin-top: 10px;">
-          <button class="circle-btn" onclick="toggleSubmenu('sub-${buttonCount}', this)">
-            <i class="fa-solid fa-border-all"></i>
-          </button>
-        </div>
+      // Controle dos submenus (toggle com classe)
+      const menuButtons = document.querySelectorAll('.menu-item[data-submenu]');
 
-        <div class="submenu-panel" id="sub-${buttonCount}">
-          <div class="submenu-grid">
-            <a href="https://instagram.com" target="_blank" class="sub-item"><i class="fa-brands fa-instagram"></i></a>
-            <a href="https://twitter.com" target="_blank" class="sub-item"><i class="fa-brands fa-x-twitter"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-envelope"></i></a>
-            <a href="#" class="sub-item"><i class="fa-solid fa-camera"></i></a>
-          </div>
-        </div>
-      `;
+      menuButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const submenuId = this.getAttribute('data-submenu');
+          const submenu = document.getElementById(submenuId);
 
-      container.appendChild(newGroup);
-    }
+          if (submenu) {
+            // Fecha outros submenus? Opcional: manter apenas um aberto.
+            // Vamos permitir múltiplos abertos ou comportamento de acordeão simples:
+            const allSubmenus = document.querySelectorAll('.submenu');
+            allSubmenus.forEach(sm => {
+              if (sm.id !== submenuId) {
+                sm.classList.remove('open');
+                // também remove active dos botões correspondentes
+                const relatedBtn = document.querySelector(`.menu-item[data-submenu="${sm.id}"]`);
+                if (relatedBtn) relatedBtn.classList.remove('active');
+              }
+            });
+
+            submenu.classList.toggle('open');
+            this.classList.toggle('active');
+          }
+        });
+      });
+
+      // Ajuste de redimensionamento
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
+        }
+      });
+
+      // Iniciar com submenus fechados
+      document.querySelectorAll('.submenu').forEach(sm => sm.classList.remove('open'));
+      document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+    })();
   </script>
 </body>
 </html>
