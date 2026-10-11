@@ -383,7 +383,7 @@ header p{
             <input 
                 type="text" 
                 id="inputVehicle" 
-                placeholder="Ex: Honda/Elite, Volkswagen Parati, Scania" 
+                placeholder="Ex: Honda/Elite, VW Parati, Scania" 
                 oninput="handleVehicleInput(this.value)"
             >
         </div>
@@ -456,65 +456,71 @@ header p{
 
 <script>
 const STORAGE_KEY = "revelia_ocorrencias_v2";
-let records = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let records = [];
+
+// Carrega registros salvos
+try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) records = JSON.parse(saved);
+} catch (e) {
+    records = [];
+}
+
 let currentDetectedType = "carro";
-let searchDebounceTimer = null;
 
 /* =========================================================
-   IDENTIFICAÇÃO VIA INTERNET (API FIPE) + LOCAL
+   DETECÇÃO INSTANTÂNEA DE MOTOS, CARROS, CAMINHÕES E ÔNIBUS
 ========================================================= */
 
-// 1. Dicionário Local Instantâneo para resposta sem delay
-function getLocalVehicleType(text) {
+function detectTypeFromText(text) {
     if (!text) return "carro";
+
+    // Normaliza o texto (remove acentos e converte para minúsculo)
     const str = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    const motoKeywords = ["moto", "honda", "yamaha", "titan", "fan", "fazer", "biz", "cg", "cb", "twister", "pcx", "xj6", "hornet", "bmw gs", "pop", "bros", "crosser", "ybr", "factor", "scooter", "ciclomotor", "suzuki", "kawasaki", "ducati", "triumph", "royal enfield", "elite", "sh 150", "lead"];
-    const caminhaoKeywords = ["caminhao", "scania", "volvo", "iveco", "daf", "mercedes axor", "actros", "constrained", "carreta", "cavalo", "caçamba", "cacamba", "baú", "bau", "vw constellation", "cargo", "f4000", "3/4", "mule", "volksbus"];
-    const onibusKeywords = ["onibus", "micro-onibus", "microonibus", "marcopolo", "comil", "busscar", "caio", "van", "volare"];
+    // 1. Motos e Ciclomotores
+    const motoTerms = [
+        "moto", "honda/elite", "elite", "biz", "cg", "titan", "fan", "fazer", "twister", "pcx", 
+        "xj6", "hornet", "pop", "bros", "crosser", "ybr", "factor", "scooter", "ciclomotor", 
+        "yamaha", "suzuki", "kawasaki", "ducati", "triumph", "royal enfield", "nmax", "xre", 
+        "cb 300", "cb 500", "z900", "mt-03", "mt-07", "lead", "sh 150", "burgman", "haojue"
+    ];
 
-    for (let word of motoKeywords) if (str.includes(word)) return "moto";
-    for (let word of caminhaoKeywords) if (str.includes(word)) return "caminhao";
-    for (let word of onibusKeywords) if (str.includes(word)) return "onibus";
+    // 2. Caminhões e Veículos Pesados
+    const caminhaoTerms = [
+        "caminhao", "scania", "volvo", "iveco", "daf", "mercedes axor", "actros", "atego", 
+        "carreta", "cavalo", "caçamba", "cacamba", "baú", "bau", "constellation", "vw 24", 
+        "cargo", "f4000", "3/4", "mule", "volksbus", "bitren", "rodotren"
+    ];
 
+    // 3. Ônibus e Micro-ônibus
+    const onibusTerms = [
+        "onibus", "micro-onibus", "microonibus", "marcopolo", "comil", "busscar", "caio", 
+        "volare", "paradiso", "ideale"
+    ];
+
+    // Checa Moto
+    for (let term of motoTerms) {
+        if (str.includes(term)) return "moto";
+    }
+
+    // Checa Caminhão
+    for (let term of caminhaoTerms) {
+        if (str.includes(term)) return "caminhao";
+    }
+
+    // Checa Ônibus
+    for (let term of onibusTerms) {
+        if (str.includes(term)) return "onibus";
+    }
+
+    // Padrão: Carro
     return "carro";
 }
 
-// 2. Consulta à API da FIPE via Internet
-async function queryFipeCategoryOnline(text) {
-    const cleanText = text.toLowerCase().trim();
-    if (cleanText.length < 3) return;
-
-    try {
-        // Separa marca e modelo se usar barra ou espaço (ex: Honda/Elite)
-        const parts = cleanText.split(/[\/\s]+/);
-        const term = parts.length > 1 ? parts[1] : parts[0];
-
-        // Consulta a API de busca de veículos da FIPE
-        const res = await fetch(`https://parallelum.com.br/fipe/api/v1/motos/marcas`);
-        if (res.ok) {
-            const marcasMotos = await res.json();
-            const isMotoBrand = marcasMotos.some(m => m.nome.toLowerCase().includes(parts[0]));
-            if (isMotoBrand && parts.length > 1) {
-                updateBadgeType("moto");
-                return;
-            }
-        }
-    } catch (e) {
-        // Se a internet oscilar, mantém a detecção local
-    }
-}
-
 function handleVehicleInput(value) {
-    // Atualização instantânea local
-    currentDetectedType = getLocalVehicleType(value);
+    currentDetectedType = detectTypeFromText(value);
     updateBadgeType(currentDetectedType);
-
-    // Consulta de confirmação via internet com debounce
-    clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(() => {
-        queryFipeCategoryOnline(value);
-    }, 400);
 }
 
 function updateBadgeType(type) {
@@ -528,7 +534,7 @@ function updateBadgeType(type) {
         "onibus": "🚌 Ônibus"
     };
 
-    badge.textContent = labels[type] || "Carro";
+    badge.textContent = labels[type] || "🚗 Carro";
 }
 
 function toggleLegend() {
@@ -537,32 +543,35 @@ function toggleLegend() {
 }
 
 function saveRecord() {
-    const vehicle = document.getElementById("inputVehicle").value.trim();
-    const plate = document.getElementById("inputPlate").value.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
-    const color = document.getElementById("inputColor").value.trim();
-    const sp = document.getElementById("inputSP").value.trim();
-    const km = document.getElementById("inputKM").value.trim();
-    const sense = document.getElementById("inputSense").value;
-    const article = document.getElementById("inputArticle").value.trim();
+    const vehicleInput = document.getElementById("inputVehicle").value.trim();
+    const plateInput = document.getElementById("inputPlate").value.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
+    const colorInput = document.getElementById("inputColor").value.trim();
+    const spInput = document.getElementById("inputSP").value.trim();
+    const kmInput = document.getElementById("inputKM").value.trim();
+    const senseInput = document.getElementById("inputSense").value;
+    const articleInput = document.getElementById("inputArticle").value.trim();
 
-    if (!vehicle && !plate) {
-        alert("Preencha ao menos o Veículo ou a Placa.");
+    if (!vehicleInput && !plateInput) {
+        alert("Por favor, preencha ao menos o Veículo ou a Placa.");
         return;
     }
 
+    // Detecta o tipo exato no momento de salvar
+    const detectedType = detectTypeFromText(vehicleInput);
+
     let locationStr = "";
-    if (sp) locationStr += sp + " ";
-    if (km) locationStr += "KM " + km + " ";
-    if (sense) locationStr += "Sentido " + sense;
+    if (spInput) locationStr += spInput + " ";
+    if (kmInput) locationStr += "KM " + kmInput + " ";
+    if (senseInput) locationStr += "Sentido " + senseInput;
 
     const newRecord = {
         id: Date.now(),
-        vehicle: vehicle || "Não informado",
-        plate: plate || "S/ PLACA",
-        color: color || "N/I",
+        vehicle: vehicleInput || "Não informado",
+        plate: plateInput || "S/ PLACA",
+        color: colorInput || "N/I",
         location: locationStr.trim() || "Local não informado",
-        article: article || "N/I",
-        type: currentDetectedType,
+        article: articleInput || "N/I",
+        type: detectedType,
         completed: false,
         time: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
     };
@@ -570,6 +579,7 @@ function saveRecord() {
     records.unshift(newRecord);
     saveAndRender();
 
+    // Limpa o formulário
     document.getElementById("inputVehicle").value = "";
     document.getElementById("inputPlate").value = "";
     document.getElementById("inputColor").value = "";
@@ -594,4 +604,59 @@ function deleteRecord(id) {
 function clearAllRecords() {
     if (records.length === 0) return;
     if (confirm("ATENÇÃO: Tem certeza que deseja apagar TODOS os registros?")) {
-        records
+        records = [];
+        saveAndRender();
+    }
+}
+
+function saveAndRender() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    } catch(e){}
+    render();
+}
+
+function render() {
+    const container = document.getElementById("records");
+    const counter = document.getElementById("counter");
+
+    if (!container || !counter) return;
+
+    counter.textContent = `${records.length} registro(s)`;
+
+    if (records.length === 0) {
+        container.innerHTML = `<div class="empty">Nenhuma revelia registrada no momento.</div>`;
+        return;
+    }
+
+    const badgeClasses = { "moto": "badge-moto", "carro": "badge-carro", "caminhao": "badge-caminhao", "onibus": "badge-onibus" };
+    const typeNames = { "moto": "Moto", "carro": "Carro", "caminhao": "Caminhão", "onibus": "Ônibus" };
+
+    container.innerHTML = records.map(r => `
+        <div class="record type-${r.type} ${r.completed ? 'completed' : ''}">
+            <div class="record-top">
+                <input type="checkbox" class="record-check" ${r.completed ? 'checked' : ''} onclick="toggleComplete(${r.id})">
+                <div class="record-info">
+                    <div class="record-header-line">
+                        <div class="record-main">${r.vehicle} (${r.color})</div>
+                        <span class="record-badge ${badgeClasses[r.type]}">${typeNames[r.type]}</span>
+                    </div>
+                    <div class="record-details">
+                        <strong>PLACA:</strong> ${r.plate}<br>
+                        <strong>LOCAL:</strong> ${r.location}<br>
+                        <strong>ARTIGO:</strong> ${r.article}
+                    </div>
+                    <div class="record-time">Registrado em: ${r.time}</div>
+                    <button class="delete-button" onclick="deleteRecord(${r.id})">EXCLUIR</button>
+                </div>
+            </div>
+        </div>
+    `).join("");
+}
+
+// Inicializa a renderização
+render();
+</script>
+
+</body>
+</html>
