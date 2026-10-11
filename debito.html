@@ -3,298 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Débito de Veículo</title>
+    <title>Consulta de Débitos de Veículos</title>
     <style>
+        :root {
+            --bg-color: #0f0f11;
+            --card-bg: #18181b;
+            --card-hover: #242429;
+            --primary-yellow: #facc15;
+            --yellow-glow: rgba(250, 204, 21, 0.15);
+            --text-color: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border-color: #27272a;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        
+
         body {
-            background-color: #f5f5f5;
-            padding: 20px;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        
-        h1 {
+
+        header {
             text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
-        }
-        
-        .states-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .state-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-        }
-        
-        .state-item:last-child {
-            border-bottom: none;
-        }
-        
-        .state-item:hover {
-            background-color: #f9f9f9;
-        }
-        
-        .state-flag {
-            width: 30px;
-            height: 20px;
-            margin-right: 15px;
-            object-fit: cover;
-            border: 1px solid #ddd;
-        }
-        
-        .state-name {
-            flex-grow: 1;
-            font-size: 16px;
-        }
-        
-        .state-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
+            max-width: 600px;
+            margin-bottom: 24px;
             width: 100%;
         }
-        
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(250, 204, 21, 0.1);
+            color: var(--primary-yellow);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        h1 span {
+            color: var(--primary-yellow);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Campo de Busca */
+        .search-box {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 3px var(--yellow-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Container de Estados */
+        .states-container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .state-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .state-link {
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flag-wrapper {
+            width: 36px;
+            height: 24px;
+            margin-right: 14px;
+            flex-shrink: 0;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .state-flag {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .state-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .arrow-icon {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        /* Hover & Interatividade */
+        .state-item:hover {
+            background-color: var(--card-hover);
+            border-color: var(--primary-yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 10px var(--yellow-glow);
+        }
+
+        .state-item:hover .arrow-icon {
+            color: var(--primary-yellow);
+            transform: translateX(4px);
+        }
+
+        /* Responsividade para Celular */
         @media (max-width: 600px) {
-            .state-item {
-                padding: 10px 15px;
+            body {
+                padding: 16px 12px;
             }
-            
-            .state-flag {
-                width: 25px;
-                height: 16px;
-                margin-right: 10px;
+
+            h1 {
+                font-size: 1.5rem;
             }
-            
-            .state-name {
-                font-size: 14px;
+
+            .states-container {
+                grid-template-columns: 1fr; /* Lista de coluna única no mobile */
+                gap: 8px;
+            }
+
+            .state-link {
+                padding: 12px 16px;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Clique para Consultar</h1>
-    
-    <div class="states-container">
-        <!-- Estados em ordem alfabética -->
+
+    <header>
+        <span class="badge">Consulta Rápida</span>
+        <h1>Débitos de <span>Veículo</span></h1>
+        <p class="subtitle">Selecione o seu estado para acessar o portal de consulta oficial.</p>
+    </header>
+
+    <!-- Campo de Busca -->
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Digite o nome do estado..." onkeyup="filterStates()">
+    </div>
+
+    <!-- Lista de Estados -->
+    <div class="states-container" id="statesContainer">
+
         <div class="state-item">
-            <a href="https://www.ac.getran.com.br/site/apps/veiculo/consulta/filtro-consulta-veiculo.jsp" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg" alt="Acre" class="state-flag">
+            <a href="https://www.ac.getran.com.br/site/apps/veiculo/consulta/filtro-consulta-veiculo.jsp" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg" alt="Acre" class="state-flag">
+                </div>
                 <span class="state-name">Acre</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.detran.al.gov.br/veiculos/consulta-veiculo/menu_lateral" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg" alt="Alagoas" class="state-flag">
+            <a href="https://www.detran.al.gov.br/veiculos/consulta-veiculo/menu_lateral" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg" alt="Alagoas" class="state-flag">
+                </div>
                 <span class="state-name">Alagoas</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.ap.getran.com.br/site/apps/veiculo/consulta/filtro-consulta-veiculo.jsp" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Bandeira_do_Amap%C3%A1.svg" alt="Amapá" class="state-flag">
+            <a href="https://www.ap.getran.com.br/site/apps/veiculo/consulta/filtro-consulta-veiculo.jsp" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0c/Bandeira_do_Amap%C3%A1.svg" alt="Amapá" class="state-flag">
+                </div>
                 <span class="state-name">Amapá</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="#https://digital.detran.am.gov.br/?openModalVeiculo=%2Fveiculo#focoMenu" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Bandeira_do_Amazonas.svg" alt="Amazonas" class="state-flag">
+            <a href="https://digital.detran.am.gov.br/?openModalVeiculo=%2Fveiculo#focoMenu" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Bandeira_do_Amazonas.svg" alt="Amazonas" class="state-flag">
+                </div>
                 <span class="state-name">Amazonas</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://servicos.sefaz.ba.gov.br/sistemas/DSCRE/Modulos/Publico/ConsultaDebitos.aspx" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Bandeira_da_Bahia.svg" alt="Bahia" class="state-flag">
+            <a href="https://servicos.sefaz.ba.gov.br/sistemas/DSCRE/Modulos/Publico/ConsultaDebitos.aspx" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Bandeira_da_Bahia.svg" alt="Bahia" class="state-flag">
+                </div>
                 <span class="state-name">Bahia</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://sistemas.detran.ce.gov.br/central/" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Bandeira_do_Cear%C3%A1.svg" alt="Ceará" class="state-flag">
+            <a href="https://sistemas.detran.ce.gov.br/central/" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Bandeira_do_Cear%C3%A1.svg" alt="Ceará" class="state-flag">
+                </div>
                 <span class="state-name">Ceará</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://mobile.receita.fazenda.df.gov.br/aplicacoes/CartaServicos/servico.cfm?codTipoPessoa=6&codServico=333&codSubCategoria=71" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Bandeira_do_Distrito_Federal_%28Brasil%29.svg" alt="Distrito Federal" class="state-flag">
+            <a href="https://mobile.receita.fazenda.df.gov.br/aplicacoes/CartaServicos/servico.cfm?codTipoPessoa=6&codServico=333&codSubCategoria=71" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Bandeira_do_Distrito_Federal_%28Brasil%29.svg" alt="Distrito Federal" class="state-flag">
+                </div>
                 <span class="state-name">Distrito Federal</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://publicodetran.es.gov.br/ConsultaVeiculo/NovoConsultaVeiculoES.asp" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Bandeira_do_Esp%C3%ADrito_Santo.svg" alt="Espírito Santo" class="state-flag">
+            <a href="https://publicodetran.es.gov.br/ConsultaVeiculo/NovoConsultaVeiculoES.asp" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Bandeira_do_Esp%C3%ADrito_Santo.svg" alt="Espírito Santo" class="state-flag">
+                </div>
                 <span class="state-name">Espírito Santo</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.go.gov.br/servicos/servico/consultar-veiculo--ipva-multas-e-crlv" class="state-link">
-                <svg class="state-flag" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="600" height="420" fill="#008000"/>
-                    <rect x="120" y="90" width="360" height="240" fill="#FFD700" stroke="#000000" stroke-width="2"/>
-                    <path d="M240,210 L360,210" stroke="#008000" stroke-width="20"/>
-                    <path d="M300,150 L300,270" stroke="#008000" stroke-width="20"/>
-                    <circle cx="300" cy="210" r="60" fill="#008000"/>
-                    <path d="M300,150 L280,190 L320,190 L300,150 Z" fill="#FFD700"/>
-                    <path d="M300,270 L280,230 L320,230 L300,270 Z" fill="#FFD700"/>
-                    <path d="M240,210 L260,230 L260,190 L240,210 Z" fill="#FFD700"/>
-                    <path d="M360,210 L340,230 L340,190 L360,210 Z" fill="#FFD700"/>
-                </svg>
+            <a href="https://www.go.gov.br/servicos/servico/consultar-veiculo--ipva-multas-e-crlv" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <svg class="state-flag" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="420" fill="#008000"/>
+                        <rect x="120" y="90" width="360" height="240" fill="#FFD700" stroke="#000000" stroke-width="2"/>
+                        <path d="M240,210 L360,210" stroke="#008000" stroke-width="20"/>
+                        <path d="M300,150 L300,270" stroke="#008000" stroke-width="20"/>
+                        <circle cx="300" cy="210" r="60" fill="#008000"/>
+                    </svg>
+                </div>
                 <span class="state-name">Goiás</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://portal.detrannet.detran.ma.gov.br/Veiculo/Veiculos.cshtml" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Bandeira_do_Maranh%C3%A3o.svg" alt="Maranhão" class="state-flag">
+            <a href="https://portal.detrannet.detran.ma.gov.br/Veiculo/Veiculos.cshtml" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Bandeira_do_Maranh%C3%A3o.svg" alt="Maranhão" class="state-flag">
+                </div>
                 <span class="state-name">Maranhão</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.detran.mt.gov.br/" class="state-link">
-                <svg class="state-flag" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="600" height="420" fill="#0038A8"/>
-                    <rect x="0" y="140" width="600" height="140" fill="#00AF4D"/>
-                    <circle cx="300" cy="210" r="70" fill="#FEDD00"/>
-                    <path d="M300,140 L320,180 L360,180 L330,210 L360,240 L320,240 L300,280 L280,240 L240,240 L270,210 L240,180 L280,180 Z" fill="#0038A8"/>
-                </svg>
+            <a href="https://www.detran.mt.gov.br/" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <svg class="state-flag" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="600" height="420" fill="#0038A8"/>
+                        <rect x="0" y="140" width="600" height="140" fill="#00AF4D"/>
+                        <circle cx="300" cy="210" r="70" fill="#FEDD00"/>
+                    </svg>
+                </div>
                 <span class="state-name">Mato Grosso</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.meudetran.ms.gov.br/login" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Bandeira_de_Mato_Grosso_do_Sul.svg" alt="Mato Grosso do Sul" class="state-flag">
+            <a href="https://www.meudetran.ms.gov.br/login" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Bandeira_de_Mato_Grosso_do_Sul.svg" alt="Mato Grosso do Sul" class="state-flag">
+                </div>
                 <span class="state-name">Mato Grosso do Sul</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://veiculosmg.fazenda.mg.gov.br/buscar-renavam/" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg" alt="Minas Gerais" class="state-flag">
+            <a href="https://veiculosmg.fazenda.mg.gov.br/buscar-renavam/" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg" alt="Minas Gerais" class="state-flag">
+                </div>
                 <span class="state-name">Minas Gerais</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#para" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Par%C3%A1.svg" alt="Pará" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Par%C3%A1.svg" alt="Pará" class="state-flag">
+                </div>
                 <span class="state-name">Pará</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#paraiba" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Bandeira_da_Para%C3%ADba.svg" alt="Paraíba" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Bandeira_da_Para%C3%ADba.svg" alt="Paraíba" class="state-flag">
+                </div>
                 <span class="state-name">Paraíba</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#parana" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg" alt="Paraná" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg" alt="Paraná" class="state-flag">
+                </div>
                 <span class="state-name">Paraná</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#pernambuco" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Bandeira_de_Pernambuco.svg" alt="Pernambuco" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Bandeira_de_Pernambuco.svg" alt="Pernambuco" class="state-flag">
+                </div>
                 <span class="state-name">Pernambuco</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#piaui" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Bandeira_do_Piau%C3%AD.svg" alt="Piauí" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Bandeira_do_Piau%C3%AD.svg" alt="Piauí" class="state-flag">
+                </div>
                 <span class="state-name">Piauí</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#rio-de-janeiro" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg" alt="Rio de Janeiro" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg" alt="Rio de Janeiro" class="state-flag">
+                </div>
                 <span class="state-name">Rio de Janeiro</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#rio-grande-do-norte" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg" alt="Rio Grande do Norte" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg" alt="Rio Grande do Norte" class="state-flag">
+                </div>
                 <span class="state-name">Rio Grande do Norte</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#rio-grande-do-sul" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg" alt="Rio Grande do Sul" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg" alt="Rio Grande do Sul" class="state-flag">
+                </div>
                 <span class="state-name">Rio Grande do Sul</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#rondonia" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg" alt="Rondônia" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg" alt="Rondônia" class="state-flag">
+                </div>
                 <span class="state-name">Rondônia</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#roraima" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_de_Roraima.svg" alt="Roraima" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_de_Roraima.svg" alt="Roraima" class="state-flag">
+                </div>
                 <span class="state-name">Roraima</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#santa-catarina" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg" alt="Santa Catarina" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg" alt="Santa Catarina" class="state-flag">
+                </div>
                 <span class="state-name">Santa Catarina</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
-            <a href="https://www.ipva.fazenda.sp.gov.br/ipvanet_consulta/Consulta.aspx" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg" alt="São Paulo" class="state-flag">
+            <a href="https://www.ipva.fazenda.sp.gov.br/ipvanet_consulta/Consulta.aspx" target="_blank" class="state-link">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg" alt="São Paulo" class="state-flag">
+                </div>
                 <span class="state-name">São Paulo</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#sergipe" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg" alt="Sergipe" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg" alt="Sergipe" class="state-flag">
+                </div>
                 <span class="state-name">Sergipe</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
-        
+
         <div class="state-item">
             <a href="#tocantins" class="state-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg" alt="Tocantins" class="state-flag">
+                <div class="flag-wrapper">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg" alt="Tocantins" class="state-flag">
+                </div>
                 <span class="state-name">Tocantins</span>
+                <span class="arrow-icon">➔</span>
             </a>
         </div>
+
     </div>
+
+    <script>
+        // Função de filtro simples por nome do estado
+        function filterStates() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.state-item');
+
+            items.forEach(item => {
+                const name = item.querySelector('.state-name').textContent.toLowerCase();
+                if (name.includes(input)) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+    </script>
 </body>
 </html>
