@@ -135,27 +135,6 @@ header p{
     flex:1;
 }
 
-.plate-wrapper {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-lookup {
-    background: #2b2b2b;
-    color: #f5c400;
-    border: 1px solid #444;
-    border-radius: 9px;
-    padding: 0 12px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.btn-lookup:hover {
-    background: #383838;
-}
-
 .save-button{
     width:100%;
     margin-top:10px;
@@ -257,31 +236,22 @@ header p{
     cursor:pointer;
 }
 
-/* CARTS / REGISTROS COM CORES POR CATEGORIA */
+/* CARDS DE REGISTRO COM BORDAS COLORIDAS */
 
 .record{
     background:#171717;
     border:1px solid #353535;
-    border-left:6px solid #f5c400; /* Padrão */
+    border-left:6px solid #f5c400;
     border-radius:11px;
     padding:14px;
     margin-bottom:12px;
     position:relative;
 }
 
-/* Cores por Categoria de Veículo */
-.record.type-moto {
-    border-left-color: #ffd700; /* Amarelo - Moto */
-}
-.record.type-carro {
-    border-left-color: #2196f3; /* Azul - Carro */
-}
-.record.type-caminhao {
-    border-left-color: #ff9800; /* Laranja - Caminhão */
-}
-.record.type-onibus {
-    border-left-color: #9c27b0; /* Roxo - Ônibus */
-}
+.record.type-moto { border-left-color: #ffd700; }
+.record.type-carro { border-left-color: #2196f3; }
+.record.type-caminhao { border-left-color: #ff9800; }
+.record.type-onibus { border-left-color: #9c27b0; }
 
 .record.completed{
     opacity:.5;
@@ -366,7 +336,6 @@ header p{
     font-size:14px;
 }
 
-/* RESPONSIVO */
 @media(max-width:420px){
     .row {
         flex-direction: column;
@@ -385,30 +354,38 @@ header p{
 
 <div class="container">
 
-    <!-- FORMULÁRIO DE ENTRADA MANUAL -->
+    <!-- FORMULÁRIO -->
     <div class="form-box">
         <div class="form-title">
             <span>NOVO REGISTRO DE REVELIA</span>
             <span class="detected-type-badge" id="typeBadge">Carro</span>
         </div>
 
-        <div class="field">
-            <label>Marca / Modelo</label>
-            <input type="text" id="inputVehicle" placeholder="Ex: Honda Titan, VW Gol, Scania" oninput="detectVehicleType()">
-        </div>
-
         <div class="row">
             <div class="field">
                 <label>Placa</label>
-                <div class="plate-wrapper">
-                    <input type="text" id="inputPlate" placeholder="ABC1D23" style="text-transform:uppercase;">
-                    <button class="btn-lookup" id="btnLookup" onclick="lookupPlate()">BUSCAR</button>
-                </div>
+                <input 
+                    type="text" 
+                    id="inputPlate" 
+                    placeholder="ABC1D23" 
+                    maxlength="7" 
+                    style="text-transform:uppercase;" 
+                >
             </div>
             <div class="field">
                 <label>Cor</label>
                 <input type="text" id="inputColor" placeholder="Ex: Preta">
             </div>
+        </div>
+
+        <div class="field">
+            <label>Marca / Modelo</label>
+            <input 
+                type="text" 
+                id="inputVehicle" 
+                placeholder="Ex: Honda/Elite, Volkswagen Parati, Scania" 
+                oninput="handleVehicleInput(this.value)"
+            >
         </div>
 
         <div class="row">
@@ -441,7 +418,7 @@ header p{
         <button class="save-button" onclick="saveRecord()">ADICIONAR REVELIA</button>
     </div>
 
-    <!-- LEGENDA DE CORES -->
+    <!-- LEGENDA -->
     <button class="legend-toggle" onclick="toggleLegend()"> Ver Legenda de Cores por Veículo</button>
     
     <div class="legend-box" id="legendBox">
@@ -478,55 +455,70 @@ header p{
 </div>
 
 <script>
-/* =========================================================
-   CONFIGURAÇÃO E ESTADO LOCAL
-========================================================= */
 const STORAGE_KEY = "revelia_ocorrencias_v2";
 let records = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let currentDetectedType = "carro";
+let searchDebounceTimer = null;
 
 /* =========================================================
-   DETECÇÃO AUTOMÁTICA DO TIPO DE VEÍCULO POR PALAVRAS-CHAVE
+   IDENTIFICAÇÃO VIA INTERNET (API FIPE) + LOCAL
 ========================================================= */
-function getVehicleType(text) {
+
+// 1. Dicionário Local Instantâneo para resposta sem delay
+function getLocalVehicleType(text) {
     if (!text) return "carro";
-    
     const str = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    // Palavras-chave de Moto
-    const motoKeywords = [
-        "moto", "honda", "yamaha", "titan", "fan", "fazer", "biz", "cg", "cb", "twister", 
-        "pcx", "xj6", "hornet", "bmw gs", "pop", "bros", "crosser", "ybr", "factor", 
-        "scooter", "ciclomotor", "suzuki", "kawasaki", "ducati", "triumph", "royal enfield"
-    ];
+    const motoKeywords = ["moto", "honda", "yamaha", "titan", "fan", "fazer", "biz", "cg", "cb", "twister", "pcx", "xj6", "hornet", "bmw gs", "pop", "bros", "crosser", "ybr", "factor", "scooter", "ciclomotor", "suzuki", "kawasaki", "ducati", "triumph", "royal enfield", "elite", "sh 150", "lead"];
+    const caminhaoKeywords = ["caminhao", "scania", "volvo", "iveco", "daf", "mercedes axor", "actros", "constrained", "carreta", "cavalo", "caçamba", "cacamba", "baú", "bau", "vw constellation", "cargo", "f4000", "3/4", "mule", "volksbus"];
+    const onibusKeywords = ["onibus", "micro-onibus", "microonibus", "marcopolo", "comil", "busscar", "caio", "van", "volare"];
 
-    // Palavras-chave de Caminhão / Pesado
-    const caminhaoKeywords = [
-        "caminhao", "scania", "volvo", "iveco", "daf", "mercedes axor", "actros", 
-        "constrained", "carreta", "cavalo", "caçamba", "cacamba", "baú", "bau", 
-        "vw constellation", "cargo", "f4000", "3/4", "mule", "volksbus"
-    ];
+    for (let word of motoKeywords) if (str.includes(word)) return "moto";
+    for (let word of caminhaoKeywords) if (str.includes(word)) return "caminhao";
+    for (let word of onibusKeywords) if (str.includes(word)) return "onibus";
 
-    // Palavras-chave de Ônibus
-    const onibusKeywords = [
-        "onibus", "micro-onibus", "microonibus", "marcopolo", "comil", "busscar", "caio", "van"
-    ];
-
-    for (let word of motoKeywords) {
-        if (str.includes(word)) return "moto";
-    }
-    for (let word of caminhaoKeywords) {
-        if (str.includes(word)) return "caminhao";
-    }
-    for (let word of onibusKeywords) {
-        if (str.includes(word)) return "onibus";
-    }
-
-    return "carro"; // Padrão
+    return "carro";
 }
 
-function detectVehicleType() {
-    const value = document.getElementById("inputVehicle").value;
-    const type = getVehicleType(value);
+// 2. Consulta à API da FIPE via Internet
+async function queryFipeCategoryOnline(text) {
+    const cleanText = text.toLowerCase().trim();
+    if (cleanText.length < 3) return;
+
+    try {
+        // Separa marca e modelo se usar barra ou espaço (ex: Honda/Elite)
+        const parts = cleanText.split(/[\/\s]+/);
+        const term = parts.length > 1 ? parts[1] : parts[0];
+
+        // Consulta a API de busca de veículos da FIPE
+        const res = await fetch(`https://parallelum.com.br/fipe/api/v1/motos/marcas`);
+        if (res.ok) {
+            const marcasMotos = await res.json();
+            const isMotoBrand = marcasMotos.some(m => m.nome.toLowerCase().includes(parts[0]));
+            if (isMotoBrand && parts.length > 1) {
+                updateBadgeType("moto");
+                return;
+            }
+        }
+    } catch (e) {
+        // Se a internet oscilar, mantém a detecção local
+    }
+}
+
+function handleVehicleInput(value) {
+    // Atualização instantânea local
+    currentDetectedType = getLocalVehicleType(value);
+    updateBadgeType(currentDetectedType);
+
+    // Consulta de confirmação via internet com debounce
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        queryFipeCategoryOnline(value);
+    }, 400);
+}
+
+function updateBadgeType(type) {
+    currentDetectedType = type;
     const badge = document.getElementById("typeBadge");
 
     const labels = {
@@ -539,57 +531,11 @@ function detectVehicleType() {
     badge.textContent = labels[type] || "Carro";
 }
 
-/* =========================================================
-   BUSCA PÚBLICA DE PLACA (API GRATUITA EXEMPLO)
-========================================================= */
-async function lookupPlate() {
-    const plateInput = document.getElementById("inputPlate");
-    let plate = plateInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-    if (plate.length < 7) {
-        alert("Digite uma placa válida com 7 caracteres.");
-        return;
-    }
-
-    const btn = document.getElementById("btnLookup");
-    btn.textContent = "BUSCANDO...";
-    btn.disabled = true;
-
-    try {
-        // Tenta consulta via API pública gratuita
-        const res = await fetch(`https://wdapi2.com.br/consulta/${plate}/c8c7fdf3176d5475aa8823565e3ef744`);
-        
-        if (res.ok) {
-            const data = await res.json();
-            if (data.marca || data.modelo) {
-                document.getElementById("inputVehicle").value = `${data.marca || ''} ${data.modelo || ''}`.trim();
-            }
-            if (data.cor) {
-                document.getElementById("inputColor").value = data.cor;
-            }
-            detectVehicleType();
-        } else {
-            alert("Não foi possível localizar dados automáticos para esta placa. Preencha manualmente.");
-        }
-    } catch (e) {
-        alert("A consulta de placa não respondeu. Preencha os campos manualmente.");
-    } finally {
-        btn.textContent = "BUSCAR";
-        btn.disabled = false;
-    }
-}
-
-/* =========================================================
-   LEGENDA TOGGLE
-========================================================= */
 function toggleLegend() {
     const box = document.getElementById("legendBox");
     box.style.display = (box.style.display === "block") ? "none" : "block";
 }
 
-/* =========================================================
-   SALVAR NOVO REGISTRO
-========================================================= */
 function saveRecord() {
     const vehicle = document.getElementById("inputVehicle").value.trim();
     const plate = document.getElementById("inputPlate").value.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
@@ -604,9 +550,6 @@ function saveRecord() {
         return;
     }
 
-    const type = getVehicleType(vehicle);
-
-    // Formata o local
     let locationStr = "";
     if (sp) locationStr += sp + " ";
     if (km) locationStr += "KM " + km + " ";
@@ -619,7 +562,7 @@ function saveRecord() {
         color: color || "N/I",
         location: locationStr.trim() || "Local não informado",
         article: article || "N/I",
-        type: type,
+        type: currentDetectedType,
         completed: false,
         time: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
     };
@@ -627,19 +570,15 @@ function saveRecord() {
     records.unshift(newRecord);
     saveAndRender();
 
-    // Limpar campos
     document.getElementById("inputVehicle").value = "";
     document.getElementById("inputPlate").value = "";
     document.getElementById("inputColor").value = "";
     document.getElementById("inputSP").value = "";
     document.getElementById("inputKM").value = "";
     document.getElementById("inputArticle").value = "";
-    detectVehicleType();
+    updateBadgeType("carro");
 }
 
-/* =========================================================
-   GERENCIAR REGISTROS
-========================================================= */
 function toggleComplete(id) {
     records = records.map(r => r.id === id ? { ...r, completed: !r.completed } : r);
     saveAndRender();
@@ -655,74 +594,4 @@ function deleteRecord(id) {
 function clearAllRecords() {
     if (records.length === 0) return;
     if (confirm("ATENÇÃO: Tem certeza que deseja apagar TODOS os registros?")) {
-        records = [];
-        saveAndRender();
-    }
-}
-
-function saveAndRender() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-    render();
-}
-
-/* =========================================================
-   RENDERIZAR LISTA
-========================================================= */
-function render() {
-    const container = document.getElementById("records");
-    const counter = document.getElementById("counter");
-
-    counter.textContent = `${records.length} registro(s)`;
-
-    if (records.length === 0) {
-        container.innerHTML = `<div class="empty">Nenhuma revelia registrada no momento.</div>`;
-        return;
-    }
-
-    const badgeClasses = {
-        "moto": "badge-moto",
-        "carro": "badge-carro",
-        "caminhao": "badge-caminhao",
-        "onibus": "badge-onibus"
-    };
-
-    const typeNames = {
-        "moto": "Moto",
-        "carro": "Carro",
-        "caminhao": "Caminhão",
-        "onibus": "Ônibus"
-    };
-
-    container.innerHTML = records.map(r => `
-        <div class="record type-${r.type} ${r.completed ? 'completed' : ''}">
-            <div class="record-top">
-                <input 
-                    type="checkbox" 
-                    class="record-check" 
-                    ${r.completed ? 'checked' : ''} 
-                    onclick="toggleComplete(${r.id})"
-                >
-                <div class="record-info">
-                    <div class="record-header-line">
-                        <div class="record-main">${r.vehicle} (${r.color})</div>
-                        <span class="record-badge ${badgeClasses[r.type]}">${typeNames[r.type]}</span>
-                    </div>
-                    <div class="record-details">
-                        <strong>PLACA:</strong> ${r.plate}<br>
-                        <strong>LOCAL:</strong> ${r.location}<br>
-                        <strong>ARTIGO:</strong> ${r.article}
-                    </div>
-                    <div class="record-time">Registrado em: ${r.time}</div>
-                    <button class="delete-button" onclick="deleteRecord(${r.id})">EXCLUIR</button>
-                </div>
-            </div>
-        </div>
-    `).join("");
-}
-
-// Inicializar na abertura
-render();
-</script>
-
-</body>
-</html>
+        records
