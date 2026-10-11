@@ -65,238 +65,165 @@ header p{
     padding:20px 14px 40px;
 }
 
-/* PERGUNTA */
+/* FORMULÁRIO DE CADASTRO */
 
-.question-box{
-    text-align:center;
-    margin-top:10px;
-}
-
-.question-label{
-    font-size:12px;
-    color:#aaa;
-    text-transform:uppercase;
-    letter-spacing:1px;
-}
-
-.question{
-    margin-top:7px;
-    font-size:27px;
-    font-weight:900;
-    color:#fff;
-}
-
-/* BOTÃO DE FALAR */
-
-.speak-area{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    margin:30px 0 18px;
-}
-
-.speak-button{
-    width:145px;
-    height:145px;
-    border-radius:50%;
-    border:5px solid #f5c400;
-    background:#171717;
-    box-shadow:
-        0 0 0 7px rgba(245,196,0,.08),
-        0 8px 25px rgba(0,0,0,.6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#f5c400;
-    font-size:20px;
-    font-weight:900;
-    user-select:none;
-    touch-action:none;
-    cursor:pointer;
-    transition:.15s;
-}
-
-.speak-button:active,
-.speak-button.recording{
-    transform:scale(.94);
-    background:#f5c400;
-    color:#111;
-    box-shadow:
-        0 0 0 12px rgba(245,196,0,.15),
-        0 0 35px rgba(245,196,0,.35);
-}
-
-.speak-text{
-    margin-top:10px;
-    color:#aaa;
-    font-size:13px;
-    text-transform:lowercase;
-}
-
-.status{
-    min-height:22px;
-    text-align:center;
-    font-size:13px;
-    color:#f5c400;
-    font-weight:bold;
-    margin-top:5px;
-}
-
-/* TRANSCRIÇÃO */
-
-.transcription{
-    display:none;
-    background:#181818;
-    border:1px solid #333;
-    border-radius:12px;
-    padding:13px;
-    margin-top:15px;
-}
-
-.transcription-title{
-    font-size:10px;
-    color:#888;
-    text-transform:uppercase;
-    margin-bottom:5px;
-}
-
-.transcription-text{
-    font-size:15px;
-    line-height:1.4;
-    color:#fff;
-}
-
-/* CONFIRMAÇÃO DA RESPOSTA */
-
-.answer-box{
-    display:none;
-    margin-top:18px;
+.form-box{
     background:#171717;
     border:1px solid #3b3b3b;
     border-radius:14px;
-    padding:15px;
+    padding:18px;
+    margin-bottom:25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
-.answer-title{
-    font-size:11px;
+.form-title{
+    font-size:14px;
     color:#f5c400;
-    font-weight:bold;
+    font-weight:900;
     text-transform:uppercase;
-    margin-bottom:9px;
+    margin-bottom:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.answer-input{
+.detected-type-badge{
+    font-size:11px;
+    padding:4px 8px;
+    border-radius:6px;
+    text-transform:uppercase;
+    font-weight:bold;
+    background:#2b2b2b;
+    color:#aaa;
+}
+
+.field{
+    margin-bottom:12px;
+}
+
+.field label{
+    display:block;
+    color:#aaa;
+    font-size:11px;
+    text-transform:uppercase;
+    margin-bottom:5px;
+    font-weight:bold;
+}
+
+.field input, .field select{
     width:100%;
     background:#0d0d0d;
     border:1px solid #444;
     border-radius:9px;
     color:#fff;
-    padding:13px;
-    font-size:17px;
-    outline:none;
-}
-
-.answer-input:focus{
-    border-color:#f5c400;
-}
-
-.answer-actions{
-    display:flex;
-    gap:8px;
-    margin-top:10px;
-}
-
-.btn{
-    flex:1;
-    border:0;
-    border-radius:9px;
     padding:12px;
-    font-weight:900;
-    cursor:pointer;
-    font-size:13px;
-}
-
-.btn-confirm{
-    background:#f5c400;
-    color:#111;
-}
-
-.btn-repeat{
-    background:#2b2b2b;
-    color:#fff;
-}
-
-/* CONFERÊNCIA FINAL */
-
-.final-box{
-    display:none;
-    margin-top:22px;
-}
-
-.final-title{
-    color:#f5c400;
-    font-size:18px;
-    font-weight:900;
-    text-align:center;
-    margin-bottom:14px;
-}
-
-.field{
-    margin-bottom:10px;
-}
-
-.field label{
-    display:block;
-    color:#999;
-    font-size:10px;
-    text-transform:uppercase;
-    margin-bottom:4px;
-}
-
-.field input{
-    width:100%;
-    background:#161616;
-    border:1px solid #444;
-    border-radius:8px;
-    padding:12px;
-    color:#fff;
     font-size:15px;
     outline:none;
+    transition: border-color 0.2s;
 }
 
-.field input:focus{
+.field input:focus, .field select:focus{
     border-color:#f5c400;
+}
+
+.row{
+    display:flex;
+    gap:10px;
+}
+
+.row .field{
+    flex:1;
+}
+
+.plate-wrapper {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-lookup {
+    background: #2b2b2b;
+    color: #f5c400;
+    border: 1px solid #444;
+    border-radius: 9px;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-lookup:hover {
+    background: #383838;
 }
 
 .save-button{
     width:100%;
-    margin-top:8px;
-    padding:15px;
+    margin-top:10px;
+    padding:14px;
     border:0;
     border-radius:10px;
     background:#f5c400;
     color:#111;
     font-weight:900;
-    font-size:16px;
+    font-size:15px;
     cursor:pointer;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    transition: transform 0.1s, background-color 0.2s;
 }
 
-.cancel-button{
-    width:100%;
-    margin-top:8px;
-    padding:12px;
-    border:1px solid #444;
-    border-radius:10px;
-    background:#181818;
-    color:#fff;
+.save-button:active{
+    transform:scale(0.98);
+    background:#e0b300;
+}
+
+/* LEGENDA DE CORES */
+
+.legend-toggle{
+    background:none;
+    border:none;
+    color:#f5c400;
+    font-size:12px;
     font-weight:bold;
     cursor:pointer;
+    padding:0;
+    margin-bottom:12px;
+    text-decoration:underline;
+    display:inline-block;
 }
 
-/* LISTA */
+.legend-box{
+    display:none;
+    background:#141414;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:20px;
+    font-size:12px;
+}
+
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+}
+
+.legend-item:last-child{
+    margin-bottom:0;
+}
+
+.legend-color{
+    width:14px;
+    height:14px;
+    border-radius:3px;
+    flex-shrink:0;
+}
+
+/* LISTA DE REGISTROS */
 
 .list-section{
-    margin-top:30px;
+    margin-top:10px;
 }
 
 .list-header{
@@ -320,33 +247,51 @@ header p{
 
 .clear-button{
     width:100%;
-    margin-bottom:12px;
+    margin-bottom:15px;
     padding:11px;
     background:#242424;
     color:#ff6666;
     border:1px solid #444;
     border-radius:9px;
     font-weight:bold;
+    cursor:pointer;
 }
+
+/* CARTS / REGISTROS COM CORES POR CATEGORIA */
 
 .record{
     background:#171717;
     border:1px solid #353535;
-    border-left:4px solid #f5c400;
+    border-left:6px solid #f5c400; /* Padrão */
     border-radius:11px;
-    padding:13px;
-    margin-bottom:10px;
+    padding:14px;
+    margin-bottom:12px;
+    position:relative;
+}
+
+/* Cores por Categoria de Veículo */
+.record.type-moto {
+    border-left-color: #ffd700; /* Amarelo - Moto */
+}
+.record.type-carro {
+    border-left-color: #2196f3; /* Azul - Carro */
+}
+.record.type-caminhao {
+    border-left-color: #ff9800; /* Laranja - Caminhão */
+}
+.record.type-onibus {
+    border-left-color: #9c27b0; /* Roxo - Ônibus */
 }
 
 .record.completed{
-    opacity:.55;
-    border-left-color:#4caf50;
+    opacity:.5;
+    text-decoration:line-through;
 }
 
 .record-top{
     display:flex;
     align-items:flex-start;
-    gap:10px;
+    gap:12px;
 }
 
 .record-check{
@@ -355,6 +300,7 @@ header p{
     flex:none;
     accent-color:#f5c400;
     margin-top:2px;
+    cursor:pointer;
 }
 
 .record-info{
@@ -362,22 +308,43 @@ header p{
     min-width:0;
 }
 
+.record-header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
 .record-main{
     font-weight:900;
     font-size:16px;
+    color:#fff;
 }
 
+.record-badge {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.badge-moto { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+.badge-carro { background: rgba(33, 150, 243, 0.2); color: #2196f3; }
+.badge-caminhao { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
+.badge-onibus { background: rgba(156, 39, 176, 0.2); color: #9c27b0; }
+
 .record-details{
-    margin-top:5px;
-    color:#bbb;
-    font-size:12px;
-    line-height:1.55;
+    margin-top:6px;
+    color:#ccc;
+    font-size:13px;
+    line-height:1.5;
 }
 
 .record-time{
-    color:#f5c400;
+    color:#888;
     font-size:11px;
-    margin-top:6px;
+    margin-top:8px;
 }
 
 .delete-button{
@@ -385,27 +352,25 @@ header p{
     background:#292929;
     color:#ff6b6b;
     border-radius:7px;
-    padding:7px 9px;
+    padding:6px 10px;
     font-weight:bold;
+    font-size:12px;
+    cursor:pointer;
+    margin-top: 8px;
 }
 
 .empty{
     text-align:center;
-    padding:25px 10px;
+    padding:30px 10px;
     color:#666;
-    font-size:13px;
+    font-size:14px;
 }
 
 /* RESPONSIVO */
-
 @media(max-width:420px){
-    .question{
-        font-size:24px;
-    }
-
-    .speak-button{
-        width:130px;
-        height:130px;
+    .row {
+        flex-direction: column;
+        gap:0;
     }
 }
 </style>
@@ -420,1308 +385,343 @@ header p{
 
 <div class="container">
 
-    <div id="wizard">
-
-        <div class="question-box">
-            <div class="question-label">Informe</div>
-            <div class="question" id="questionText">Qual veículo?</div>
+    <!-- FORMULÁRIO DE ENTRADA MANUAL -->
+    <div class="form-box">
+        <div class="form-title">
+            <span>NOVO REGISTRO DE REVELIA</span>
+            <span class="detected-type-badge" id="typeBadge">Carro</span>
         </div>
 
-        <div class="speak-area">
+        <div class="field">
+            <label>Marca / Modelo</label>
+            <input type="text" id="inputVehicle" placeholder="Ex: Honda Titan, VW Gol, Scania" oninput="detectVehicleType()">
+        </div>
 
-            <div
-                class="speak-button"
-                id="speakButton"
-                role="button"
-                aria-label="Segure para falar"
-            >
-                falar
+        <div class="row">
+            <div class="field">
+                <label>Placa</label>
+                <div class="plate-wrapper">
+                    <input type="text" id="inputPlate" placeholder="ABC1D23" style="text-transform:uppercase;">
+                    <button class="btn-lookup" id="btnLookup" onclick="lookupPlate()">BUSCAR</button>
+                </div>
             </div>
-
-            <div class="speak-text">segure para falar</div>
-
-            <div class="status" id="status"></div>
-
-        </div>
-
-        <div class="transcription" id="transcription">
-            <div class="transcription-title">Você disse</div>
-            <div class="transcription-text" id="transcriptionText"></div>
-        </div>
-
-        <div class="answer-box" id="answerBox">
-
-            <div class="answer-title">
-                Confira a resposta
+            <div class="field">
+                <label>Cor</label>
+                <input type="text" id="inputColor" placeholder="Ex: Preta">
             </div>
-
-            <input
-                type="text"
-                id="answerInput"
-                class="answer-input"
-                autocomplete="off"
-            >
-
-            <div class="answer-actions">
-                <button class="btn btn-repeat" id="repeatButton">
-                    REPETIR
-                </button>
-
-                <button class="btn btn-confirm" id="answerConfirmButton">
-                    CONFIRMAR
-                </button>
-            </div>
-
         </div>
 
+        <div class="row">
+            <div class="field">
+                <label>SP (Rodovia)</label>
+                <input type="text" id="inputSP" placeholder="Ex: SP 330">
+            </div>
+            <div class="field">
+                <label>KM</label>
+                <input type="text" id="inputKM" placeholder="Ex: 142">
+            </div>
+            <div class="field">
+                <label>Sentido</label>
+                <select id="inputSense">
+                    <option value="Norte">Norte (N)</option>
+                    <option value="Sul">Sul (S)</option>
+                    <option value="Leste">Leste (L)</option>
+                    <option value="Oeste">Oeste (O)</option>
+                    <option value="Interior">Interior</option>
+                    <option value="Capital">Capital</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Artigo (Infração)</label>
+            <input type="text" id="inputArticle" placeholder="Ex: Art. 230 V">
+        </div>
+
+        <button class="save-button" onclick="saveRecord()">ADICIONAR REVELIA</button>
     </div>
 
-    <!-- CONFERÊNCIA FINAL -->
-
-    <div class="final-box" id="finalBox">
-
-        <div class="final-title">
-            CONFERÊNCIA DA REVELIA
+    <!-- LEGENDA DE CORES -->
+    <button class="legend-toggle" onclick="toggleLegend()"> Ver Legenda de Cores por Veículo</button>
+    
+    <div class="legend-box" id="legendBox">
+        <div class="legend-item">
+            <div class="legend-color" style="background:#ffd700;"></div>
+            <span><strong>Amarelo:</strong> Motocicleta / Moto / Ciclomotor</span>
         </div>
-
-        <div class="field">
-            <label>Veículo</label>
-            <input id="finalVehicle">
+        <div class="legend-item">
+            <div class="legend-color" style="background:#2196f3;"></div>
+            <span><strong>Azul:</strong> Carro / Automóvel / Camioneta</span>
         </div>
-
-        <div class="field">
-            <label>Placa</label>
-            <input id="finalPlate">
+        <div class="legend-item">
+            <div class="legend-color" style="background:#ff9800;"></div>
+            <span><strong>Laranja:</strong> Caminhão / Carreta / Veículo Pesado</span>
         </div>
-
-        <div class="field">
-            <label>Cor</label>
-            <input id="finalColor">
+        <div class="legend-item">
+            <div class="legend-color" style="background:#9c27b0;"></div>
+            <span><strong>Roxo:</strong> Ônibus / Micro-ônibus</span>
         </div>
-
-        <div class="field">
-            <label>Local</label>
-            <input id="finalLocation">
-        </div>
-
-        <div class="field">
-            <label>Artigo</label>
-            <input id="finalArticle">
-        </div>
-
-        <button class="save-button" id="saveButton">
-            CONFIRMAR E ADICIONAR
-        </button>
-
-        <button class="cancel-button" id="cancelFinalButton">
-            CANCELAR
-        </button>
-
     </div>
 
-    <!-- LISTA -->
-
+    <!-- LISTA DE REGISTROS -->
     <div class="list-section">
-
         <div class="list-header">
             <div class="list-title">REVELIAS REGISTRADAS</div>
             <div class="counter" id="counter">0 registros</div>
         </div>
 
-        <button class="clear-button" id="clearButton">
-            APAGAR TODOS OS REGISTROS
-        </button>
+        <button class="clear-button" onclick="clearAllRecords()">APAGAR TODOS OS REGISTROS</button>
 
         <div id="records"></div>
-
     </div>
 
 </div>
 
 <script>
 /* =========================================================
-   CONFIGURAÇÃO
+   CONFIGURAÇÃO E ESTADO LOCAL
 ========================================================= */
-
-const STORAGE_KEY = "revelia_ocorrencias";
-
-const steps = [
-    {
-        key: "vehicle",
-        question: "Qual veículo?"
-    },
-    {
-        key: "plate",
-        question: "Qual placa?"
-    },
-    {
-        key: "color",
-        question: "Qual cor?"
-    },
-    {
-        key: "location",
-        question: "Qual local?"
-    },
-    {
-        key: "article",
-        question: "Qual artigo?"
-    }
-];
-
-let currentStep = 0;
-
-let currentData = {
-    vehicle: "",
-    plate: "",
-    color: "",
-    location: "",
-    article: ""
-};
-
-let recognition = null;
-let isRecording = false;
-let finalTranscript = "";
+const STORAGE_KEY = "revelia_ocorrencias_v2";
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
 /* =========================================================
-   ELEMENTOS
+   DETECÇÃO AUTOMÁTICA DO TIPO DE VEÍCULO POR PALAVRAS-CHAVE
 ========================================================= */
-
-const questionText = document.getElementById("questionText");
-const speakButton = document.getElementById("speakButton");
-const statusEl = document.getElementById("status");
-
-const transcription = document.getElementById("transcription");
-const transcriptionText = document.getElementById("transcriptionText");
-
-const answerBox = document.getElementById("answerBox");
-const answerInput = document.getElementById("answerInput");
-
-const repeatButton = document.getElementById("repeatButton");
-const answerConfirmButton = document.getElementById("answerConfirmButton");
-
-const wizard = document.getElementById("wizard");
-const finalBox = document.getElementById("finalBox");
-
-const finalVehicle = document.getElementById("finalVehicle");
-const finalPlate = document.getElementById("finalPlate");
-const finalColor = document.getElementById("finalColor");
-const finalLocation = document.getElementById("finalLocation");
-const finalArticle = document.getElementById("finalArticle");
-
-const saveButton = document.getElementById("saveButton");
-const cancelFinalButton = document.getElementById("cancelFinalButton");
-
-const recordsContainer = document.getElementById("records");
-const counter = document.getElementById("counter");
-const clearButton = document.getElementById("clearButton");
-
-/* =========================================================
-   SPEECH RECOGNITION
-========================================================= */
-
-const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-if (SpeechRecognition) {
-
-    recognition = new SpeechRecognition();
-
-    recognition.lang = "pt-BR";
-
-    recognition.continuous = false;
-
-    recognition.interimResults = true;
-
-    recognition.maxAlternatives = 5;
-
-    recognition.onstart = function(){
-
-        isRecording = true;
-
-        speakButton.classList.add("recording");
-
-        statusEl.textContent = "ouvindo...";
-
-        finalTranscript = "";
-    };
-
-    recognition.onresult = function(event){
-
-        let interim = "";
-        let finalText = "";
-
-        for(let i = event.resultIndex; i < event.results.length; i++){
-
-            const text = event.results[i][0].transcript;
-
-            if(event.results[i].isFinal){
-                finalText += text;
-            }else{
-                interim += text;
-            }
-        }
-
-        if(finalText){
-            finalTranscript += " " + finalText;
-        }
-
-        const display =
-            (finalTranscript + " " + interim).trim();
-
-        transcriptionText.textContent = display;
-
-        transcription.style.display = display
-            ? "block"
-            : "none";
-    };
-
-    recognition.onerror = function(event){
-
-        stopRecording();
-
-        let message = "Não foi possível reconhecer.";
-
-        if(event.error === "not-allowed"){
-            message = "Permissão do microfone negada.";
-        }
-
-        if(event.error === "no-speech"){
-            message = "Não ouvi sua resposta. Tente novamente.";
-        }
-
-        if(event.error === "network"){
-            message = "Erro de conexão do reconhecimento.";
-        }
-
-        statusEl.textContent = message;
-    };
-
-    recognition.onend = function(){
-
-        stopRecording();
-
-        if(finalTranscript.trim()){
-
-            processAnswer(finalTranscript.trim());
-
-        }else{
-
-            statusEl.textContent =
-                "Nenhuma resposta reconhecida.";
-        }
-    };
-
-}else{
-
-    speakButton.style.opacity = ".45";
-    speakButton.style.pointerEvents = "none";
-
-    statusEl.textContent =
-        "Reconhecimento de voz não disponível neste navegador.";
-}
-
-/* =========================================================
-   INICIAR / PARAR GRAVAÇÃO
-========================================================= */
-
-function startRecording(){
-
-    if(!recognition){
-        return;
-    }
-
-    if(isRecording){
-        return;
-    }
-
-    finalTranscript = "";
-
-    transcriptionText.textContent = "";
-
-    transcription.style.display = "none";
-
-    answerBox.style.display = "none";
-
-    statusEl.textContent = "preparando...";
-
-    try{
-        recognition.start();
-    }catch(error){
-        console.log(error);
-    }
-}
-
-function stopRecording(){
-
-    isRecording = false;
-
-    speakButton.classList.remove("recording");
-
-    if(!recognition){
-        return;
-    }
-
-    try{
-        recognition.stop();
-    }catch(error){}
-}
-
-/* =========================================================
-   PRESSÃO E SEGURA
-========================================================= */
-
-speakButton.addEventListener("pointerdown", function(event){
-
-    event.preventDefault();
-
-    speakButton.setPointerCapture?.(event.pointerId);
-
-    startRecording();
-
-});
-
-speakButton.addEventListener("pointerup", function(event){
-
-    event.preventDefault();
-
-    if(isRecording){
-        stopRecording();
-    }
-
-});
-
-speakButton.addEventListener("pointercancel", function(){
-
-    if(isRecording){
-        stopRecording();
-    }
-
-});
-
-speakButton.addEventListener("pointerleave", function(event){
-
-    /*
-      Não encerra ao sair do círculo.
-      Isso permite que o usuário segure e mova
-      ligeiramente o dedo sem interromper.
-    */
-
-});
-
-/* =========================================================
-   PROCESSAMENTO INDIVIDUAL
-========================================================= */
-
-function processAnswer(text){
-
-    const clean = text.trim();
-
-    if(!clean){
-
-        statusEl.textContent =
-            "Não consegui entender. Tente novamente.";
-
-        return;
-    }
-
-    let processed = clean;
-
-    const key = steps[currentStep].key;
-
-    if(key === "plate"){
-        processed = normalizePlate(clean);
-    }
-
-    if(key === "location"){
-        processed = normalizeLocation(clean);
-    }
-
-    if(key === "article"){
-        processed = normalizeArticle(clean);
-    }
-
-    if(key === "color"){
-        processed = normalizeColor(clean);
-    }
-
-    transcriptionText.textContent = clean;
-
-    answerInput.value = processed;
-
-    answerBox.style.display = "block";
-
-    statusEl.textContent = "Confira a resposta.";
-
-    setTimeout(() => {
-
-        answerInput.focus();
-
-        answerInput.select();
-
-    },100);
-
-}
-
-/* =========================================================
-   NORMALIZAÇÃO DA PLACA
-========================================================= */
-
-function normalizePlate(text){
-
-    let s = text
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"");
-
-    s = s
-        .replace(/\bPLACA\b/g," ")
-        .replace(/\bE\b/g," ")
-        .replace(/-/g," ")
-        .replace(/\s+/g," ")
-        .trim();
-
-    /*
-      Converte números falados.
-    */
-
-    const numberWords = {
-        "ZERO":"0",
-        "UM":"1",
-        "UMA":"1",
-        "DOIS":"2",
-        "DUAS":"2",
-        "TRES":"3",
-        "QUATRO":"4",
-        "CINCO":"5",
-        "SEIS":"6",
-        "SETE":"7",
-        "OITO":"8",
-        "NOVE":"9"
-    };
-
-    const words = s.split(" ");
-
-    const converted = words.map(word => {
-
-        if(numberWords[word]){
-            return numberWords[word];
-        }
-
-        return word;
-    });
-
-    s = converted.join("");
-
-    /*
-      Remove tudo que não seja letra ou número.
-    */
-
-    s = s.replace(/[^A-Z0-9]/g,"");
-
-    return s;
-}
-
-/* =========================================================
-   NÚMEROS POR EXTENSO
-========================================================= */
-
-function numberToDigits(text){
-
-    let s = text
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"");
-
-    const units = {
-        "ZERO":0,
-        "UM":1,
-        "UMA":1,
-        "DOIS":2,
-        "DUAS":2,
-        "TRES":3,
-        "QUATRO":4,
-        "CINCO":5,
-        "SEIS":6,
-        "SETE":7,
-        "OITO":8,
-        "NOVE":9,
-        "DEZ":10,
-        "ONZE":11,
-        "DOZE":12,
-        "TREZE":13,
-        "QUATORZE":14,
-        "CATORZE":14,
-        "QUINZE":15,
-        "DEZESSEIS":16,
-        "DEZESSETE":17,
-        "DEZOITO":18,
-        "DEZENOVE":19,
-        "VINTE":20,
-        "TRINTA":30,
-        "QUARENTA":40,
-        "CINQUENTA":50,
-        "SESSENTA":60,
-        "SETENTA":70,
-        "OITENTA":80,
-        "NOVENTA":90,
-        "CEM":100,
-        "CENTO":100,
-        "DUZENTOS":200,
-        "DUZENTAS":200,
-        "TREZENTOS":300,
-        "TREZENTAS":300,
-        "QUATROCENTOS":400,
-        "QUATROCENTAS":400,
-        "QUINHENTOS":500,
-        "QUINHENTAS":500,
-        "SEISCENTOS":600,
-        "SEISCENTAS":600,
-        "SETECENTOS":700,
-        "SETECENTAS":700,
-        "OITOCENTOS":800,
-        "OITOCENTAS":800,
-        "NOVECENTOS":900
-    };
-
-    /*
-      Primeiro trata expressões simples:
-      trezentos e trinta -> 330
-      cento e cinquenta -> 150
-    */
-
-    const tokens = s
-        .replace(/,/g," ")
-        .split(/\s+/)
-        .filter(Boolean);
-
-    let total = 0;
-    let current = 0;
-    let found = false;
-
-    for(const token of tokens){
-
-        if(token === "E"){
-            continue;
-        }
-
-        if(units[token] !== undefined){
-
-            current += units[token];
-
-            found = true;
-
-        }else if(/^\d+$/.test(token)){
-
-            current += Number(token);
-
-            found = true;
-        }
-    }
-
-    if(found){
-        total += current;
-        return String(total);
-    }
-
-    return s;
-}
-
-/* =========================================================
-   NORMALIZAÇÃO DO LOCAL
-========================================================= */
-
-function normalizeLocation(text){
-
-    let s = text
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"")
-        .trim();
-
-    /*
-      Reconhece variações de "sentido".
-    */
-
-    s = s.replace(/\bSENTIDO\b/g,"");
-
-    s = s.replace(/\bNORTE\b/g,"N");
-    s = s.replace(/\bSUL\b/g,"S");
-    s = s.replace(/\bLESTE\b/g,"L");
-    s = s.replace(/\bOESTE\b/g,"O");
-
-    /*
-      Reconhece "SP 330".
-    */
-
-    const spMatch = s.match(
-        /\bSP[\s-]*(\d{1,4})\b/i
-    );
-
-    let road = "";
-
-    if(spMatch){
-
-        road = "SP " + spMatch[1];
-
-    }else{
-
-        /*
-          Pode aparecer como:
-          "SP trezentos e trinta"
-        */
-
-        const spWords = s.match(
-            /\bSP\b(.{0,60}?)(?:KM|QUILOMETRO|QUILOMETRO|SENTIDO|NORTE|SUL|LESTE|OESTE|$)/i
-        );
-
-        if(spWords){
-
-            const digits = numberToDigits(spWords[1]);
-
-            if(/^\d+$/.test(digits)){
-                road = "SP " + digits;
-            }
-        }
-    }
-
-    /*
-      Quilometragem.
-    */
-
-    let km = "";
-
-    const kmMatch = s.match(
-        /\bKM\s*([0-9]+(?:[.,][0-9]+)?)\b/i
-    );
-
-    if(kmMatch){
-
-        km = kmMatch[1].replace(",",".");
-    }
-
-    /*
-      Caso tenha sido falado "quilômetro".
-    */
-
-    if(!km){
-
-        const kmWords = s.match(
-            /\bQUILOMETRO[S]?\b(.{0,80})/i
-        );
-
-        if(kmWords){
-
-            let part = kmWords[1];
-
-            part = part
-                .split(/\bSENTIDO\b/i)[0]
-                .split(/\bNORTE\b/i)[0]
-                .split(/\bSUL\b/i)[0]
-                .split(/\bLESTE\b/i)[0]
-                .split(/\bOESTE\b/i)[0];
-
-            const commaMatch = part.match(
-                /(\d+)\s*(?:VIRGULA|PONTO)\s*(\d+)/i
-            );
-
-            if(commaMatch){
-
-                km =
-                    commaMatch[1] +
-                    "." +
-                    commaMatch[2];
-
-            }else{
-
-                const digits = numberToDigits(part);
-
-                if(/^\d+$/.test(digits)){
-                    km = digits;
-                }
-            }
-        }
-    }
-
-    /*
-      Sentido.
-    */
-
-    let direction = "";
-
-    if(/\bNORTE\b|\bN\b/.test(s)){
-        direction = "N";
-    }
-
-    if(/\bSUL\b|\bS\b/.test(s)){
-        direction = "S";
-    }
-
-    if(/\bLESTE\b|\bL\b/.test(s)){
-        direction = "L";
-    }
-
-    if(/\bOESTE\b|\bO\b/.test(s)){
-        direction = "O";
-    }
-
-    /*
-      Formata a quilometragem.
-    */
-
-    if(km){
-
-        km = km.replace(",", ".");
-
-        const parts = km.split(".");
-
-        if(parts.length === 2){
-
-            const decimal =
-                parts[1].padEnd(3,"0").slice(0,3);
-
-            km =
-                parts[0] +
-                "," +
-                decimal;
-        }
-    }
-
-    let result = "";
-
-    if(road){
-        result += road;
-    }
-
-    if(km){
-        result += (result ? " " : "") + "KM " + km;
-    }
-
-    if(direction){
-        result += (result ? " " : "") + direction;
-    }
-
-    /*
-      Se não conseguiu estruturar,
-      mantém o texto original para edição.
-    */
-
-    if(!result){
-
-        result = text
-            .replace(/\s+/g," ")
-            .trim();
-    }
-
-    return result;
-}
-
-/* =========================================================
-   NORMALIZAÇÃO DA COR
-========================================================= */
-
-function normalizeColor(text){
-
-    let s = text
-        .trim()
-        .toLowerCase();
-
-    const colors = [
-        "preto",
-        "preta",
-        "branco",
-        "branca",
-        "prata",
-        "cinza",
-        "vermelho",
-        "vermelha",
-        "azul",
-        "verde",
-        "amarelo",
-        "amarela",
-        "marrom",
-        "bege",
-        "dourado",
-        "dourada",
-        "rosa",
-        "roxo",
-        "roxa",
-        "laranja"
+function getVehicleType(text) {
+    if (!text) return "carro";
+    
+    const str = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Palavras-chave de Moto
+    const motoKeywords = [
+        "moto", "honda", "yamaha", "titan", "fan", "fazer", "biz", "cg", "cb", "twister", 
+        "pcx", "xj6", "hornet", "bmw gs", "pop", "bros", "crosser", "ybr", "factor", 
+        "scooter", "ciclomotor", "suzuki", "kawasaki", "ducati", "triumph", "royal enfield"
     ];
 
-    for(const color of colors){
+    // Palavras-chave de Caminhão / Pesado
+    const caminhaoKeywords = [
+        "caminhao", "scania", "volvo", "iveco", "daf", "mercedes axor", "actros", 
+        "constrained", "carreta", "cavalo", "caçamba", "cacamba", "baú", "bau", 
+        "vw constellation", "cargo", "f4000", "3/4", "mule", "volksbus"
+    ];
 
-        if(s.includes(color)){
-            return color;
+    // Palavras-chave de Ônibus
+    const onibusKeywords = [
+        "onibus", "micro-onibus", "microonibus", "marcopolo", "comil", "busscar", "caio", "van"
+    ];
+
+    for (let word of motoKeywords) {
+        if (str.includes(word)) return "moto";
+    }
+    for (let word of caminhaoKeywords) {
+        if (str.includes(word)) return "caminhao";
+    }
+    for (let word of onibusKeywords) {
+        if (str.includes(word)) return "onibus";
+    }
+
+    return "carro"; // Padrão
+}
+
+function detectVehicleType() {
+    const value = document.getElementById("inputVehicle").value;
+    const type = getVehicleType(value);
+    const badge = document.getElementById("typeBadge");
+
+    const labels = {
+        "moto": "🛵 Moto",
+        "carro": "🚗 Carro",
+        "caminhao": "🚛 Caminhão",
+        "onibus": "🚌 Ônibus"
+    };
+
+    badge.textContent = labels[type] || "Carro";
+}
+
+/* =========================================================
+   BUSCA PÚBLICA DE PLACA (API GRATUITA EXEMPLO)
+========================================================= */
+async function lookupPlate() {
+    const plateInput = document.getElementById("inputPlate");
+    let plate = plateInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+    if (plate.length < 7) {
+        alert("Digite uma placa válida com 7 caracteres.");
+        return;
+    }
+
+    const btn = document.getElementById("btnLookup");
+    btn.textContent = "BUSCANDO...";
+    btn.disabled = true;
+
+    try {
+        // Tenta consulta via API pública gratuita
+        const res = await fetch(`https://wdapi2.com.br/consulta/${plate}/c8c7fdf3176d5475aa8823565e3ef744`);
+        
+        if (res.ok) {
+            const data = await res.json();
+            if (data.marca || data.modelo) {
+                document.getElementById("inputVehicle").value = `${data.marca || ''} ${data.modelo || ''}`.trim();
+            }
+            if (data.cor) {
+                document.getElementById("inputColor").value = data.cor;
+            }
+            detectVehicleType();
+        } else {
+            alert("Não foi possível localizar dados automáticos para esta placa. Preencha manualmente.");
         }
+    } catch (e) {
+        alert("A consulta de placa não respondeu. Preencha os campos manualmente.");
+    } finally {
+        btn.textContent = "BUSCAR";
+        btn.disabled = false;
     }
-
-    return text.trim();
 }
 
 /* =========================================================
-   NORMALIZAÇÃO DO ARTIGO
+   LEGENDA TOGGLE
 ========================================================= */
-
-function normalizeArticle(text){
-
-    let s = text
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"")
-        .trim();
-
-    s = s
-        .replace(/\bARTIGO\b/g,"")
-        .replace(/\bART\.?\b/g,"")
-        .trim();
-
-    /*
-      Mantém o número informado.
-    */
-
-    const numeric = s.match(/\d+(?:\s*[-/]\s*\d+)?/);
-
-    if(numeric){
-
-        return numeric[0]
-            .replace(/\s+/g,"");
-    }
-
-    /*
-      Caso o número venha por extenso.
-    */
-
-    const converted = numberToDigits(s);
-
-    return converted || text.trim();
+function toggleLegend() {
+    const box = document.getElementById("legendBox");
+    box.style.display = (box.style.display === "block") ? "none" : "block";
 }
 
 /* =========================================================
-   CONFIRMAR RESPOSTA INDIVIDUAL
+   SALVAR NOVO REGISTRO
 ========================================================= */
+function saveRecord() {
+    const vehicle = document.getElementById("inputVehicle").value.trim();
+    const plate = document.getElementById("inputPlate").value.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
+    const color = document.getElementById("inputColor").value.trim();
+    const sp = document.getElementById("inputSP").value.trim();
+    const km = document.getElementById("inputKM").value.trim();
+    const sense = document.getElementById("inputSense").value;
+    const article = document.getElementById("inputArticle").value.trim();
 
-answerConfirmButton.addEventListener("click", function(){
-
-    let value = answerInput.value.trim();
-
-    if(!value){
-
-        answerInput.focus();
-
+    if (!vehicle && !plate) {
+        alert("Preencha ao menos o Veículo ou a Placa.");
         return;
     }
 
-    const key = steps[currentStep].key;
+    const type = getVehicleType(vehicle);
 
-    currentData[key] = value;
+    // Formata o local
+    let locationStr = "";
+    if (sp) locationStr += sp + " ";
+    if (km) locationStr += "KM " + km + " ";
+    if (sense) locationStr += "Sentido " + sense;
 
-    currentStep++;
-
-    answerBox.style.display = "none";
-
-    transcription.style.display = "none";
-
-    if(currentStep < steps.length){
-
-        showNextQuestion();
-
-    }else{
-
-        showFinalConfirmation();
-    }
-
-});
-
-/* =========================================================
-   REPETIR
-========================================================= */
-
-repeatButton.addEventListener("click", function(){
-
-    answerBox.style.display = "none";
-
-    transcription.style.display = "none";
-
-    statusEl.textContent = "";
-
-    setTimeout(() => {
-        startRecording();
-    },150);
-
-});
-
-/* =========================================================
-   PRÓXIMA PERGUNTA
-========================================================= */
-
-function showNextQuestion(){
-
-    questionText.textContent =
-        steps[currentStep].question;
-
-    statusEl.textContent = "";
-
-    transcriptionText.textContent = "";
-
-    setTimeout(() => {
-
-        window.scrollTo({
-            top:0,
-            behavior:"smooth"
-        });
-
-    },50);
-}
-
-/* =========================================================
-   CONFERÊNCIA FINAL
-========================================================= */
-
-function showFinalConfirmation(){
-
-    wizard.style.display = "none";
-
-    finalBox.style.display = "block";
-
-    finalVehicle.value = currentData.vehicle;
-    finalPlate.value = currentData.plate;
-    finalColor.value = currentData.color;
-    finalLocation.value = currentData.location;
-    finalArticle.value = currentData.article;
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
-}
-
-/* =========================================================
-   CANCELAR
-========================================================= */
-
-cancelFinalButton.addEventListener("click", function(){
-
-    resetWizard();
-
-});
-
-/* =========================================================
-   SALVAR
-========================================================= */
-
-saveButton.addEventListener("click", function(){
-
-    const vehicle = finalVehicle.value.trim();
-    const plate = finalPlate.value.trim();
-    const color = finalColor.value.trim();
-    const location = finalLocation.value.trim();
-    const article = finalArticle.value.trim();
-
-    const now = new Date();
-
-    const record = {
-
-        id:
-            Date.now().toString() +
-            Math.random().toString(16).slice(2),
-
-        vehicle,
-        plate,
-        color,
-        location,
-        article,
-
-        date:
-            now.toLocaleDateString("pt-BR"),
-
-        time:
-            now.toLocaleTimeString("pt-BR",{
-                hour:"2-digit",
-                minute:"2-digit"
-            }),
-
-        completed:false
+    const newRecord = {
+        id: Date.now(),
+        vehicle: vehicle || "Não informado",
+        plate: plate || "S/ PLACA",
+        color: color || "N/I",
+        location: locationStr.trim() || "Local não informado",
+        article: article || "N/I",
+        type: type,
+        completed: false,
+        time: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
     };
 
-    const records = getRecords();
+    records.unshift(newRecord);
+    saveAndRender();
 
-    records.unshift(record);
-
-    saveRecords(records);
-
-    resetWizard();
-
-    renderRecords();
-
-});
-
-/* =========================================================
-   RESET
-========================================================= */
-
-function resetWizard(){
-
-    currentStep = 0;
-
-    currentData = {
-        vehicle:"",
-        plate:"",
-        color:"",
-        location:"",
-        article:""
-    };
-
-    wizard.style.display = "block";
-
-    finalBox.style.display = "none";
-
-    answerBox.style.display = "none";
-
-    transcription.style.display = "none";
-
-    transcriptionText.textContent = "";
-
-    answerInput.value = "";
-
-    questionText.textContent =
-        steps[0].question;
-
-    statusEl.textContent = "";
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
+    // Limpar campos
+    document.getElementById("inputVehicle").value = "";
+    document.getElementById("inputPlate").value = "";
+    document.getElementById("inputColor").value = "";
+    document.getElementById("inputSP").value = "";
+    document.getElementById("inputKM").value = "";
+    document.getElementById("inputArticle").value = "";
+    detectVehicleType();
 }
 
 /* =========================================================
-   LOCAL STORAGE
+   GERENCIAR REGISTROS
 ========================================================= */
+function toggleComplete(id) {
+    records = records.map(r => r.id === id ? { ...r, completed: !r.completed } : r);
+    saveAndRender();
+}
 
-function getRecords(){
-
-    try{
-
-        return JSON.parse(
-            localStorage.getItem(STORAGE_KEY)
-        ) || [];
-
-    }catch(error){
-
-        return [];
+function deleteRecord(id) {
+    if (confirm("Deseja remover este registro?")) {
+        records = records.filter(r => r.id !== id);
+        saveAndRender();
     }
 }
 
-function saveRecords(records){
+function clearAllRecords() {
+    if (records.length === 0) return;
+    if (confirm("ATENÇÃO: Tem certeza que deseja apagar TODOS os registros?")) {
+        records = [];
+        saveAndRender();
+    }
+}
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(records)
-    );
+function saveAndRender() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    render();
 }
 
 /* =========================================================
-   ESCAPE HTML
+   RENDERIZAR LISTA
 ========================================================= */
+function render() {
+    const container = document.getElementById("records");
+    const counter = document.getElementById("counter");
 
-function escapeHTML(value){
+    counter.textContent = `${records.length} registro(s)`;
 
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
-
-/* =========================================================
-   RENDERIZAR REGISTROS
-========================================================= */
-
-function renderRecords(){
-
-    const records = getRecords();
-
-    counter.textContent =
-        records.length +
-        (records.length === 1
-            ? " registro"
-            : " registros");
-
-    recordsContainer.innerHTML = "";
-
-    if(!records.length){
-
-        recordsContainer.innerHTML =
-            '<div class="empty">Nenhuma revelia registrada.</div>';
-
+    if (records.length === 0) {
+        container.innerHTML = `<div class="empty">Nenhuma revelia registrada no momento.</div>`;
         return;
     }
 
-    records.forEach(record => {
+    const badgeClasses = {
+        "moto": "badge-moto",
+        "carro": "badge-carro",
+        "caminhao": "badge-caminhao",
+        "onibus": "badge-onibus"
+    };
 
-        const div = document.createElement("div");
+    const typeNames = {
+        "moto": "Moto",
+        "carro": "Carro",
+        "caminhao": "Caminhão",
+        "onibus": "Ônibus"
+    };
 
-        div.className =
-            "record" +
-            (record.completed ? " completed" : "");
-
-        div.innerHTML = `
+    container.innerHTML = records.map(r => `
+        <div class="record type-${r.type} ${r.completed ? 'completed' : ''}">
             <div class="record-top">
-
-                <input
-                    type="checkbox"
-                    class="record-check"
-                    ${record.completed ? "checked" : ""}
-                    data-id="${escapeHTML(record.id)}"
+                <input 
+                    type="checkbox" 
+                    class="record-check" 
+                    ${r.completed ? 'checked' : ''} 
+                    onclick="toggleComplete(${r.id})"
                 >
-
                 <div class="record-info">
-
-                    <div class="record-main">
-                        ${escapeHTML(record.plate)}
-                        — ${escapeHTML(record.vehicle)}
+                    <div class="record-header-line">
+                        <div class="record-main">${r.vehicle} (${r.color})</div>
+                        <span class="record-badge ${badgeClasses[r.type]}">${typeNames[r.type]}</span>
                     </div>
-
                     <div class="record-details">
-
-                        <strong>Cor:</strong>
-                        ${escapeHTML(record.color)}
-                        <br>
-
-                        <strong>Local:</strong>
-                        ${escapeHTML(record.location)}
-                        <br>
-
-                        <strong>Artigo:</strong>
-                        ${escapeHTML(record.article)}
-
+                        <strong>PLACA:</strong> ${r.plate}<br>
+                        <strong>LOCAL:</strong> ${r.location}<br>
+                        <strong>ARTIGO:</strong> ${r.article}
                     </div>
-
-                    <div class="record-time">
-                        ${escapeHTML(record.date)}
-                        — ${escapeHTML(record.time)}
-                    </div>
-
+                    <div class="record-time">Registrado em: ${r.time}</div>
+                    <button class="delete-button" onclick="deleteRecord(${r.id})">EXCLUIR</button>
                 </div>
-
-                <button
-                    class="delete-button"
-                    data-id="${escapeHTML(record.id)}"
-                    type="button"
-                >
-                    EXCLUIR
-                </button>
-
             </div>
-        `;
-
-        recordsContainer.appendChild(div);
-    });
-
-    /*
-      Checkbox
-    */
-
-    recordsContainer
-        .querySelectorAll(".record-check")
-        .forEach(check => {
-
-            check.addEventListener("change", function(){
-
-                toggleCompleted(this.dataset.id);
-
-            });
-
-        });
-
-    /*
-      Exclusão individual
-    */
-
-    recordsContainer
-        .querySelectorAll(".delete-button")
-        .forEach(button => {
-
-            button.addEventListener("click", function(){
-
-                deleteRecord(this.dataset.id);
-
-            });
-
-        });
+        </div>
+    `).join("");
 }
 
-/* =========================================================
-   CONCLUIR REGISTRO
-========================================================= */
-
-function toggleCompleted(id){
-
-    const records = getRecords();
-
-    const record = records.find(
-        item => item.id === id
-    );
-
-    if(record){
-
-        record.completed = !record.completed;
-
-        saveRecords(records);
-
-        renderRecords();
-    }
-}
-
-/* =========================================================
-   EXCLUIR REGISTRO
-========================================================= */
-
-function deleteRecord(id){
-
-    if(!confirm("Excluir esta revelia?")){
-        return;
-    }
-
-    const records = getRecords()
-        .filter(item => item.id !== id);
-
-    saveRecords(records);
-
-    renderRecords();
-}
-
-/* =========================================================
-   APAGAR TODOS
-========================================================= */
-
-clearButton.addEventListener("click", function(){
-
-    const records = getRecords();
-
-    if(!records.length){
-        return;
-    }
-
-    if(!confirm(
-        "Tem certeza que deseja apagar TODOS os registros?"
-    )){
-        return;
-    }
-
-    localStorage.removeItem(STORAGE_KEY);
-
-    renderRecords();
-});
-
-/* =========================================================
-   INICIALIZAÇÃO
-========================================================= */
-
-renderRecords();
-
+// Inicializar na abertura
+render();
 </script>
 
 </body>
