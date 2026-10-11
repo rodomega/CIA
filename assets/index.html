@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atividade da Polícia Militar Rodoviária</title>
+    <title>Mandar Atividade</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -187,20 +187,27 @@
         .action-buttons {
             margin-top: 30px;
             display: flex;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .btn-action {
-            padding: 15px 30px;
-            font-size: 1.1em;
+            padding: 15px 25px;
+            font-size: 1em;
             font-weight: bold;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, opacity 0.3s;
         }
 
         .btn-whatsapp {
+            background-color: #25d366;
+            color: #fff;
+        }
+
+        .btn-copy {
             background-color: #ffd700;
             color: #000;
         }
@@ -218,7 +225,7 @@
 </head>
 <body>
 
-    <h1>Atividade Polícia Militar Rodoviária</h1>
+    <h1>Mandar Atividade</h1>
 
     <div class="section">
         <div class="section-title">Informações do Pessoal</div>
@@ -242,6 +249,7 @@
 
     <div class="action-buttons">
         <button class="btn-action btn-whatsapp" id="btnWhatsapp">Enviar para WhatsApp</button>
+        <button class="btn-action btn-copy" id="btnCopy">Copiar Texto</button>
         <button class="btn-action btn-clear" id="btnClear">Apagar Dados</button>
     </div>
 
@@ -424,13 +432,13 @@
             localStorage.setItem('pmrAtividadeData', JSON.stringify(data));
         }
 
-        document.getElementById('btnWhatsapp').addEventListener('click', () => {
+        function generateFormattedText() {
             if (!data.personnel.enc || !data.personnel.mot) {
                 alert('Preencha pelo menos Encarregado e Motorista obrigatórios.');
-                return;
+                return null;
             }
 
-            let text = `*Atividade Polícia Militar Rodoviária - ${new Date().toLocaleDateString()}*\n`;
+            let text = `*Atividade Polícia Militar Rodoviária - ${new Date().toLocaleDateString('pt-BR')}*\n`;
             text += `*Encarregado:* ${data.personnel.enc}\n`;
             text += `*Motorista:* ${data.personnel.mot}\n`;
             if (data.personnel.aux) {
@@ -473,12 +481,50 @@
 
             if (!hasContent) {
                 alert('Nenhum campo de atividade preenchido.');
-                return;
+                return null;
             }
 
-            const url = `whatsapp://send?text=${encodeURIComponent(text)}`;
-            window.location.href = url;
+            return text;
+        }
+
+        document.getElementById('btnWhatsapp').addEventListener('click', () => {
+            const text = generateFormattedText();
+            if (text) {
+                const url = `whatsapp://send?text=${encodeURIComponent(text)}`;
+                window.location.href = url;
+            }
         });
+
+        document.getElementById('btnCopy').addEventListener('click', () => {
+            const text = generateFormattedText();
+            if (text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Texto copiado com sucesso!');
+                    }).catch(err => {
+                        fallbackCopyText(text);
+                    });
+                } else {
+                    fallbackCopyText(text);
+                }
+            }
+        });
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Texto copiado com sucesso!');
+            } catch (err) {
+                alert('Não foi possível copiar o texto automaticamente.');
+            }
+            document.body.removeChild(textArea);
+        }
 
         document.getElementById('btnClear').addEventListener('click', () => {
             if (confirm('Tem certeza de que deseja apagar todos os dados registrados?')) {
