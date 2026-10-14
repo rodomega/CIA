@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -111,6 +111,16 @@
             box-shadow: 0 0 10px var(--yellow);
         }
 
+        button.secondary {
+            background-color: #262626;
+            color: var(--yellow);
+            border: 1px solid var(--yellow);
+        }
+
+        button.secondary:hover {
+            background-color: #333333;
+        }
+
         textarea {
             width: 100%;
             height: 120px;
@@ -148,6 +158,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            gap: 10px;
         }
 
         .media-preview img {
@@ -169,25 +180,32 @@
 
         <!-- Seção de Conexão por Código -->
         <div class="section">
-            <label>Seu Código de Sincronização:</label>
-            <div id="myCode" class="code-display">GERANDO...</div>
+            <label>O seu Código de Sincronização:</label>
+            <div id="myCode" class="code-display">A GERAR...</div>
             
             <label style="margin-top: 15px;">Conectar a Outro Dispositivo:</label>
             <div class="flex-row">
                 <input type="text" id="targetCodeInput" placeholder="EX: A7F3" maxlength="6">
                 <button id="connectBtn" style="margin-top:0; width: 120px;">Conectar</button>
             </div>
-            <div id="connectionStatus" class="status">Aguardando autenticação...</div>
+            <div id="connectionStatus" class="status">A aguardar autenticação...</div>
         </div>
 
         <!-- Seção de Conteúdo (Área de Transferência) -->
         <div class="section" style="margin-bottom: 0;">
             <label>Área de Transferência Compartilhada:</label>
-            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Cole (Ctrl+V) textos, imagens ou GIFs aqui para sincronizar.</p>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Escreva, cole (Ctrl+V) ou escolha uma imagem/GIF local.</p>
+            
             <textarea id="clipText" placeholder="Digite ou cole textos aqui..."></textarea>
             
+            <div class="flex-row" style="margin-top: 8px;">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                <button type="button" class="secondary" id="selectFileBtn">📁 Escolher Ficheiro</button>
+                <button type="button" id="sendBtn">📤 Enviar para o Canal</button>
+            </div>
+            
             <div class="media-preview" id="mediaPreview">
-                <span style="color: var(--text-muted); font-size: 12px;">Nenhuma imagem/GIF recebida</span>
+                <span style="color: var(--text-muted); font-size: 12px;">Nenhuma imagem/GIF carregada</span>
             </div>
         </div>
     </div>
@@ -196,9 +214,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Configuração injetada diretamente do seu projeto Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC7u9yPMqkswESx3jJh4I4fCUS8tiu-MjM",
             authDomain: "rodoviariolimeira.firebaseapp.com",
@@ -214,8 +231,8 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let activeRoom = null;
-        let isUpdatingFromFirebase = false;
+        let myRoomCode = null;
+        let currentMediaBase64 = null;
 
         function generateRandomCode() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -226,74 +243,116 @@
             return code;
         }
 
+        // Autenticação anónima inicial
         signInAnonymously(auth)
             .then(() => {
-                const code = generateRandomCode();
-                activeRoom = code;
-                document.getElementById("myCode").innerText = code;
-                document.getElementById("connectionStatus").innerText = "Conectado. Canal ativo: " + code;
-                
-                listenToRoom(code);
+                myRoomCode = generateRandomCode();
+                document.getElementById("myCode").innerText = myRoomCode;
+                document.getElementById("connectionStatus").innerText = "Pronto. O seu canal ativo é: " + myRoomCode;
             })
             .catch((error) => {
                 console.error("Erro na autenticação:", error);
                 document.getElementById("connectionStatus").innerText = "Erro ao autenticar.";
             });
 
-        document.getElementById("connectBtn").addEventListener("click", () => {
-            const codeInput = document.getElementById("targetCodeInput").value.trim().toUpperCase();
-            if (codeInput.length < 4) {
-                alert("Digite um código válido de 4 caracteres.");
-                return;
+        // Botão para selecionar ficheiro local (Imagens/GIFs)
+        const fileInput = document.getElementById("fileInput");
+        document.getElementById("selectFileBtn").addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
             }
-            activeRoom = codeInput;
-            document.getElementById("connectionStatus").innerText = "Sincronizado com o canal: " + activeRoom;
-            listenToRoom(activeRoom);
         });
 
-        function listenToRoom(roomCode) {
-            const roomRef = ref(db, 'rooms/' + roomCode);
-            onValue(roomRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    isUpdatingFromFirebase = true;
-                    if (data.text !== undefined) {
-                        document.getElementById("clipText").value = data.text;
-                    }
-                    if (data.media) {
-                        const preview = document.getElementById("mediaPreview");
-                        preview.innerHTML = `<img src="${data.media}" alt="Mídia compartilhada">`;
-                    }
-                    setTimeout(() => { isUpdatingFromFirebase = false; }, 300);
-                }
-            });
-        }
-
+        // Suporte para colar imagens ou GIFs direto na textarea (Ctrl+V)
         const clipText = document.getElementById("clipText");
-
-        clipText.addEventListener("input", () => {
-            if (isUpdatingFromFirebase || !activeRoom) return;
-            const textValue = clipText.value;
-            set(ref(db, 'rooms/' + activeRoom + '/text'), textValue);
-        });
-
         clipText.addEventListener("paste", (event) => {
             const items = (event.clipboardData || event.originalEvent.clipboardData).items;
             for (let index in items) {
                 let item = items[index];
                 if (item.kind === 'file') {
                     let blob = item.getAsFile();
-                    let reader = new FileReader();
-                    reader.onload = function(event) {
-                        let base64Image = event.target.result;
-                        document.getElementById("mediaPreview").innerHTML = `<img src="${base64Image}" alt="Mídia compartilhada">`;
-                        if (activeRoom) {
-                            set(ref(db, 'rooms/' + activeRoom + '/media'), base64Image);
-                        }
-                    };
-                    reader.readAsDataURL(blob);
+                    processFile(blob);
                 }
             }
+        });
+
+        function processFile(file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                currentMediaBase64 = e.target.result;
+                updateMediaPreview(currentMediaBase64, file.name || "midia");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateMediaPreview(base64Data, fileName) {
+            const preview = document.getElementById("mediaPreview");
+            preview.innerHTML = `
+                <img src="${base64Data}" alt="Mídia">
+                <a href="${base64Data}" download="${fileName}" style="background: var(--yellow); color: #000; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold; text-transform: uppercase; display: inline-block;">⬇️ Descarregar Mídia</a>
+            `;
+        }
+
+        // Botão Enviar: Envia o texto e a mídia para o seu próprio canal (para outros recolherem)
+        document.getElementById("sendBtn").addEventListener("click", () => {
+            if (!myRoomCode) {
+                alert("Ainda a autenticar. Aguarde um instante.");
+                return;
+            }
+
+            const textValue = clipText.value;
+            const payload = {
+                text: textValue,
+                media: currentMediaBase64 || null
+            };
+
+            set(ref(db, 'rooms/' + myRoomCode), payload)
+                .then(() => {
+                    alert("Conteúdo enviado com sucesso para o canal " + myRoomCode + "!");
+                })
+                .catch((error) => {
+                    alert("Erro ao enviar: " + error.message);
+                });
+        });
+
+        // Botão Conectar: Puxa o conteúdo do código inserido no outro dispositivo
+        document.getElementById("connectBtn").addEventListener("click", () => {
+            const codeInput = document.getElementById("targetCodeInput").value.trim().toUpperCase();
+            if (codeInput.length < 4) {
+                alert("Digite um código válido de 4 caracteres.");
+                return;
+            }
+
+            document.getElementById("connectionStatus").innerText = "A ligar ao canal " + codeInput + "...";
+
+            const roomRef = ref(db, 'rooms/' + codeInput);
+            get(roomRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.text !== undefined) {
+                        clipText.value = data.text;
+                    }
+                    if (data.media) {
+                        currentMediaBase64 = data.media;
+                        updateMediaPreview(data.media, "recebido.png");
+                    } else {
+                        document.getElementById("mediaPreview").innerHTML = `<span style="color: var(--text-muted); font-size: 12px;">Nenhuma imagem/GIF neste canal</span>`;
+                        currentMediaBase64 = null;
+                    }
+                    document.getElementById("connectionStatus").innerText = "Sincronizado com sucesso com o canal: " + codeInput;
+                } else {
+                    alert("Nenhum conteúdo encontrado para este código.");
+                    document.getElementById("connectionStatus").innerText = "Canal vazio ou inexistente.";
+                }
+            }).catch((error) => {
+                console.error(error);
+                alert("Erro ao conectar ao canal.");
+            });
         });
     </script>
 </body>
