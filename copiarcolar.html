@@ -198,15 +198,16 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // 🔥 SUBSTITUA ABAIXO COM AS CONFIGURAÇÕES DO SEU PROJETO FIREBASE
+        // Configuração injetada diretamente do seu projeto Firebase
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_PROJETO.firebaseapp.com",
-            databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
-            projectId: "SEU_PROJETO",
-            storageBucket: "SEU_PROJETO.appspot.com",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
+            apiKey: "AIzaSyC7u9pMqksWESx3jJh4I4fCUS8tiu-MjM",
+            authDomain: "rodoviariolimeira.firebaseapp.com",
+            databaseURL: "https://rodoviariolimeira-default-rtdb.firebaseio.com",
+            projectId: "rodoviariolimeira",
+            storageBucket: "rodoviariolimeirafirebasestorage.app",
+            messagingSenderId: "131653476917",
+            appId: "1:131653476917:web:3758f0247b5be006c9077c",
+            measurementId: "G-0CJ7FD2MN2"
         };
 
         const app = initializeApp(firebaseConfig);
