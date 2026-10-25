@@ -88,7 +88,7 @@ body{
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
 
-/* Modal Estilos Gerais */
+/* Modais */
 .modal-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;
     justify-content:center;align-items:center;z-index:1000;padding:15px
@@ -140,16 +140,11 @@ body{
 .status-box{font-size:.75rem;color:var(--muted);background:rgba(0,0,0,.18);padding:9px;border-radius:8px;margin:8px 0;line-height:1.4}
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
-/* Estilo para Pastas */
-.folder-grid{
-    display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:4px;width:100%;height:100%;
-}
-.folder-mini-icon{
-    width:100%;height:100%;border-radius:4px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;
-}
+/* Pastas */
+.folder-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:4px;width:100%;height:100%}
+.folder-mini-icon{width:100%;height:100%;border-radius:4px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden}
 .folder-mini-icon img{width:100%;height:100%;object-fit:cover}
 
-/* Checkbox personalizado */
 .remember-me{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin-bottom:12px;cursor:pointer}
 .remember-me input{width:auto;margin:0}
 </style>
@@ -220,7 +215,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- MODAL DE PASTA / SUBMENU -->
+<!-- MODAL DE PASTA -->
 <div class="modal-overlay" id="folderModal">
     <div class="modal-card">
         <div class="modal-title" id="folderModalTitle">Pasta</div>
@@ -229,7 +224,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- ADMIN / GERENCIAMENTO DE APPS E USUÁRIOS -->
+<!-- ADMIN -->
 <div class="modal-overlay" id="adminModal">
     <div class="modal-card">
         <div class="modal-title">Painel de Controle</div>
@@ -240,14 +235,13 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <div class="admin-menu">
-            <button class="btn btn-warning" onclick="abrirAprovacoes()">👥 Aprovar Usuários (<span id="pendingCount">0</span>)</button>
+            <button class="btn btn-warning" onclick="abrirAprovaçoes()">👥 Aprovar Usuários (<span id="pendingCount">0</span>)</button>
             <button class="btn btn-success" onclick="abrirCriarPasta()">📁 Criar Pasta</button>
         </div>
 
         <hr class="sep">
 
         <div class="modal-title" id="adminFormTitle" style="font-size:.95rem">Instalar Novo App</div>
-        <input type="hidden" id="editAppDocId" value="">
 
         <label>Nome do App:</label>
         <input type="text" id="newAppName" placeholder="Ex: Escala ID">
@@ -295,7 +289,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- MODAL APROVAÇÕES DE USUÁRIOS -->
+<!-- MODAL APROVAÇÕES -->
 <div class="modal-overlay" id="usersModal">
     <div class="modal-card">
         <div class="modal-title">👥 Aprovação de Usuários</div>
@@ -378,7 +372,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Forçar manter logado por 30 dias/local
+// Persistência local ativada por padrão
 setPersistence(auth, browserLocalPersistence);
 
 let currentUser = null;
@@ -388,29 +382,28 @@ let sortableInstance = null;
 
 const $ = id => document.getElementById(id);
 
-// --- MONITORAMENTO DE AUTENTICAÇÃO ---
+// --- MONITORAMENTO DE AUTHENTICAÇÃO E MIGRAÇÃO AUTOMÁTICA ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         $("userEmail").textContent = user.email;
         
-        // Verifica status no banco de dados
         const userDocRef = doc(db, "usuarios", user.uid);
-        const userSnap = await getDoc(userDocRef);
+        let userSnap = await getDoc(userDocRef);
 
         if (!userSnap.exists()) {
-            // Primeiro admin ou novo registro
             const allUsers = await getDocs(collection(db, "usuarios"));
             const isFirst = allUsers.empty;
+            
             await setDoc(userDocRef, {
                 email: user.email,
                 status: isFirst ? "aprovado" : "pendente",
                 role: isFirst ? "admin" : "user"
             });
-            if (!isFirst) return exibirModalPendente();
+            userSnap = await getDoc(userDocRef);
         }
 
-        const userData = (await getDoc(userDocRef)).data();
+        const userData = userSnap.data();
 
         if (userData.status === "pendente") {
             exibirModalPendente();
@@ -420,6 +413,9 @@ onAuthStateChanged(auth, async (user) => {
         userRole = userData.role || "user";
         $("userBar").style.display = "flex";
         if (userRole === "admin") $("adminBtn").style.display = "inline-block";
+
+        // COPIA AUTOMATICAMENTE SEUS APPS ANTERIORES SE AINDA NÃO EXISTIREM NA SUA CONTA
+        await importarAppsAntigosParaUsuario(user.uid);
 
         fecharModais();
         carregarConfiguracoesUsuario();
@@ -433,7 +429,30 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- AUTHENTICATION ACTIONS ---
+// Importação automática do banco de dados antigo
+async function importarAppsAntigosParaUsuario(uid) {
+    const userAppsCol = collection(db, "usuarios", uid, "apps");
+    const userAppsSnap = await getDocs(userAppsCol);
+
+    if (userAppsSnap.empty) {
+        const oldAppsCol = collection(db, "apps");
+        const oldAppsSnap = await getDocs(oldAppsCol);
+
+        if (!oldAppsSnap.empty) {
+            let index = 0;
+            for (const oldDoc of oldAppsSnap.docs) {
+                const data = oldDoc.data();
+                await setDoc(doc(userAppsCol, oldDoc.id), {
+                    ...data,
+                    order: data.order ?? index
+                });
+                index++;
+            }
+        }
+    }
+}
+
+// --- AUTH ACTIONS ---
 window.fazerLogin = async () => {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
@@ -453,7 +472,7 @@ window.fazerCadastro = async () => {
     $("authError").style.display = "none";
 
     if (password.length < 6) {
-        $("authError").textContent = "A senha deve ter pelo menos 6 caracteres.";
+        $("authError").textContent = "A senha deve ter no mínimo 6 caracteres.";
         $("authError").style.display = "block";
         return;
     }
@@ -466,9 +485,7 @@ window.fazerCadastro = async () => {
     }
 };
 
-window.fazerLogout = () => {
-    signOut(auth);
-};
+window.fazerLogout = () => signOut(auth);
 
 window.alternarModoAuth = (modo) => {
     $("authError").style.display = "none";
@@ -488,7 +505,7 @@ function exibirModalPendente() {
     $("pendingModal").style.display = "flex";
 }
 
-// --- CARREGAR APPS E CONFIGURAÇÕES INDIVIDUAIS ---
+// --- CONFIGURAÇÕES E APPS DO USUÁRIO ---
 function carregarConfiguracoesUsuario() {
     const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
     onSnapshot(configRef, (snap) => {
@@ -512,7 +529,6 @@ function carregarAppsUsuario() {
     const appsCol = collection(db, "usuarios", currentUser.uid, "apps");
     onSnapshot(appsCol, (snap) => {
         globalApps = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Ordena pela propriedade 'order'
         globalApps.sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
         renderizarApps();
     });
@@ -534,7 +550,6 @@ function renderizarApps() {
 
         let iconContent = "";
         if (appItem.isFolder) {
-            // Renders folder preview
             const miniIcons = (appItem.subApps || []).slice(0, 4).map(sub => `
                 <div class="folder-mini-icon">
                     ${sub.icon ? `<img src="${sub.icon}">` : (sub.symbol || '🔗')}
@@ -566,14 +581,13 @@ function renderizarApps() {
     renderizarListaAdmin();
 }
 
-// --- ARRASTAR E REORDENAR (SortableJS) ---
 function inicializarSortable() {
     const grid = $("appGrid");
     if (sortableInstance) sortableInstance.destroy();
 
     sortableInstance = new Sortable(grid, {
         animation: 150,
-        delay: 200, // Tempo segurando com o dedo no celular para ativar
+        delay: 200,
         delayOnTouchOnly: true,
         onEnd: async () => {
             const items = grid.querySelectorAll(".app-item");
@@ -588,7 +602,6 @@ function inicializarSortable() {
     });
 }
 
-// --- PASTAS E SUB-APPS ---
 function abrirPastaModal(folder) {
     $("folderModalTitle").textContent = folder.name;
     const list = $("folderList");
@@ -618,7 +631,7 @@ window.abrirCriarPasta = async () => {
     });
 };
 
-// --- FUNÇÕES ADMIN ---
+// --- ADMIN ---
 window.abrirAdmin = () => {
     fecharModais();
     carregarUsuariosPendentesCount();
@@ -632,7 +645,7 @@ async function carregarUsuariosPendentesCount() {
     $("pendingCount").textContent = snap.size;
 }
 
-window.abrirAprovações = async () => {
+window.abrirAprovaçoes = async () => {
     if (userRole !== "admin") return;
     fecharModais();
     const q = query(collection(db, "usuarios"), where("status", "==", "pendente"));
@@ -662,12 +675,12 @@ window.abrirAprovações = async () => {
 
 window.aprovarUsuario = async (uid) => {
     await updateDoc(doc(db, "usuarios", uid), { status: "aprovado" });
-    abrirAprovações();
+    abrirAprovaçoes();
 };
 
 window.recusarUsuario = async (uid) => {
     await deleteDoc(doc(db, "usuarios", uid));
-    abrirAprovações();
+    abrirAprovaçoes();
 };
 
 window.salvarNovoApp = async () => {
@@ -718,72 +731,4 @@ function renderizarListaAdmin() {
             </div>
         `;
         list.appendChild(row);
-    });
-}
-
-window.deletarApp = async (id) => {
-    await deleteDoc(doc(db, "usuarios", currentUser.uid, "apps", id));
-};
-
-window.limparFormularioAdmin = () => {
-    $("newAppName").value = "";
-    $("newAppUrl").value = "";
-    $("newAppIconFile").value = "";
-};
-
-window.alternarTipoIcone = () => {
-    const t = $("iconTypeSelect").value;
-    $("iconTypeFile").style.display = t === "file" ? "block" : "none";
-    $("iconTypeUrl").style.display = t === "url" ? "block" : "none";
-    $("iconTypeColor").style.display = t === "color" ? "block" : "none";
-};
-
-window.abrirAparencia = () => { fecharModais(); $("appearanceModal").style.display = "flex"; };
-window.abrirLogo = () => { fecharModais(); $("logoModal").style.display = "flex"; };
-
-window.salvarAparencia = async () => {
-    const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
-    await setDoc(configRef, {
-        title: $("themePortalTitle").value,
-        bg1: $("cBg1").value,
-        bg2: $("cBg2").value,
-        primary: $("cPrimary").value,
-        accent: $("cAccent").value,
-        iconSize: $("rIconSize").value
-    }, { merge: true });
-    fecharModais();
-};
-
-window.salvarLogo = async () => {
-    const file = $("portalLogoFile").files[0];
-    if (!file) return;
-    const storageRef = ref(storage, `logos/${currentUser.uid}_logo`);
-    await uploadBytes(storageRef, file);
-    const logoUrl = await getDownloadURL(storageRef);
-
-    const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
-    await setDoc(configRef, { logoUrl }, { merge: true });
-    fecharModais();
-};
-
-window.fecharModais = () => {
-    document.querySelectorAll(".modal-overlay").forEach(m => {
-        if (m.id !== "authModal" || currentUser) m.style.display = "none";
-    });
-};
-
-window.copiarGeolocalizacao = () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(p => {
-            const coords = `${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;
-            navigator.clipboard.writeText(coords);
-            const btn = $("locationButton");
-            btn.classList.add("copied");
-            btn.textContent = "COPIADO!";
-            setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "> GPS <"; }, 2000);
-        });
-    }
-};
-</script>
-</body>
-</html>
+    
