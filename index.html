@@ -452,42 +452,60 @@ async function importarAppsAntigosParaUsuario(uid) {
     }
 }
 
-// --- AUTH ACTIONS ---
-window.fazerLogin = async () => {
+// --- AUTH ACTIONS (CORRIGIDAS PARA O ESCOPO GLOBAL) ---
+window.fazerLogin = async function() {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
-    $("authError").style.display = "none";
+    const errorBox = $("authError");
+
+    errorBox.style.display = "none";
+
+    if (!email || !password) {
+        errorBox.textContent = "Preencha o e-mail e a senha!";
+        errorBox.style.display = "block";
+        return;
+    }
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-        $("authError").textContent = "Erro ao entrar: E-mail ou senha inválidos.";
-        $("authError").style.display = "block";
+        console.error("Erro no Login:", err);
+        let msg = "E-mail ou senha incorretos.";
+        if (err.code === 'auth/invalid-email') {
+            msg = "E-mail em formato inválido.";
+        }
+        errorBox.textContent = msg;
+        errorBox.style.display = "block";
     }
 };
 
-window.fazerCadastro = async () => {
+window.fazerCadastro = async function() {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
-    $("authError").style.display = "none";
+    const errorBox = $("authError");
+
+    errorBox.style.display = "none";
 
     if (password.length < 6) {
-        $("authError").textContent = "A senha deve ter no mínimo 6 caracteres.";
-        $("authError").style.display = "block";
+        errorBox.textContent = "A senha deve ter no mínimo 6 caracteres.";
+        errorBox.style.display = "block";
         return;
     }
 
     try {
         await createUserWithEmailAndPassword(auth, email, password);
     } catch (err) {
-        $("authError").textContent = "Erro no cadastro: " + err.message;
-        $("authError").style.display = "block";
+        console.error("Erro no Cadastro:", err);
+        errorBox.textContent = "Erro no cadastro: " + err.message;
+        errorBox.style.display = "block";
     }
 };
 
-window.fazerLogout = () => signOut(auth);
+window.fazerLogout = function() {
+    signOut(auth);
+};
 
-window.alternarModoAuth = (modo) => {
+window.alternarModoAuth = function(modo) {
     $("authError").style.display = "none";
     if (modo === 'cadastrar') {
         $("authTitle").textContent = "Nova Conta";
@@ -731,4 +749,72 @@ function renderizarListaAdmin() {
             </div>
         `;
         list.appendChild(row);
-    
+    });
+}
+
+window.deletarApp = async (id) => {
+    await deleteDoc(doc(db, "usuarios", currentUser.uid, "apps", id));
+};
+
+window.limparFormularioAdmin = () => {
+    $("newAppName").value = "";
+    $("newAppUrl").value = "";
+    $("newAppIconFile").value = "";
+};
+
+window.alternarTipoIcone = () => {
+    const t = $("iconTypeSelect").value;
+    $("iconTypeFile").style.display = t === "file" ? "block" : "none";
+    $("iconTypeUrl").style.display = t === "url" ? "block" : "none";
+    $("iconTypeColor").style.display = t === "color" ? "block" : "none";
+};
+
+window.abrirAparencia = () => { fecharModais(); $("appearanceModal").style.display = "flex"; };
+window.abrirLogo = () => { fecharModais(); $("logoModal").style.display = "flex"; };
+
+window.salvarAparencia = async () => {
+    const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
+    await setDoc(configRef, {
+        title: $("themePortalTitle").value,
+        bg1: $("cBg1").value,
+        bg2: $("cBg2").value,
+        primary: $("cPrimary").value,
+        accent: $("cAccent").value,
+        iconSize: $("rIconSize").value
+    }, { merge: true });
+    fecharModais();
+};
+
+window.salvarLogo = async () => {
+    const file = $("portalLogoFile").files[0];
+    if (!file) return;
+    const storageRef = ref(storage, `logos/${currentUser.uid}_logo`);
+    await uploadBytes(storageRef, file);
+    const logoUrl = await getDownloadURL(storageRef);
+
+    const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
+    await setDoc(configRef, { logoUrl }, { merge: true });
+    fecharModais();
+};
+
+window.fecharModais = () => {
+    document.querySelectorAll(".modal-overlay").forEach(m => {
+        if (m.id !== "authModal" || currentUser) m.style.display = "none";
+    });
+};
+
+window.copiarGeolocalizacao = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(p => {
+            const coords = `${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`;
+            navigator.clipboard.writeText(coords);
+            const btn = $("locationButton");
+            btn.classList.add("copied");
+            btn.textContent = "COPIADO!";
+            setTimeout(() => { btn.classList.remove("copied"); btn.textContent = "> GPS <"; }, 2000);
+        });
+    }
+};
+</script>
+</body>
+</html>
