@@ -88,7 +88,7 @@ body{
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
 
-/* Modais */
+/* Modal Estilos Gerais */
 .modal-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;
     justify-content:center;align-items:center;z-index:1000;padding:15px
@@ -140,11 +140,16 @@ body{
 .status-box{font-size:.75rem;color:var(--muted);background:rgba(0,0,0,.18);padding:9px;border-radius:8px;margin:8px 0;line-height:1.4}
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
-/* Pastas */
-.folder-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:4px;width:100%;height:100%}
-.folder-mini-icon{width:100%;height:100%;border-radius:4px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden}
+/* Estilo para Pastas */
+.folder-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:4px;width:100%;height:100%;
+}
+.folder-mini-icon{
+    width:100%;height:100%;border-radius:4px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;
+}
 .folder-mini-icon img{width:100%;height:100%;object-fit:cover}
 
+/* Checkbox personalizado */
 .remember-me{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin-bottom:12px;cursor:pointer}
 .remember-me input{width:auto;margin:0}
 </style>
@@ -215,7 +220,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- MODAL DE PASTA -->
+<!-- MODAL DE PASTA / SUBMENU -->
 <div class="modal-overlay" id="folderModal">
     <div class="modal-card">
         <div class="modal-title" id="folderModalTitle">Pasta</div>
@@ -224,7 +229,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- ADMIN -->
+<!-- ADMIN / GERENCIAMENTO DE APPS E USUÁRIOS -->
 <div class="modal-overlay" id="adminModal">
     <div class="modal-card">
         <div class="modal-title">Painel de Controle</div>
@@ -235,13 +240,14 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <div class="admin-menu">
-            <button class="btn btn-warning" onclick="abrirAprovaçoes()">👥 Aprovar Usuários (<span id="pendingCount">0</span>)</button>
+            <button class="btn btn-warning" onclick="abrirAprovacoes()">👥 Aprovar Usuários (<span id="pendingCount">0</span>)</button>
             <button class="btn btn-success" onclick="abrirCriarPasta()">📁 Criar Pasta</button>
         </div>
 
         <hr class="sep">
 
         <div class="modal-title" id="adminFormTitle" style="font-size:.95rem">Instalar Novo App</div>
+        <input type="hidden" id="editAppDocId" value="">
 
         <label>Nome do App:</label>
         <input type="text" id="newAppName" placeholder="Ex: Escala ID">
@@ -289,7 +295,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- MODAL APROVAÇÕES -->
+<!-- MODAL APROVAÇÕES DE USUÁRIOS -->
 <div class="modal-overlay" id="usersModal">
     <div class="modal-card">
         <div class="modal-title">👥 Aprovação de Usuários</div>
@@ -372,7 +378,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Persistência local ativada por padrão
+// Forçar manter logado por 30 dias/local
 setPersistence(auth, browserLocalPersistence);
 
 let currentUser = null;
@@ -382,28 +388,29 @@ let sortableInstance = null;
 
 const $ = id => document.getElementById(id);
 
-// --- MONITORAMENTO DE AUTHENTICAÇÃO E MIGRAÇÃO AUTOMÁTICA ---
+// --- MONITORAMENTO DE AUTENTICAÇÃO ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         $("userEmail").textContent = user.email;
         
+        // Verifica status no banco de dados
         const userDocRef = doc(db, "usuarios", user.uid);
-        let userSnap = await getDoc(userDocRef);
+        const userSnap = await getDoc(userDocRef);
 
         if (!userSnap.exists()) {
+            // Primeiro admin ou novo registro
             const allUsers = await getDocs(collection(db, "usuarios"));
             const isFirst = allUsers.empty;
-            
             await setDoc(userDocRef, {
                 email: user.email,
                 status: isFirst ? "aprovado" : "pendente",
                 role: isFirst ? "admin" : "user"
             });
-            userSnap = await getDoc(userDocRef);
+            if (!isFirst) return exibirModalPendente();
         }
 
-        const userData = userSnap.data();
+        const userData = (await getDoc(userDocRef)).data();
 
         if (userData.status === "pendente") {
             exibirModalPendente();
@@ -413,9 +420,6 @@ onAuthStateChanged(auth, async (user) => {
         userRole = userData.role || "user";
         $("userBar").style.display = "flex";
         if (userRole === "admin") $("adminBtn").style.display = "inline-block";
-
-        // COPIA AUTOMATICAMENTE SEUS APPS ANTERIORES SE AINDA NÃO EXISTIREM NA SUA CONTA
-        await importarAppsAntigosParaUsuario(user.uid);
 
         fecharModais();
         carregarConfiguracoesUsuario();
@@ -429,83 +433,44 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Importação automática do banco de dados antigo
-async function importarAppsAntigosParaUsuario(uid) {
-    const userAppsCol = collection(db, "usuarios", uid, "apps");
-    const userAppsSnap = await getDocs(userAppsCol);
-
-    if (userAppsSnap.empty) {
-        const oldAppsCol = collection(db, "apps");
-        const oldAppsSnap = await getDocs(oldAppsCol);
-
-        if (!oldAppsSnap.empty) {
-            let index = 0;
-            for (const oldDoc of oldAppsSnap.docs) {
-                const data = oldDoc.data();
-                await setDoc(doc(userAppsCol, oldDoc.id), {
-                    ...data,
-                    order: data.order ?? index
-                });
-                index++;
-            }
-        }
-    }
-}
-
-// --- AUTH ACTIONS (CORRIGIDAS PARA O ESCOPO GLOBAL) ---
-window.fazerLogin = async function() {
+// --- AUTHENTICATION ACTIONS ---
+window.fazerLogin = async () => {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
-    const errorBox = $("authError");
-
-    errorBox.style.display = "none";
-
-    if (!email || !password) {
-        errorBox.textContent = "Preencha o e-mail e a senha!";
-        errorBox.style.display = "block";
-        return;
-    }
+    $("authError").style.display = "none";
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-        console.error("Erro no Login:", err);
-        let msg = "E-mail ou senha incorretos.";
-        if (err.code === 'auth/invalid-email') {
-            msg = "E-mail em formato inválido.";
-        }
-        errorBox.textContent = msg;
-        errorBox.style.display = "block";
+        $("authError").textContent = "Erro ao entrar: E-mail ou senha inválidos.";
+        $("authError").style.display = "block";
     }
 };
 
-window.fazerCadastro = async function() {
+window.fazerCadastro = async () => {
     const email = $("authEmail").value.trim();
     const password = $("authPassword").value;
-    const errorBox = $("authError");
-
-    errorBox.style.display = "none";
+    $("authError").style.display = "none";
 
     if (password.length < 6) {
-        errorBox.textContent = "A senha deve ter no mínimo 6 caracteres.";
-        errorBox.style.display = "block";
+        $("authError").textContent = "A senha deve ter pelo menos 6 caracteres.";
+        $("authError").style.display = "block";
         return;
     }
 
     try {
         await createUserWithEmailAndPassword(auth, email, password);
     } catch (err) {
-        console.error("Erro no Cadastro:", err);
-        errorBox.textContent = "Erro no cadastro: " + err.message;
-        errorBox.style.display = "block";
+        $("authError").textContent = "Erro no cadastro: " + err.message;
+        $("authError").style.display = "block";
     }
 };
 
-window.fazerLogout = function() {
+window.fazerLogout = () => {
     signOut(auth);
 };
 
-window.alternarModoAuth = function(modo) {
+window.alternarModoAuth = (modo) => {
     $("authError").style.display = "none";
     if (modo === 'cadastrar') {
         $("authTitle").textContent = "Nova Conta";
@@ -523,7 +488,7 @@ function exibirModalPendente() {
     $("pendingModal").style.display = "flex";
 }
 
-// --- CONFIGURAÇÕES E APPS DO USUÁRIO ---
+// --- CARREGAR APPS E CONFIGURAÇÕES INDIVIDUAIS ---
 function carregarConfiguracoesUsuario() {
     const configRef = doc(db, "usuarios", currentUser.uid, "config", "portal");
     onSnapshot(configRef, (snap) => {
@@ -547,6 +512,7 @@ function carregarAppsUsuario() {
     const appsCol = collection(db, "usuarios", currentUser.uid, "apps");
     onSnapshot(appsCol, (snap) => {
         globalApps = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Ordena pela propriedade 'order'
         globalApps.sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
         renderizarApps();
     });
@@ -568,6 +534,7 @@ function renderizarApps() {
 
         let iconContent = "";
         if (appItem.isFolder) {
+            // Renders folder preview
             const miniIcons = (appItem.subApps || []).slice(0, 4).map(sub => `
                 <div class="folder-mini-icon">
                     ${sub.icon ? `<img src="${sub.icon}">` : (sub.symbol || '🔗')}
@@ -599,13 +566,14 @@ function renderizarApps() {
     renderizarListaAdmin();
 }
 
+// --- ARRASTAR E REORDENAR (SortableJS) ---
 function inicializarSortable() {
     const grid = $("appGrid");
     if (sortableInstance) sortableInstance.destroy();
 
     sortableInstance = new Sortable(grid, {
         animation: 150,
-        delay: 200,
+        delay: 200, // Tempo segurando com o dedo no celular para ativar
         delayOnTouchOnly: true,
         onEnd: async () => {
             const items = grid.querySelectorAll(".app-item");
@@ -620,6 +588,7 @@ function inicializarSortable() {
     });
 }
 
+// --- PASTAS E SUB-APPS ---
 function abrirPastaModal(folder) {
     $("folderModalTitle").textContent = folder.name;
     const list = $("folderList");
@@ -649,7 +618,7 @@ window.abrirCriarPasta = async () => {
     });
 };
 
-// --- ADMIN ---
+// --- FUNÇÕES ADMIN ---
 window.abrirAdmin = () => {
     fecharModais();
     carregarUsuariosPendentesCount();
@@ -663,7 +632,7 @@ async function carregarUsuariosPendentesCount() {
     $("pendingCount").textContent = snap.size;
 }
 
-window.abrirAprovaçoes = async () => {
+window.abrirAprovações = async () => {
     if (userRole !== "admin") return;
     fecharModais();
     const q = query(collection(db, "usuarios"), where("status", "==", "pendente"));
@@ -693,12 +662,12 @@ window.abrirAprovaçoes = async () => {
 
 window.aprovarUsuario = async (uid) => {
     await updateDoc(doc(db, "usuarios", uid), { status: "aprovado" });
-    abrirAprovaçoes();
+    abrirAprovações();
 };
 
 window.recusarUsuario = async (uid) => {
     await deleteDoc(doc(db, "usuarios", uid));
-    abrirAprovaçoes();
+    abrirAprovações();
 };
 
 window.salvarNovoApp = async () => {
