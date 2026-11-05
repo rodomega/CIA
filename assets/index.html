@@ -31,6 +31,7 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
         }
 
         .section-title {
@@ -212,6 +213,11 @@
             color: #000;
         }
 
+        .btn-import {
+            background-color: #007bff;
+            color: #fff;
+        }
+
         .btn-clear {
             background-color: #444;
             color: #ffd700;
@@ -219,6 +225,55 @@
 
         .btn-action:hover {
             opacity: 0.9;
+        }
+
+        /* Modal de Importação */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid #ffd700;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #333;
+            color: #ffd700;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
         }
 
     </style>
@@ -250,7 +305,21 @@
     <div class="action-buttons">
         <button class="btn-action btn-whatsapp" id="btnWhatsapp">Enviar para WhatsApp</button>
         <button class="btn-action btn-copy" id="btnCopy">Copiar Texto</button>
+        <button class="btn-action btn-import" id="btnImport">Importar Texto</button>
         <button class="btn-action btn-clear" id="btnClear">Apagar Dados</button>
+    </div>
+
+    <!-- Modal para Importação de Texto -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <h3>Importar Atividade</h3>
+            <p style="color: #ccc; font-size: 0.9em;">Cole abaixo o texto recebido do WhatsApp para carregar e editar os dados:</p>
+            <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-action btn-clear" id="btnCancelImport" style="padding: 10px 15px;">Cancelar</button>
+                <button class="btn-action btn-import" id="btnConfirmImport" style="padding: 10px 15px;">Processar e Carregar</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -260,6 +329,11 @@
             'Total Fiscalizado - OA',
             'Total Fiscalizado - CA',
             'Total Fiscalizado - MO',
+            // Veículos autuados ( PPRI )
+            'Total Autuados - AP',
+            'Total Autuados - OA',
+            'Total Autuados - CA',
+            'Total Autuados - MO',
             // AI Total
             'AI Total - AP',
             'AI Total - OA',
@@ -302,13 +376,13 @@
         let data = JSON.parse(localStorage.getItem('pmrAtividadeData')) || {
             personnel: { enc: '', mot: '', aux: '' },
             items: {},
-            radar: { enc: '', mot: '', aux: '' } // Radar quantities
+            radar: { enc: '', mot: '', aux: '' }
         };
 
         // Inicializar itens se não existirem
         itemNames.forEach(name => {
             if (name === 'Imagens Radar') {
-                if (!data.radar.enc) data.radar = { enc: '', mot: '', aux: '' };
+                if (!data.radar || !data.radar.enc) data.radar = { enc: '', mot: '', aux: '' };
             } else {
                 if (!data.items[name]) {
                     data.items[name] = { enc: 0, mot: 0, aux: 0 };
@@ -333,78 +407,82 @@
 
         const itemListElement = document.getElementById('itemList');
 
-        itemNames.forEach(name => {
-            const itemContainer = document.createElement('div');
-            itemContainer.className = 'item-container';
+        function renderList() {
+            itemListElement.innerHTML = '';
+            itemNames.forEach(name => {
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'item-container';
 
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = 'item-toggle';
-            toggleBtn.textContent = name;
-            itemContainer.appendChild(toggleBtn);
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'item-toggle';
+                toggleBtn.textContent = name;
+                itemContainer.appendChild(toggleBtn);
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'item-content';
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'item-content';
 
-            if (name === 'Imagens Radar') {
-                contentDiv.classList.add('radar-input-container');
-                const p = ['enc', 'mot', 'aux'];
-                p.forEach(personType => {
-                    const group = document.createElement('div');
-                    group.className = 'input-group';
-                    const labelText = getPersonnelLabel(personType);
-                    group.innerHTML = `<label for="radar_${personType}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}" min="0" max="999" placeholder="0 até 999">`;
-                    const input = group.querySelector('input');
-                    input.value = data.radar[personType] || '';
-                    input.addEventListener('input', e => saveRadarQuantity(personType, e.target.value));
-                    contentDiv.appendChild(group);
-                });
-            } else {
-                ['enc', 'mot', 'aux'].forEach(personType => {
-                    const counterGroup = document.createElement('div');
-                    counterGroup.className = 'counter-group';
+                if (name === 'Imagens Radar') {
+                    contentDiv.classList.add('radar-input-container');
+                    const p = ['enc', 'mot', 'aux'];
+                    p.forEach(personType => {
+                        const group = document.createElement('div');
+                        group.className = 'input-group';
+                        const labelText = getPersonnelLabel(personType);
+                        group.innerHTML = `<label for="radar_${personType}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}" min="0" max="999" placeholder="0 até 999">`;
+                        const input = group.querySelector('input');
+                        input.value = data.radar[personType] || '';
+                        input.addEventListener('input', e => saveRadarQuantity(personType, e.target.value));
+                        contentDiv.appendChild(group);
+                    });
+                } else {
+                    ['enc', 'mot', 'aux'].forEach(personType => {
+                        const counterGroup = document.createElement('div');
+                        counterGroup.className = 'counter-group';
 
-                    const label = document.createElement('span');
-                    label.className = 'person-label';
-                    label.textContent = getPersonnelLabel(personType);
-                    counterGroup.appendChild(label);
+                        const label = document.createElement('span');
+                        label.className = 'person-label';
+                        label.textContent = getPersonnelLabel(personType);
+                        counterGroup.appendChild(label);
 
-                    const controls = document.createElement('div');
-                    controls.className = 'counter-controls';
+                        const controls = document.createElement('div');
+                        controls.className = 'counter-controls';
 
-                    const minusBtn = document.createElement('button');
-                    minusBtn.className = 'btn-minus';
-                    minusBtn.textContent = '−';
-                    minusBtn.onclick = () => updateQuantity(name, personType, -1);
-                    controls.appendChild(minusBtn);
+                        const minusBtn = document.createElement('button');
+                        minusBtn.className = 'btn-minus';
+                        minusBtn.textContent = '−';
+                        minusBtn.onclick = () => updateQuantity(name, personType, -1);
+                        controls.appendChild(minusBtn);
 
-                    const valSpan = document.createElement('span');
-                    valSpan.className = 'counter-value';
-                    valSpan.id = `q_${name}_${personType}`;
-                    valSpan.textContent = data.items[name][personType];
-                    controls.appendChild(valSpan);
+                        const valSpan = document.createElement('span');
+                        valSpan.className = 'counter-value';
+                        valSpan.id = `q_${name}_${personType}`;
+                        valSpan.textContent = data.items[name] ? data.items[name][personType] : 0;
+                        controls.appendChild(valSpan);
 
-                    const plusBtn = document.createElement('button');
-                    plusBtn.className = 'btn-plus';
-                    plusBtn.textContent = '+';
-                    plusBtn.onclick = () => updateQuantity(name, personType, 1);
-                    controls.appendChild(plusBtn);
+                        const plusBtn = document.createElement('button');
+                        plusBtn.className = 'btn-plus';
+                        plusBtn.textContent = '+';
+                        plusBtn.onclick = () => updateQuantity(name, personType, 1);
+                        controls.appendChild(plusBtn);
 
-                    counterGroup.appendChild(controls);
-                    contentDiv.appendChild(counterGroup);
-                });
-            }
+                        counterGroup.appendChild(controls);
+                        contentDiv.appendChild(counterGroup);
+                    });
+                }
 
-            itemContainer.appendChild(contentDiv);
-            itemListElement.appendChild(itemContainer);
+                itemContainer.appendChild(contentDiv);
+                itemListElement.appendChild(itemContainer);
 
-            toggleBtn.onclick = function() {
-                // Fechar outros
-                document.querySelectorAll('.item-content').forEach(el => {
-                    if (el !== contentDiv) el.classList.remove('active-content');
-                });
-                contentDiv.classList.toggle('active-content');
-            };
-        });
+                toggleBtn.onclick = function() {
+                    document.querySelectorAll('.item-content').forEach(el => {
+                        if (el !== contentDiv) el.classList.remove('active-content');
+                    });
+                    contentDiv.classList.toggle('active-content');
+                };
+            });
+        }
+
+        renderList();
 
         function getPersonnelLabel(type) {
             if (type === 'enc') return 'Encarregado';
@@ -413,6 +491,9 @@
         }
 
         function updateQuantity(itemName, personType, change) {
+            if (!data.items[itemName]) {
+                data.items[itemName] = { enc: 0, mot: 0, aux: 0 };
+            }
             const currentValue = data.items[itemName][personType];
             const newValue = Math.max(0, currentValue + change);
             data.items[itemName][personType] = newValue;
@@ -463,7 +544,7 @@
                     });
                 } else {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = data.items[name][p];
+                        const val = data.items[name] ? data.items[name][p] : 0;
                         if (val > 0) {
                             itemTotal += val;
                             const label = getPersonnelLabel(p);
@@ -521,7 +602,7 @@
                 document.execCommand('copy');
                 alert('Texto copiado com sucesso!');
             } catch (err) {
-                alert('Não foi possível copiar o texto automaticamente.');
+    alert('Não foi possível copiar o texto automaticamente.');
             }
             document.body.removeChild(textArea);
         }
@@ -532,6 +613,96 @@
                 location.reload();
             }
         });
+
+        // Lógica de Importação de Texto
+        const importModal = document.getElementById('importModal');
+        const importText = document.getElementById('importText');
+
+        document.getElementById('btnImport').addEventListener('click', () => {
+            importText.value = '';
+            importModal.style.display = 'flex';
+        });
+
+        document.getElementById('btnCancelImport').addEventListener('click', () => {
+            importModal.style.display = 'none';
+        });
+
+        document.getElementById('btnConfirmImport').addEventListener('click', () => {
+            const rawText = importText.value;
+            if (!rawText.trim()) {
+                alert('Por favor, cole um texto válido para importar.');
+                return;
+            }
+            parseAndLoadText(rawText);
+            importModal.style.display = 'none';
+        });
+
+        function parseAndLoadText(text) {
+            let newData = {
+                personnel: { enc: '', mot: '', aux: '' },
+                items: {},
+                radar: { enc: '', mot: '', aux: '' }
+            };
+
+            itemNames.forEach(name => {
+                if (name !== 'Imagens Radar') {
+                    newData.items[name] = { enc: 0, mot: 0, aux: 0 };
+                }
+            });
+
+            // Extrair Encarregado, Motorista e Auxiliar
+            const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
+            if (encMatch) newData.personnel.enc = encMatch[1].trim();
+
+            const motMatch = text.match(/\*Motorista:\*\s*(.+)/i);
+            if (motMatch) newData.personnel.mot = motMatch[1].trim();
+
+            const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
+            if (auxMatch) newData.personnel.aux = auxMatch[1].trim();
+
+            // Dividir por seções de itens (*Nome do Item:*)
+            const sections = text.split(/\n\*(.*?):\*\n/);
+
+            for (let i = 1; i < sections.length; i += 2) {
+                const itemName = sections[i].trim();
+                const itemContent = sections[i + 1];
+
+                if (!itemContent) continue;
+
+                const lines = itemContent.split('\n');
+                lines.forEach(line => {
+                    const personMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
+                    if (personMatch) {
+                        const personRole = personMatch[1].toLowerCase();
+                        let pKey = '';
+                        if (personRole.includes('encarregado')) pKey = 'enc';
+                        else if (personRole.includes('motorista')) pKey = 'mot';
+                        else if (personRole.includes('auxiliar')) pKey = 'aux';
+
+                        const val = parseInt(personMatch[2], 10);
+
+                        if (itemName === 'Imagens Radar') {
+                            if (pKey) newData.radar[pKey] = val;
+                        } else {
+                            if (newData.items[itemName] && pKey) {
+                                newData.items[itemName][pKey] = val;
+                            }
+                        }
+                    }
+                });
+            }
+
+            data = newData;
+            saveLocalStorage();
+
+            // Atualizar campos da tela
+            document.getElementById('encarregado').value = data.personnel.enc || '';
+            document.getElementById('motorista').value = data.personnel.mot || '';
+            document.getElementById('auxiliar').value = data.personnel.aux || '';
+            
+            renderList();
+            alert('Atividade importada e carregada com sucesso!');
+        }
 
     </script>
 </body>
