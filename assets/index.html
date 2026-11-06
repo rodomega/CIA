@@ -14,6 +14,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Evita comportamentos indesejados de zoom por toque duplo no corpo geral */
+            touch-action: manipulation; 
         }
 
         h1 {
@@ -88,6 +90,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            touch-action: manipulation; /* Corrige zoom no iOS */
         }
 
         .item-toggle:hover {
@@ -143,6 +146,9 @@
             justify-content: center;
             align-items: center;
             line-height: 1;
+            touch-action: manipulation; /* Impede o zoom do iOS ao clicar rápido */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .btn-minus {
@@ -201,6 +207,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, opacity 0.3s;
+            touch-action: manipulation; /* Evita zoom em botões de ação */
         }
 
         .btn-whatsapp {
@@ -602,7 +609,7 @@
                 document.execCommand('copy');
                 alert('Texto copiado com sucesso!');
             } catch (err) {
-    alert('Não foi possível copiar o texto automaticamente.');
+                alert('Não foi possível copiar o texto automaticamente.');
             }
             document.body.removeChild(textArea);
         }
