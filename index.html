@@ -119,6 +119,74 @@ body{
     max-height:280px;overflow-y:auto;user-select:text;-webkit-user-select:text
 }
 .dicas-box-text a{color:var(--accent);text-decoration:underline}
+
+/* ESTILO DO BLOCO DE DOAÇÃO / PIX */
+.donation-footer{
+    margin-top:15px;
+    padding:16px;
+    background:rgba(255, 255, 255, 0.04);
+    border:1px solid var(--border);
+    border-radius:14px;
+    text-align:center;
+}
+.donation-footer h3{
+    font-size:0.85rem;
+    color:var(--accent);
+    margin-bottom:6px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+.donation-footer p{
+    font-size:0.75rem;
+    color:var(--muted);
+    line-height:1.4;
+    margin-bottom:12px;
+}
+.pix-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+}
+.qr-container{
+    background:#fff;
+    padding:8px;
+    border-radius:10px;
+    display:inline-block;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.qr-container img{
+    width:130px;
+    height:130px;
+    display:block;
+}
+.pix-key-text{
+    font-size:0.75rem;
+    color:var(--text);
+    background:var(--input);
+    padding:6px 10px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    word-break:break-all;
+    user-select:text;
+    -webkit-user-select:text;
+}
+.btn-copy-pix{
+    background:var(--primary);
+    color:#fff;
+    border:0;
+    border-radius:8px;
+    padding:8px 16px;
+    font-size:0.78rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.1s;
+}
+.btn-copy-pix:active{transform:scale(0.95);}
+.btn-copy-pix:hover{background:var(--primaryHover);}
+.btn-copy-pix.copied{background:#22c55e;}
+
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 </style>
 </head>
@@ -133,8 +201,23 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
 
-    <div style="text-align:center;font-size:.7rem;color:var(--muted);padding:15px 0">
-        "ANJOS DO ASFALTO"
+    <!-- SEÇÃO DE APOIO / PIX -->
+    <div class="donation-footer">
+        <h3>"ANJOS DO ASFALTO"</h3>
+        <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook e continuidade das melhorias!</p>
+        
+        <div class="pix-box">
+            <div class="qr-container">
+                <!-- QR Code gerado automaticamente via API pública com a chave Pix (Telefone) -->
+                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=11939286798" alt="QR Code Pix">
+            </div>
+            
+            <div style="width:100%">
+                <div class="pix-key-text" id="pixKeyText">Chave Pix (Celular): 11939286798<br><span style="font-size:0.7rem;color:var(--muted)">Marcos Paulo Guidini Munhoz (Nubank)</span></div>
+            </div>
+
+            <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarChavePix()">📋 Copiar Chave Pix</button>
+        </div>
     </div>
 </div>
 
@@ -427,6 +510,26 @@ function formatarTextoComLinks(texto) {
         return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
     });
 }
+
+// Função para copiar a chave Pix
+window.copiarChavePix = async function() {
+    const chave = "11939286798";
+    const btn = $("btnCopyPix");
+
+    try {
+        await navigator.clipboard.writeText(chave);
+        btn.textContent = "✓ Chave Copiada!";
+        btn.classList.add("copied");
+
+        setTimeout(() => {
+            btn.textContent = "📋 Copiar Chave Pix";
+            btn.classList.remove("copied");
+        }, 2000);
+    } catch (err) {
+        console.error("Erro ao copiar chave:", err);
+        alert("Chave Pix: 11939286798 (Marcos Paulo)");
+    }
+};
 
 function aplicarTema(theme) {
     currentTheme = {...DEFAULT_THEME, ...(theme || {})};
