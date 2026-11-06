@@ -1,0 +1,1418 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080808">
+<title>RODOMEGA | Biblioteca de Históricos</title>
+
+<style>
+:root {
+  --preto:#080808;
+  --amarelo:#ffd400;
+  --cinza:#191919;
+  --cinza2:#292929;
+  --branco:#ffffff;
+  --vermelho:#a52222;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  background:var(--preto);
+  color:var(--branco);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+header {
+  text-align:center;
+  padding:25px 12px;
+  border-bottom:2px solid var(--amarelo);
+  background:#101010;
+}
+
+.logo {
+  color:var(--amarelo);
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:3px;
+}
+
+header h1 {
+  color:var(--amarelo);
+  font-size:19px;
+  margin:10px 0;
+}
+
+header small {
+  color:#ccc;
+}
+
+main {
+  max-width:1050px;
+  margin:auto;
+  padding:20px;
+}
+
+button {
+  cursor:pointer;
+  border:0;
+  border-radius:7px;
+  padding:12px 15px;
+  font-weight:bold;
+  font-size:14px;
+}
+
+button:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.amarelo {
+  background:var(--amarelo);
+  color:#111;
+}
+
+.secundario {
+  background:var(--cinza2);
+  color:white;
+  border:1px solid #555;
+}
+
+.excluir {
+  background:var(--vermelho);
+  color:white;
+}
+
+input,textarea {
+  width:100%;
+  padding:12px;
+  border-radius:7px;
+  border:1px solid #666;
+  background:#101010;
+  color:white;
+  font:inherit;
+}
+
+textarea {
+  min-height:160px;
+  resize:vertical;
+  line-height:1.5;
+}
+
+label {
+  display:block;
+  margin:13px 0 6px;
+  font-size:13px;
+  color:#ddd;
+}
+
+.pesquisa {
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.pesquisa input {
+  flex:1;
+  min-width:0;
+}
+
+.grade {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
+  gap:12px;
+}
+
+.item {
+  background:var(--amarelo);
+  color:#111;
+  text-align:left;
+  min-height:90px;
+  padding:15px;
+  transition:.15s;
+}
+
+.item:active {
+  transform:scale(.97);
+}
+
+.item strong {
+  display:block;
+  font-size:24px;
+  margin-bottom:7px;
+}
+
+.item span {
+  display:block;
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+
+.painel {
+  background:var(--cinza);
+  border:1px solid #444;
+  border-radius:10px;
+  padding:18px;
+  margin-top:25px;
+}
+
+.painel h2 {
+  color:var(--amarelo);
+  font-size:19px;
+}
+
+.linha {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.acoes {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:13px;
+}
+
+.registro {
+  padding:13px;
+  background:var(--cinza2);
+  border:1px solid #444;
+  border-radius:7px;
+  margin-top:10px;
+}
+
+.registro strong {
+  color:var(--amarelo);
+}
+
+.oculto {
+  display:none !important;
+}
+
+.vazio {
+  text-align:center;
+  color:#aaa;
+  padding:40px 12px;
+  border:1px dashed #555;
+  border-radius:8px;
+  margin-top:10px;
+}
+
+.status {
+  font-size:12px;
+  color:#bbb;
+  margin-top:12px;
+  overflow-wrap:anywhere;
+}
+
+.modal {
+  position:fixed;
+  inset:0;
+  background:#000e;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+  z-index:100;
+  overflow:auto;
+}
+
+.conteudo-modal {
+  background:#191919;
+  border:1px solid var(--amarelo);
+  border-radius:12px;
+  padding:20px;
+  width:min(450px,100%);
+  text-align:center;
+  max-height:95vh;
+  overflow:auto;
+}
+
+#tituloQr {
+  color:var(--amarelo);
+  font-weight:bold;
+  font-size:19px;
+  margin-bottom:10px;
+}
+
+#qr {
+  background:white;
+  padding:12px;
+  display:inline-block;
+  margin:15px auto;
+  max-width:100%;
+}
+
+#qr img,#qr canvas {
+  max-width:100%;
+  height:auto;
+}
+
+.opcoes {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin:15px 0;
+}
+
+.opcoes button {
+  background:var(--amarelo);
+  color:#111;
+  min-height:55px;
+}
+
+footer {
+  text-align:center;
+  padding:22px;
+  color:#777;
+  font-size:12px;
+  border-top:1px solid #292929;
+  margin-top:35px;
+}
+
+@media(max-width:550px) {
+  main {
+    padding:14px;
+  }
+
+  .linha {
+    grid-template-columns:1fr;
+  }
+
+  .pesquisa {
+    flex-wrap:wrap;
+  }
+
+  .pesquisa button {
+    width:100%;
+  }
+
+  .grade {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .item {
+    min-width:0;
+  }
+
+  .opcoes {
+    grid-template-columns:1fr 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">RODOMEGA</div>
+  <h1>BIBLIOTECA DE HISTÓRICOS</h1>
+  <small>Selecione o código da ocorrência desejada</small>
+</header>
+
+<main>
+
+  <div class="pesquisa">
+    <input
+      id="pesquisa"
+      type="search"
+      placeholder="Pesquisar código ou ocorrência..."
+      autocomplete="off"
+    >
+
+    <button class="secundario" onclick="abrirAdmin()">
+      ÁREA ADMINISTRATIVA
+    </button>
+  </div>
+
+  <section id="biblioteca" class="grade"></section>
+
+  <div id="vazio" class="vazio">
+    Nenhum histórico cadastrado.
+  </div>
+
+  <!-- PAINEL ADMINISTRATIVO -->
+
+  <section id="admin" class="painel oculto">
+
+    <h2>ÁREA DO ADMINISTRADOR</h2>
+
+    <div id="login">
+
+      <label>E-mail administrativo</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="username"
+        value="marcos.munhoz07@gmail.com"
+      >
+
+      <label>Senha</label>
+      <input
+        id="senha"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Digite sua senha"
+      >
+
+      <div class="acoes">
+        <button class="amarelo" onclick="entrar()">
+          ENTRAR
+        </button>
+
+        <button class="secundario" onclick="fecharAdmin()">
+          FECHAR
+        </button>
+      </div>
+
+    </div>
+
+    <!-- EDITOR -->
+
+    <div id="editor" class="oculto">
+
+      <h2 id="tituloFormulario">
+        Cadastrar novo histórico
+      </h2>
+
+      <input id="idEdicao" type="hidden">
+
+      <div class="linha">
+
+        <div>
+          <label>Letra do código</label>
+          <input
+            id="letra"
+            maxlength="1"
+            placeholder="Ex.: A"
+            autocomplete="off"
+          >
+        </div>
+
+        <div>
+          <label>Numeração</label>
+          <input
+            id="numero"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Ex.: 01"
+          >
+        </div>
+
+      </div>
+
+      <label>Nome da ocorrência</label>
+      <input
+        id="nome"
+        placeholder="Descrição da ocorrência"
+      >
+
+      <!-- HISTÓRICO NORMAL -->
+
+      <div id="textoNormal">
+
+        <label>Texto completo do histórico</label>
+
+        <textarea
+          id="historico"
+          placeholder="Digite ou cole o histórico completo..."
+        ></textarea>
+
+      </div>
+
+      <!-- HISTÓRICOS L-08 E L-12 -->
+
+      <div id="textosEspeciais" class="oculto">
+
+        <h2>Classificação das vítimas</h2>
+
+        <label>Vítima leve</label>
+        <textarea id="leve"></textarea>
+
+        <label>Vítima moderada</label>
+        <textarea id="moderada"></textarea>
+
+        <label>Vítima grave</label>
+        <textarea id="grave"></textarea>
+
+        <label>Vítima fatal</label>
+        <textarea id="fatal"></textarea>
+
+      </div>
+
+      <div class="acoes">
+
+        <button class="amarelo" onclick="salvar()">
+          SALVAR HISTÓRICO
+        </button>
+
+        <button class="secundario" onclick="limpar()">
+          NOVO CADASTRO
+        </button>
+
+        <button class="secundario" onclick="sair()">
+          SAIR
+        </button>
+
+      </div>
+
+      <h2 style="margin-top:28px">
+        Históricos cadastrados
+      </h2>
+
+      <div id="gerenciar"></div>
+
+    </div>
+
+    <div id="statusAdmin" class="status"></div>
+
+  </section>
+
+</main>
+
+<footer>
+  RODOMEGA • Biblioteca de Históricos
+</footer>
+
+<!-- MODAL QR CODE -->
+
+<div id="modal" class="modal oculto">
+
+  <div class="conteudo-modal">
+
+    <div id="tituloQr"></div>
+
+    <div id="opcoes" class="opcoes oculto"></div>
+
+    <div id="qr"></div>
+
+    <div id="statusQr" class="status">
+      Escaneie o código com outro celular.
+    </div>
+
+    <div class="acoes" style="justify-content:center">
+
+      <button class="secundario" onclick="baixarQr()">
+        SALVAR QR CODE
+      </button>
+
+      <button class="amarelo" onclick="fecharQr()">
+        FECHAR
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- BIBLIOTECA DE QR CODE -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- FIREBASE -->
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+
+/* =====================================
+   1. CONFIGURAÇÃO FIREBASE
+   ===================================== */
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCejUSVl5rZ3K3x1FI4Qoj9T0EBjQUBsPI",
+
+  authDomain: "relatoriobo-a246a.firebaseapp.com",
+
+  projectId: "relatoriobo-a246a",
+
+  storageBucket: "relatoriobo-a246a.firebasestorage.app",
+
+  messagingSenderId: "261461444124",
+
+  appId: "1:261461444124:web:532cf2176002e0d93b41d9",
+
+  measurementId: "G-H2XDWWQ5S7"
+
+};
+
+
+/* =====================================
+   2. ADMINISTRADOR
+   ===================================== */
+
+const ADMIN_EMAIL = "marcos.munhoz07@gmail.com";
+
+
+/* =====================================
+   3. INICIALIZAÇÃO
+   ===================================== */
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const auth = getAuth(app);
+
+let usuario = null;
+
+let registros = [];
+
+let carregando = false;
+
+const $ = id => document.getElementById(id);
+
+
+/* =====================================
+   4. MENSAGENS
+   ===================================== */
+
+function mostrarStatus(texto) {
+  $("statusAdmin").textContent = texto;
+}
+
+
+/* =====================================
+   5. CÓDIGOS
+   ===================================== */
+
+function montarCodigo(letra,numero) {
+
+  return letra.toUpperCase() + "-" +
+    String(numero).padStart(2,"0");
+
+}
+
+function codigoEspecial(codigo) {
+
+  return codigo === "L-08" ||
+         codigo === "L-12";
+
+}
+
+function idDocumento(letra,numero) {
+
+  return letra.toUpperCase() + "_" +
+    String(numero).padStart(2,"0");
+
+}
+
+
+/* =====================================
+   6. ABRIR PAINEL
+   ===================================== */
+
+window.abrirAdmin = function() {
+
+  $("admin").classList.remove("oculto");
+
+  $("admin").scrollIntoView({
+    behavior:"smooth"
+  });
+
+};
+
+window.fecharAdmin = function() {
+
+  $("admin").classList.add("oculto");
+
+};
+
+
+/* =====================================
+   7. LOGIN
+   ===================================== */
+
+window.entrar = async function() {
+
+  const email = $("email").value.trim();
+
+  const senha = $("senha").value;
+
+  if(!email || !senha) {
+
+    alert("Informe o e-mail e a senha.");
+
+    return;
+
+  }
+
+  try {
+
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      senha
+    );
+
+  } catch(e) {
+
+    console.error(e);
+
+    alert("Falha no login: " + e.message);
+
+  }
+
+};
+
+
+/* =====================================
+   8. VERIFICAR USUÁRIO
+   ===================================== */
+
+onAuthStateChanged(auth, async user => {
+
+  if(user && user.email === ADMIN_EMAIL) {
+
+    usuario = user;
+
+  } else {
+
+    usuario = null;
+
+    if(user) {
+      await signOut(auth);
+    }
+
+  }
+
+  $("login").classList.toggle(
+    "oculto",
+    !!usuario
+  );
+
+  $("editor").classList.toggle(
+    "oculto",
+    !usuario
+  );
+
+  if(usuario) {
+
+    mostrarStatus("Administrador conectado.");
+
+  } else {
+
+    mostrarStatus("Aguardando autenticação.");
+
+  }
+
+  await carregar();
+
+});
+
+
+/* =====================================
+   9. SAIR
+   ===================================== */
+
+window.sair = async function() {
+
+  await signOut(auth);
+
+  limpar();
+
+  mostrarStatus("Sessão encerrada.");
+
+};
+
+
+/* =====================================
+   10. CARREGAR FIRESTORE
+   ===================================== */
+
+async function carregar() {
+
+  if(carregando) return;
+
+  carregando = true;
+
+  try {
+
+    const resultado = await getDocs(
+      collection(db,"occurrences")
+    );
+
+    registros = resultado.docs.map(d => ({
+      id:d.id,
+      ...d.data()
+    }));
+
+    registros.sort((a,b) => {
+
+      const comparacao = a.letra.localeCompare(b.letra);
+
+      if(comparacao !== 0) return comparacao;
+
+      return Number(a.numero) - Number(b.numero);
+
+    });
+
+    renderizar();
+
+    mostrarStatus(
+      "Banco conectado. " +
+      registros.length +
+      " histórico(s) cadastrado(s)."
+    );
+
+  } catch(e) {
+
+    console.error(e);
+
+    mostrarStatus(
+      "Erro ao carregar Firestore: " + e.message
+    );
+
+  } finally {
+
+    carregando = false;
+
+  }
+
+}
+
+
+/* =====================================
+   11. MOSTRAR BIBLIOTECA
+   ===================================== */
+
+function renderizar() {
+
+  const busca = $("pesquisa").value
+    .trim()
+    .toLowerCase();
+
+  const lista = registros.filter(r => {
+
+    const codigo = (r.code || "").toLowerCase();
+
+    const nome = (r.nome || "").toLowerCase();
+
+    return codigo.includes(busca) ||
+           nome.includes(busca);
+
+  });
+
+  $("biblioteca").innerHTML = "";
+
+  $("vazio").classList.toggle(
+    "oculto",
+    lista.length > 0
+  );
+
+  lista.forEach(r => {
+
+    const botao = document.createElement("button");
+
+    botao.className = "item";
+
+    const codigo = document.createElement("strong");
+
+    codigo.textContent = r.code;
+
+    const nome = document.createElement("span");
+
+    nome.textContent = r.nome;
+
+    botao.append(codigo,nome);
+
+    botao.onclick = () => abrirRegistro(r);
+
+    $("biblioteca").append(botao);
+
+  });
+
+  renderizarAdmin();
+
+}
+
+
+/* =====================================
+   12. LISTA ADMINISTRATIVA
+   ===================================== */
+
+function renderizarAdmin() {
+
+  $("gerenciar").innerHTML = "";
+
+  if(!usuario) return;
+
+  registros.forEach(r => {
+
+    const div = document.createElement("div");
+
+    div.className = "registro";
+
+    const descricao = document.createElement("div");
+
+    const codigo = document.createElement("strong");
+
+    codigo.textContent = r.code;
+
+    const nome = document.createElement("span");
+
+    nome.textContent = " — " + r.nome;
+
+    descricao.append(codigo,nome);
+
+    const acoes = document.createElement("div");
+
+    acoes.className = "acoes";
+
+    const editar = document.createElement("button");
+
+    editar.className = "secundario";
+
+    editar.textContent = "EDITAR";
+
+    editar.onclick = () => editarRegistro(r);
+
+    const excluir = document.createElement("button");
+
+    excluir.className = "excluir";
+
+    excluir.textContent = "EXCLUIR";
+
+    excluir.onclick = () => excluirRegistro(r);
+
+    acoes.append(editar,excluir);
+
+    div.append(descricao,acoes);
+
+    $("gerenciar").append(div);
+
+  });
+
+}
+
+
+/* =====================================
+   13. ABRIR HISTÓRICO
+   ===================================== */
+
+function abrirRegistro(r) {
+
+  $("modal").classList.remove("oculto");
+
+  $("qr").innerHTML = "";
+
+  $("opcoes").innerHTML = "";
+
+  if(codigoEspecial(r.code)) {
+
+    $("tituloQr").textContent =
+      r.code + " — " + r.nome;
+
+    $("opcoes").classList.remove("oculto");
+
+    const classificacoes = [
+
+      ["VÍTIMA LEVE","leve"],
+
+      ["VÍTIMA MODERADA","moderada"],
+
+      ["VÍTIMA GRAVE","grave"],
+
+      ["VÍTIMA FATAL","fatal"]
+
+    ];
+
+    classificacoes.forEach(([nome,chave]) => {
+
+      const botao = document.createElement("button");
+
+      botao.textContent = nome;
+
+      botao.onclick = () => {
+
+        const texto = r.textos?.[chave] || "";
+
+        gerarQr(
+          r.code + " — " + nome,
+          texto
+        );
+
+      };
+
+      $("opcoes").append(botao);
+
+    });
+
+    $("statusQr").textContent =
+      "Selecione a classificação da vítima.";
+
+  } else {
+
+    gerarQr(
+      r.code + " — " + r.nome,
+      r.texto || ""
+    );
+
+  }
+
+}
+
+
+/* =====================================
+   14. GERAR QR CODE
+   ===================================== */
+
+function gerarQr(titulo,texto) {
+
+  $("opcoes").classList.add("oculto");
+
+  $("tituloQr").textContent = titulo;
+
+  $("qr").innerHTML = "";
+
+  if(!texto.trim()) {
+
+    $("statusQr").textContent =
+      "Este histórico ainda não possui texto cadastrado.";
+
+    return;
+
+  }
+
+  if(typeof QRCode === "undefined") {
+
+    $("statusQr").textContent =
+      "Biblioteca de QR Code não carregada. Verifique a internet.";
+
+    return;
+
+  }
+
+  try {
+
+    new QRCode($("qr"), {
+
+      text:texto,
+
+      width:280,
+
+      height:280,
+
+      colorDark:"#000000",
+
+      colorLight:"#ffffff",
+
+      correctLevel:QRCode.CorrectLevel.L
+
+    });
+
+    $("statusQr").textContent =
+      "QR Code gerado. Escaneie com outro celular.";
+
+  } catch(e) {
+
+    console.error(e);
+
+    $("statusQr").textContent =
+      "Não foi possível gerar o QR Code. O texto pode ser muito grande.";
+
+  }
+
+}
+
+
+/* =====================================
+   15. BAIXAR QR CODE
+   ===================================== */
+
+window.baixarQr = function() {
+
+  const canvas = $("qr").querySelector("canvas");
+
+  const imagem = $("qr").querySelector("img");
+
+  let url = "";
+
+  if(canvas) {
+
+    url = canvas.toDataURL("image/png");
+
+  } else if(imagem) {
+
+    url = imagem.src;
+
+  } else {
+
+    alert("Gere um QR Code primeiro.");
+
+    return;
+
+  }
+
+  const link = document.createElement("a");
+
+  link.href = url;
+
+  link.download = "RODOMEGA_QR_CODE.png";
+
+  link.click();
+
+};
+
+
+/* =====================================
+   16. FECHAR QR
+   ===================================== */
+
+window.fecharQr = function() {
+
+  $("modal").classList.add("oculto");
+
+  $("qr").innerHTML = "";
+
+};
+
+
+/* =====================================
+   17. CAMPOS ESPECIAIS
+   ===================================== */
+
+function atualizarCamposEspeciais() {
+
+  const letra = $("letra").value.trim().toUpperCase();
+
+  const numero = Number($("numero").value);
+
+  const codigo = montarCodigo(letra,numero);
+
+  const especial = codigoEspecial(codigo);
+
+  $("textoNormal").classList.toggle(
+    "oculto",
+    especial
+  );
+
+  $("textosEspeciais").classList.toggle(
+    "oculto",
+    !especial
+  );
+
+}
+
+
+/* =====================================
+   18. SALVAR HISTÓRICO
+   ===================================== */
+
+window.salvar = async function() {
+
+  if(!usuario || usuario.email !== ADMIN_EMAIL) {
+
+    alert("Acesso administrativo necessário.");
+
+    return;
+
+  }
+
+  const letra = $("letra").value.trim().toUpperCase();
+
+  const numero = Number($("numero").value);
+
+  const nome = $("nome").value.trim();
+
+  const idAntigo = $("idEdicao").value;
+
+  if(!/^[A-Z]$/.test(letra)) {
+
+    alert("Informe uma única letra de A até Z.");
+
+    return;
+
+  }
+
+  if(!Number.isInteger(numero) || numero < 1) {
+
+    alert("Informe uma numeração válida.");
+
+    return;
+
+  }
+
+  if(!nome) {
+
+    alert("Informe o nome da ocorrência.");
+
+    return;
+
+  }
+
+  const code = montarCodigo(letra,numero);
+
+  const id = idDocumento(letra,numero);
+
+  const existente = registros.find(r =>
+    r.id === id && r.id !== idAntigo
+  );
+
+  if(existente) {
+
+    alert("Este código já está cadastrado.");
+
+    return;
+
+  }
+
+  let dados = {
+
+    letra:letra,
+
+    numero:numero,
+
+    code:code,
+
+    nome:nome,
+
+    updatedAt:new Date().toISOString()
+
+  };
+
+  if(codigoEspecial(code)) {
+
+    dados.textos = {
+
+      leve:$("leve").value,
+
+      moderada:$("moderada").value,
+
+      grave:$("grave").value,
+
+      fatal:$("fatal").value
+
+    };
+
+  } else {
+
+    const texto = $("historico").value;
+
+    if(!texto.trim()) {
+
+      alert("Digite o texto do histórico.");
+
+      return;
+
+    }
+
+    dados.texto = texto;
+
+  }
+
+  try {
+
+    /*
+      Primeiro grava o documento novo.
+      Depois, se o código mudou, apaga o antigo.
+    */
+
+    await setDoc(
+      doc(db,"occurrences",id),
+      dados
+    );
+
+    if(idAntigo && idAntigo !== id) {
+
+      await deleteDoc(
+        doc(db,"occurrences",idAntigo)
+      );
+
+    }
+
+    alert("Histórico salvo com sucesso!");
+
+    limpar();
+
+    await carregar();
+
+  } catch(e) {
+
+    console.error(e);
+
+    alert("Erro ao salvar: " + e.message);
+
+  }
+
+};
+
+
+/* =====================================
+   19. EDITAR HISTÓRICO
+   ===================================== */
+
+function editarRegistro(r) {
+
+  if(!usuario) return;
+
+  $("idEdicao").value = r.id;
+
+  $("letra").value = r.letra;
+
+  $("numero").value = r.numero;
+
+  $("nome").value = r.nome;
+
+  atualizarCamposEspeciais();
+
+  if(codigoEspecial(r.code)) {
+
+    $("leve").value = r.textos?.leve || "";
+
+    $("moderada").value = r.textos?.moderada || "";
+
+    $("grave").value = r.textos?.grave || "";
+
+    $("fatal").value = r.textos?.fatal || "";
+
+  } else {
+
+    $("historico").value = r.texto || "";
+
+  }
+
+  $("tituloFormulario").textContent =
+    "Editando " + r.code;
+
+  $("editor").scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =====================================
+   20. EXCLUIR HISTÓRICO
+   ===================================== */
+
+async function excluirRegistro(r) {
+
+  if(!usuario) return;
+
+  const confirmar = confirm(
+    "Deseja realmente excluir o histórico " +
+    r.code + "?"
+  );
+
+  if(!confirmar) return;
+
+  try {
+
+    await deleteDoc(
+      doc(db,"occurrences",r.id)
+    );
+
+    alert("Histórico excluído com sucesso.");
+
+    await carregar();
+
+  } catch(e) {
+
+    console.error(e);
+
+    alert("Erro ao excluir: " + e.message);
+
+  }
+
+}
+
+
+/* =====================================
+   21. LIMPAR FORMULÁRIO
+   ===================================== */
+
+window.limpar = function() {
+
+  $("idEdicao").value = "";
+
+  $("letra").value = "";
+
+  $("numero").value = "";
+
+  $("nome").value = "";
+
+  $("historico").value = "";
+
+  $("leve").value = "";
+
+  $("moderada").value = "";
+
+  $("grave").value = "";
+
+  $("fatal").value = "";
+
+  $("textoNormal").classList.remove("oculto");
+
+  $("textosEspeciais").classList.add("oculto");
+
+  $("tituloFormulario").textContent =
+    "Cadastrar novo histórico";
+
+};
+
+
+/* =====================================
+   22. EVENTOS DOS CAMPOS
+   ===================================== */
+
+$("pesquisa").addEventListener(
+  "input",
+  renderizar
+);
+
+$("letra").addEventListener("input",() => {
+
+  $("letra").value = $("letra").value
+    .toUpperCase()
+    .replace(/[^A-Z]/g,"")
+    .slice(0,1);
+
+  atualizarCamposEspeciais();
+
+});
+
+$("numero").addEventListener(
+  "input",
+  atualizarCamposEspeciais
+);
+
+
+/* =====================================
+   23. ESTADO INICIAL
+   ===================================== */
+
+$("vazio").classList.remove("oculto");
+
+</script>
+
+</body>
+</html>
