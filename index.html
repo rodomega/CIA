@@ -35,24 +35,7 @@ body{
     padding:20px 10px;overflow-x:hidden;transition:background .25s,color .25s;
 }
 .phone-container{width:100%;max-width:420px;display:flex;flex-direction:column;flex:1;position:relative}
-.top-bar{display:flex;justify-content:space-between;align-items:center;padding:5px 0 15px}
-
-.location-button{
-    font-size:0.68rem;
-    color:var(--muted);
-    font-weight:500;
-    background:rgba(255,255,255,.05);
-    border:1px solid var(--border);
-    border-radius:6px;
-    padding:4px 8px;
-    cursor:pointer;
-    line-height:1;
-    transition:all .2s;
-}
-.location-button:active{transform:scale(.9)}
-.location-button.copied{color:#22c55e;border-color:#22c55e}
-
-.header{text-align:center;flex:1}
+.header{text-align:center;padding:10px 0 20px}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
 
 .grid-apps{
@@ -141,10 +124,6 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
 <body>
 <div class="phone-container">
-    <div class="top-bar">
-        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Obter Coordenadas">Obter Coordenadas</button>
-    </div>
-
     <div class="header">
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
     </div>
@@ -739,45 +718,29 @@ window.salvarDicas = async function() {
    ============================================================ */
 
 window.copiarGeolocalizacao = function() {
-    const button = $("locationButton");
-
     if (!navigator.geolocation) {
         alert("A localização não é suportada neste dispositivo.");
         return;
     }
 
-    button.textContent = "Carregando...";
-
     navigator.geolocation.getCurrentPosition(
         async position => {
             const latitude = position.coords.latitude.toFixed(6);
             const longitude = position.coords.longitude.toFixed(6);
-
             const coordenadas = `${latitude}, ${longitude}`;
 
             try {
                 await navigator.clipboard.writeText(coordenadas);
-
-                button.textContent = "Copiado!";
-                button.classList.add("copied");
-
-                setTimeout(() => {
-                    button.textContent = "Obter Coordenadas";
-                    button.classList.remove("copied");
-                }, 1500);
-
+                alert("Coordenadas copiadas para a área de transferência:\n" + coordenadas);
             } catch (error) {
                 console.error("Erro ao copiar localização:", error);
-                button.textContent = "Obter Coordenadas";
+                alert("Coordenadas obtidas: " + coordenadas);
             }
         },
-
         error => {
             console.error("Erro ao obter localização:", error);
-            button.textContent = "Obter Coordenadas";
             alert("Erro ao obter localização. Verifique a permissão do GPS.");
         },
-
         {
             enableHighAccuracy: true,
             timeout: 15000,
@@ -840,7 +803,15 @@ function renderizarGrid() {
         grid.appendChild(div);
     });
 
-    // BOTÃO DICAS ÚTEIS (Fixo ao lado do botão +)
+    // BOTÃO OBTER COORDENADAS (Fixo ao lado de Dicas Úteis)
+    const gpsItem = document.createElement("div");
+    gpsItem.className = "app-item";
+    gpsItem.onclick = window.copiarGeolocalizacao;
+    gpsItem.innerHTML =
+        `<div class="app-icon" style="background:rgba(34, 197, 94, 0.15);"><span style="font-size:26px">📍</span></div><div class="app-name">Coordenadas</div>`;
+    grid.appendChild(gpsItem);
+
+    // BOTÃO DICAS ÚTEIS (Fixo ao lado de Coordenadas)
     const dicasItem = document.createElement("div");
     dicasItem.className = "app-item";
     dicasItem.onclick = window.abrirModalDicas;
