@@ -221,18 +221,19 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         
         <div class="pix-box">
             <div class="qr-container">
-                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=11939286798" alt="QR Code Pix">
+                <!-- QR Code gerado apontando diretamente para o link oficial de cobrança do Nubank -->
+                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://nubank.com.br/cobrar/1jbpmb/6aee1e39-5da5-478e-8ce8-789177f41c72" alt="QR Code Pix Nubank">
             </div>
             
             <div style="width:100%">
                 <div class="pix-key-text">
-                    <strong>Chave Pix (Celular):</strong> 11939286798<br>
-                    <span style="color:var(--muted);font-size:0.7rem">Marcos Paulo Guidini Munhoz • Nubank</span>
+                    <strong>Chave Pix Copia e Cola:</strong><br>
+                    <span id="pixCopiaColaText" style="font-size:0.68rem;word-break:break-all;color:var(--accent);">00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos Paulo Guidini Munh6009SAO PAULO621405104K4vk5ooU163047F49</span>
                 </div>
             </div>
 
             <div class="pix-actions-row">
-                <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarChavePix()">📋 Copiar Pix</button>
+                <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">📋 Copiar Pix</button>
                 <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
             </div>
         </div>
@@ -529,13 +530,13 @@ function formatarTextoComLinks(texto) {
     });
 }
 
-// Função para copiar a chave Pix
-window.copiarChavePix = async function() {
-    const chave = "11939286798";
+// Função para copiar o código Pix Copia e Cola
+window.copiarPixCopiaECola = async function() {
+    const pixPayload = "00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos Paulo Guidini Munh6009SAO PAULO621405104K4vk5ooU163047F49";
     const btn = $("btnCopyPix");
 
     try {
-        await navigator.clipboard.writeText(chave);
+        await navigator.clipboard.writeText(pixPayload);
         btn.textContent = "✓ Copiado!";
         btn.classList.add("copied");
 
@@ -544,8 +545,8 @@ window.copiarChavePix = async function() {
             btn.classList.remove("copied");
         }, 2000);
     } catch (err) {
-        console.error("Erro ao copiar chave:", err);
-        alert("Chave Pix: 11939286798 (Marcos Paulo)");
+        console.error("Erro ao copiar Pix:", err);
+        alert("Erro ao copiar automaticamente. Tente selecionar o texto.");
     }
 };
 
