@@ -365,8 +365,8 @@ const firebaseConfig = {
 const ADMIN_EMAIL = "marcos.munhoz07@gmail.com";
 const COLECAO = "occurrences";
 
-// Limite por QR Code para garantir leitura estável
-const LIMITE_BYTES = 1800;
+// Limite otimizado de bytes por parte para leitura rápida e precisa via câmera
+const LIMITE_BYTES = 1000;
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -759,9 +759,10 @@ function gerarQr(titulo, texto) {
     caixa.className = "qr-imagem";
 
     const img = document.createElement("img");
-    // URL otimizada para carregar o QR Code diretamente via API estável
     const dadosUrlCodificados = encodeURIComponent(conteudo);
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${dadosUrlCodificados}`;
+    
+    // Gerando com tamanho otimizado (400x400) e nível de correção 'M' para leitura rápida
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${dadosUrlCodificados}&ecc=M`;
     img.alt = `QR Code Parte ${indice + 1}`;
     
     caixa.appendChild(img);
@@ -820,7 +821,6 @@ function baixarQr() {
     return;
   }
 
-  // Faz o download direto da imagem gerada
   fetch(imgAtual.src)
     .then(resposta => resposta.blob())
     .then(blob => {
