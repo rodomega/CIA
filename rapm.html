@@ -6,9 +6,6 @@
 <meta name="theme-color" content="#111111">
 <title>RAPM | Biblioteca de Históricos</title>
 
-<!-- Biblioteca QR Code: geração direta em Canvas -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-
 <style>
 :root {
   --amarelo:#ffd400;
@@ -198,8 +195,9 @@ button.sucesso { background:var(--verde);color:white; }
   max-width:100%;
   min-height:304px;
   border-radius:5px;
+  margin:0 auto;
 }
-.qr-imagem canvas {
+.qr-imagem img {
   display:block;
   width:280px!important;
   height:280px!important;
@@ -367,8 +365,8 @@ const firebaseConfig = {
 const ADMIN_EMAIL = "marcos.munhoz07@gmail.com";
 const COLECAO = "occurrences";
 
-// Limite conservador em bytes UTF-8 por QR Code.
-const LIMITE_BYTES = 2200;
+// Limite por QR Code para garantir leitura estável
+const LIMITE_BYTES = 1800;
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -420,7 +418,6 @@ $("btnEntrar").addEventListener("click", async () => {
   }
 });
 
-// Permite entrar pressionando ENTER no campo de senha.
 $("senhaLogin").addEventListener("keydown", event => {
   if (event.key === "Enter") {
     $("btnEntrar").click();
@@ -450,7 +447,6 @@ onAuthStateChanged(auth, user => {
   listarHistoricos();
 });
 
-// DADOS DO FIREBASE
 async function carregarDados() {
   const consulta = await getDocs(collection(db, COLECAO));
   historicos = [];
@@ -541,7 +537,6 @@ async function listarHistoricos() {
 
 $("pesquisa").addEventListener("input", listarHistoricos);
 
-// FORMULÁRIO ADMINISTRATIVO
 function verificarCodigoEspecial() {
   const codigo = $("codigo").value.trim().toUpperCase();
   const especial = codigo === "L-08" || codigo === "L-12";
@@ -670,7 +665,6 @@ async function excluirHistorico(item) {
   }
 }
 
-// ABERTURA DO HISTÓRICO
 function abrirHistorico(item) {
   $("modal").classList.remove("oculto");
   $("tituloQr").textContent = `${item.code} - ${item.nome}`;
@@ -708,7 +702,6 @@ function abrirHistorico(item) {
   }
 }
 
-// DIVISÃO EM PARTES POR BYTES UTF-8
 function dividirTexto(texto, limite) {
   const partes = [];
   let parteAtual = "";
@@ -733,8 +726,7 @@ function dividirTexto(texto, limite) {
   return partes;
 }
 
-// GERAÇÃO REAL DO QR CODE
-async function gerarQr(titulo, texto) {
+function gerarQr(titulo, texto) {
   $("tituloQr").textContent = titulo;
   $("opcoes").classList.add("oculto");
   $("qrCarrossel").innerHTML = "";
@@ -747,21 +739,10 @@ async function gerarQr(titulo, texto) {
     return;
   }
 
-  const biblioteca = window.QRCode;
-
-  if (!biblioteca || typeof biblioteca.toCanvas !== "function") {
-    $("statusQr").textContent =
-      "ERRO: biblioteca QR Code não carregada. Verifique a conexão com a internet e recarregue a página.";
-    return;
-  }
-
   partesQr = dividirTexto(texto, LIMITE_BYTES);
   indiceQrAtual = 0;
 
-  $("statusQr").textContent =
-    `Preparando ${partesQr.length} QR Code(s)...`;
-
-  const cards = [];
+  $("statusQr").textContent = `Preparando ${partesQr.length} QR Code(s)...`;
 
   partesQr.forEach((conteudo, indice) => {
     const card = document.createElement("div");
@@ -777,75 +758,29 @@ async function gerarQr(titulo, texto) {
     const caixa = document.createElement("div");
     caixa.className = "qr-imagem";
 
-    const canvas = document.createElement("canvas");
-    canvas.width = 280;
-    canvas.height = 280;
-    caixa.appendChild(canvas);
-
+    const img = document.createElement("img");
+    // URL otimizada para carregar o QR Code diretamente via API estável
+    const dadosUrlCodificados = encodeURIComponent(conteudo);
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${dadosUrlCodificados}`;
+    img.alt = `QR Code Parte ${indice + 1}`;
+    
+    caixa.appendChild(img);
     card.appendChild(caixa);
     $("qrCarrossel").appendChild(card);
-
-    cards.push({canvas, conteudo});
   });
 
-  try {
-    // Aguarda a geração de todos os códigos.
-    await Promise.all(cards.map(({canvas, conteudo}) => {
-      return new Promise((resolve, reject) => {
-        biblioteca.toCanvas(canvas, conteudo, {
-          errorCorrectionLevel:"L",
-          margin:2,
-          width:280,
-          color:{
-            dark:"#000000",
-            light:"#ffffff"
-          }
-        }, erro => {
-          if (erro) {
-            reject(erro);
-          } else {
-            resolve();
-          }
-        });
-      });
-    }));
-
-    // Confirma que os Canvas foram renderizados.
-    const todosGerados = cards.every(({canvas}) =>
-      canvas.width > 0 &&
-      canvas.height > 0 &&
-      canvas.getContext("2d") !== null
-    );
-
-    if (!todosGerados) {
-      throw new Error("Um ou mais QR Codes não foram renderizados.");
-    }
-
-    if (partesQr.length > 1) {
-      $("instrucaoDeslize").classList.remove("oculto");
-      $("contadorQr").classList.remove("oculto");
-      atualizarContador();
-
-      $("statusQr").textContent =
-        "Todos os QR Codes foram gerados. Escaneie as partes na ordem indicada.";
-    } else {
-      $("statusQr").textContent =
-        "QR Code gerado com sucesso. Escaneie para copiar o texto.";
-    }
-
-    $("qrCarrossel").scrollLeft = 0;
-
-  } catch (erro) {
-    console.error("Falha na geração do QR Code:", erro);
-
-    $("qrCarrossel").innerHTML = "";
-    $("instrucaoDeslize").classList.add("oculto");
-    $("contadorQr").classList.add("oculto");
-
+  if (partesQr.length > 1) {
+    $("instrucaoDeslize").classList.remove("oculto");
+    $("contadorQr").classList.remove("oculto");
+    atualizarContador();
     $("statusQr").textContent =
-      "ERRO AO GERAR QR CODE: " +
-      (erro.message || "Não foi possível desenhar. Tente novamente.");
+      "Todos os QR Codes foram gerados. Escaneie as partes na ordem indicada.";
+  } else {
+    $("statusQr").textContent =
+      "QR Code gerado com sucesso. Escaneie para copiar o texto.";
   }
+
+  $("qrCarrossel").scrollLeft = 0;
 }
 
 function atualizarContador() {
@@ -876,27 +811,32 @@ $("qrCarrossel").addEventListener("scroll", () => {
   }, 100);
 });
 
-// SALVAR O QR CODE QUE ESTÁ VISÍVEL
 function baixarQr() {
-  const cards = $("qrCarrossel").querySelectorAll("canvas");
-  const canvas = cards[indiceQrAtual];
+  const imagens = $("qrCarrossel").querySelectorAll("img");
+  const imgAtual = imagens[indiceQrAtual];
 
-  if (!canvas) {
+  if (!imgAtual) {
     alert("Não há QR Code disponível para salvar.");
     return;
   }
 
-  try {
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = `RAPM_QR_PARTE_${indiceQrAtual + 1}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (erro) {
-    console.error(erro);
-    alert("Não foi possível salvar o QR Code.");
-  }
+  // Faz o download direto da imagem gerada
+  fetch(imgAtual.src)
+    .then(resposta => resposta.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `RAPM_QR_PARTE_${indiceQrAtual + 1}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(erro => {
+      console.error(erro);
+      alert("Não foi possível salvar o QR Code diretamente. Tente clicar com o botão direito na imagem e salvá-la.");
+    });
 }
 
 function fecharQr() {
@@ -909,7 +849,6 @@ function fecharQr() {
 $("btnBaixar").addEventListener("click", baixarQr);
 $("btnFechar").addEventListener("click", fecharQr);
 
-// INICIALIZAÇÃO
 listarHistoricos();
 </script>
 
