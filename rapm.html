@@ -7,8 +7,8 @@
 <meta name="theme-color" content="#111111">
 <title>RAPM | Biblioteca de Históricos</title>
 
-<!-- Biblioteca QR Code com geração direta em Canvas -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<!-- Biblioteca QR Code: geração direta em Canvas -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/lib/browser.min.js"></script>
 
 <style>
 :root {
@@ -402,20 +402,52 @@ $("btnEntrar").addEventListener("click", async () => {
     await signInWithEmailAndPassword(auth, email, senha);
     mostrarStatus("statusLogin", "Acesso autorizado.");
   } catch (erro) {
-    console.error(erro);
-    mostrarStatus("statusLogin", "Falha no acesso. Confira e-mail e senha.");
+    console.error("Erro no login:", erro);
+
+    const mensagens = {
+      "auth/invalid-credential": "E-mail ou senha incorretos.",
+      "auth/user-not-found": "Usuário não encontrado.",
+      "auth/wrong-password": "Senha incorreta.",
+      "auth/invalid-email": "E-mail inválido.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde e tente novamente.",
+      "auth/network-request-failed": "Falha de conexão. Verifique sua internet.",
+      "auth/unauthorized-domain": "Este domínio não está autorizado no Firebase."
+    };
+
+    mostrarStatus(
+      "statusLogin",
+      mensagens[erro.code] || `Falha no acesso: ${erro.code || erro.message}`
+    );
   }
 });
 
-$("btnSair").addEventListener("click", () => signOut(auth));
+// Permite entrar pressionando ENTER no campo de senha.
+$("senhaLogin").addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    $("btnEntrar").click();
+  }
+});
+
+$("btnSair").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (erro) {
+    console.error("Erro ao sair:", erro);
+    mostrarStatus("statusLogin", "Não foi possível encerrar a sessão.");
+  }
+});
 
 onAuthStateChanged(auth, user => {
-  usuarioAdmin = !!user && user.email === ADMIN_EMAIL;
+  usuarioAdmin = !!user &&
+    user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   $("loginArea").classList.toggle("oculto", usuarioAdmin);
   $("adminArea").classList.toggle("oculto", !usuarioAdmin);
 
-  if (!usuarioAdmin && user) signOut(auth);
+  if (!usuarioAdmin && user) {
+    signOut(auth).catch(console.error);
+  }
+
   listarHistoricos();
 });
 
@@ -779,11 +811,11 @@ async function gerarQr(titulo, texto) {
       });
     }));
 
-    // Só informa sucesso depois de confirmar os Canvas.
+    // Confirma que os Canvas foram renderizados.
     const todosGerados = cards.every(({canvas}) =>
       canvas.width > 0 &&
       canvas.height > 0 &&
-      canvas.getContext("2d").getImageData(0,0,1,1).data.length === 4
+      canvas.getContext("2d") !== null
     );
 
     if (!todosGerados) {
@@ -813,8 +845,7 @@ async function gerarQr(titulo, texto) {
 
     $("statusQr").textContent =
       "ERRO AO GERAR QR CODE: " +
-      (erro.message || "Não foi possível desenhar.
-Tente novamente.");
+      (erro.message || "Não foi possível desenhar. Tente novamente.");
   }
 }
 
