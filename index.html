@@ -124,10 +124,11 @@ body{
 .donation-footer{
     margin-top:15px;
     padding:16px;
-    background:rgba(255, 255, 255, 0.04);
+    background:rgba(255, 255, 255, 0.05);
     border:1px solid var(--border);
     border-radius:14px;
     text-align:center;
+    width:100%;
 }
 .donation-footer h3{
     font-size:0.85rem;
@@ -150,42 +151,54 @@ body{
     gap:10px;
 }
 .qr-container{
-    background:#fff;
-    padding:8px;
-    border-radius:10px;
+    background:#ffffff;
+    padding:10px;
+    border-radius:12px;
     display:inline-block;
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
 }
 .qr-container img{
-    width:130px;
-    height:130px;
+    width:140px;
+    height:140px;
     display:block;
 }
 .pix-key-text{
     font-size:0.75rem;
-    color:var(--text);
+    color:#f8fafc;
     background:var(--input);
-    padding:6px 10px;
-    border-radius:6px;
+    padding:8px 10px;
+    border-radius:8px;
     border:1px solid var(--border);
-    word-break:break-all;
+    line-height:1.4;
     user-select:text;
     -webkit-user-select:text;
 }
-.btn-copy-pix{
-    background:var(--primary);
+.pix-actions-row{
+    display:flex;
+    gap:8px;
+    width:100%;
+    margin-top:4px;
+}
+.btn-copy-pix,.btn-sugestao{
+    flex:1;
     color:#fff;
     border:0;
     border-radius:8px;
-    padding:8px 16px;
-    font-size:0.78rem;
+    padding:8px 10px;
+    font-size:0.75rem;
     font-weight:600;
     cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
     transition:background 0.2s, transform 0.1s;
 }
-.btn-copy-pix:active{transform:scale(0.95);}
-.btn-copy-pix:hover{background:var(--primaryHover);}
+.btn-copy-pix{background:var(--primary);}
+.btn-copy-pix:active,.btn-sugestao:active{transform:scale(0.95);}
 .btn-copy-pix.copied{background:#22c55e;}
+.btn-sugestao{background:#475569;}
+.btn-sugestao:hover{background:#64748b;}
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 </style>
@@ -201,22 +214,27 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
 
-    <!-- SEÇÃO DE APOIO / PIX -->
+    <!-- SEÇÃO DE APOIO / PIX / SUGESTÕES -->
     <div class="donation-footer">
         <h3>"ANJOS DO ASFALTO"</h3>
         <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook e continuidade das melhorias!</p>
         
         <div class="pix-box">
             <div class="qr-container">
-                <!-- QR Code gerado automaticamente via API pública com a chave Pix (Telefone) -->
-                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=11939286798" alt="QR Code Pix">
+                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=11939286798" alt="QR Code Pix">
             </div>
             
             <div style="width:100%">
-                <div class="pix-key-text" id="pixKeyText">Chave Pix (Celular): 11939286798<br><span style="font-size:0.7rem;color:var(--muted)">Marcos Paulo Guidini Munhoz (Nubank)</span></div>
+                <div class="pix-key-text">
+                    <strong>Chave Pix (Celular):</strong> 11939286798<br>
+                    <span style="color:var(--muted);font-size:0.7rem">Marcos Paulo Guidini Munhoz • Nubank</span>
+                </div>
             </div>
 
-            <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarChavePix()">📋 Copiar Chave Pix</button>
+            <div class="pix-actions-row">
+                <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarChavePix()">📋 Copiar Pix</button>
+                <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
+            </div>
         </div>
     </div>
 </div>
@@ -518,11 +536,11 @@ window.copiarChavePix = async function() {
 
     try {
         await navigator.clipboard.writeText(chave);
-        btn.textContent = "✓ Chave Copiada!";
+        btn.textContent = "✓ Copiado!";
         btn.classList.add("copied");
 
         setTimeout(() => {
-            btn.textContent = "📋 Copiar Chave Pix";
+            btn.textContent = "📋 Copiar Pix";
             btn.classList.remove("copied");
         }, 2000);
     } catch (err) {
