@@ -152,7 +152,7 @@ body{
 }
 .qr-container{
     background:#ffffff;
-    padding:10px;
+    padding:8px;
     border-radius:12px;
     display:inline-block;
     box-shadow:0 4px 12px rgba(0,0,0,0.4);
@@ -161,6 +161,7 @@ body{
     width:140px;
     height:140px;
     display:block;
+    object-fit:contain;
 }
 .pix-key-text{
     font-size:0.75rem;
@@ -221,8 +222,8 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         
         <div class="pix-box">
             <div class="qr-container">
-                <!-- QR Code gerado apontando diretamente para o link oficial de cobrança do Nubank -->
-                <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://nubank.com.br/cobrar/1jbpmb/6aee1e39-5da5-478e-8ce8-789177f41c72" alt="QR Code Pix Nubank">
+                <!-- Imagem exata do QR Code Pix enviada por você (certifique-se de salvar o arquivo como qrcode-pix.png na pasta icons ou alterar o caminho) -->
+                <img id="pixQrCode" src="./icons/qrcode-pix.png" alt="QR Code Pix Nubank" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos%20Paulo%20Guidini%20Munh6009SAO%20PAULO621405104K4vk5ooU163047F49'">
             </div>
             
             <div style="width:100%">
