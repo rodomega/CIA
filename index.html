@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Painel Operacional</title>
 <meta name="theme-color" content="#0f172a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Portal PM">
-<link rel="manifest" href="./manifest.json">
 <link id="faviconLink" rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link id="appleIconLink" rel="apple-touch-icon" href="./icons/icon-192.png">
 
@@ -39,31 +34,27 @@ body{
     color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;
     padding:20px 10px;overflow-x:hidden;transition:background .25s,color .25s;
 }
-.phone-container{width:100%;max-width:420px;display:flex;flex-direction:column;flex:1}
-.header{text-align:center;padding:10px 0 20px}
-.header h1{font-size:1.1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.phone-container{width:100%;max-width:420px;display:flex;flex-direction:column;flex:1;position:relative}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:5px 0 15px}
 
 .location-button{
-    font-size:1.15rem;
-    color:var(--accent);
-    margin-top:4px;
+    font-size:0.68rem;
+    color:var(--muted);
     font-weight:500;
-    background:none;
-    border:0;
-    padding:2px 6px;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 8px;
     cursor:pointer;
     line-height:1;
+    transition:all .2s;
 }
-.location-button:active{transform:scale(.85)}
-.location-button.copied{color:#22c55e}
+.location-button:active{transform:scale(.9)}
+.location-button.copied{color:#22c55e;border-color:#22c55e}
 
-#installButton{
-    margin-top:12px;background:var(--primary);color:#fff;border:0;border-radius:10px;padding:10px 18px;
-    font-size:.85rem;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35)
-}
-#installButton:active{transform:scale(.95)}
-#installButton:hover{background:var(--primaryHover)}
-#installButton[hidden]{display:none}
+.header{text-align:center;flex:1}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+
 .grid-apps{
     display:grid;grid-template-columns:repeat(4,1fr);gap:var(--appGap) 12px;padding:10px 5px;
     align-content:start;flex:1
@@ -92,13 +83,17 @@ body{
     box-shadow:0 10px 25px rgba(0,0,0,.5);animation:popUp .2s ease;max-height:92vh;overflow-y:auto
 }
 @keyframes popUp{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-title{font-size:1.1rem;margin-bottom:12px;font-weight:600;color:var(--accent);text-align:center}
+.modal-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-title{font-size:1.1rem;font-weight:600;color:var(--accent);text-align:center;flex:1}
+.edit-pencil-btn{background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer;padding:4px}
+.edit-pencil-btn:active{transform:scale(.85)}
 .modal-card label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600}
-.modal-card input,.modal-card select{
+.modal-card input,.modal-card select,.modal-card textarea{
     width:100%;padding:10px 12px;margin-bottom:12px;background:var(--input);border:1px solid #475569;color:#fff;
     border-radius:8px;font-size:.9rem;outline:none
 }
-.modal-card input:focus,.modal-card select:focus{border-color:var(--accent)}
+.modal-card textarea{resize:vertical;min-height:120px;user-select:text;-webkit-user-select:text}
+.modal-card input:focus,.modal-card select:focus,.modal-card textarea:focus{border-color:var(--accent)}
 .modal-card input[type=color]{height:42px;padding:3px}
 .modal-card input[type=file]{padding:8px}
 .modal-buttons{display:flex;gap:8px;margin-top:10px}
@@ -135,18 +130,23 @@ body{
 .range-row input[type=range]{flex:1;margin:0}
 .range-value{width:48px;text-align:right;color:var(--accent);font-size:.8rem;font-weight:700}
 .status-box{font-size:.75rem;color:var(--muted);background:rgba(0,0,0,.18);padding:9px;border-radius:8px;margin:8px 0;line-height:1.4}
+.dicas-box-text{
+    font-size:.9rem;line-height:1.5;color:var(--text);white-space:pre-wrap;
+    background:var(--input);padding:12px;border-radius:10px;border:1px solid var(--border);
+    max-height:280px;overflow-y:auto;user-select:text;-webkit-user-select:text
+}
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 </style>
 </head>
 
 <body>
 <div class="phone-container">
+    <div class="top-bar">
+        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Obter Coordenadas">Obter Coordenadas</button>
+    </div>
+
     <div class="header">
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
-
-        <button class="location-button" id="locationButton" onclick="copiarGeolocalizacao()" aria-label="Copiar localização">> GPS <</button>
-
-        <button id="installButton" hidden onclick="instalarPWA()">📲 Instalar aplicativo</button>
     </div>
 
     <div class="grid-apps" id="appGrid">
@@ -155,6 +155,32 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
     <div style="text-align:center;font-size:.7rem;color:var(--muted);padding:15px 0">
         "ANJOS DO ASFALTO"
+    </div>
+</div>
+
+<!-- DICAS ÚTEIS MODAL -->
+<div class="modal-overlay" id="dicasModal">
+    <div class="modal-card">
+        <div class="modal-header-row">
+            <div style="width:24px"></div>
+            <div class="modal-title">💡 Dicas Úteis</div>
+            <button class="edit-pencil-btn" title="Editar Dicas" onclick="solicitarSenhaEdicaoDicas()">✏️</button>
+        </div>
+
+        <div id="dicasModoLeitura">
+            <div class="dicas-box-text" id="dicasConteudoText">Nenhuma dica cadastrada. Clique no lápis acima para adicionar.</div>
+            <div style="margin-top:15px">
+                <button class="btn btn-secondary" style="width:100%" onclick="fecharModais()">Fechar</button>
+            </div>
+        </div>
+
+        <div id="dicasModoEdicao" style="display:none">
+            <textarea id="dicasInputText" placeholder="Digite aqui as dicas úteis..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="cancelarEdicaoDicas()">Cancelar</button>
+                <button class="btn btn-primary" id="btnSalvarDicas" onclick="salvarDicas()">💾 Salvar</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -179,7 +205,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- SENHA -->
+<!-- SENHA ADMIN / DICAS -->
 <div class="modal-overlay" id="passwordModal">
     <div class="modal-card">
         <div class="modal-title">Área Restrita</div>
@@ -376,6 +402,7 @@ const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 const appsCol = collection(db, "apps");
 const portalConfigRef = doc(db, "config", "portal");
+const dicasConfigRef = doc(db, "config", "dicas");
 
 const ESCALA_BASE_URL =
     "https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?";
@@ -400,7 +427,8 @@ let globalApps = [];
 let appEmEdicaoSub = null;
 let promptCallback = null;
 let currentTheme = {...DEFAULT_THEME};
-let deferredInstallPrompt = null;
+let senhaModoAcao = "admin"; // 'admin' ou 'dicas'
+let textoDicasAtual = "";
 
 const $ = id => document.getElementById(id);
 
@@ -648,6 +676,63 @@ onSnapshot(portalConfigRef, snap => {
     }
 });
 
+/* ============================================================
+   DICAS ÚTEIS
+   ============================================================ */
+
+onSnapshot(dicasConfigRef, snap => {
+    if (snap.exists() && snap.data().conteudo !== undefined) {
+        textoDicasAtual = snap.data().conteudo || "";
+        $("dicasConteudoText").textContent = textoDicasAtual || "Nenhuma dica cadastrada. Clique no lápis acima para adicionar.";
+    }
+});
+
+window.abrirModalDicas = function() {
+    $("dicasModoLeitura").style.display = "block";
+    $("dicasModoEdicao").style.display = "none";
+    $("dicasModal").style.display = "flex";
+};
+
+window.solicitarSenhaEdicaoDicas = function() {
+    senhaModoAcao = "dicas";
+    window.abrirModalSenha();
+};
+
+function habilitarEdicaoDicas() {
+    fecharModais();
+    $("dicasInputText").value = textoDicasAtual;
+    $("dicasModoLeitura").style.display = "none";
+    $("dicasModoEdicao").style.display = "block";
+    $("dicasModal").style.display = "flex";
+    $("dicasInputText").focus();
+}
+
+window.cancelarEdicaoDicas = function() {
+    $("dicasModoEdicao").style.display = "none";
+    $("dicasModoLeitura").style.display = "block";
+};
+
+window.salvarDicas = async function() {
+    const btn = $("btnSalvarDicas");
+    const novoTexto = $("dicasInputText").value.trim();
+    btn.disabled = true;
+    btn.textContent = "Salvando...";
+
+    try {
+        await setDoc(dicasConfigRef, {conteudo: novoTexto, updatedAt: Date.now()}, {merge:true});
+        textoDicasAtual = novoTexto;
+        $("dicasConteudoText").textContent = novoTexto || "Nenhuma dica cadastrada. Clique no lápis acima para adicionar.";
+        window.cancelarEdicaoDicas();
+        alert("Dicas salvas com sucesso!");
+    } catch (err) {
+        console.error("Erro ao salvar dicas:", err);
+        alert("Erro ao salvar as dicas.\n\n" + (err.code || err.message || err));
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "💾 Salvar";
+    }
+};
+
 
 /* ============================================================
    GEOLOCALIZAÇÃO
@@ -661,7 +746,7 @@ window.copiarGeolocalizacao = function() {
         return;
     }
 
-    button.textContent = "⌛";
+    button.textContent = "Carregando...";
 
     navigator.geolocation.getCurrentPosition(
         async position => {
@@ -673,23 +758,24 @@ window.copiarGeolocalizacao = function() {
             try {
                 await navigator.clipboard.writeText(coordenadas);
 
-                button.textContent = "✓";
+                button.textContent = "Copiado!";
                 button.classList.add("copied");
 
                 setTimeout(() => {
-                    button.textContent = "> GPS <";
+                    button.textContent = "Obter Coordenadas";
                     button.classList.remove("copied");
-                }, 1000);
+                }, 1500);
 
             } catch (error) {
                 console.error("Erro ao copiar localização:", error);
-                button.textContent = "> GPS <";
+                button.textContent = "Obter Coordenadas";
             }
         },
 
         error => {
             console.error("Erro ao obter localização:", error);
-            button.textContent = "> GPS <";
+            button.textContent = "Obter Coordenadas";
+            alert("Erro ao obter localização. Verifique a permissão do GPS.");
         },
 
         {
@@ -699,45 +785,6 @@ window.copiarGeolocalizacao = function() {
         }
     );
 };
-
-
-/* ============================================================
-   SERVICE WORKER / PWA
-   ============================================================ */
-
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js")
-            .catch(err => console.error("Erro Service Worker:", err));
-    });
-}
-
-const installButton = $("installButton");
-
-window.addEventListener("beforeinstallprompt", event => {
-    event.preventDefault();
-    deferredInstallPrompt = event;
-    installButton.hidden = false;
-});
-
-window.instalarPWA = async function() {
-    if (!deferredInstallPrompt) {
-        alert("A instalação ainda não está disponível.\n\nAbra o Portal PM pelo Google Chrome e aguarde alguns segundos.");
-        return;
-    }
-
-    deferredInstallPrompt.prompt();
-
-    await deferredInstallPrompt.userChoice;
-
-    deferredInstallPrompt = null;
-    installButton.hidden = true;
-};
-
-window.addEventListener("appinstalled", () => {
-    deferredInstallPrompt = null;
-    installButton.hidden = true;
-});
 
 
 /* ============================================================
@@ -793,10 +840,21 @@ function renderizarGrid() {
         grid.appendChild(div);
     });
 
-    const plus = document.createElement("div");
+    // BOTÃO DICAS ÚTEIS (Fixo ao lado do botão +)
+    const dicasItem = document.createElement("div");
+    dicasItem.className = "app-item";
+    dicasItem.onclick = window.abrirModalDicas;
+    dicasItem.innerHTML =
+        `<div class="app-icon" style="background:rgba(56, 189, 248, 0.15);"><span style="font-size:26px">💡</span></div><div class="app-name">Dicas Úteis</div>`;
+    grid.appendChild(dicasItem);
 
+    // BOTÃO + (ADICIONAR)
+    const plus = document.createElement("div");
     plus.className = "app-item";
-    plus.onclick = window.abrirModalSenha;
+    plus.onclick = () => {
+        senhaModoAcao = "admin";
+        window.abrirModalSenha();
+    };
 
     plus.innerHTML =
         `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
@@ -891,7 +949,11 @@ window.abrirModalSenha = function() {
 window.verificarSenha = function() {
     if ($("adminPassword").value === "3303") {
         fecharModais();
-        abrirPainelAdmin();
+        if (senhaModoAcao === "dicas") {
+            habilitarEdicaoDicas();
+        } else {
+            abrirPainelAdmin();
+        }
     } else {
         alert("Senha incorreta!");
     }
@@ -1012,8 +1074,6 @@ window.salvarNovoApp = async function() {
             url:type === "link" ? url : ""
         };
 
-        // Preserva os subitens existentes ao editar o aplicativo.
-        // Isso evita que eles sejam apagados quando o app é salvo novamente.
         if (docId) {
             const atual = globalApps.find(a => a.docId === docId);
 
@@ -1134,9 +1194,6 @@ function atualizarListaAdmin() {
         actions.className =
             "admin-actions";
 
-        // O botão Subitens fica disponível para qualquer aplicativo.
-        // Se o app ainda for um link direto, abrir o editor de subitens
-        // o converte automaticamente para submenu.
         const sub =
             document.createElement("button");
 
@@ -1207,8 +1264,6 @@ window.abrirConfigSubitems = async function(docId) {
 
     if (!appEmEdicaoSub) return;
 
-    // Se o aplicativo ainda for um link direto, transforma-o em submenu
-    // sem apagar os dados existentes.
     if (appEmEdicaoSub.type !== "submenu") {
         try {
             await updateDoc(
