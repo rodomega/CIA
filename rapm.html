@@ -2,300 +2,241 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#111111">
-  <title>RAPM | Biblioteca de Históricos</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>RAPM | Biblioteca de Históricos</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Biblioteca QR Code com geração direta em Canvas -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 
-  <style>
-    :root {
-      --amarelo: #ffd400;
-      --preto: #111;
-      --cinza: #242424;
-      --cinza2: #333;
-      --branco: #f5f5f5;
-      --verde: #20a464;
-      --vermelho: #d93636;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--preto);
-      color: var(--branco);
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    header {
-      background: #080808;
-      border-bottom: 3px solid var(--amarelo);
-      padding: 22px 15px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      color: var(--amarelo);
-      font-size: 34px;
-      letter-spacing: 4px;
-    }
-
-    header p {
-      margin: 7px 0 0;
-      color: #ddd;
-      font-size: 13px;
-      letter-spacing: 2px;
-    }
-
-    main {
-      width: min(100% - 24px, 1000px);
-      margin: 25px auto;
-    }
-
-    .painel {
-      background: var(--cinza);
-      border: 1px solid #444;
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-
-    h2 {
-      color: var(--amarelo);
-      margin: 0 0 15px;
-      font-size: 20px;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      margin: 6px 0 12px;
-      background: #151515;
-      color: white;
-      border: 1px solid #555;
-      border-radius: 7px;
-      font-size: 15px;
-    }
-
-    textarea {
-      min-height: 190px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      color: #ddd;
-      margin-top: 8px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 7px;
-      padding: 11px 15px;
-      margin: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      background: var(--amarelo);
-      color: #111;
-    }
-
-    button:hover { filter: brightness(.9); }
-
-    button.secundario {
-      background: #444;
-      color: white;
-    }
-
-    button.perigo {
-      background: var(--vermelho);
-      color: white;
-    }
-
-    button.sucesso {
-      background: var(--verde);
-      color: white;
-    }
-
-    .linha {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .linha > * { flex: 1; }
-
-    .item {
-      background: #181818;
-      border: 1px solid #444;
-      border-left: 4px solid var(--amarelo);
-      border-radius: 8px;
-      padding: 13px;
-      margin: 9px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .item-info { flex: 1; min-width: 160px; }
-
-    .item-info strong {
-      color: var(--amarelo);
-      font-size: 17px;
-    }
-
-    .item-info small {
-      display: block;
-      color: #bbb;
-      margin-top: 5px;
-    }
-
-    .item-acoes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .oculto { display: none !important; }
-
-    .status {
-      color: #ccc;
-      font-size: 13px;
-      text-align: center;
-      margin: 12px 0;
-      line-height: 1.5;
-    }
-
-    .aviso {
-      color: var(--amarelo);
-      font-size: 13px;
-      margin-top: 8px;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.88);
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 12px;
-      overflow-y: auto;
-    }
-
-    .conteudo-modal {
-      background: #202020;
-      border: 1px solid #555;
-      border-top: 4px solid var(--amarelo);
-      border-radius: 12px;
-      width: min(100%, 520px);
-      max-height: 95vh;
-      overflow-y: auto;
-      padding: 18px;
-      text-align: center;
-    }
-
-    #tituloQr {
-      color: var(--amarelo);
-      font-size: 19px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    #qrCarrossel {
-      width: 100%;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      display: flex;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      touch-action: pan-x;
-    }
-
-    #qrCarrossel::-webkit-scrollbar { display: none; }
-
-    .qr-card {
-      flex: 0 0 100%;
-      width: 100%;
-      scroll-snap-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 2px;
-    }
-
-    .qr-parte {
-      color: var(--amarelo);
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .qr-imagem {
-      background: white;
-      padding: 12px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 304px;
-      min-width: 304px;
-      max-width: 100%;
-      border-radius: 5px;
-    }
-
-    .qr-imagem img, .qr-imagem canvas {
-      max-width: 100%;
-      height: auto;
-    }
-
-    #instrucaoDeslize {
-      color: #bbb;
-      font-size: 12px;
-      margin: 8px 0;
-    }
-
-    #contadorQr {
-      color: #ddd;
-      font-size: 12px;
-      margin: 8px;
-    }
-
-    .modal-acoes {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    footer {
-      text-align: center;
-      color: #888;
-      font-size: 11px;
-      padding: 20px;
-      border-top: 1px solid #333;
-      margin-top: 35px;
-    }
-
-    @media(max-width:600px) {
-      header h1 { font-size: 29px; }
-      .item { align-items: flex-start; }
-      .item-acoes { width: 100%; }
-      .item-acoes button { flex: 1; }
-      .qr-imagem {
-        min-width: 0;
-        min-height: 0;
-        width: 100%;
-      }
-    }
-  </style>
+<style>
+:root {
+  --amarelo:#ffd400;
+  --preto:#111;
+  --cinza:#242424;
+  --branco:#f5f5f5;
+  --verde:#20a464;
+  --vermelho:#d93636;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--preto);
+  color:var(--branco);
+  font-family:Arial,Helvetica,sans-serif;
+}
+header {
+  background:#080808;
+  border-bottom:3px solid var(--amarelo);
+  padding:22px 15px;
+  text-align:center;
+}
+header h1 {
+  margin:0;
+  color:var(--amarelo);
+  font-size:34px;
+  letter-spacing:4px;
+}
+header p {
+  margin:7px 0 0;
+  color:#ddd;
+  font-size:13px;
+  letter-spacing:2px;
+}
+main {
+  width:min(100% - 24px,1000px);
+  margin:25px auto;
+}
+.painel {
+  background:var(--cinza);
+  border:1px solid #444;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+}
+h2 {
+  color:var(--amarelo);
+  margin:0 0 15px;
+  font-size:20px;
+}
+input,textarea {
+  width:100%;
+  padding:12px;
+  margin:6px 0 12px;
+  background:#151515;
+  color:white;
+  border:1px solid #555;
+  border-radius:7px;
+  font-size:15px;
+}
+textarea {
+  min-height:190px;
+  resize:vertical;
+  line-height:1.5;
+}
+label {
+  display:block;
+  font-size:13px;
+  color:#ddd;
+  margin-top:8px;
+}
+button {
+  border:0;
+  border-radius:7px;
+  padding:11px 15px;
+  margin:4px;
+  font-weight:bold;
+  cursor:pointer;
+  background:var(--amarelo);
+  color:#111;
+}
+button:hover { filter:brightness(.9); }
+button.secundario { background:#444;color:white; }
+button.perigo { background:var(--vermelho);color:white; }
+button.sucesso { background:var(--verde);color:white; }
+.oculto { display:none!important; }
+.status {
+  color:#ccc;
+  font-size:13px;
+  text-align:center;
+  margin:12px 0;
+  line-height:1.5;
+}
+.aviso {
+  color:var(--amarelo);
+  font-size:13px;
+  margin-top:8px;
+}
+.item {
+  background:#181818;
+  border:1px solid #444;
+  border-left:4px solid var(--amarelo);
+  border-radius:8px;
+  padding:13px;
+  margin:9px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.item-info { flex:1;min-width:160px; }
+.item-info strong {
+  color:var(--amarelo);
+  font-size:17px;
+}
+.item-info small {
+  display:block;
+  color:#bbb;
+  margin-top:5px;
+}
+.item-acoes {
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  z-index:1000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:12px;
+  overflow-y:auto;
+}
+.conteudo-modal {
+  background:#202020;
+  border:1px solid #555;
+  border-top:4px solid var(--amarelo);
+  border-radius:12px;
+  width:min(100%,520px);
+  max-height:95vh;
+  overflow-y:auto;
+  padding:18px;
+  text-align:center;
+}
+#tituloQr {
+  color:var(--amarelo);
+  font-size:19px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+#qrCarrossel {
+  width:100%;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  display:flex;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x;
+}
+#qrCarrossel::-webkit-scrollbar { display:none; }
+.qr-card {
+  flex:0 0 100%;
+  width:100%;
+  scroll-snap-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:8px 2px;
+}
+.qr-parte {
+  color:var(--amarelo);
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+.qr-imagem {
+  background:white;
+  padding:12px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:304px;
+  max-width:100%;
+  min-height:304px;
+  border-radius:5px;
+}
+.qr-imagem canvas {
+  display:block;
+  width:280px!important;
+  height:280px!important;
+  max-width:100%;
+}
+#instrucaoDeslize {
+  color:#bbb;
+  font-size:12px;
+  margin:8px 0;
+}
+#contadorQr {
+  color:#ddd;
+  font-size:12px;
+  margin:8px;
+}
+.modal-acoes {
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+footer {
+  text-align:center;
+  color:#888;
+  font-size:11px;
+  padding:20px;
+  border-top:1px solid #333;
+  margin-top:35px;
+}
+@media(max-width:600px) {
+  header h1 { font-size:29px; }
+  .item { align-items:flex-start; }
+  .item-acoes { width:100%; }
+  .item-acoes button { flex:1; }
+}
+</style>
 </head>
 
 <body>
@@ -307,90 +248,85 @@
 
 <main>
 
-  <section class="painel">
-    <h2>Pesquisar histórico</h2>
-    <input id="pesquisa" type="search"
-      placeholder="Digite o código ou nome do histórico..."
-      oninput="listarHistoricos()">
-    <div id="lista">
-      <p class="status">Carregando históricos...</p>
+<section class="painel">
+  <h2>Pesquisar histórico</h2>
+  <input id="pesquisa" type="search"
+    placeholder="Digite o código ou nome do histórico...">
+  <div id="lista">
+    <p class="status">Carregando históricos...</p>
+  </div>
+</section>
+
+<section class="painel">
+  <h2>Área administrativa</h2>
+
+  <div id="loginArea">
+    <p class="status">Acesso restrito ao administrador.</p>
+
+    <label>E-mail administrativo</label>
+    <input id="emailLogin" type="email"
+      placeholder="E-mail cadastrado no Firebase">
+
+    <label>Senha</label>
+    <input id="senhaLogin" type="password"
+      placeholder="Senha da conta administrativa">
+
+    <button id="btnEntrar">ENTRAR</button>
+    <p id="statusLogin" class="status"></p>
+  </div>
+
+  <div id="adminArea" class="oculto">
+    <p class="aviso">Modo administrador ativado.</p>
+    <button class="secundario" id="btnSair">SAIR</button>
+
+    <hr style="border-color:#444;margin:18px 0">
+
+    <h2 id="tituloFormulario">Cadastrar histórico</h2>
+
+    <label>Código (ex.: A-01)</label>
+    <input id="codigo" type="text" placeholder="Ex.: A-01">
+
+    <label>Nome / descrição</label>
+    <input id="nome" type="text" placeholder="Nome do histórico">
+
+    <div id="textoComum">
+      <label>Texto do histórico</label>
+      <textarea id="texto"
+        placeholder="Digite ou cole o histórico completo aqui..."></textarea>
     </div>
-  </section>
 
-  <section class="painel">
-    <h2>Área administrativa</h2>
+    <div id="textosEspeciais" class="oculto">
+      <label>Classificação leve</label>
+      <textarea id="textoLeve"></textarea>
 
-    <div id="loginArea">
-      <p class="status">Acesso restrito ao administrador.</p>
+      <label>Classificação moderada</label>
+      <textarea id="textoModerada"></textarea>
 
-      <label>E-mail administrativo</label>
-      <input id="emailLogin" type="email"
-        placeholder="E-mail cadastrado no Firebase">
+      <label>Classificação grave</label>
+      <textarea id="textoGrave"></textarea>
 
-      <label>Senha</label>
-      <input id="senhaLogin" type="password"
-        placeholder="Senha da conta administrativa">
-
-      <button onclick="entrarAdmin()">ENTRAR</button>
-      <p id="statusLogin" class="status"></p>
+      <label>Classificação fatal</label>
+      <textarea id="textoFatal"></textarea>
     </div>
 
-    <div id="adminArea" class="oculto">
-      <p class="aviso">Modo administrador ativado.</p>
-      <button class="secundario" onclick="sairAdmin()">SAIR</button>
+    <p class="aviso">
+      Para os códigos L-08 e L-12, serão disponibilizados quatro campos de classificação.
+    </p>
 
-      <hr style="border-color:#444;margin:18px 0">
-
-      <h2 id="tituloFormulario">Cadastrar histórico</h2>
-
-      <label>Código (ex.: A-01)</label>
-      <input id="codigo" type="text" placeholder="Ex.: A-01">
-
-      <label>Nome / descrição</label>
-      <input id="nome" type="text" placeholder="Nome do histórico">
-
-      <div id="textoComum">
-        <label>Texto do histórico</label>
-        <textarea id="texto" placeholder="Digite ou cole o histórico completo aqui..."></textarea>
-      </div>
-
-      <div id="textosEspeciais" class="oculto">
-        <label>Classificação leve</label>
-        <textarea id="textoLeve" placeholder="Texto para classificação leve"></textarea>
-
-        <label>Classificação moderada</label>
-        <textarea id="textoModerada" placeholder="Texto para classificação moderada"></textarea>
-
-        <label>Classificação grave</label>
-        <textarea id="textoGrave" placeholder="Texto para classificação grave"></textarea>
-
-        <label>Classificação fatal</label>
-        <textarea id="textoFatal" placeholder="Texto para classificação fatal"></textarea>
-      </div>
-
-      <p class="aviso">
-        Para os códigos L-08 e L-12, serão disponibilizados os quatro campos de classificação.
-      </p>
-
-      <button onclick="salvarHistorico()">SALVAR HISTÓRICO</button>
-      <button class="secundario" onclick="limparFormulario()">LIMPAR</button>
-      <p id="statusAdmin" class="status"></p>
-    </div>
-  </section>
+    <button id="btnSalvar">SALVAR HISTÓRICO</button>
+    <button class="secundario" id="btnLimpar">LIMPAR</button>
+    <p id="statusAdmin" class="status"></p>
+  </div>
+</section>
 
 </main>
 
-<footer>
-  RAPM — Biblioteca de Históricos
-</footer>
+<footer>RAPM — Biblioteca de Históricos</footer>
 
-<!-- MODAL DOS QR CODES -->
 <div id="modal" class="modal oculto">
   <div class="conteudo-modal">
     <div id="tituloQr"></div>
-
     <div id="opcoes" class="oculto"></div>
-
     <div id="qrCarrossel"></div>
 
     <div id="instrucaoDeslize" class="oculto">
@@ -398,519 +334,553 @@
     </div>
 
     <div id="contadorQr" class="oculto"></div>
-
-    <div id="statusQr" class="status">
-      Escaneie o QR Code com outro celular.
-    </div>
+    <div id="statusQr" class="status"></div>
 
     <div class="modal-acoes">
-      <button class="secundario" onclick="baixarQr()">SALVAR QR CODE</button>
-      <button class="amarelo" onclick="fecharQr()">FECHAR</button>
+      <button class="secundario" id="btnBaixar">SALVAR QR CODE</button>
+      <button id="btnFechar">FECHAR</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
-  import {
-    getFirestore, collection, getDocs, doc, setDoc, deleteDoc
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+import {
+  getFirestore, collection, getDocs, doc, setDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-  import {
-    getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
-  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-  // CONFIGURAÇÃO FIREBASE
-  const firebaseConfig = {
-    apiKey: "AIzaSyCejUSVl5rZ3K3x1FI4Qoj9T0EBjQUBsPI",
-    authDomain: "relatoriobo-a246a.firebaseapp.com",
-    projectId: "relatoriobo-a246a",
-    storageBucket: "relatoriobo-a246a.firebasestorage.app",
-    messagingSenderId: "261461444124",
-    appId: "1:261461444124:web:532cf2176002e0d93b41d9",
-    measurementId: "G-H2XDWWQ5S7"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCejUSVl5rZ3K3x1FI4Qoj9T0EBjQUBsPI",
+  authDomain: "relatoriobo-a246a.firebaseapp.com",
+  projectId: "relatoriobo-a246a",
+  storageBucket: "relatoriobo-a246a.firebasestorage.app",
+  messagingSenderId: "261461444124",
+  appId: "1:261461444124:web:532cf2176002e0d93b41d9",
+  measurementId: "G-H2XDWWQ5S7"
+};
 
-  const ADMIN_EMAIL = "marcos.munhoz07@gmail.com";
-  const COLECAO = "occurrences";
+const ADMIN_EMAIL = "marcos.munhoz07@gmail.com";
+const COLECAO = "occurrences";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+// Limite conservador em bytes UTF-8 por QR Code.
+const LIMITE_BYTES = 2200;
 
-  let historicos = [];
-  let usuarioAdmin = false;
-  let codigoEmEdicao = null;
-  let partesQr = [];
-  let indiceQrAtual = 0;
-  let temporizadorScroll = null;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-  const $ = id => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  // AUTENTICAÇÃO
-  onAuthStateChanged(auth, user => {
-    usuarioAdmin = !!user && user.email === ADMIN_EMAIL;
+let historicos = [];
+let usuarioAdmin = false;
+let codigoEmEdicao = null;
+let partesQr = [];
+let indiceQrAtual = 0;
+let temporizadorScroll = null;
 
-    $("loginArea").classList.toggle("oculto", usuarioAdmin);
-    $("adminArea").classList.toggle("oculto", !usuarioAdmin);
+function mostrarStatus(id, mensagem) {
+  $(id).textContent = mensagem;
+}
 
-    if (!usuarioAdmin && user) signOut(auth);
+// AUTENTICAÇÃO
+$("btnEntrar").addEventListener("click", async () => {
+  const email = $("emailLogin").value.trim();
+  const senha = $("senhaLogin").value;
 
-    listarHistoricos();
+  if (!email || !senha) {
+    mostrarStatus("statusLogin", "Informe e-mail e senha.");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+    mostrarStatus("statusLogin", "Acesso autorizado.");
+  } catch (erro) {
+    console.error(erro);
+    mostrarStatus("statusLogin", "Falha no acesso. Confira e-mail e senha.");
+  }
+});
+
+$("btnSair").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  usuarioAdmin = !!user && user.email === ADMIN_EMAIL;
+
+  $("loginArea").classList.toggle("oculto", usuarioAdmin);
+  $("adminArea").classList.toggle("oculto", !usuarioAdmin);
+
+  if (!usuarioAdmin && user) signOut(auth);
+  listarHistoricos();
+});
+
+// DADOS DO FIREBASE
+async function carregarDados() {
+  const consulta = await getDocs(collection(db, COLECAO));
+  historicos = [];
+
+  consulta.forEach(registro => {
+    historicos.push({
+      id: registro.id,
+      ...registro.data()
+    });
   });
 
-  window.entrarAdmin = async function() {
-    const email = $("emailLogin").value.trim();
-    const senha = $("senhaLogin").value;
+  historicos.sort((a, b) =>
+    (a.code || "").localeCompare(b.code || "", "pt-BR", {
+      numeric:true,
+      sensitivity:"base"
+    })
+  );
+}
 
-    if (!email || !senha) {
-      $("statusLogin").textContent = "Informe e-mail e senha.";
+async function listarHistoricos() {
+  $("lista").innerHTML = '<p class="status">Carregando...</p>';
+
+  try {
+    await carregarDados();
+
+    const termo = $("pesquisa").value.trim().toLowerCase();
+
+    const filtrados = historicos.filter(item =>
+      (item.code || "").toLowerCase().includes(termo) ||
+      (item.nome || "").toLowerCase().includes(termo)
+    );
+
+    $("lista").innerHTML = "";
+
+    if (!filtrados.length) {
+      $("lista").innerHTML =
+        '<p class="status">Nenhum histórico encontrado.</p>';
       return;
     }
 
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      $("statusLogin").textContent = "Acesso autorizado.";
-    } catch (erro) {
-      $("statusLogin").textContent = "Falha no acesso. Confira e-mail e senha.";
-      console.error(erro);
-    }
-  };
+    filtrados.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
 
-  window.sairAdmin = async function() {
-    await signOut(auth);
-    $("statusLogin").textContent = "Sessão encerrada.";
-  };
+      const info = document.createElement("div");
+      info.className = "item-info";
 
-  // CARREGAR E LISTAR HISTÓRICOS
-  async function carregarDados() {
-    const consulta = await getDocs(collection(db, COLECAO));
-    historicos = [];
+      const titulo = document.createElement("strong");
+      titulo.textContent = item.code || "";
 
-    consulta.forEach(registro => {
-      historicos.push({
-        id: registro.id,
-        ...registro.data()
-      });
-    });
+      const descricao = document.createElement("small");
+      descricao.textContent = item.nome || "Sem descrição";
 
-    historicos.sort((a, b) =>
-      (a.code || "").localeCompare(b.code || "", "pt-BR", {
-        numeric: true,
-        sensitivity: "base"
-      })
-    );
-  }
+      info.append(titulo, descricao);
 
-  window.listarHistoricos = async function() {
-    $("lista").innerHTML = '<p class="status">Carregando...</p>';
+      const acoes = document.createElement("div");
+      acoes.className = "item-acoes";
 
-    try {
-      await carregarDados();
+      const abrir = document.createElement("button");
+      abrir.textContent = "GERAR QR";
+      abrir.addEventListener("click", () => abrirHistorico(item));
+      acoes.append(abrir);
 
-      const termo = $("pesquisa").value.trim().toLowerCase();
+      if (usuarioAdmin) {
+        const editar = document.createElement("button");
+        editar.className = "secundario";
+        editar.textContent = "EDITAR";
+        editar.addEventListener("click", () => editarHistorico(item));
 
-      const filtrados = historicos.filter(item =>
-        (item.code || "").toLowerCase().includes(termo) ||
-        (item.nome || "").toLowerCase().includes(termo)
-      );
+        const excluir = document.createElement("button");
+        excluir.className = "perigo";
+        excluir.textContent = "EXCLUIR";
+        excluir.addEventListener("click", () => excluirHistorico(item));
 
-      $("lista").innerHTML = "";
-
-      if (!filtrados.length) {
-        $("lista").innerHTML =
-          '<p class="status">Nenhum histórico encontrado.</p>';
-        return;
+        acoes.append(editar, excluir);
       }
 
-      filtrados.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "item";
-
-        const info = document.createElement("div");
-        info.className = "item-info";
-
-        const titulo = document.createElement("strong");
-        titulo.textContent = item.code || "";
-
-        const descricao = document.createElement("small");
-        descricao.textContent = item.nome || "Sem descrição";
-
-        info.append(titulo, descricao);
-
-        const acoes = document.createElement("div");
-        acoes.className = "item-acoes";
-
-        const abrir = document.createElement("button");
-        abrir.textContent = "GERAR QR";
-        abrir.onclick = () => abrirHistorico(item);
-
-        acoes.append(abrir);
-
-        if (usuarioAdmin) {
-          const editar = document.createElement("button");
-          editar.className = "secundario";
-          editar.textContent = "EDITAR";
-          editar.onclick = () => editarHistorico(item);
-
-          const excluir = document.createElement("button");
-          excluir.className = "perigo";
-          excluir.textContent = "EXCLUIR";
-          excluir.onclick = () => excluirHistorico(item);
-
-          acoes.append(editar, excluir);
-        }
-
-        div.append(info, acoes);
-        $("lista").appendChild(div);
-      });
-
-    } catch (erro) {
-      console.error(erro);
-      $("lista").innerHTML =
-        '<p class="status">Não foi possível carregar os dados. Verifique sua conexão e as configurações do Firebase.</p>';
-    }
-  };
-
-  // FORMULÁRIO ADMINISTRATIVO
-  function verificarCodigoEspecial() {
-    const codigo = $("codigo").value.trim().toUpperCase();
-    const especial = codigo === "L-08" || codigo === "L-12";
-
-    $("textoComum").classList.toggle("oculto", especial);
-    $("textosEspeciais").classList.toggle("oculto", !especial);
-  }
-
-  $("codigo").addEventListener("input", verificarCodigoEspecial);
-
-  window.limparFormulario = function() {
-    codigoEmEdicao = null;
-
-    ["codigo", "nome", "texto", "textoLeve",
-     "textoModerada", "textoGrave", "textoFatal"].forEach(id => {
-      $(id).value = "";
+      div.append(info, acoes);
+      $("lista").appendChild(div);
     });
 
-    $("tituloFormulario").textContent = "Cadastrar histórico";
-    $("statusAdmin").textContent = "";
-    verificarCodigoEspecial();
+  } catch (erro) {
+    console.error(erro);
+    $("lista").innerHTML =
+      '<p class="status">Não foi possível carregar os dados. Verifique sua conexão e as configurações do Firebase.</p>';
+  }
+}
+
+$("pesquisa").addEventListener("input", listarHistoricos);
+
+// FORMULÁRIO ADMINISTRATIVO
+function verificarCodigoEspecial() {
+  const codigo = $("codigo").value.trim().toUpperCase();
+  const especial = codigo === "L-08" || codigo === "L-12";
+
+  $("textoComum").classList.toggle("oculto", especial);
+  $("textosEspeciais").classList.toggle("oculto", !especial);
+}
+
+$("codigo").addEventListener("input", verificarCodigoEspecial);
+
+function limparFormulario() {
+  codigoEmEdicao = null;
+
+  [
+    "codigo","nome","texto","textoLeve",
+    "textoModerada","textoGrave","textoFatal"
+  ].forEach(id => $(id).value = "");
+
+  $("tituloFormulario").textContent = "Cadastrar histórico";
+  $("statusAdmin").textContent = "";
+  verificarCodigoEspecial();
+}
+
+$("btnLimpar").addEventListener("click", limparFormulario);
+
+function editarHistorico(item) {
+  if (!usuarioAdmin) return;
+
+  codigoEmEdicao = item.id;
+  $("codigo").value = item.code || "";
+  $("nome").value = item.nome || "";
+
+  if (item.textos) {
+    $("textoLeve").value = item.textos.leve || "";
+    $("textoModerada").value = item.textos.moderada || "";
+    $("textoGrave").value = item.textos.grave || "";
+    $("textoFatal").value = item.textos.fatal || "";
+    $("texto").value = "";
+  } else {
+    $("texto").value = item.texto || "";
+    $("textoLeve").value = "";
+    $("textoModerada").value = "";
+    $("textoGrave").value = "";
+    $("textoFatal").value = "";
+  }
+
+  $("tituloFormulario").textContent = "Editar histórico";
+  verificarCodigoEspecial();
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+
+async function salvarHistorico() {
+  if (!usuarioAdmin) {
+    mostrarStatus("statusAdmin", "Acesso administrativo necessário.");
+    return;
+  }
+
+  const codigo = $("codigo").value.trim().toUpperCase();
+  const nome = $("nome").value.trim();
+
+  if (!codigo || !nome) {
+    mostrarStatus("statusAdmin", "Preencha o código e o nome.");
+    return;
+  }
+
+  const especial = codigo === "L-08" || codigo === "L-12";
+
+  const dados = {
+    letra:codigo.split("-")[0],
+    numero:codigo.split("-")[1] || "",
+    code:codigo,
+    nome,
+    updatedAt:new Date().toISOString()
   };
 
-  window.editarHistorico = function(item) {
-    if (!usuarioAdmin) return;
-
-    codigoEmEdicao = item.id;
-
-    $("codigo").value = item.code || "";
-    $("nome").value = item.nome || "";
-
-    if (item.textos) {
-      $("textoLeve").value = item.textos.leve || "";
-      $("textoModerada").value = item.textos.moderada || "";
-      $("textoGrave").value = item.textos.grave || "";
-      $("textoFatal").value = item.textos.fatal || "";
-      $("texto").value = "";
-    } else {
-      $("texto").value = item.texto || "";
-      $("textoLeve").value = "";
-      $("textoModerada").value = "";
-      $("textoGrave").value = "";
-      $("textoFatal").value = "";
-    }
-
-    $("tituloFormulario").textContent = "Editar histórico";
-    verificarCodigoEspecial();
-
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  };
-
-  window.salvarHistorico = async function() {
-    if (!usuarioAdmin) {
-      $("statusAdmin").textContent = "Acesso administrativo necessário.";
-      return;
-    }
-
-    const codigo = $("codigo").value.trim().toUpperCase();
-    const nome = $("nome").value.trim();
-
-    if (!codigo || !nome) {
-      $("statusAdmin").textContent = "Preencha o código e o nome.";
-      return;
-    }
-
-    const especial = codigo === "L-08" || codigo === "L-12";
-    const id = codigo.replace(/\s/g, "_");
-
-    const dados = {
-      letra: codigo.split("-")[0],
-      numero: codigo.split("-")[1] || "",
-      code: codigo,
-      nome,
-      updatedAt: new Date().toISOString()
+  if (especial) {
+    dados.textos = {
+      leve:$("textoLeve").value,
+      moderada:$("textoModerada").value,
+      grave:$("textoGrave").value,
+      fatal:$("textoFatal").value
     };
 
-    if (especial) {
-      dados.textos = {
-        leve: $("textoLeve").value,
-        moderada: $("textoModerada").value,
-        grave: $("textoGrave").value,
-        fatal: $("textoFatal").value
-      };
-
-      if (!Object.values(dados.textos).some(t => t.trim())) {
-        $("statusAdmin").textContent =
-          "Preencha ao menos uma classificação.";
-        return;
-      }
-    } else {
-      dados.texto = $("texto").value;
-
-      if (!dados.texto.trim()) {
-        $("statusAdmin").textContent = "Digite o texto do histórico.";
-        return;
-      }
-    }
-
-    try {
-      const documentoId = codigoEmEdicao || id;
-
-      await setDoc(doc(db, COLECAO, documentoId), dados);
-
-      $("statusAdmin").textContent = "Histórico salvo com sucesso.";
-      limparFormulario();
-      await listarHistoricos();
-
-    } catch (erro) {
-      console.error(erro);
-      $("statusAdmin").textContent =
-        "Erro ao salvar. Verifique a conexão e as permissões.";
-    }
-  };
-
-  window.excluirHistorico = async function(item) {
-    if (!usuarioAdmin) return;
-
-    if (!confirm(`Deseja realmente excluir ${item.code} - ${item.nome}?`)) {
+    if (!Object.values(dados.textos).some(t => t.trim())) {
+      mostrarStatus("statusAdmin", "Preencha ao menos uma classificação.");
       return;
     }
+  } else {
+    dados.texto = $("texto").value;
 
-    try {
-      await deleteDoc(doc(db, COLECAO, item.id));
-      await listarHistoricos();
-    } catch (erro) {
-      console.error(erro);
-      alert("Não foi possível excluir o histórico.");
+    if (!dados.texto.trim()) {
+      mostrarStatus("statusAdmin", "Digite o texto do histórico.");
+      return;
     }
-  };
+  }
 
-  // ABERTURA DO HISTÓRICO
-  window.abrirHistorico = function(item) {
-    $("modal").classList.remove("oculto");
-    $("tituloQr").textContent = `${item.code} - ${item.nome}`;
-    $("opcoes").innerHTML = "";
-    $("opcoes").classList.add("oculto");
+  try {
+    const id = codigoEmEdicao || codigo.replace(/\s/g, "_");
+    await setDoc(doc(db, COLECAO, id), dados);
 
-    if (item.textos) {
-      $("opcoes").classList.remove("oculto");
+    mostrarStatus("statusAdmin", "Histórico salvo com sucesso.");
+    limparFormulario();
+    await listarHistoricos();
 
-      const classificacoes = [
-        ["LEVE", "leve"],
-        ["MODERADA", "moderada"],
-        ["GRAVE", "grave"],
-        ["FATAL", "fatal"]
-      ];
+  } catch (erro) {
+    console.error(erro);
+    mostrarStatus("statusAdmin", "Erro ao salvar. Verifique a conexão e as permissões.");
+  }
+}
 
-      classificacoes.forEach(([rotulo, chave]) => {
-        const btn = document.createElement("button");
-        btn.textContent = rotulo;
-        btn.onclick = () => gerarQr(
+$("btnSalvar").addEventListener("click", salvarHistorico);
+
+async function excluirHistorico(item) {
+  if (!usuarioAdmin) return;
+
+  if (!confirm(`Deseja realmente excluir ${item.code} - ${item.nome}?`)) {
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db, COLECAO, item.id));
+    await listarHistoricos();
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível excluir o histórico.");
+  }
+}
+
+// ABERTURA DO HISTÓRICO
+function abrirHistorico(item) {
+  $("modal").classList.remove("oculto");
+  $("tituloQr").textContent = `${item.code} - ${item.nome}`;
+  $("opcoes").innerHTML = "";
+  $("opcoes").classList.add("oculto");
+
+  if (item.textos) {
+    $("opcoes").classList.remove("oculto");
+
+    [
+      ["LEVE","leve"],
+      ["MODERADA","moderada"],
+      ["GRAVE","grave"],
+      ["FATAL","fatal"]
+    ].forEach(([rotulo,chave]) => {
+      const btn = document.createElement("button");
+      btn.textContent = rotulo;
+      btn.addEventListener("click", () => {
+        gerarQr(
           `${item.code} - ${item.nome} - ${rotulo}`,
           item.textos[chave] || ""
         );
-        $("opcoes").appendChild(btn);
       });
+      $("opcoes").appendChild(btn);
+    });
 
-      $("qrCarrossel").innerHTML = "";
-      $("statusQr").textContent =
-        "Selecione a classificação para gerar o QR Code.";
-      $("instrucaoDeslize").classList.add("oculto");
-      $("contadorQr").classList.add("oculto");
-
-    } else {
-      gerarQr(`${item.code} - ${item.nome}`, item.texto || "");
-    }
-  };
-
-  // DIVISÃO AUTOMÁTICA DO TEXTO EM PARTES
-  // O limite é medido em bytes UTF-8, preservando acentos e caracteres.
-  const LIMITE_BYTES = 2200;
-
-  function dividirTexto(texto, limite) {
-    const partes = [];
-    let parteAtual = "";
-    let bytesAtuais = 0;
-
-    for (const caractere of texto) {
-      const bytes = new TextEncoder().encode(caractere).length;
-
-      if (bytesAtuais + bytes > limite && parteAtual.length > 0) {
-        partes.push(parteAtual);
-        parteAtual = "";
-        bytesAtuais = 0;
-      }
-
-      parteAtual += caractere;
-      bytesAtuais += bytes;
-    }
-
-    if (parteAtual.length > 0) partes.push(parteAtual);
-
-    return partes;
-  }
-
-  // GERAÇÃO DOS QR CODES
-  window.gerarQr = function(titulo, texto) {
-    $("tituloQr").textContent = titulo;
-    $("opcoes").classList.add("oculto");
     $("qrCarrossel").innerHTML = "";
+    $("statusQr").textContent =
+      "Selecione a classificação para gerar o QR Code.";
     $("instrucaoDeslize").classList.add("oculto");
     $("contadorQr").classList.add("oculto");
 
-    if (!texto.trim()) {
-      $("statusQr").textContent =
-        "Este histórico ainda não possui texto cadastrado.";
-      return;
+  } else {
+    gerarQr(`${item.code} - ${item.nome}`, item.texto || "");
+  }
+}
+
+// DIVISÃO EM PARTES POR BYTES UTF-8
+function dividirTexto(texto, limite) {
+  const partes = [];
+  let parteAtual = "";
+  let bytesAtuais = 0;
+  const encoder = new TextEncoder();
+
+  for (const caractere of texto) {
+    const tamanho = encoder.encode(caractere).length;
+
+    if (bytesAtuais + tamanho > limite && parteAtual.length > 0) {
+      partes.push(parteAtual);
+      parteAtual = "";
+      bytesAtuais = 0;
     }
 
-    if (typeof QRCode === "undefined") {
-      $("statusQr").textContent =
-        "Não foi possível carregar a biblioteca de QR Code.";
-      return;
+    parteAtual += caractere;
+    bytesAtuais += tamanho;
+  }
+
+  if (parteAtual.length > 0) partes.push(parteAtual);
+
+  return partes;
+}
+
+// GERAÇÃO REAL DO QR CODE
+async function gerarQr(titulo, texto) {
+  $("tituloQr").textContent = titulo;
+  $("opcoes").classList.add("oculto");
+  $("qrCarrossel").innerHTML = "";
+  $("instrucaoDeslize").classList.add("oculto");
+  $("contadorQr").classList.add("oculto");
+
+  if (!texto.trim()) {
+    $("statusQr").textContent =
+      "Este histórico ainda não possui texto cadastrado.";
+    return;
+  }
+
+  const biblioteca = window.QRCode;
+
+  if (!biblioteca || typeof biblioteca.toCanvas !== "function") {
+    $("statusQr").textContent =
+      "ERRO: biblioteca QR Code não carregada. Verifique a conexão com a internet e recarregue a página.";
+    return;
+  }
+
+  partesQr = dividirTexto(texto, LIMITE_BYTES);
+  indiceQrAtual = 0;
+
+  $("statusQr").textContent =
+    `Preparando ${partesQr.length} QR Code(s)...`;
+
+  const cards = [];
+
+  partesQr.forEach((conteudo, indice) => {
+    const card = document.createElement("div");
+    card.className = "qr-card";
+
+    if (partesQr.length > 1) {
+      const rotulo = document.createElement("div");
+      rotulo.className = "qr-parte";
+      rotulo.textContent = `PARTE ${indice + 1} DE ${partesQr.length}`;
+      card.appendChild(rotulo);
     }
 
-    partesQr = dividirTexto(texto, LIMITE_BYTES);
-    indiceQrAtual = 0;
+    const caixa = document.createElement("div");
+    caixa.className = "qr-imagem";
 
-    partesQr.forEach((conteudo, indice) => {
-      const card = document.createElement("div");
-      card.className = "qr-card";
+    const canvas = document.createElement("canvas");
+    canvas.width = 280;
+    canvas.height = 280;
+    caixa.appendChild(canvas);
 
-      if (partesQr.length > 1) {
-        const rotulo = document.createElement("div");
-        rotulo.className = "qr-parte";
-        rotulo.textContent =
-          `PARTE ${indice + 1} DE ${partesQr.length}`;
-        card.appendChild(rotulo);
-      }
+    card.appendChild(caixa);
+    $("qrCarrossel").appendChild(card);
 
-      const imagem = document.createElement("div");
-      imagem.className = "qr-imagem";
-      imagem.id = `qrParte${indice}`;
-      card.appendChild(imagem);
+    cards.push({canvas, conteudo});
+  });
 
-      $("qrCarrossel").appendChild(card);
-
-      try {
-        new QRCode(imagem, {
-          text: conteudo,
-          width: 280,
-          height: 280,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.L
+  try {
+    // Aguarda a geração de todos os códigos.
+    await Promise.all(cards.map(({canvas, conteudo}) => {
+      return new Promise((resolve, reject) => {
+        biblioteca.toCanvas(canvas, conteudo, {
+          errorCorrectionLevel:"L",
+          margin:2,
+          width:280,
+          color:{
+            dark:"#000000",
+            light:"#ffffff"
+          }
+        }, erro => {
+          if (erro) {
+            reject(erro);
+          } else {
+            resolve();
+          }
         });
-      } catch (erro) {
-        console.error(erro);
-        $("statusQr").textContent =
-          "Não foi possível gerar uma das partes do QR Code.";
-      }
-    });
+      });
+    }));
+
+    // Só informa sucesso depois de confirmar os Canvas.
+    const todosGerados = cards.every(({canvas}) =>
+      canvas.width > 0 &&
+      canvas.height > 0 &&
+      canvas.getContext("2d").getImageData(0,0,1,1).data.length === 4
+    );
+
+    if (!todosGerados) {
+      throw new Error("Um ou mais QR Codes não foram renderizados.");
+    }
 
     if (partesQr.length > 1) {
       $("instrucaoDeslize").classList.remove("oculto");
       $("contadorQr").classList.remove("oculto");
       atualizarContador();
+
       $("statusQr").textContent =
-        "Escaneie todas as partes na ordem indicada.";
+        "Todos os QR Codes foram gerados. Escaneie as partes na ordem indicada.";
     } else {
       $("statusQr").textContent =
-        "QR Code gerado. Escaneie com outro celular.";
+        "QR Code gerado com sucesso. Escaneie para copiar o texto.";
     }
 
     $("qrCarrossel").scrollLeft = 0;
-  };
 
-  function atualizarContador() {
-    if (partesQr.length > 1) {
-      $("contadorQr").textContent =
-        `QR Code ${indiceQrAtual + 1} de ${partesQr.length}`;
+  } catch (erro) {
+    console.error("Falha na geração do QR Code:", erro);
+
+    $("qrCarrossel").innerHTML = "";
+    $("instrucaoDeslize").classList.add("oculto");
+    $("contadorQr").classList.add("oculto");
+
+    $("statusQr").textContent =
+      "ERRO AO GERAR QR CODE: " +
+      (erro.message || "Não foi possível desenhar.
+Tente novamente.");
+  }
+}
+
+function atualizarContador() {
+  if (partesQr.length > 1) {
+    $("contadorQr").textContent =
+      `QR Code ${indiceQrAtual + 1} de ${partesQr.length}`;
+  }
+}
+
+$("qrCarrossel").addEventListener("scroll", () => {
+  clearTimeout(temporizadorScroll);
+
+  temporizadorScroll = setTimeout(() => {
+    const largura = $("qrCarrossel").clientWidth;
+
+    if (largura > 0 && partesQr.length > 1) {
+      indiceQrAtual = Math.round(
+        $("qrCarrossel").scrollLeft / largura
+      );
+
+      indiceQrAtual = Math.max(
+        0,
+        Math.min(indiceQrAtual, partesQr.length - 1)
+      );
+
+      atualizarContador();
     }
+  }, 100);
+});
+
+// SALVAR O QR CODE QUE ESTÁ VISÍVEL
+function baixarQr() {
+  const cards = $("qrCarrossel").querySelectorAll("canvas");
+  const canvas = cards[indiceQrAtual];
+
+  if (!canvas) {
+    alert("Não há QR Code disponível para salvar.");
+    return;
   }
 
-  // IDENTIFICA QUAL PARTE ESTÁ VISÍVEL NO CARROSSEL
-  $("qrCarrossel").addEventListener("scroll", () => {
-    clearTimeout(temporizadorScroll);
-
-    temporizadorScroll = setTimeout(() => {
-      const largura = $("qrCarrossel").clientWidth;
-
-      if (largura > 0) {
-        indiceQrAtual = Math.round(
-          $("qrCarrossel").scrollLeft / largura
-        );
-
-        indiceQrAtual = Math.max(
-          0,
-          Math.min(indiceQrAtual, partesQr.length - 1)
-        );
-
-        atualizarContador();
-      }
-    }, 100);
-  });
-
-  // SALVAR A PARTE VISÍVEL
-  window.baixarQr = function() {
-    const elemento = $(`qrParte${indiceQrAtual}`);
-
-    if (!elemento) {
-      alert("Não há QR Code disponível para salvar.");
-      return;
-    }
-
-    const imagem = elemento.querySelector("canvas") ||
-                   elemento.querySelector("img");
-
-    if (!imagem) {
-      alert("A imagem do QR Code ainda não está pronta.");
-      return;
-    }
-
+  try {
     const link = document.createElement("a");
-
-    if (imagem.tagName.toLowerCase() === "canvas") {
-      link.href = imagem.toDataURL("image/png");
-    } else {
-      link.href = imagem.src;
-    }
-
+    link.href = canvas.toDataURL("image/png");
     link.download = `RAPM_QR_PARTE_${indiceQrAtual + 1}.png`;
     document.body.appendChild(link);
     link.click();
     link.remove();
-  };
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível salvar o QR Code.");
+  }
+}
 
-  window.fecharQr = function() {
-    $("modal").classList.add("oculto");
-    $("qrCarrossel").innerHTML = "";
-    partesQr = [];
-    indiceQrAtual = 0;
-  };
+function fecharQr() {
+  $("modal").classList.add("oculto");
+  $("qrCarrossel").innerHTML = "";
+  partesQr = [];
+  indiceQrAtual = 0;
+}
 
-  // INICIALIZAÇÃO
-  listarHistoricos();
+$("btnBaixar").addEventListener("click", baixarQr);
+$("btnFechar").addEventListener("click", fecharQr);
+
+// INICIALIZAÇÃO
+listarHistoricos();
 </script>
 
 </body>
