@@ -1,412 +1,588 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Rodovias - SP</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            padding: 24px;
-        }
-        h1 {
-            font-size: 28px;
-            color: #1a2a3a;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        h1 small {
-            font-size: 16px;
-            font-weight: 400;
-            color: #5a6a7a;
-        }
-        .search-box {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0 24px;
-            flex-wrap: wrap;
-        }
-        .search-box input {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 18px;
-            border: 2px solid #dce1e8;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: 0.2s;
-            outline: none;
-        }
-        .search-box input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
-        }
-        .search-box .clear-btn {
-            padding: 12px 24px;
-            background: #eef2f6;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #1a2a3a;
-        }
-        .search-box .clear-btn:hover {
-            background: #dce1e8;
-        }
-        .stats {
-            font-size: 14px;
-            color: #4a5a6a;
-            margin-bottom: 16px;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        th {
-            background: #f1f4f9;
-            color: #1a2a3a;
-            font-weight: 600;
-            padding: 14px 12px;
-            text-align: left;
-            border-bottom: 2px solid #dce1e8;
-            white-space: nowrap;
-        }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #edf2f7;
-            vertical-align: middle;
-        }
-        tr:hover {
-            background: #fafcff;
-        }
-        .municipio {
-            font-weight: 500;
-            color: #1e3a5f;
-        }
-        .codigo {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            color: #2563eb;
-            white-space: nowrap;
-        }
-        .no-results {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6a7a8a;
-            font-size: 16px;
-        }
-        @media (max-width: 600px) {
-            .container { padding: 16px; }
-            th, td { padding: 8px 6px; font-size: 12px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>RAPM | Rodovias e Placas R-19</title>
+<meta name="theme-color" content="#111111">
+<style>
+:root {
+  --amarelo: #ffd400;
+  --amareloHover: #e6be00;
+  --preto: #111;
+  --cinza: #1e1e1e;
+  --cinzaClaro: #2a2a2a;
+  --branco: #f5f5f5;
+  --cinzaTexto: #b0b0b0;
+  --verde: #20a464;
+  --vermelho: #d93636;
+  --borda: #333;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body {
+  background: var(--preto);
+  color: var(--branco);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 12px;
+}
+header {
+  background: #080808;
+  border-bottom: 3px solid var(--amarelo);
+  padding: 20px 15px;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+}
+header h1 {
+  color: var(--amarelo);
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+header p {
+  color: var(--cinzaTexto);
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.painel {
+  background: var(--cinza);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+h2 {
+  color: var(--amarelo);
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 8px;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0 14px;
+  background: #141414;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+}
+input:focus, select:focus {
+  border-color: var(--amarelo);
+  box-shadow: 0 0 0 2px rgba(255,212,0,0.2);
+}
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--cinzaTexto);
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--amarelo);
+  color: var(--preto);
+  font-size: 0.9rem;
+  transition: filter 0.2s, transform 0.1s;
+}
+button:hover { filter: brightness(0.9); }
+button:active { transform: scale(0.97); }
+button.secundario { background: #444; color: white; }
+button.perigo { background: var(--vermelho); color: white; }
+button.sucesso { background: var(--verde); color: white; }
+.oculto { display: none !important; }
+.status {
+  color: var(--cinzaTexto);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 10px 0;
+}
+.grid-rodovias {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+.card-rodovia {
+  background: var(--cinzaClaro);
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--amarelo);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-info strong {
+  color: var(--amarelo);
+  font-size: 1.1rem;
+}
+.card-info small {
+  display: block;
+  color: var(--cinzaTexto);
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+.card-acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.card-acoes button {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.8rem;
+}
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+}
+.conteudo-modal {
+  background: var(--cinza);
+  border: 1px solid var(--borda);
+  border-top: 4px solid var(--amarelo);
+  border-radius: 14px;
+  width: min(100%, 550px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+.lista-r19 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.item-r19 {
+  background: #141414;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.item-r19 div strong {
+  color: var(--amarelo);
+  font-size: 1rem;
+}
+.badge-sentido {
+  background: rgba(255,212,0,0.15);
+  color: var(--amarelo);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+footer {
+  text-align: center;
+  color: #777;
+  font-size: 0.75rem;
+  padding: 20px;
+  border-top: 1px solid #222;
+  margin-top: auto;
+}
+@media(min-width: 1024px) {
+  main { max-width: 1300px; }
+}
+</style>
 </head>
 <body>
-<div class="container">
-    <h1>
-        🛣️ Rodovias Paulistas
-        <small>consulta por nome, código ou município</small>
-    </h1>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Ex: SP 330, Anhanguera, 147, Limeira..." autofocus>
-        <button class="clear-btn" id="clearBtn">✕ Limpar</button>
+<header>
+  <h1>RAPM</h1>
+  <p>Controle de Placas R-19 (Velocidade Máxima) por Rodovia</p>
+</header>
+
+<main>
+  <!-- PESQUISA E LISTAGEM DE RODOVIAS -->
+  <section class="painel">
+    <h2>Patrulhamento e Rodovias</h2>
+    <input id="pesquisaRodovia" type="search" placeholder="Filtrar por código (ex: SP-330), nome ou município...">
+    <div id="listaRodovias" class="grid-rodovias">
+      <p class="status">Carregando rodovias...</p>
+    </div>
+  </section>
+
+  <!-- ÁREA ADMINISTRATIVA -->
+  <section class="painel">
+    <h2>Área do Administrador</h2>
+    
+    <div id="loginArea">
+      <p class="status">Faça login para cadastrar ou gerenciar as placas R-19 encontradas nas rondas.</p>
+      <label>Senha do Administrador</label>
+      <input id="adminPasswordInput" type="password" placeholder="Digite a senha de acesso" style="text-align:center; letter-spacing: 2px;">
+      <button id="btnLoginAdmin" style="width:100%;">ENTRAR NA ADMINISTRAÇÃO</button>
+      <p id="statusLogin" class="status"></p>
     </div>
 
-    <div class="stats" id="stats">Mostrando <span id="count">0</span> registros</div>
+    <div id="adminArea" class="oculto">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <span style="color:var(--verde); font-weight:bold; font-size:0.9rem;">✓ Modo Administrador Ativado</span>
+        <button class="secundario" id="btnSairAdmin" style="padding:6px 12px; font-size:0.75rem;">SAIR</button>
+      </div>
 
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nome da Rodovia</th>
-                    <th>KM Inicial</th>
-                    <th>KM Final</th>
-                    <th>Extensão (km)</th>
-                    <th>Município</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- preenchido via JS -->
-            </tbody>
-        </table>
+      <h3 style="color:var(--amarelo); font-size:1rem; margin-bottom:10px;">Adicionar Placa R-19</h3>
+      
+      <label>Rodovia Selecionada</label>
+      <select id="selectRodoviaAdmin">
+        <option value="">Selecione uma rodovia da lista...</option>
+      </select>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>Quilômetro (KM)</label>
+          <input id="inputKmR19" type="text" placeholder="Ex: 142,5 ou Km 33">
+        </div>
+        <div>
+          <label>Sentido</label>
+          <select id="selectSentidoR19">
+            <option value="Norte">Norte</option>
+            <option value="Sul">Sul</option>
+            <option value="Leste">Leste</option>
+            <option value="Oeste">Oeste</option>
+            <option value="Pista Central">Pista Central</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>Velocidade Leves</label>
+          <input id="inputLevesR19" type="text" placeholder="Ex: 110 km/h">
+        </div>
+        <div>
+          <label>Velocidade Pesados</label>
+          <input id="inputPesadosR19" type="text" placeholder="Ex: 90 km/h">
+        </div>
+      </div>
+
+      <button id="btnSalvarR19" class="sucesso" style="width:100%; margin-top:5px;">SALVAR PLACA R-19</button>
+      <p id="statusAdmin" class="status"></p>
     </div>
+  </section>
+</main>
+
+<!-- MODAL PARA VISUALIZAR AS PLACAS R-19 CADASTRADAS -->
+<div id="modalR19" class="modal oculto">
+  <div class="conteudo-modal">
+    <h2 id="modalRodoviaTitulo" style="font-size: 1.1rem; margin-bottom: 5px;">Placas R-19</h2>
+    <p id="modalRodoviaSub" style="color:var(--cinzaTexto); font-size:0.8rem; margin-bottom:15px;"></p>
+    
+    <div class="lista-r19" id="listaPlacasModal">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:15px;">
+      <button id="btnFecharModal" class="secundario">FECHAR</button>
+    </div>
+  </div>
 </div>
 
-<script>
-    // ==================== DADOS CONSOLIDADOS ====================
-    // Inclui todos os registros das três planilhas fornecidas
-    const dados = [
-        // --- REGIÃO LIMEIRA / ARARAS / CORDEIRÓPOLIS / SANTA BÁRBARA ---
-        { codificacao: "SP", codigo: "133", nome: "Deputado João Herrmann Neto", kmInicial: "0,000", kmFinal: "10,650", extensao: "10,650", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "135", nome: "Margarida da Graça Martins", kmInicial: "0,000", kmFinal: "8,540", extensao: "8,540", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SP", codigo: "147", nome: "Engenheiro João Tosello", kmInicial: "90,951", kmFinal: "106,320", extensao: "15,369", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "147", nome: "Laercio Corte, Deputado", kmInicial: "111,748", kmFinal: "122,850", extensao: "11,102", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "151", nome: "Doutor João Mendes da Silva Júnior", kmInicial: "0,000", kmFinal: "4,780", extensao: "4,780", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "191", nome: "Wilson Finardi", kmInicial: "25,301", kmFinal: "58,640", extensao: "33,339", municipio: "Araras" },
-        { codificacao: "SP", codigo: "304", nome: "Luiz de Queiroz", kmInicial: "131,501", kmFinal: "146,556", extensao: "15,055", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SP", codigo: "306", nome: "Comendador Américo Emílio Romi", kmInicial: "9,731", kmFinal: "21,750", extensao: "12,019", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SP", codigo: "306", nome: "Luis Ometto", kmInicial: "21,751", kmFinal: "28,060", extensao: "6,309", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SP", codigo: "306", nome: "Luiz Ometto", kmInicial: "28,061", kmFinal: "39,260", extensao: "11,199", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "310", nome: "Washington Luís", kmInicial: "153,250", kmFinal: "161,890", extensao: "8,640", municipio: "Cordeirópolis" },
-        { codificacao: "SP", codigo: "316", nome: "Constantino Peruchi", kmInicial: "157,000", kmFinal: "165,490", extensao: "8,490", municipio: "Cordeirópolis" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "130,151", kmFinal: "152,360", extensao: "22,209", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "152,361", kmFinal: "160,400", extensao: "8,039", municipio: "Cordeirópolis" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "160,401", kmFinal: "181,269", extensao: "20,868", municipio: "Araras" },
-        { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "123,591", kmFinal: "139,320", extensao: "15,729", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "139,321", kmFinal: "165,820", extensao: "26,499", municipio: "Limeira" },
-        { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "165,821", kmFinal: "172,000", extensao: "6,179", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "047/075", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,300", extensao: "1,300", municipio: "Indaiatuba" },
-        { codificacao: "SPD", codigo: "053/075", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,965", extensao: "1,965", municipio: "Indaiatuba" },
-        { codificacao: "SPD", codigo: "056/075", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "3,745", extensao: "3,745", municipio: "Indaiatuba" },
-        { codificacao: "SPD", codigo: "000/135", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "001/151", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,800", extensao: "1,800", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "002/151", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "003/151", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,930", extensao: "0,930", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "015/306", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,380", extensao: "0,380", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "019/306", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,420", extensao: "0,420", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "023/306", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,110", extensao: "0,110", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "024/306", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,380", extensao: "0,380", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "045/191", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,200", extensao: "0,200", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "114/147", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,310", extensao: "0,310", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "128/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,100", extensao: "2,100", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "133/304", nome: "Luiz de Queiroz", kmInicial: "0,000", kmFinal: "1,800", extensao: "1,800", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "134/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,000", extensao: "2,000", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "134/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,000", extensao: "2,000", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "135/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,130", extensao: "1,130", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "136/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,500", extensao: "0,500", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "136/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,140", extensao: "1,140", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "137/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,400", extensao: "2,400", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "139/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,040", extensao: "1,040", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "139/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,450", extensao: "0,450", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "141/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,820", extensao: "1,820", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "142/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,350", extensao: "1,350", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "143/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,910", extensao: "0,910", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "143/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,100", extensao: "2,100", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "146/304", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,200", extensao: "1,200", municipio: "Santa Bárbara D'Oeste" },
-        { codificacao: "SPD", codigo: "151/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,500", extensao: "2,500", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "153/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,640", extensao: "2,640", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "156/348", nome: "Dr. Arlindo de Salvo", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Limeira" },
-        { codificacao: "SPD", codigo: "157/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "160/316", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,170", extensao: "0,170", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "160/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,500", extensao: "0,500", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "161/310", nome: "Valdemar Fragnani", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "161/316", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,350", extensao: "0,350", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "162/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,550", extensao: "0,550", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "164/316", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,350", extensao: "0,350", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "165/316", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,380", extensao: "0,380", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "165/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,600", extensao: "0,600", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "167/330", nome: "Gildo Scorzoni", kmInicial: "0,000", kmFinal: "0,170", extensao: "0,170", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "167/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,100", extensao: "2,100", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "168/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,000", extensao: "2,000", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "170/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,500", extensao: "0,500", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "173/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,760", extensao: "0,760", municipio: "Araras" },
-        { codificacao: "SPD", codigo: "173/348", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,500", extensao: "2,500", municipio: "Cordeirópolis" },
-        { codificacao: "SPD", codigo: "179/330", nome: "Roberto Zambon", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Araras" },
-        { codificacao: "SPI", codigo: "165/330", nome: "Gilberto Carlos Penteado da Silva Telles", kmInicial: "0,000", kmFinal: "4,670", extensao: "4,670", municipio: "Araras" },
+<footer>RAPM — Sistema Operacional de Rodovias</footer>
 
-        // --- REGIÃO PIRASSUNUNGA / PORTO FERREIRA / DESCALVADO / LEME / SANTA RITA ---
-        { codificacao: "SP", codigo: "201", nome: "Prefeito Euberto Nemésio Pereira de Godoy", kmInicial: "0,000", kmFinal: "17,620", extensao: "17,620", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "215", nome: "Vicente Botta", kmInicial: "80,701", kmFinal: "97,370", extensao: "16,669", municipio: "Porto Ferreira" },
-        { codificacao: "SP", codigo: "215", nome: "Vicente Botta", kmInicial: "99,600", kmFinal: "103,700", extensao: "4,100", municipio: "Porto Ferreira" },
-        { codificacao: "SP", codigo: "215", nome: "Vicente Botta", kmInicial: "103,701", kmFinal: "111,450", extensao: "7,749", municipio: "Descalvado" },
-        { codificacao: "SP", codigo: "215", nome: "Paulo Lauro, Doutor", kmInicial: "111,451", kmFinal: "131,500", extensao: "20,049", municipio: "Descalvado" },
-        { codificacao: "SP", codigo: "225", nome: "Deputado Ciro Albuquerque", kmInicial: "25,401", kmFinal: "49,420", extensao: "24,019", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "225", nome: "Deputado Rogê Ferreira", kmInicial: "49,421", kmFinal: "65,350", extensao: "15,929", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "328", nome: "Sem Denominação", kmInicial: "200,400", kmFinal: "206,390", extensao: "5,990", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "328", nome: "Sem Denominação", kmInicial: "212,320", kmFinal: "220,280", extensao: "7,960", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "328", nome: "Sem Denominação", kmInicial: "220,281", kmFinal: "226,210", extensao: "5,929", municipio: "Porto Ferreira" },
-        { codificacao: "SP", codigo: "328", nome: "Luis Pizetta", kmInicial: "231,010", kmFinal: "237,200", extensao: "6,190", municipio: "Porto Ferreira" },
-        { codificacao: "SP", codigo: "328", nome: "Luis Pizetta", kmInicial: "237,201", kmFinal: "245,900", extensao: "8,699", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SP", codigo: "328", nome: "Angelo Roberto", kmInicial: "245,901", kmFinal: "260,950", extensao: "15,049", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "181,270", kmFinal: "195,400", extensao: "14,130", municipio: "Leme" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "195,401", kmFinal: "201,477", extensao: "6,076", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "201,478", kmFinal: "219,890", extensao: "18,412", municipio: "Pirassununga" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "219,891", kmFinal: "232,960", extensao: "13,069", municipio: "Porto Ferreira" },
-        { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "232,961", kmFinal: "261,000", extensao: "28,039", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPA", codigo: "038/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,000", extensao: "1,000", municipio: "Pirassununga" },
-        { codificacao: "SPA", codigo: "044/225", nome: "Inominada", kmInicial: "0,000", kmFinal: "1,742", extensao: "1,742", municipio: "Pirassununga" },
-        { codificacao: "SPA", codigo: "111/215", nome: "Antônio Benedito Paschoal", kmInicial: "0,000", kmFinal: "3,550", extensao: "3,550", municipio: "Descalvado" },
-        { codificacao: "SPA", codigo: "117/215", nome: "Juvenal Pozzi", kmInicial: "0,000", kmFinal: "3,330", extensao: "3,330", municipio: "Descalvado" },
-        { codificacao: "SPA", codigo: "193/330", nome: "Prefeito José Gagheggi", kmInicial: "0,000", kmFinal: "2,250", extensao: "2,250", municipio: "Leme" },
-        { codificacao: "SPA", codigo: "193/330", nome: "Prefeito José Gagheggi", kmInicial: "2,251", kmFinal: "5,230", extensao: "2,979", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPA", codigo: "194/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,260", extensao: "1,260", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPA", codigo: "194/330", nome: "Sem Denominação", kmInicial: "1,261", kmFinal: "4,724", extensao: "3,463", municipio: "Leme" },
-        { codificacao: "SPA", codigo: "198/330", nome: "Gumercindo Brull", kmInicial: "0,000", kmFinal: "4,900", extensao: "4,900", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPA", codigo: "238/328", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,300", extensao: "1,300", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPA", codigo: "241/330", nome: "Zéquinha de Abreu", kmInicial: "0,000", kmFinal: "11,270", extensao: "11,270", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPA", codigo: "244/328", nome: "João Zanardo", kmInicial: "0,000", kmFinal: "2,180", extensao: "2,180", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPA", codigo: "250/328", nome: "Professora Maria Luiza de Souza Pinto", kmInicial: "0,000", kmFinal: "4,930", extensao: "4,930", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "008/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,010", extensao: "0,010", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "008/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "111/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Descalvado" },
-        { codificacao: "SPD", codigo: "117/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,500", extensao: "0,500", municipio: "Descalvado" },
-        { codificacao: "SPD", codigo: "241/330", nome: "Mário Sérgio Papa Marchini", kmInicial: "0,000", kmFinal: "0,550", extensao: "0,550", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "001/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "006/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "007/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "010/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "011/201", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,001", extensao: "0,001", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "033/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,420", extensao: "1,420", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "038/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,660", extensao: "2,660", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "043/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,180", extensao: "0,180", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "044/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,040", extensao: "1,040", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "045/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,660", extensao: "1,660", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "048/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,890", extensao: "0,890", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "049/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,800", extensao: "1,800", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "050/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,900", extensao: "0,900", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "100/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,180", extensao: "0,180", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "111/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,700", extensao: "0,700", municipio: "Descalvado" },
-        { codificacao: "SPD", codigo: "113/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Descalvado" },
-        { codificacao: "SPD", codigo: "117/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Descalvado" },
-        { codificacao: "SPD", codigo: "182/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Leme" },
-        { codificacao: "SPD", codigo: "187/330", nome: "Moacir Pinto", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Leme" },
-        { codificacao: "SPD", codigo: "188/330", nome: "José Simarelli Sobrinho", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Leme" },
-        { codificacao: "SPD", codigo: "190/330", nome: "Luiz Simioni", kmInicial: "0,000", kmFinal: "0,840", extensao: "0,840", municipio: "Leme" },
-        { codificacao: "SPD", codigo: "193/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,450", extensao: "0,450", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPD", codigo: "198/330", nome: "Luiz Zanichelli", kmInicial: "0,000", kmFinal: "0,150", extensao: "0,150", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPD", codigo: "201/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,150", extensao: "0,150", municipio: "Santa Cruz da Conceição" },
-        { codificacao: "SPD", codigo: "206/328", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,890", extensao: "0,890", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "206/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,130", extensao: "0,130", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "209/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "210/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,700", extensao: "0,700", municipio: "Pirassununga" },
-        { codificacao: "SPD", codigo: "225/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,500", extensao: "1,500", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "226/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "227/330", nome: "Joaquim Coêlho Filho", kmInicial: "0,000", kmFinal: "0,450", extensao: "0,450", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "229/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,600", extensao: "0,600", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "230/328", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,170", extensao: "0,170", municipio: "Porto Ferreira" },
-        { codificacao: "SPD", codigo: "234/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,130", extensao: "1,130", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "238/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,270", extensao: "2,270", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "241/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "3,570", extensao: "3,570", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "244/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,190", extensao: "1,190", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "245/328", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,600", extensao: "1,600", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "248/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,150", extensao: "1,150", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "252/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,120", extensao: "1,120", municipio: "Santa Rita do Passa Quatro" },
-        { codificacao: "SPD", codigo: "258/330", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,130", extensao: "1,130", municipio: "Santa Rita do Passa Quatro" },
+<!-- FIREBASE SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- DADOS ADICIONAIS DA SEÇÃO "CC" ---
-        { codificacao: "SPD", codigo: "022/225", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,740", extensao: "0,740", municipio: "Aguaí" },
-        { codificacao: "SPD", codigo: "029/207", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,360", extensao: "0,360", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "031/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,650", extensao: "0,650", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "033/207", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,360", extensao: "0,360", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "033/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,360", extensao: "0,360", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "035/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,330", extensao: "0,330", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "036/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "052/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,360", extensao: "1,360", municipio: "Casa Branca" },
-        { codificacao: "SPD", codigo: "055/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,490", extensao: "0,490", municipio: "Santa Cruz das Palmeiras" },
-        { codificacao: "SPD", codigo: "071/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,680", extensao: "0,680", municipio: "Santa Cruz das Palmeiras" },
-        { codificacao: "SPD", codigo: "073/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,830", extensao: "0,830", municipio: "Santa Cruz das Palmeiras" },
-        { codificacao: "SPD", codigo: "075/215", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,220", extensao: "0,220", municipio: "Santa Cruz das Palmeiras" },
-        { codificacao: "SPD", codigo: "200/340", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "2,879", extensao: "2,879", municipio: "Aguaí" },
-        { codificacao: "SPD", codigo: "225/344", nome: "Oswaldo Junqueira Ferreira", kmInicial: "0,000", kmFinal: "1,000", extensao: "1,000", municipio: "São João da Boa Vista" },
-        { codificacao: "SPD", codigo: "236/340", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,550", extensao: "0,550", municipio: "Casa Branca" },
-        { codificacao: "SPD", codigo: "238/340", nome: "Walter Eduardo Pereira Avancini", kmInicial: "0,000", kmFinal: "1,500", extensao: "1,500", municipio: "Casa Branca" },
-        { codificacao: "SPD", codigo: "242/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,250", extensao: "1,250", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "243/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,950", extensao: "0,950", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "244/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,690", extensao: "0,690", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "245/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,800", extensao: "0,800", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "246/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,560", extensao: "1,560", municipio: "Vargem Grande do Sul" },
-        { codificacao: "SPD", codigo: "258/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,450", extensao: "0,450", municipio: "São Sebastião da Grama" },
-        { codificacao: "SPD", codigo: "259/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,440", extensao: "0,440", municipio: "São Sebastião da Grama" },
-        { codificacao: "SPD", codigo: "261/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,900", extensao: "1,900", municipio: "São Sebastião da Grama" },
-        { codificacao: "SPD", codigo: "262/340", nome: "Engº João Trombini", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "263/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,480", extensao: "0,480", municipio: "São Sebastião da Grama" },
-        { codificacao: "SPD", codigo: "263/350", nome: "Olga Farah Nasser", kmInicial: "0,000", kmFinal: "1,000", extensao: "1,000", municipio: "São José do Rio Pardo" },
-        { codificacao: "SPD", codigo: "269/338", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "6,000", extensao: "6,000", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "272/332", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,620", extensao: "0,620", municipio: "Tambaú" },
-        { codificacao: "SPD", codigo: "272/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,590", extensao: "0,590", municipio: "Divinolândia" },
-        { codificacao: "SPD", codigo: "273/332", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,300", extensao: "0,300", municipio: "Tambaú" },
-        { codificacao: "SPD", codigo: "273/340", nome: "Dr. Álvaro de Figueiredo Ferraz de Siqueira", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "274/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,350", extensao: "0,350", municipio: "Divinolândia" },
-        { codificacao: "SPD", codigo: "275/340", nome: "Francisco Figueiredo Barretto", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "277/340", nome: "Saulo Pereira Lima, Doutor", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Mococa" },
-        { codificacao: "SPD", codigo: "277/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,750", extensao: "0,750", municipio: "Divinolândia" },
-        { codificacao: "SPD", codigo: "284/350", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,580", extensao: "1,580", municipio: "Tapiratiba" },
-        { codificacao: "SPD", codigo: "286/350", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Tapiratiba" },
-        { codificacao: "SPD", codigo: "294/350", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,400", extensao: "0,400", municipio: "Tapiratiba" },
-        { codificacao: "SPD", codigo: "298/344", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "0,290", extensao: "0,290", municipio: "Caconde" },
-        { codificacao: "SPI", codigo: "225/342", nome: "Sem Denominação", kmInicial: "0,000", kmFinal: "1,750", extensao: "1,750", municipio: "São João da Boa Vista" }
-    ];
+const firebaseConfig = {
+    apiKey: "AIzaSyA1bivqVsA28xQwPEubNB4dyj1YBx2WONo",
+    authDomain: "portalpm-8bc1a.firebaseapp.com",
+    projectId: "portalpm-8bc1a",
+    storageBucket: "portalpm-8bc1a.firebasestorage.app",
+    messagingSenderId: "901516748028",
+    appId: "1:901516748028:web:3961fbc955e9e184e2e379",
+    measurementId: "G-0CRSPHCMNX"
+};
 
-    // ==================== LÓGICA DE FILTRO E RENDER ====================
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearBtn');
-    const tbody = document.getElementById('tableBody');
-    const countSpan = document.getElementById('count');
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const adminConfigRef = doc(db, "config", "admin");
+const placasCollectionRef = collection(db, "placas_r19");
 
-    function render(filterText = '') {
-        const term = filterText.trim().toLowerCase();
-        let filtered = dados;
-        if (term) {
-            filtered = dados.filter(item => {
-                const codigoCompleto = (item.codificacao + ' ' + item.codigo).toLowerCase();
-                const nomeLower = item.nome.toLowerCase();
-                const municipioLower = item.municipio.toLowerCase();
-                return codigoCompleto.includes(term) ||
-                       nomeLower.includes(term) ||
-                       item.codigo.toLowerCase().includes(term) ||
-                       municipioLower.includes(term);
+const $ = id => document.getElementById(id);
+
+const rodoviasBase = [
+    { id: "SP-133", codigo: "133", codificacao: "SP", nome: "Deputado João Herrmann Neto", municipio: "Limeira" },
+    { id: "SP-135", codigo: "135", codificacao: "SP", nome: "Margarida da Graça Martins", municipio: "Santa Bárbara D'Oeste" },
+    { id: "SP-147-L", codigo: "147", codificacao: "SP", nome: "Engenheiro João Tosello / Laercio Corte", municipio: "Limeira" },
+    { id: "SP-151", codigo: "151", codificacao: "SP", nome: "Doutor João Mendes da Silva Júnior", municipio: "Limeira" },
+    { id: "SP-191", codigo: "191", codificacao: "SP", nome: "Wilson Finardi", municipio: "Araras" },
+    { id: "SP-304", codigo: "304", codificacao: "SP", nome: "Luiz de Queiroz", municipio: "Santa Bárbara D'Oeste" },
+    { id: "SP-306", codigo: "306", codificacao: "SP", nome: "Comendador Américo / Luiz Ometto", municipio: "Limeira / Santa Bárbara" },
+    { id: "SP-310", codigo: "310", codificacao: "SP", nome: "Washington Luís", municipio: "Cordeirópolis" },
+    { id: "SP-316", codigo: "316", codificacao: "SP", nome: "Constantino Peruchi", municipio: "Cordeirópolis" },
+    { id: "SP-330", codigo: "330", codificacao: "SP", nome: "Via Anhanguera", municipio: "Limeira / Araras / Leme / Pirassununga" },
+    { id: "SP-348", codigo: "348", codificacao: "SP", nome: "Rodovia dos Bandeirantes", municipio: "Limeira / Santa Bárbara / Cordeirópolis" },
+    { id: "SP-201", codigo: "201", codificacao: "SP", nome: "Prefeito Euberto Nemésio", municipio: "Pirassununga" },
+    { id: "SP-215", codigo: "215", codificacao: "SP", nome: "Vicente Botta / Paulo Lauro", municipio: "Porto Ferreira / Descalvado" },
+    { id: "SP-225", codigo: "225", codificacao: "SP", nome: "Deputado Ciro Albuquerque / Rogê Ferreira", municipio: "Pirassununga" },
+    { id: "SP-328", codigo: "328", codificacao: "SP", nome: "Luis Pizetta / Angelo Roberto", municipio: "Porto Ferreira / Santa Rita do Passa Quatro" }
+];
+
+let isAdmin = false;
+let placasData = {};
+
+async function carregarPlacasDoFirebase() {
+    try {
+        const querySnapshot = await getDocs(placasCollectionRef);
+        placasData = {};
+        querySnapshot.forEach((doc) => {
+            placasData[doc.id] = doc.data().placas || [];
+        });
+        renderizarRodovias();
+    } catch (e) {
+        console.error("Erro ao carregar placas:", e);
+    }
+}
+
+function renderizarRodovias() {
+    const filtro = $("pesquisaRodovia").value.toLowerCase().trim();
+    const container = $("listaRodovias");
+    container.innerHTML = "";
+
+    const filtradas = rodoviasBase.filter(r => 
+        r.id.toLowerCase().includes(filtro) ||
+        r.nome.toLowerCase().includes(filtro) ||
+        r.municipio.toLowerCase().includes(filtro)
+    );
+
+    if (filtradas.length === 0) {
+        container.innerHTML = `<p class="status" style="grid-column: 1/-1;">Nenhuma rodovia encontrada.</p>`;
+        return;
+    }
+
+    filtradas.forEach(rodovia => {
+        const totalPlacas = (placasData[rodovia.id] || []).length;
+        
+        const card = document.createElement("div");
+        card.className = "card-rodovia";
+        card.innerHTML = `
+            <div class="card-info">
+                <strong>${rodovia.id} - ${rodovia.nome}</strong>
+                <small>📍 ${rodovia.municipio}</small>
+                <small style="color:var(--amarelo); margin-top:6px;">⚠️ Placas R-19 cadastradas: <b>${totalPlacas}</b></small>
+            </div>
+            <div class="card-acoes">
+                <button class="secundario" onclick="abrirModalVisualizar('${rodovia.id}')">Ver R-19 (${totalPlacas})</button>
+                ${isAdmin ? `<button onclick="selecionarParaCadastro('${rodovia.id}')">Adicionar R-19</button>` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+$("pesquisaRodovia").addEventListener("input", renderizarRodovias);
+
+function preencherSelectAdmin() {
+    const select = $("selectRodoviaAdmin");
+    select.innerHTML = `<option value="">Selecione uma rodovia...</option>`;
+    rodoviasBase.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r.id;
+        opt.textContent = `${r.id} - ${r.nome}`;
+        select.appendChild(opt);
+    });
+}
+
+$("btnLoginAdmin").addEventListener("click", async () => {
+    const senhaDigitada = $("adminPasswordInput").value.trim();
+    if (!senhaDigitada) {
+        $("statusLogin").textContent = "Digite a senha de administrador.";
+        return;
+    }
+
+    try {
+        const snap = await getDoc(adminConfigRef);
+        let senhaCorreta = "3303";
+
+        if (snap.exists() && snap.data().pass) {
+            senhaCorreta = snap.data().pass;
+        }
+
+        if (senhaDigitada === senhaCorreta) {
+            isAdmin = true;
+            $("loginArea").classList.add("oculto");
+            $("adminArea").classList.remove("oculto");
+            preencherSelectAdmin();
+            renderizarRodovias();
+            $("statusLogin").textContent = "";
+        } else {
+            $("statusLogin").textContent = "Senha incorreta!";
+        }
+    } catch (err) {
+        console.error(err);
+        $("statusLogin").textContent = "Erro ao validar senha.";
+    }
+});
+
+$("btnSairAdmin").addEventListener("click", () => {
+    isAdmin = false;
+    $("adminArea").classList.add("oculto");
+    $("loginArea").classList.remove("oculto");
+    $("adminPasswordInput").value = "";
+    renderizarRodovias();
+});
+
+window.selecionarParaCadastro = function(rodoviaId) {
+    $("selectRodoviaAdmin").value = rodoviaId;
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    $("inputKmR19").focus();
+};
+
+$("btnSalvarR19").addEventListener("click", async () => {
+    const rodoviaId = $("selectRodoviaAdmin").value;
+    const km = $("inputKmR19").value.trim();
+    const sentido = $("selectSentidoR19").value;
+    const leves = $("inputLevesR19").value.trim() || "-";
+    const pesados = $("inputPesadosR19").value.trim() || "-";
+
+    if (!rodoviaId || !km) {
+        $("statusAdmin").textContent = "Selecione a rodovia e informe o quilômetro (KM).";
+        return;
+    }
+
+    $("btnSalvarR19").disabled = true;
+    $("btnSalvarR19").textContent = "Salvando...";
+
+    try {
+        const novaPlaca = {
+            id: Date.now().toString(),
+            km: km.toLowerCase().includes("km") ? km : `Km ${km}`,
+            sentido: sentido,
+            leves: leves,
+            pesados: pesados,
+            cadastradoEm: new Date().toLocaleDateString('pt-BR')
+        };
+
+        const docRef = doc(db, "placas_r19", rodoviaId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            await updateDoc(docRef, {
+                placas: arrayUnion(novaPlaca)
+            });
+        } else {
+            await setDoc(docRef, {
+                rodovia: rodoviaId,
+                placas: [novaPlaca]
             });
         }
 
-        countSpan.textContent = filtered.length;
+        $("statusAdmin").textContent = "Placa R-19 adicionada com sucesso!";
+        $("inputKmR19").value = "";
+        $("inputLevesR19").value = "";
+        $("inputPesadosR19").value = "";
+        
+        await carregarPlacasDoFirebase();
+        
+        setTimeout(() => { $("statusAdmin").textContent = ""; }, 3000);
+    } catch (e) {
+        console.error("Erro ao salvar:", e);
+        $("statusAdmin").textContent = "Erro ao salvar no banco de dados.";
+    } finally {
+        $("btnSalvarR19").disabled = false;
+        $("btnSalvarR19.textContent = "SALVAR PLACA R-19";
+    }
+});
 
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="no-results">Nenhuma rodovia encontrada para "<strong>${filterText}</strong>"</td></tr>`;
-            return;
-        }
+window.abrirModalVisualizar = function(rodoviaId) {
+    rodoviaAtualVisualizacao = rodoviaId;
+    const rodoviaInfo = rodoviasBase.find(r => r.id === rodoviaId);
+    
+    $("modalRodoviaTitulo").textContent = `${rodoviaInfo.id} - ${rodoviaInfo.nome}`;
+    $("modalRodoviaSub").textContent = `Município: ${rodoviaInfo.municipio}`;
 
-        let html = '';
-        filtered.forEach(item => {
-            const codigoExibicao = item.codificacao + ' ' + item.codigo;
-            html += `
-                <tr>
-                    <td class="codigo">${codigoExibicao}</td>
-                    <td>${item.nome}</td>
-                    <td>${item.kmInicial}</td>
-                    <td>${item.kmFinal}</td>
-                    <td>${item.extensao}</td>
-                    <td class="municipio">${item.municipio}</td>
-                </tr>
+    const listaContainer = $("listaPlacasModal");
+    listaContainer.innerHTML = "";
+
+    const placas = placasData[rodoviaId] || [];
+
+    if (placas.length === 0) {
+        listaContainer.innerHTML = `<p class="status">Nenhuma placa R-19 cadastrada nesta rodovia ainda.</p>`;
+    } else {
+        placas.forEach((p) => {
+            const item = document.createElement("div");
+            item.className = "item-r19";
+            item.innerHTML = `
+                <div>
+                    <strong>📍 ${p.km}</strong>
+                    <div style="font-size:0.82rem; color:#ccc; margin-top:4px;">
+                        🚗 Leves: <b style="color:var(--amarelo);">${p.leves}</b> | 🚚 Pesados: <b style="color:var(--amarelo);">${p.pesados}</b>
+                    </div>
+                    <small style="color:#777; margin-top:2px;">Adicionado em: ${p.cadastradoEm || 'Data não informada'}</small>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                    <span class="badge-sentido">Sentido ${p.sentido}</span>
+                    ${isAdmin ? `<button class="perigo" style="padding:3px 6px; font-size:0.65rem;" onclick="excluirPlacaR19('${rodoviaId}', '${p.id}')">Excluir</button>` : ''}
+                </div>
             `;
+            listaContainer.appendChild(item);
         });
-        tbody.innerHTML = html;
     }
 
-    searchInput.addEventListener('input', function() {
-        render(this.value);
-    });
+    $("modalR19").classList.remove("oculto");
+};
 
-    clearBtn.addEventListener('click', function() {
-        searchInput.value = '';
-        render('');
-        searchInput.focus();
-    });
+window.excluirPlacaR19 = async function(rodoviaId, placaId) {
+    if (!confirm("Deseja realmente remover este registro de placa R-19?")) return;
 
-    render('');
+    try {
+        const docRef = doc(db, "placas_r19", rodoviaId);
+        const placasAtuais = placasData[rodoviaId] || [];
+        const placaParaRemover = placasAtuais.find(p => p.id === placaId);
+
+        if (placaParaRemover) {
+            await updateDoc(docRef, {
+                placas: arrayRemove(placaParaRemover)
+            });
+            await carregarPlacasDoFirebase();
+            abrirModalVisualizar(rodoviaId);
+        }
+    } catch (e) {
+        console.error("Erro ao excluir:", e);
+        alert("Não foi possível excluir a placa.");
+    }
+};
+
+$("btnFecharModal").addEventListener("click", () => {
+    $("modalR19").classList.add("oculto");
+});
+
+carregarPlacasDoFirebase();
 </script>
 
 </body>
