@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natureza de Ocorrência</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#0d0d0d',
+                            card: '#18181b',
+                            cardBorder: '#27272a',
+                            yellow: '#ffcc00',
+                            yellowDark: '#e6b800',
+                            yellowLight: '#fffae6',
+                            muted: '#a1a1aa'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e6b800;
+        }
+        .code-badge {
+            box-shadow: 0 2px 8px rgba(255, 204, 0, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-brand-black text-white font-sans min-h-screen flex flex-col selection:bg-brand-yellow selection:text-black">
+
+    <!-- Header fixo com busca rápida -->
+    <header class="sticky top-0 z-50 bg-brand-black/95 backdrop-blur border-b-2 border-brand-yellow px-4 py-3 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <!-- Título Principal -->
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="bg-brand-yellow text-black font-black p-2.5 rounded-lg flex items-center justify-center text-xl shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-brand-yellow flex items-center gap-2">
+                        NATUREZA DE OCORRÊNCIA
+                    </h1>
+                    <p class="text-xs text-brand-muted font-medium">Consultar Natureza</p>
+                </div>
+            </div>
+
+            <!-- Campo de Pesquisa -->
+            <div class="relative w-full md:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-brand-yellow">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Buscar código (ex: A01, L08) ou texto..." 
+                    class="w-full pl-11 pr-10 py-2.5 bg-zinc-900 border-2 border-brand-yellow/60 rounded-xl text-white placeholder-zinc-500 font-semibold focus:outline-none focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30 transition-all text-sm md:text-base"
+                >
+                <button 
+                    id="clearSearch" 
+                    class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-brand-yellow transition-colors"
+                    title="Limpar busca"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros Rápidos (Categorias) -->
+        <div class="max-w-7xl mx-auto mt-3 overflow-x-auto pb-1 scrollbar-none">
+            <div class="flex items-center gap-1.5 min-w-max" id="categoryFilters">
+                <button data-cat="ALL" class="cat-btn active bg-brand-yellow text-black font-extrabold px-3.5 py-1.5 rounded-lg text-xs md:text-sm uppercase transition-all shadow">
+                    TODAS
+                </button>
+                <!-- Botões das letras gerados via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-3 md:p-6">
+        
+        <!-- Contador de resultados -->
+        <div class="flex items-center justify-between mb-4 px-1">
+            <div class="text-xs md:text-sm font-semibold text-brand-muted">
+                Exibindo: <span id="itemCount" class="text-brand-yellow font-bold">0</span> códigos
+            </div>
+            <button 
+                id="resetFiltersBtn" 
+                class="hidden text-xs text-brand-yellow hover:underline font-bold"
+            >
+                Redefinir Filtros
+            </button>
+        </div>
+
+        <!-- Container das Categorias -->
+        <div id="dataContainer" class="space-y-6">
+            <!-- As seções e cards serão inseridos aqui via JS -->
+        </div>
+
+        <!-- Mensagem de NENHUM RESULTADO -->
+        <div id="noResults" class="hidden flex-col items-center justify-center py-16 text-center">
+            <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-full text-brand-yellow mb-3">
+                <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1">Nenhum código encontrado</h3>
+            <p class="text-sm text-zinc-400">Verifique o código ou termo digitado no campo de busca.</p>
+        </div>
+    </main>
+
+    <!-- Botão Voltar ao Topo -->
+    <button 
+        id="scrollTopBtn" 
+        class="hidden fixed bottom-5 right-5 bg-brand-yellow text-black p-3 rounded-full shadow-2xl hover:bg-brand-yellowDark transition-all z-40"
+        title="Voltar ao topo"
+    >
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+
+    <!-- Footer Simples -->
+    <footer class="border-t border-zinc-800 bg-zinc-950 py-4 text-center text-xs text-zinc-500">
+        <div class="max-w-7xl mx-auto px-4">
+            Consulta Operacional de Códigos de Ocorrência • Alto Contraste
+        </div>
+    </footer>
+
+    <script>
+        // Dados dos Códigos de Ocorrência extraídos estritamente da imagem
+        const dataset = [
+            {
+                code: "A",
+                title: "A - CONTRA A PESSOA E A VIDA",
+                items: [
+                    { code: "A01", desc: "Homic. Culposo 121 § 3º CP" },
+                    { code: "A02", desc: "Homic. Doloso 121 CP" },
+                    { code: "A03", desc: "Homic. Tent. 121-14 CP" },
+                    { code: "A04", desc: "Aborto 124 A 128 CP" },
+                    { code: "A05", desc: "Agressão 129 CP" },
+                    { code: "A06", desc: "Infanticídio 123 CP" },
+                    { code: "A07", desc: "Pericl. Vida 130 A 136 CP" },
+                    { code: "A08", desc: "Aband. Incapaz 133 CP" },
+                    { code: "A09", desc: "Omiss. Socorro 135 CP" },
+                    { code: "A10", desc: "Ameaça 147 CP" },
+                    { code: "A11", desc: "Sequest/C.Privado 148 CP" },
+                    { code: "A12", desc: "Viol. Domicílio 150 CP" },
+                    { code: "A13", desc: "Maus Tratos a Pessoa 136 CP" },
+                    { code: "A14", desc: "Rixa 137 CP" },
+                    { code: "A15", desc: "Calúnia 138 CP" },
+                    { code: "A16", desc: "Difamação 139 CP" },
+                    { code: "A17", desc: "Injúria 140 CP" },
+                    { code: "A18", desc: "Constran. Ilegal 146 CP" },
+                    { code: "A19", desc: "Racismo Lei 7.716/89" },
+                    { code: "A20", desc: "Pedido de Socorro" },
+                    { code: "A21", desc: "Encontro de Cadáver" },
+                    { code: "A22", desc: "Suicídio 122 CP" },
+                    { code: "A23", desc: "Tentativa de Suicídio" },
+                    { code: "A24", desc: "Afogamento em Curso" },
+                    { code: "A25", desc: "Tortura Lei 9.455/97" },
+                    { code: "A26", desc: "Aband. Material 244 CP" },
+                    { code: "A27", desc: "Aband. Intelectual 246 CP" },
+                    { code: "A28", desc: "Entrega Fil Menor Pes Indio 245 CP" },
+                    { code: "A29", desc: "Subtraç. Incapaz 249 CP" },
+                    { code: "A30", desc: "Lesão Corp. Culp. 129 §6º CP" },
+                    { code: "A32", desc: "Cond. Discriminatória" },
+                    { code: "A98", desc: "Viol. Doméstica Lei 11.340/06" },
+                    { code: "A99", desc: "Viol. Doméstica – App SOS Mulher" }
+                ]
+            },
+            {
+                code: "B",
+                title: "B - CONTRA O PATRIMÔNIO",
+                items: [
+                    { code: "B01", desc: "Furto 155 CP" },
+                    { code: "B01", desc: "Furto Patrimônio Público 163 CP" },
+                    { code: "B02", desc: "Furto Tentativa 155-14,L I CP" },
+                    { code: "B02", desc: "Furto Tent.Patrimônio Público" },
+                    { code: "B03", desc: "Roubo Tentativa 157-14 L/ CP" },
+                    { code: "B04", desc: "Roubo 157 CP" },
+                    { code: "B05", desc: "Extorsão 158 CP" },
+                    { code: "B06", desc: "Posse/Invas.Propried.161,L I CP" },
+                    { code: "B07", desc: "Dano Material 163 CP" },
+                    { code: "B08", desc: "Apropriação Indébita 168 CP" },
+                    { code: "B09", desc: "Estelion./Fraude 171/175/176 CP" },
+                    { code: "B10", desc: "Receptação 180 CP" },
+                    { code: "B11", desc: "Latrocínio 157 § 3º CP" },
+                    { code: "B12", desc: "Alarme Disparado" }
+                ]
+            },
+            {
+                code: "C",
+                title: "C - CONTRA A TRANQUILIDADE E MORTOS",
+                items: [
+                    { code: "C01", desc: "Perturb. de Sossego 42/65 LCP" },
+                    { code: "C02", desc: "Conduta Inconveniente 40 LCP" },
+                    { code: "C03", desc: "Embriaguez 62 LCP" },
+                    { code: "C04", desc: "Desinteligência" },
+                    { code: "C05", desc: "Av. Atitude Suspeita" },
+                    { code: "C06", desc: "Pertub. Cerim. Funerária 209 CP" },
+                    { code: "C07", desc: "Violação de Sepultura 210 CP" },
+                    { code: "C08", desc: "Desir./Subtr./Ocult. Cadáver 211 CP" },
+                    { code: "C09", desc: "Vilpêndio A Cadáver 212 CP" },
+                    { code: "C99", desc: "Pancadão / Baile Funk Esq. 42 LCP" }
+                ]
+            },
+            {
+                code: "D",
+                title: "D - CONTRA OS COSTUMES",
+                items: [
+                    { code: "D01", desc: "Estupro 213/217 a CP" },
+                    { code: "D02", desc: "Estupro Tentativa 213-14 CP" },
+                    { code: "D03", desc: "Ato Obsceno 233 CP" },
+                    { code: "D04", desc: "Escrita/Objeto Obsceno 234 CP" },
+                    { code: "D06", desc: "Corrupção Menores 218 CP" },
+                    { code: "D08", desc: "Exploraç./Lenocínio 227/232 CP" },
+                    { code: "D09", desc: "Jogos de Azar 50 LCP" },
+                    { code: "D10", desc: "Vadiagem 59 LCP" },
+                    { code: "D13", desc: "Import. Ofensiva ao Pudor 61 LCP" }
+                ]
+            },
+            {
+                code: "E",
+                title: "E - CONTRA A ADM PÚBLICA",
+                items: [
+                    { code: "E01", desc: "Peculato 312 CP" },
+                    { code: "E02", desc: "Concussão 316 CP" },
+                    { code: "E03", desc: "Corrupção 333/317 CP" },
+                    { code: "E04", desc: "Prevaricação 319 CP" },
+                    { code: "E05", desc: "Violência Arbitrária 345 CP" },
+                    { code: "E06", desc: "Usurp. Função Pública 328 CP" },
+                    { code: "E07", desc: "Apoio" },
+                    { code: "E08", desc: "Desobediência 330 CP" },
+                    { code: "E09", desc: "Desacato 331 CP" },
+                    { code: "E10", desc: "Contraband/Descam 334 CP" },
+                    { code: "E11", desc: "Abuso Autoridade Lei 4.898/65" },
+                    { code: "E13", desc: "Resistência 329 CP" },
+                    { code: "E14", desc: "Numec - Núcleo de Med. Comunitária" }
+                ]
+            },
+            {
+                code: "F",
+                title: "F - PREV./REPR. DE SUBST. ENTORP.",
+                items: [
+                    { code: "F01", desc: "Ocor. c/Entorp Lei 11.343" },
+                    { code: "F01", desc: "Uso de Entorpecente" }
+                ]
+            },
+            {
+                code: "G",
+                title: "G - CONTRA A ADM DA JUSTIÇA",
+                items: [
+                    { code: "G01", desc: "Ocorrência com Preso" },
+                    { code: "G02", desc: "Falsa C.Crime/Trote 340 CP" },
+                    { code: "G03", desc: "Esc/ Transporte / Guarda de Preso" }
+                ]
+            },
+            {
+                code: "H",
+                title: "H - CONTRA ADM DO TRABALHO-POLÍTICA",
+                items: [
+                    { code: "H01", desc: "Greve 7.783/89" },
+                    { code: "H02", desc: "Piquete 41/65 LCP" },
+                    { code: "H03", desc: "Tumulto 286 CP 40 LCP" },
+                    { code: "H04", desc: "Passeata" },
+                    { code: "H05", desc: "Saque/Arrastão" },
+                    { code: "H06", desc: "Manifestação Pública" }
+                ]
+            },
+            {
+                code: "I",
+                title: "I - CONTRA O MEIO AMBIENTE",
+                items: [
+                    { code: "I01", desc: "Cont. Meio Amb.L 4771/65,9605/98" },
+                    { code: "I02", desc: "Ocorrência Ambientais GCM" },
+                    { code: "I03", desc: "Outras Ocorrências Ambientais" },
+                    { code: "I04", desc: "Outras Atividades Ambientais" },
+                    { code: "I05", desc: "Vistoria Ambiental" },
+                    { code: "I99", desc: "Outras Ocorrência Ambientais - GCM" }
+                ]
+            },
+            {
+                code: "J",
+                title: "J - CONTRA A INCOLUM./PAZ E FÉ PÚBLICA",
+                items: [
+                    { code: "J01", desc: "Exerc.Ilegal Profis./Ativid.47 LCP" },
+                    { code: "J02", desc: "Enven.de água potável 270 CP" },
+                    { code: "J03", desc: "Detenção de Suspeito" },
+                    { code: "J04", desc: "Subversão/Terrorismo" },
+                    { code: "J05", desc: "Crime Contra Econ.Pop 8.137/90" },
+                    { code: "J06", desc: "Falsa Identidade 307CP" },
+                    { code: "J07", desc: "Uso Doc. Falso 304 CP" },
+                    { code: "J08", desc: "Falsidade Ideológica 301CP" },
+                    { code: "J09", desc: "Arma de Fogo Lei 10.826/03" },
+                    { code: "J10", desc: "Ocorrência de Falsificação" },
+                    { code: "J11", desc: "Form.Bando/Quadrilha 288CP" }
+                ]
+            },
+            {
+                code: "L",
+                title: "L - OCORRÊNCIAS DE TRÂNSITO",
+                items: [
+                    { code: "L01", desc: "Veículo" },
+                    { code: "L04", desc: "Congestionamento" },
+                    { code: "L05", desc: "Infração de Trânsito" },
+                    { code: "L06", desc: "Interdição de via Pública" },
+                    { code: "L07", desc: "Atropelamento" },
+                    { code: "L08", desc: "Acident.Trânsito C. Vítima" },
+                    { code: "L09", desc: "Acident.Trânsito S. Vítima" },
+                    { code: "L10", desc: "Acidente de Trânsito com PM" },
+                    { code: "L12", desc: "Acidente Trânsito Moto" },
+                    { code: "L13", desc: "Disputa ou Comp. Autom. (Racha)" }
+                ]
+            },
+            {
+                code: "M",
+                title: "M - OCORRÊNCIA DE AUXÍLIO AO PÚBLICO",
+                items: [
+                    { code: "M01", desc: "Ocor. C. Pessoa" },
+                    { code: "M04", desc: "Inseto Agressivo" },
+                    { code: "M06", desc: "Ingest./Injeção/Inalação de subst." },
+                    { code: "M10", desc: "Desmoronamento" },
+                    { code: "M11", desc: "Auxílio a Gestante" },
+                    { code: "M18", desc: "Outra Ocor. C. Patrimônio" },
+                    { code: "M19", desc: "Pessoa em Local de Risco" },
+                    { code: "M22", desc: "Emergência Clínica" },
+                    { code: "M23", desc: "Oc. Pol. Envolvendo COVID-19" }
+                ]
+            },
+            {
+                code: "N",
+                title: "N - OCORRÊNCIA DE BOMBEIROS",
+                items: [
+                    { code: "N01", desc: "Incêndio 250 CP" },
+                    { code: "N02", desc: "Explosão 251 CP" },
+                    { code: "N03", desc: "Superaquecimento de Equip." },
+                    { code: "N04", desc: "Vazamento" },
+                    { code: "N06", desc: "Ocorrência com Árvore" },
+                    { code: "N08", desc: "Acidente com Meios de Transporte" },
+                    { code: "N13", desc: "Ocorrência com objeto" },
+                    { code: "N22", desc: "Risco Iminente de Explosão" },
+                    { code: "N23", desc: "Situação de Risco" },
+                    { code: "N25", desc: "Vistoria Técnica Operac." },
+                    { code: "N28", desc: "Animal" },
+                    { code: "N30", desc: "Atividade Educativa de Bombeiro" },
+                    { code: "N31", desc: "Oc. De Bomb. COVID-19" }
+                ]
+            },
+            {
+                code: "T",
+                title: "T - OCORRÊNCIA DE TESTE",
+                items: [
+                    { code: "T01", desc: "Ocorrência de Teste" },
+                    { code: "TTT", desc: "Ocorrência de Teste" }
+                ]
+            },
+            {
+                code: "Z",
+                title: "Z - OCOR. RAIA-POLICIAIS DA ÁREA",
+                items: [
+                    { code: "Z01", desc: "Em V. Public...Calç./Praça" },
+                    { code: "Z02", desc: "Em Imóvel Privado" },
+                    { code: "Z03", desc: "Em Imóvel Público" },
+                    { code: "Z04", desc: "Em Equip.Concess.Serv.Público" },
+                    { code: "Z05", desc: "No Meio Amb." },
+                    { code: "Z06", desc: "Em Escola(Púb./Priv.)" },
+                    { code: "Z07", desc: "Relacionado Prostituição" },
+                    { code: "Z08", desc: "Relacionado Pop. de Rua" },
+                    { code: "Z09", desc: "Relacionado Evento não autor." },
+                    { code: "Z10", desc: "Relacionado Ativ.Irregul." },
+                    { code: "Z11", desc: "Relac. a Falta de Autoriz. de Func." },
+                    { code: "Z12", desc: "Funcionamento S/ Autor. - COVID-19" },
+                    { code: "Z99", desc: "Ocorrência não Cadastrada" }
+                ]
+            }
+        ];
+
+        let selectedCategory = "ALL";
+        let currentSearchQuery = "";
+
+        // Elementos DOM
+        const dataContainer = document.getElementById('dataContainer');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const categoryFiltersContainer = document.getElementById('categoryFilters');
+        const itemCountEl = document.getElementById('itemCount');
+        const noResultsEl = document.getElementById('noResults');
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+        // Inicializar Filtros por Letra
+        function buildCategoryButtons() {
+            dataset.forEach(group => {
+                const btn = document.createElement('button');
+                btn.setAttribute('data-cat', group.code);
+                btn.className = `cat-btn px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold uppercase transition-all bg-zinc-900 border border-zinc-700 text-brand-yellow hover:bg-brand-yellow hover:text-black hover:border-brand-yellow`;
+                btn.innerText = group.code;
+                btn.onclick = () => selectCategory(group.code);
+                categoryFiltersContainer.appendChild(btn);
+            });
+        }
+
+        // Selecionar categoria
+        function selectCategory(catCode) {
+            selectedCategory = catCode;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.getAttribute('data-cat') === catCode) {
+                    btn.className = `cat-btn active bg-brand-yellow text-black font-extrabold px-3.5 py-1.5 rounded-lg text-xs md:text-sm uppercase transition-all shadow-md`;
+                } else {
+                    btn.className = `cat-btn px-3 py-1.5 rounded-lg text-xs md:text-sm font-extrabold uppercase transition-all bg-zinc-900 border border-zinc-800 text-brand-yellow hover:bg-brand-yellow hover:text-black hover:border-brand-yellow`;
+                }
+            });
+            renderData();
+        }
+
+        // Função de normalização de texto para busca insensível a acentos
+        function normalizeStr(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+
+        // Renderizar dados na tela
+        function renderData() {
+            dataContainer.innerHTML = '';
+            let totalVisibleItems = 0;
+            const query = normalizeStr(currentSearchQuery);
+
+            dataset.forEach(group => {
+                // Verificar filtro de categoria
+                if (selectedCategory !== "ALL" && group.code !== selectedCategory) {
+                    return;
+                }
+
+                // Filtrar itens do grupo pela busca
+                const filteredItems = group.items.filter(item => {
+                    const normCode = normalizeStr(item.code);
+                    const normDesc = normalizeStr(item.desc);
+                    return normCode.includes(query) || normDesc.includes(query);
+                });
+
+                if (filteredItems.length > 0) {
+                    totalVisibleItems += filteredItems.length;
+
+                    // Seção do grupo
+                    const section = document.createElement('section');
+                    section.className = "bg-brand-card border border-brand-cardBorder rounded-2xl p-4 md:p-5 shadow-lg transition-all";
+
+                    // Título da Seção
+                    const sectionTitle = document.createElement('h2');
+                    sectionTitle.className = "text-base md:text-lg font-black text-brand-yellow border-b border-zinc-800 pb-2 mb-4 flex items-center justify-between";
+                    sectionTitle.innerHTML = `
+                        <span>${group.title}</span>
+                        <span class="text-xs font-bold text-zinc-400 bg-zinc-900 px-2.5 py-1 rounded-full border border-zinc-800">${filteredItems.length}</span>
+                    `;
+                    section.appendChild(sectionTitle);
+
+                    // Grid dos cartões de código (1 col celular, 2 ou 3 em telas maiores)
+                    const grid = document.createElement('div');
+                    grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
+
+                    filteredItems.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = "flex items-stretch bg-zinc-900/80 border border-zinc-800 rounded-xl overflow-hidden hover:border-brand-yellow/70 transition-all group shadow-sm";
+                        
+                        // Highlight se houver busca
+                        let displayCode = item.code;
+                        let displayDesc = item.desc;
+
+                        card.innerHTML = `
+                            <div class="bg-brand-yellow text-black font-mono font-black text-base md:text-lg px-3.5 py-2.5 flex items-center justify-center min-w-[75px] shrink-0 code-badge group-hover:bg-brand-yellowDark transition-colors">
+                                ${displayCode}
+                            </div>
+                            <div class="p-2.5 flex items-center text-xs md:text-sm font-bold text-zinc-100 flex-grow leading-snug">
+                                ${displayDesc}
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    section.appendChild(grid);
+                    dataContainer.appendChild(section);
+                }
+            });
+
+            // Atualizar contadores e estado de visibilidade
+            itemCountEl.innerText = totalVisibleItems;
+
+            if (totalVisibleItems === 0) {
+                noResultsEl.classList.remove('hidden');
+                noResultsEl.classList.add('flex');
+            } else {
+                noResultsEl.classList.add('hidden');
+                noResultsEl.classList.remove('flex');
+            }
+
+            // Exibir/Ocultar botão de redefinir filtros
+            if (selectedCategory !== "ALL" || currentSearchQuery !== "") {
+                resetFiltersBtn.classList.remove('hidden');
+            } else {
+                resetFiltersBtn.classList.add('hidden');
+            }
+        }
+
+        // Eventos de Busca
+        searchInput.addEventListener('input', (e) => {
+            currentSearchQuery = e.target.value.trim();
+            if (currentSearchQuery.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+            renderData();
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            currentSearchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            searchInput.focus();
+            renderData();
+        });
+
+        resetFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            currentSearchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            selectCategory('ALL');
+        });
+
+        // Botão voltar ao topo
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.remove('hidden');
+            } else {
+                scrollTopBtn.classList.add('hidden');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Inicializar
+        window.onload = () => {
+            buildCategoryButtons();
+            renderData();
+        };
+    </script>
+</body>
+</html>
