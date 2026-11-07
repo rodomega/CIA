@@ -38,6 +38,8 @@ body{
     color:var(--text);display:flex;flex-direction:column;align-items:center;
     padding:12px 10px env(safe-area-inset-bottom, 10px);transition:background .25s,color .25s;
 }
+
+/* CONTAINER PADRÃO (CELULAR) */
 .phone-container{
     width:100%;max-width:420px;display:flex;flex-direction:column;height:100%;position:relative;justify-content:space-between;
 }
@@ -63,6 +65,7 @@ body{
     margin-top:5px;font-size:.7rem;text-align:center;color:var(--appName);text-shadow:0 1px 3px rgba(0,0,0,.9);
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
+
 .modal-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;
     justify-content:center;align-items:center;z-index:1000;padding:15px
@@ -126,7 +129,7 @@ body{
 }
 .dicas-box-text a{color:var(--accent);text-decoration:underline}
 
-/* ESTILO DO RODAPÉ (FIXO NA TELA) */
+/* ESTILO DO RODAPÉ */
 .donation-footer{
     flex-shrink:0;
     margin-top:10px;
@@ -178,6 +181,38 @@ body{
 .btn-sugestao:hover{background:#64748b;}
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
+
+/* ============================================================
+   ADAPTAÇÃO AUTOMÁTICA PARA COMPUTADOR (TAMPAS MAIORES)
+   ============================================================ */
+@media(min-width: 768px) {
+    body {
+        padding: 24px;
+    }
+    .phone-container {
+        max-width: 850px; /* Expande o painel para aproveitar o monitor */
+    }
+    .grid-apps {
+        grid-template-columns: repeat(6, 1fr); /* Aumenta para 6 colunas de apps no PC */
+        gap: 20px 16px;
+    }
+    .header h1 {
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+    }
+    .app-name {
+        font-size: 0.78rem;
+    }
+    .donation-footer {
+        padding: 16px 24px;
+    }
+    .donation-footer h3 {
+        font-size: 0.9rem;
+    }
+    .donation-footer p {
+        font-size: 0.78rem;
+    }
+}
 </style>
 </head>
 
@@ -187,12 +222,12 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
     </div>
 
-    <!-- GRADE DE APPS (COM ROLAGEM INTERNA CASO EXCEDA A TELA) -->
+    <!-- GRADE DE APPS -->
     <div class="grid-apps" id="appGrid">
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
 
-    <!-- SEÇÃO DE APOIO / BOTÕES (FIXA NO RODAPÉ DA TELA) -->
+    <!-- SEÇÃO DE APOIO / RODAPÉ -->
     <div class="donation-footer">
         <h3>"ANJOS DO ASFALTO"</h3>
         <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook e continuidade das melhorias!</p>
@@ -495,7 +530,6 @@ function formatarTextoComLinks(texto) {
     });
 }
 
-// Função para copiar o código Pix Copia e Cola
 window.copiarPixCopiaECola = async function() {
     const pixPayload = "00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos Paulo Guidini Munh6009SAO PAULO621405104K4vk5ooU163047F49";
     const btn = $("btnCopyPix");
@@ -752,10 +786,6 @@ onSnapshot(portalConfigRef, snap => {
     }
 });
 
-/* ============================================================
-   DICAS ÚTEIS
-   ============================================================ */
-
 onSnapshot(dicasConfigRef, snap => {
     if (snap.exists() && snap.data().conteudo !== undefined) {
         textoDicasAtual = snap.data().conteudo || "";
@@ -809,11 +839,6 @@ window.salvarDicas = async function() {
     }
 };
 
-
-/* ============================================================
-   GEOLOCALIZAÇÃO
-   ============================================================ */
-
 window.copiarGeolocalizacao = function() {
     if (!navigator.geolocation) {
         alert("A localização não é suportada neste dispositivo.");
@@ -845,11 +870,6 @@ window.copiarGeolocalizacao = function() {
         }
     );
 };
-
-
-/* ============================================================
-   APLICATIVOS
-   ============================================================ */
 
 onSnapshot(appsCol, snapshot => {
     globalApps = [];
@@ -900,7 +920,6 @@ function renderizarGrid() {
         grid.appendChild(div);
     });
 
-    // BOTÃO OBTER COORDENADAS
     const gpsItem = document.createElement("div");
     gpsItem.className = "app-item";
     gpsItem.onclick = window.copiarGeolocalizacao;
@@ -908,7 +927,6 @@ function renderizarGrid() {
         `<div class="app-icon" style="background:rgba(34, 197, 94, 0.15);"><span style="font-size:26px">📍</span></div><div class="app-name">Coordenadas</div>`;
     grid.appendChild(gpsItem);
 
-    // BOTÃO DICAS ÚTEIS
     const dicasItem = document.createElement("div");
     dicasItem.className = "app-item";
     dicasItem.onclick = window.abrirModalDicas;
@@ -916,7 +934,6 @@ function renderizarGrid() {
         `<div class="app-icon" style="background:rgba(56, 189, 248, 0.15);"><span style="font-size:26px">💡</span></div><div class="app-name">Dicas Úteis</div>`;
     grid.appendChild(dicasItem);
 
-    // BOTÃO + (ADICIONAR)
     const plus = document.createElement("div");
     plus.className = "app-item";
     plus.onclick = () => {
@@ -1003,11 +1020,6 @@ function abrirSubmenu(appItem) {
     $("submenuModal").style.display = "flex";
 }
 
-
-/* ============================================================
-   ADMIN & VERIFICAÇÃO VIA FIRESTORE
-   ============================================================ */
-
 window.abrirModalSenha = function() {
     $("adminPassword").value = "";
     $("passwordModal").style.display = "flex";
@@ -1033,7 +1045,6 @@ window.verificarSenha = async function() {
         if (snap.exists() && snap.data().pass) {
             senhaCorreta = snap.data().pass;
         } else {
-            // Cria a configuração inicial no Firestore caso ainda não exista
             await setDoc(adminConfigRef, { pass: "3303", updatedAt: Date.now() }, { merge: true });
         }
 
@@ -1219,8 +1230,7 @@ window.salvarNovoApp = async function() {
 
         alert(
             "Não foi possível salvar o aplicativo.\n\n" +
-            detalhe +
-            "\n\nSe o erro for permission-denied no Storage, verifique as regras do Firebase Storage."
+            detalhe
         );
 
     } finally {
@@ -1339,19 +1349,12 @@ window.removerApp = async function(docId) {
     }
 
     try {
-
         await deleteDoc(
             doc(db, "apps", docId)
         );
-
     } catch (err) {
-
         console.error(err);
-
-        alert(
-            "Erro ao excluir.\n\n" +
-            (err.code || err.message || err)
-        );
+        alert("Erro ao excluir.");
     }
 };
 
@@ -1379,12 +1382,7 @@ window.abrirConfigSubitems = async function(docId) {
 
         } catch (err) {
             console.error(err);
-
-            alert(
-                "Não foi possível transformar este app em submenu.\n\n" +
-                (err.code || err.message || err)
-            );
-
+            alert("Não foi possível transformar este app em submenu.");
             return;
         }
     }
@@ -1486,9 +1484,7 @@ window.salvarSubitemAtual = async function() {
         $("subItemUrl").value.trim();
 
     if (!name || !url) {
-        alert(
-            "Preencha o nome e o link do subitem."
-        );
+        alert("Preencha o nome e o link do subitem.");
         return;
     }
 
@@ -1508,7 +1504,6 @@ window.salvarSubitemAtual = async function() {
     }
 
     try {
-
         await updateDoc(
             doc(db, "apps", appEmEdicaoSub.docId),
             {
@@ -1519,15 +1514,9 @@ window.salvarSubitemAtual = async function() {
 
         limparSubitemForm();
         renderizarSubitemsAdmin();
-
     } catch (err) {
-
         console.error(err);
-
-        alert(
-            "Erro ao salvar subitem.\n\n" +
-            (err.code || err.message || err)
-        );
+        alert("Erro ao salvar subitem.");
     }
 };
 
@@ -1539,7 +1528,6 @@ window.removerSubitem = async function(idx) {
     appEmEdicaoSub.subitems.splice(idx, 1);
 
     try {
-
         await updateDoc(
             doc(db, "apps", appEmEdicaoSub.docId),
             {
@@ -1549,15 +1537,9 @@ window.removerSubitem = async function(idx) {
         );
 
         renderizarSubitemsAdmin();
-
     } catch (err) {
-
         console.error(err);
-
-        alert(
-            "Erro ao excluir subitem.\n\n" +
-            (err.code || err.message || err)
-        );
+        alert("Erro ao excluir subitem.");
     }
 };
 
@@ -1579,7 +1561,6 @@ carregarConfigPortal();
 window.alternarCamposTest = window.alternarCamposTipo;
 window.alternarCamposTipo();
 window.alternarTipoIcone();
-
 </script>
 </body>
 </html>
