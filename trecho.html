@@ -223,13 +223,13 @@ footer {
 
 <header>
   <h1>RAPM</h1>
-  <p>Controle de Placas R-19 (Velocidade Máxima) por Rodovia</p>
+  <p>Controle de Rodovias e Placas R-19</p>
 </header>
 
 <main>
   <!-- PESQUISA E LISTAGEM DE RODOVIAS -->
   <section class="painel">
-    <h2>Patrulhamento e Rodovias</h2>
+    <h2>Consulta de Rodovias</h2>
     <input id="pesquisaRodovia" type="search" placeholder="Filtrar por código (ex: SP-330), nome ou município...">
     <div id="listaRodovias" class="grid-rodovias">
       <p class="status">Carregando rodovias...</p>
@@ -335,22 +335,34 @@ const placasCollectionRef = collection(db, "placas_r19");
 
 const $ = id => document.getElementById(id);
 
+// Base de dados completa das Rodovias Paulistas com KM Inicial, Final e Município
 const rodoviasBase = [
-    { id: "SP-133", codigo: "133", codificacao: "SP", nome: "Deputado João Herrmann Neto", municipio: "Limeira" },
-    { id: "SP-135", codigo: "135", codificacao: "SP", nome: "Margarida da Graça Martins", municipio: "Santa Bárbara D'Oeste" },
-    { id: "SP-147-L", codigo: "147", codificacao: "SP", nome: "Engenheiro João Tosello / Laercio Corte", municipio: "Limeira" },
-    { id: "SP-151", codigo: "151", codificacao: "SP", nome: "Doutor João Mendes da Silva Júnior", municipio: "Limeira" },
-    { id: "SP-191", codigo: "191", codificacao: "SP", nome: "Wilson Finardi", municipio: "Araras" },
-    { id: "SP-304", codigo: "304", codificacao: "SP", nome: "Luiz de Queiroz", municipio: "Santa Bárbara D'Oeste" },
-    { id: "SP-306", codigo: "306", codificacao: "SP", nome: "Comendador Américo / Luiz Ometto", municipio: "Limeira / Santa Bárbara" },
-    { id: "SP-310", codigo: "310", codificacao: "SP", nome: "Washington Luís", municipio: "Cordeirópolis" },
-    { id: "SP-316", codigo: "316", codificacao: "SP", nome: "Constantino Peruchi", municipio: "Cordeirópolis" },
-    { id: "SP-330", codigo: "330", codificacao: "SP", nome: "Via Anhanguera", municipio: "Limeira / Araras / Leme / Pirassununga" },
-    { id: "SP-348", codigo: "348", codificacao: "SP", nome: "Rodovia dos Bandeirantes", municipio: "Limeira / Santa Bárbara / Cordeirópolis" },
-    { id: "SP-201", codigo: "201", codificacao: "SP", nome: "Prefeito Euberto Nemésio", municipio: "Pirassununga" },
-    { id: "SP-215", codigo: "215", codificacao: "SP", nome: "Vicente Botta / Paulo Lauro", municipio: "Porto Ferreira / Descalvado" },
-    { id: "SP-225", codigo: "225", codificacao: "SP", nome: "Deputado Ciro Albuquerque / Rogê Ferreira", municipio: "Pirassununga" },
-    { id: "SP-328", codigo: "328", codificacao: "SP", nome: "Luis Pizetta / Angelo Roberto", municipio: "Porto Ferreira / Santa Rita do Passa Quatro" }
+    { codificacao: "SP", codigo: "133", nome: "Deputado João Herrmann Neto", kmInicial: "0,000", kmFinal: "10,650", extensao: "10,650", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "135", nome: "Margarida da Graça Martins", kmInicial: "0,000", kmFinal: "8,540", extensao: "8,540", municipio: "Santa Bárbara D'Oeste" },
+    { codificacao: "SP", codigo: "147", nome: "Engenheiro João Tosello", kmInicial: "90,951", kmFinal: "106,320", extensao: "15,369", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "147", nome: "Laercio Corte, Deputado", kmInicial: "111,748", kmFinal: "122,850", extensao: "11,102", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "151", nome: "Doutor João Mendes da Silva Júnior", kmInicial: "0,000", kmFinal: "4,780", extensao: "4,780", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "191", nome: "Wilson Finardi", kmInicial: "25,301", kmFinal: "58,640", extensao: "33,339", municipio: "Araras" },
+    { codificacao: "SP", codigo: "304", nome: "Luiz de Queiroz", kmInicial: "131,501", kmFinal: "146,556", extensao: "15,055", municipio: "Santa Bárbara D'Oeste" },
+    { codificacao: "SP", codigo: "306", nome: "Comendador Américo Emílio Romi", kmInicial: "9,731", kmFinal: "21,750", extensao: "12,019", municipio: "Santa Bárbara D'Oeste" },
+    { codificacao: "SP", codigo: "306", nome: "Luis Ometto", kmInicial: "21,751", kmFinal: "28,060", extensao: "6,309", municipio: "Santa Bárbara D'Oeste" },
+    { codificacao: "SP", codigo: "306", nome: "Luiz Ometto", kmInicial: "28,061", kmFinal: "39,260", extensao: "11,199", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "310", nome: "Washington Luís", kmInicial: "153,250", kmFinal: "161,890", extensao: "8,640", municipio: "Cordeirópolis" },
+    { codificacao: "SP", codigo: "316", nome: "Constantino Peruchi", kmInicial: "157,000", kmFinal: "165,490", extensao: "8,490", municipio: "Cordeirópolis" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "130,151", kmFinal: "152,360", extensao: "22,209", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "152,361", kmFinal: "160,400", extensao: "8,039", municipio: "Cordeirópolis" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "160,401", kmFinal: "181,269", extensao: "20,868", municipio: "Araras" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "181,270", kmFinal: "195,400", extensao: "14,130", municipio: "Leme" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "201,478", kmFinal: "219,890", extensao: "18,412", municipio: "Pirassununga" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "219,891", kmFinal: "232,960", extensao: "13,069", municipio: "Porto Ferreira" },
+    { codificacao: "SP", codigo: "330", nome: "Via Anhanguera", kmInicial: "232,961", kmFinal: "261,000", extensao: "28,039", municipio: "Santa Rita do Passa Quatro" },
+    { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "123,591", kmFinal: "139,320", extensao: "15,729", municipio: "Santa Bárbara D'Oeste" },
+    { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "139,321", kmFinal: "165,820", extensao: "26,499", municipio: "Limeira" },
+    { codificacao: "SP", codigo: "348", nome: "Rodovia dos Bandeirantes", kmInicial: "165,821", kmFinal: "172,000", extensao: "6,179", municipio: "Cordeirópolis" },
+    { codificacao: "SP", codigo: "201", nome: "Prefeito Euberto Nemésio Pereira de Godoy", kmInicial: "0,000", kmFinal: "17,620", extensao: "17,620", municipio: "Pirassununga" },
+    { codificacao: "SP", codigo: "215", nome: "Vicente Botta", kmInicial: "80,701", kmFinal: "97,370", extensao: "16,669", municipio: "Porto Ferreira" },
+    { codificacao: "SP", codigo: "215", nome: "Paulo Lauro, Doutor", kmInicial: "111,451", kmFinal: "131,500", extensao: "20,049", municipio: "Descalvado" },
+    { codificacao: "SP", codigo: "225", nome: "Deputado Ciro Albuquerque", kmInicial: "25,401", kmFinal: "49,420", extensao: "24,019", municipio: "Pirassununga" }
 ];
 
 let isAdmin = false;
@@ -366,6 +378,7 @@ async function carregarPlacasDoFirebase() {
         renderizarRodovias();
     } catch (e) {
         console.error("Erro ao carregar placas:", e);
+        renderizarRodovias();
     }
 }
 
@@ -374,31 +387,38 @@ function renderizarRodovias() {
     const container = $("listaRodovias");
     container.innerHTML = "";
 
-    const filtradas = rodoviasBase.filter(r => 
-        r.id.toLowerCase().includes(filtro) ||
-        r.nome.toLowerCase().includes(filtro) ||
-        r.municipio.toLowerCase().includes(filtro)
-    );
+    const filtradas = rodoviasBase.filter(item => {
+        const codigoCompleto = (item.codificacao + '-' + item.codigo).toLowerCase();
+        const nomeLower = item.nome.toLowerCase();
+        const municipioLower = item.municipio.toLowerCase();
+        return codigoCompleto.includes(filtro) ||
+               nomeLower.includes(filtro) ||
+               item.codigo.toLowerCase().includes(filtro) ||
+               municipioLower.includes(filtro);
+    });
 
     if (filtradas.length === 0) {
         container.innerHTML = `<p class="status" style="grid-column: 1/-1;">Nenhuma rodovia encontrada.</p>`;
         return;
     }
 
-    filtradas.forEach(rodovia => {
-        const totalPlacas = (placasData[rodovia.id] || []).length;
+    filtradas.forEach((rodovia, index) => {
+        const idUnico = `${rodovia.codificacao}-${rodovia.codigo}-${index}`;
+        const totalPlacas = (placasData[idUnico] || []).length;
+        const codigoExibicao = `${rodovia.codificacao}-${rodovia.codigo}`;
         
         const card = document.createElement("div");
         card.className = "card-rodovia";
         card.innerHTML = `
             <div class="card-info">
-                <strong>${rodovia.id} - ${rodovia.nome}</strong>
-                <small>📍 ${rodovia.municipio}</small>
+                <strong>${codigoExibicao} - ${rodovia.nome}</strong>
+                <small>📍 Município: <b>${rodovia.municipio}</b></small>
+                <small>🛣️ Trecho: Km <b>${rodovia.kmInicial}</b> até <b>${rodovia.kmFinal}</b> (${rodovia.extensao} km)</small>
                 <small style="color:var(--amarelo); margin-top:6px;">⚠️ Placas R-19 cadastradas: <b>${totalPlacas}</b></small>
             </div>
             <div class="card-acoes">
-                <button class="secundario" onclick="abrirModalVisualizar('${rodovia.id}')">Ver R-19 (${totalPlacas})</button>
-                ${isAdmin ? `<button onclick="selecionarParaCadastro('${rodovia.id}')">Adicionar R-19</button>` : ''}
+                <button class="secundario" onclick="abrirModalVisualizar('${idUnico}')">Ver R-19 (${totalPlacas})</button>
+                ${isAdmin ? `<button onclick="selecionarParaCadastro('${idUnico}', '${codigoExibicao} - ${rodovia.nome}')">Adicionar R-19</button>` : ''}
             </div>
         `;
         container.appendChild(card);
@@ -410,10 +430,11 @@ $("pesquisaRodovia").addEventListener("input", renderizarRodovias);
 function preencherSelectAdmin() {
     const select = $("selectRodoviaAdmin");
     select.innerHTML = `<option value="">Selecione uma rodovia...</option>`;
-    rodoviasBase.forEach(r => {
+    rodoviasBase.forEach((r, index) => {
+        const idUnico = `${r.codificacao}-${r.codigo}-${index}`;
         const opt = document.createElement("option");
-        opt.value = r.id;
-        opt.textContent = `${r.id} - ${r.nome}`;
+        opt.value = idUnico;
+        opt.textContent = `${r.codificacao}-${r.codigo} - ${r.nome} (${r.municipio})`;
         select.appendChild(opt);
     });
 }
@@ -457,7 +478,7 @@ $("btnSairAdmin").addEventListener("click", () => {
     renderizarRodovias();
 });
 
-window.selecionarParaCadastro = function(rodoviaId) {
+window.selecionarParaCadastro = function(rodoviaId, nomeRodovia) {
     $("selectRodoviaAdmin").value = rodoviaId;
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     $("inputKmR19").focus();
@@ -497,7 +518,7 @@ $("btnSalvarR19").addEventListener("click", async () => {
             });
         } else {
             await setDoc(docRef, {
-                rodovia: rodoviaId,
+                rodoviaId: rodoviaId,
                 placas: [novaPlaca]
             });
         }
@@ -515,16 +536,19 @@ $("btnSalvarR19").addEventListener("click", async () => {
         $("statusAdmin").textContent = "Erro ao salvar no banco de dados.";
     } finally {
         $("btnSalvarR19").disabled = false;
-        $("btnSalvarR19.textContent = "SALVAR PLACA R-19";
+        $("btnSalvarR19").textContent = "SALVAR PLACA R-19";
     }
 });
 
 window.abrirModalVisualizar = function(rodoviaId) {
-    rodoviaAtualVisualizacao = rodoviaId;
-    const rodoviaInfo = rodoviasBase.find(r => r.id === rodoviaId);
+    const partes = rodoviaId.split("-");
+    const indexStr = partes[partes.length - 1];
+    const rodoviaInfo = rodoviasBase[parseInt(indexStr, 10)];
     
-    $("modalRodoviaTitulo").textContent = `${rodoviaInfo.id} - ${rodoviaInfo.nome}`;
-    $("modalRodoviaSub").textContent = `Município: ${rodoviaInfo.municipio}`;
+    if (rodoviaInfo) {
+        $("modalRodoviaTitulo").textContent = `${rodoviaInfo.codificacao}-${rodoviaInfo.codigo} - ${rodoviaInfo.nome}`;
+        $("modalRodoviaSub").textContent = `Município: ${rodoviaInfo.municipio} | Trecho: Km ${rodoviaInfo.kmInicial} ao ${rodoviaInfo.kmFinal}`;
+    }
 
     const listaContainer = $("listaPlacasModal");
     listaContainer.innerHTML = "";
