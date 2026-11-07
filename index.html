@@ -259,7 +259,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <input type="password" id="adminPassword" placeholder="Senha" style="text-align:center;letter-spacing:3px">
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharModais()">Cancelar</button>
-            <button class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
+            <button class="btn btn-primary" id="btnVerificarSenha" onclick="verificarSenha()">Entrar</button>
         </div>
     </div>
 </div>
@@ -449,6 +449,7 @@ const storage = getStorage(firebaseApp);
 const appsCol = collection(db, "apps");
 const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
+const adminConfigRef = doc(db, "config", "admin");
 
 const ESCALA_BASE_URL =
     "https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?";
@@ -1004,7 +1005,7 @@ function abrirSubmenu(appItem) {
 
 
 /* ============================================================
-   ADMIN
+   ADMIN & VERIFICAÇÃO VIA FIRESTORE
    ============================================================ */
 
 window.abrirModalSenha = function() {
@@ -1013,16 +1014,45 @@ window.abrirModalSenha = function() {
     $("adminPassword").focus();
 };
 
-window.verificarSenha = function() {
-    if ($("adminPassword").value === "3303") {
-        fecharModais();
-        if (senhaModoAcao === "dicas") {
-            habilitarEdicaoDicas();
+window.verificarSenha = async function() {
+    const inputSenha = $("adminPassword").value.trim();
+    const btn = $("btnVerificarSenha");
+
+    if (!inputSenha) {
+        alert("Digite a senha!");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Verificando...";
+
+    try {
+        const snap = await getDoc(adminConfigRef);
+        let senhaCorreta = "3303";
+
+        if (snap.exists() && snap.data().pass) {
+            senhaCorreta = snap.data().pass;
         } else {
-            abrirPainelAdmin();
+            // Cria a configuração inicial no Firestore caso ainda não exista
+            await setDoc(adminConfigRef, { pass: "3303", updatedAt: Date.now() }, { merge: true });
         }
-    } else {
-        alert("Senha incorreta!");
+
+        if (inputSenha === senhaCorreta) {
+            fecharModais();
+            if (senhaModoAcao === "dicas") {
+                habilitarEdicaoDicas();
+            } else {
+                abrirPainelAdmin();
+            }
+        } else {
+            alert("Senha incorreta!");
+        }
+    } catch (err) {
+        console.error("Erro ao verificar senha no Firestore:", err);
+        alert("Erro ao validar acesso. Verifique a conexão.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Entrar";
     }
 };
 
@@ -1474,7 +1504,7 @@ window.salvarSubitemAtual = async function() {
     if (idx >= 0) {
         appEmEdicaoSub.subitems[idx] = item;
     } else {
-        appEmEdicao_sub.subitems.push(item);
+        appEmEdicaoSub.subitems.push(item);
     }
 
     try {
