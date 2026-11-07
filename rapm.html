@@ -296,9 +296,6 @@ footer {
       <label>Classificação leve</label>
       <textarea id="textoLeve"></textarea>
 
-      <label>Classificação moderada</label>
-      <textarea id="textoModerada"></textarea>
-
       <label>Classificação grave</label>
       <textarea id="textoGrave"></textarea>
 
@@ -307,7 +304,7 @@ footer {
     </div>
 
     <p class="aviso">
-      Para os códigos L-08 e L-12, serão disponibilizados quatro campos de classificação.
+      Para os códigos L-08 e L-12, serão disponibilizados três campos de classificação (Leve, Grave e Fatal).
     </p>
 
     <button id="btnSalvar">SALVAR HISTÓRICO</button>
@@ -552,8 +549,10 @@ function limparFormulario() {
 
   [
     "codigo","nome","texto","textoLeve",
-    "textoModerada","textoGrave","textoFatal"
-  ].forEach(id => $(id).value = "");
+    "textoGrave","textoFatal"
+  ].forEach(id => {
+    if ($(id)) $(id).value = "";
+  });
 
   $("tituloFormulario").textContent = "Cadastrar histórico";
   $("statusAdmin").textContent = "";
@@ -571,14 +570,12 @@ function editarHistorico(item) {
 
   if (item.textos) {
     $("textoLeve").value = item.textos.leve || "";
-    $("textoModerada").value = item.textos.moderada || "";
     $("textoGrave").value = item.textos.grave || "";
     $("textoFatal").value = item.textos.fatal || "";
     $("texto").value = "";
   } else {
     $("texto").value = item.texto || "";
     $("textoLeve").value = "";
-    $("textoModerada").value = "";
     $("textoGrave").value = "";
     $("textoFatal").value = "";
   }
@@ -615,7 +612,6 @@ async function salvarHistorico() {
   if (especial) {
     dados.textos = {
       leve:$("textoLeve").value,
-      moderada:$("textoModerada").value,
       grave:$("textoGrave").value,
       fatal:$("textoFatal").value
     };
@@ -676,7 +672,6 @@ function abrirHistorico(item) {
 
     [
       ["LEVE","leve"],
-      ["MODERADA","moderada"],
       ["GRAVE","grave"],
       ["FATAL","fatal"]
     ].forEach(([rotulo,chave]) => {
