@@ -439,7 +439,7 @@
         ];
 
         // Estado global compartilhado para equipe e abas
-        let appState = JSON.parse(localStorage.getItem('pmrMultiAtividadeStateV2')) || {
+        let appState = JSON.parse(localStorage.getItem('pmrMultiAtividadeStateV3')) || {
             personnel: { enc: '', mot: '', aux: '' },
             activeTabId: 'tab_1',
             tabs: [
@@ -476,7 +476,7 @@
         appState.tabs.forEach(t => initTabItems(t));
 
         function saveLocalStorage() {
-            localStorage.setItem('pmrMultiAtividadeStateV2', JSON.stringify(appState));
+            localStorage.setItem('pmrMultiAtividadeStateV3', JSON.stringify(appState));
         }
 
         // Renderizar Abas no Topo
@@ -674,7 +674,7 @@
             saveLocalStorage();
         }
 
-        // Gerar Texto Formatado (Individual da Aba Atual)
+        // Gerar Texto Formatado (Individual da Aba Atual) - Ignora "Total Autuados"
         function generateTabText(tab) {
             if (!appState.personnel.enc) return null;
 
@@ -686,6 +686,9 @@
 
             let hasContent = false;
             itemNames.forEach(name => {
+                // Ignorar os itens de Total Autuados no envio
+                if (name.startsWith('Total Autuados')) return;
+
                 let itemTotal = 0;
                 let personOutputs = [];
 
@@ -717,19 +720,21 @@
             return hasContent ? text : null;
         }
 
-        // Gerar Texto Consolidado Geral (Somando todas as abas)
+        // Gerar Texto Consolidado Geral - Ignora "Total Autuados"
         function generateGeneralText() {
             let consolidatedItems = {};
             let consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
             let hasAnyData = false;
 
             itemNames.forEach(name => {
-                if (name !== 'Imagens Radar') consolidatedItems[name] = { enc: 0, mot: 0, aux: 0 };
+                if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados')) {
+                    consolidatedItems[name] = { enc: 0, mot: 0, aux: 0 };
+                }
             });
 
             appState.tabs.forEach(tab => {
                 itemNames.forEach(name => {
-                    if (name !== 'Imagens Radar' && tab.items[name]) {
+                    if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados') && tab.items[name]) {
                         ['enc', 'mot', 'aux'].forEach(p => {
                             consolidatedItems[name][p] += (tab.items[name][p] || 0);
                         });
@@ -751,6 +756,8 @@
             text += `---\n`;
 
             itemNames.forEach(name => {
+                if (name.startsWith('Total Autuados')) return;
+
                 let itemTotal = 0;
                 let personOutputs = [];
 
@@ -764,7 +771,7 @@
                     });
                 } else {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = consolidatedItems[name][p];
+                        const val = consolidatedItems[name] ? consolidatedItems[name][p] : 0;
                         if (val > 0) {
                             itemTotal += val;
                             personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
@@ -850,7 +857,7 @@
 
         document.getElementById('btnClear').addEventListener('click', () => {
             if (confirm('Tem certeza de que deseja apagar todos os dados de TODAS as abas?')) {
-                localStorage.removeItem('pmrMultiAtividadeStateV2');
+                localStorage.removeItem('pmrMultiAtividadeStateV3');
                 location.reload();
             }
         });
