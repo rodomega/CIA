@@ -3,26 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade</title>
+    <title>Mandar Atividade - Multi-Atividades</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #111;
-            color: #ffd700; /* Amarelo PMR */
+            color: #ffd700;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Evita comportamentos indesejados de zoom por toque duplo no corpo geral */
-            touch-action: manipulation; 
+            touch-action: manipulation;
         }
 
         h1 {
             border-bottom: 2px solid #ffd700;
             padding-bottom: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-align: center;
+            font-size: 1.5em;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Barra de Topo / Botões Principais Organizados */
+        .top-action-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-top {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            text-align: center;
+            touch-action: manipulation;
+        }
+
+        .btn-whatsapp { background-color: #25d366; color: #fff; }
+        .btn-copy { background-color: #ffd700; color: #000; }
+        .btn-import { background-color: #007bff; color: #fff; }
+        .btn-general { background-color: #ff851b; color: #fff; }
+        .btn-clear { background-color: #444; color: #ffd700; }
+
+        .btn-top:hover { opacity: 0.9; }
+
+        /* Sistema de Abas (Atividades) */
+        .tabs-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: #ffd700 #222;
+        }
+
+        .tab {
+            background-color: #222;
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s, color 0.2s;
+            touch-action: manipulation;
+        }
+
+        .tab.active {
+            background-color: #333;
+            color: #ffd700;
+            border-color: #ffd700;
+            border-bottom: none;
+        }
+
+        .tab-close {
+            background: none;
+            border: none;
+            color: #ff4d4d;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 0 3px;
+        }
+
+        .btn-add-tab {
+            background-color: #ffd700;
+            color: #000;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            touch-action: manipulation;
+        }
+
+        /* Configuração do Nome da Aba Atual */
+        .tab-config-section {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1a1a1a;
+            border: 1px dashed #555;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+        .tab-config-section label {
+            font-weight: bold;
+            color: #ccc;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .tab-config-section input {
+            flex: 1;
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #555;
+            color: #ffd700;
+            border-radius: 4px;
+            font-size: 1em;
         }
 
         .section {
@@ -90,7 +222,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            touch-action: manipulation; /* Corrige zoom no iOS */
+            touch-action: manipulation;
         }
 
         .item-toggle:hover {
@@ -146,18 +278,13 @@
             justify-content: center;
             align-items: center;
             line-height: 1;
-            touch-action: manipulation; /* Impede o zoom do iOS ao clicar rápido */
+            touch-action: manipulation;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        .btn-minus {
-            margin-right: 10px;
-        }
-
-        .btn-plus {
-            margin-left: 10px;
-        }
+        .btn-minus { margin-right: 10px; }
+        .btn-plus { margin-left: 10px; }
 
         .counter-value {
             font-size: 1.3em;
@@ -167,7 +294,6 @@
             text-align: center;
         }
 
-        /* Radar specific style */
         .radar-input-container {
             display: flex;
             flex-direction: column;
@@ -189,49 +315,6 @@
             font-size: 1em;
             width: 100%;
             box-sizing: border-box;
-        }
-
-        .action-buttons {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn-action {
-            padding: 15px 25px;
-            font-size: 1em;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, opacity 0.3s;
-            touch-action: manipulation; /* Evita zoom em botões de ação */
-        }
-
-        .btn-whatsapp {
-            background-color: #25d366;
-            color: #fff;
-        }
-
-        .btn-copy {
-            background-color: #ffd700;
-            color: #000;
-        }
-
-        .btn-import {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        .btn-clear {
-            background-color: #444;
-            color: #ffd700;
-        }
-
-        .btn-action:hover {
-            opacity: 0.9;
         }
 
         /* Modal de Importação */
@@ -256,6 +339,7 @@
             max-width: 500px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.5);
             border: 1px solid #ffd700;
+            box-sizing: border-box;
         }
 
         .modal-content h3 {
@@ -282,22 +366,41 @@
             gap: 10px;
             margin-top: 15px;
         }
-
     </style>
 </head>
 <body>
 
     <h1>Mandar Atividade</h1>
 
+    <!-- Botões Principais no Topo -->
+    <div class="top-action-bar">
+        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
+        <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
+        <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
+        <button class="btn-top btn-import" id="btnImport">Importar</button>
+        <button class="btn-top btn-clear" id="btnClear">Apagar Tudo</button>
+    </div>
+
+    <!-- Abas de Atividades -->
+    <div class="tabs-container" id="tabsContainer">
+        <!-- Renderizado via JS -->
+    </div>
+    
+    <!-- Nome da Atividade Atual -->
+    <div class="tab-config-section">
+        <label for="activityNameInput">Nome da Aba:</label>
+        <input type="text" id="activityNameInput" placeholder="Ex: Atividade 1">
+    </div>
+
     <div class="section">
-        <div class="section-title">Informações do Pessoal</div>
+        <div class="section-title">Informações do Pessoal (Unidade de Serviço)</div>
         <div class="input-group">
             <label for="encarregado">Encarregado (Obrigatório):</label>
             <input type="text" id="encarregado" placeholder="Digite o nome">
         </div>
         <div class="input-group">
-            <label for="motorista">Motorista (Obrigatório):</label>
-            <input type="text" id="motorista" placeholder="Digite o nome">
+            <label for="motorista">Motorista (Opcional):</label>
+            <input type="text" id="motorista" placeholder="Digite o nome (se houver)">
         </div>
         <div class="input-group">
             <label for="auxiliar">Auxiliar (Opcional):</label>
@@ -306,116 +409,177 @@
     </div>
 
     <div class="item-list" id="itemList">
-        <!-- Os itens serão gerados aqui dinamicamente pelo JavaScript -->
-    </div>
-
-    <div class="action-buttons">
-        <button class="btn-action btn-whatsapp" id="btnWhatsapp">Enviar para WhatsApp</button>
-        <button class="btn-action btn-copy" id="btnCopy">Copiar Texto</button>
-        <button class="btn-action btn-import" id="btnImport">Importar Texto</button>
-        <button class="btn-action btn-clear" id="btnClear">Apagar Dados</button>
+        <!-- Itens gerados dinamicamente -->
     </div>
 
     <!-- Modal para Importação de Texto -->
     <div class="modal" id="importModal">
         <div class="modal-content">
             <h3>Importar Atividade</h3>
-            <p style="color: #ccc; font-size: 0.9em;">Cole abaixo o texto recebido do WhatsApp para carregar e editar os dados:</p>
+            <p style="color: #ccc; font-size: 0.9em;">Cole abaixo o texto recebido do WhatsApp para carregar na <b>atividade atual</b>:</p>
             <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
             <div class="modal-buttons">
-                <button class="btn-action btn-clear" id="btnCancelImport" style="padding: 10px 15px;">Cancelar</button>
-                <button class="btn-action btn-import" id="btnConfirmImport" style="padding: 10px 15px;">Processar e Carregar</button>
+                <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
+                <button class="btn-top btn-import" id="btnConfirmImport" style="padding: 10px 15px; min-width: auto;">Processar</button>
             </div>
         </div>
     </div>
 
     <script>
         const itemNames = [
-            // Total Fiscalizado
-            'Total Fiscalizado - AP',
-            'Total Fiscalizado - OA',
-            'Total Fiscalizado - CA',
-            'Total Fiscalizado - MO',
-            // Veículos autuados ( PPRI )
-            'Total Autuados - AP',
-            'Total Autuados - OA',
-            'Total Autuados - CA',
-            'Total Autuados - MO',
-            // AI Total
-            'AI Total - AP',
-            'AI Total - OA',
-            'AI Total - CA',
-            'AI Total - MO',
-            // Especificações de fiscalizações
-            'AI com Abordagem',
-            'AI Revelia',
-            'Art. 167',
-            'Art. 168',
-            'Art. 252, VI / § ún.',
-            'Art. 203,V',
-            'Art. 165',
-            'Art. 165 A',
-            'Art. 306',
-            'Teste Ativo',
-            'Teste Passivo',
-            // Pedestres
-            'Pessoas abordadas',
-            'Pedestres Abordados',
-            'Pedestres lançados no Google Forms',
-            // ARD/ARV
-            'Total ARV',
-            'Total ARD',
-            // Imagens Radar (especial)
-            'Imagens Radar',
-            // BO-e / Sinistros
-            'Sinistros com vítimas',
-            'Sinistros sem vítimas',
-            'Vítimas leves',
-            'Vítimas graves',
-            'Vítimas fatais',
-            // Prisões / Outros
-            'Procurado capturado',
-            'Flagrante',
-            'Presos',
-            'BOPM (exceto art. 306)'
+            'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
+            'Total Autuados - AP', 'Total Autuados - OA', 'Total Autuados - CA', 'Total Autuados - MO',
+            'AI Total - AP', 'AI Total - OA', 'AI Total - CA', 'AI Total - MO',
+            'AI com Abordagem', 'AI Revelia', 'Art. 167', 'Art. 168', 'Art. 252, VI / § ún.', 'Art. 203,V',
+            'Art. 165', 'Art. 165 A', 'Art. 306', 'Teste Ativo', 'Teste Passivo',
+            'Pessoas abordadas', 'Pedestres Abordados', 'Pedestres lançados no Google Forms',
+            'Total ARV', 'Total ARD', 'Imagens Radar',
+            'Sinistros com vítimas', 'Sinistros sem vítimas', 'Vítimas leves', 'Vítimas graves', 'Vítimas fatais',
+            'Procurado capturado', 'Flagrante', 'Presos', 'BOPM (exceto art. 306)'
         ];
 
-        let data = JSON.parse(localStorage.getItem('pmrAtividadeData')) || {
+        // Estado global compartilhado para equipe e abas
+        let appState = JSON.parse(localStorage.getItem('pmrMultiAtividadeStateV2')) || {
             personnel: { enc: '', mot: '', aux: '' },
-            items: {},
-            radar: { enc: '', mot: '', aux: '' }
+            activeTabId: 'tab_1',
+            tabs: [
+                {
+                    id: 'tab_1',
+                    name: 'Atividade 1',
+                    items: {},
+                    radar: { enc: '', mot: '', aux: '' }
+                }
+            ]
         };
 
-        // Inicializar itens se não existirem
-        itemNames.forEach(name => {
-            if (name === 'Imagens Radar') {
-                if (!data.radar || !data.radar.enc) data.radar = { enc: '', mot: '', aux: '' };
-            } else {
-                if (!data.items[name]) {
-                    data.items[name] = { enc: 0, mot: 0, aux: 0 };
-                }
+        function getActiveTab() {
+            let tab = appState.tabs.find(t => t.id === appState.activeTabId);
+            if (!tab) {
+                appState.activeTabId = appState.tabs[0].id;
+                tab = appState.tabs[0];
             }
+            return tab;
+        }
+
+        function initTabItems(tab) {
+            itemNames.forEach(name => {
+                if (name === 'Imagens Radar') {
+                    if (!tab.radar || tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
+                } else {
+                    if (!tab.items[name]) {
+                        tab.items[name] = { enc: 0, mot: 0, aux: 0 };
+                    }
+                }
+            });
+        }
+
+        appState.tabs.forEach(t => initTabItems(t));
+
+        function saveLocalStorage() {
+            localStorage.setItem('pmrMultiAtividadeStateV2', JSON.stringify(appState));
+        }
+
+        // Renderizar Abas no Topo
+        function renderTabs() {
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = '';
+
+            appState.tabs.forEach(tab => {
+                const tabEl = document.createElement('div');
+                tabEl.className = `tab ${tab.id === appState.activeTabId ? 'active' : ''}`;
+                
+                const spanName = document.createElement('span');
+                spanName.textContent = tab.name;
+                spanName.onclick = () => switchTab(tab.id);
+                tabEl.appendChild(spanName);
+
+                if (appState.tabs.length > 1) {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'tab-close';
+                    closeBtn.textContent = '×';
+                    closeBtn.title = 'Excluir aba';
+                    closeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteTab(tab.id);
+                    };
+                    tabEl.appendChild(closeBtn);
+                }
+
+                container.appendChild(tabEl);
+            });
+
+            // Botão Adicionar Aba (+)
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-add-tab';
+            addBtn.textContent = '+';
+            addBtn.title = 'Adicionar nova atividade';
+            addBtn.onclick = addNewTab;
+            container.appendChild(addBtn);
+        }
+
+        function switchTab(tabId) {
+            appState.activeTabId = tabId;
+            saveLocalStorage();
+            loadActiveTabData();
+            renderTabs();
+        }
+
+        function addNewTab() {
+            const newId = 'tab_' + Date.now();
+            const newName = `Atividade ${appState.tabs.length + 1}`;
+            const newTab = {
+                id: newId,
+                name: newName,
+                items: {},
+                radar: { enc: '', mot: '', aux: '' }
+            };
+            initTabItems(newTab);
+            appState.tabs.push(newTab);
+            appState.activeTabId = newId;
+            saveLocalStorage();
+            loadActiveTabData();
+            renderTabs();
+        }
+
+        function deleteTab(tabId) {
+            if (appState.tabs.length <= 1) return;
+            if (confirm('Tem certeza de que deseja excluir esta atividade?')) {
+                appState.tabs = appState.tabs.filter(t => t.id !== tabId);
+                appState.activeTabId = appState.tabs[0].id;
+                saveLocalStorage();
+                loadActiveTabData();
+                renderTabs();
+            }
+        }
+
+        // Carregar dados da aba e equipe atual
+        function loadActiveTabData() {
+            const tab = getActiveTab();
+            document.getElementById('activityNameInput').value = tab.name;
+            document.getElementById('encarregado').value = appState.personnel.enc || '';
+            document.getElementById('motorista').value = appState.personnel.mot || '';
+            document.getElementById('auxiliar').value = appState.personnel.aux || '';
+            renderItemList();
+        }
+
+        // Ouvintes de Pessoal (Globais para todas as abas)
+        document.getElementById('activityNameInput').addEventListener('input', e => {
+            const tab = getActiveTab();
+            tab.name = e.target.value;
+            saveLocalStorage();
+            renderTabs();
         });
 
-        // Carregar nomes do pessoal
-        document.getElementById('encarregado').value = data.personnel.enc || '';
-        document.getElementById('motorista').value = data.personnel.mot || '';
-        document.getElementById('auxiliar').value = data.personnel.aux || '';
-
-        // Ouvintes para inputs de pessoal
-        document.getElementById('encarregado').addEventListener('input', e => savePersonnel('enc', e.target.value));
-        document.getElementById('motorista').addEventListener('input', e => savePersonnel('mot', e.target.value));
-        document.getElementById('auxiliar').addEventListener('input', e => savePersonnel('aux', e.target.value));
-
-        function savePersonnel(type, value) {
-            data.personnel[type] = value;
-            saveLocalStorage();
-        }
+        document.getElementById('encarregado').addEventListener('input', e => { appState.personnel.enc = e.target.value; saveLocalStorage(); });
+        document.getElementById('motorista').addEventListener('input', e => { appState.personnel.mot = e.target.value; saveLocalStorage(); });
+        document.getElementById('auxiliar').addEventListener('input', e => { appState.personnel.aux = e.target.value; saveLocalStorage(); });
 
         const itemListElement = document.getElementById('itemList');
 
-        function renderList() {
+        function renderItemList() {
             itemListElement.innerHTML = '';
+            const tab = getActiveTab();
+
             itemNames.forEach(name => {
                 const itemContainer = document.createElement('div');
                 itemContainer.className = 'item-container';
@@ -430,15 +594,20 @@
 
                 if (name === 'Imagens Radar') {
                     contentDiv.classList.add('radar-input-container');
-                    const p = ['enc', 'mot', 'aux'];
-                    p.forEach(personType => {
+                    ['enc', 'mot', 'aux'].forEach(personType => {
                         const group = document.createElement('div');
                         group.className = 'input-group';
                         const labelText = getPersonnelLabel(personType);
                         group.innerHTML = `<label for="radar_${personType}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}" min="0" max="999" placeholder="0 até 999">`;
                         const input = group.querySelector('input');
-                        input.value = data.radar[personType] || '';
-                        input.addEventListener('input', e => saveRadarQuantity(personType, e.target.value));
+                        input.value = tab.radar[personType] || '';
+                        input.addEventListener('input', e => {
+                            let val = parseInt(e.target.value, 10);
+                            if (isNaN(val)) val = '';
+                            if (val > 999) val = 999;
+                            tab.radar[personType] = val;
+                            saveLocalStorage();
+                        });
                         contentDiv.appendChild(group);
                     });
                 } else {
@@ -463,7 +632,7 @@
                         const valSpan = document.createElement('span');
                         valSpan.className = 'counter-value';
                         valSpan.id = `q_${name}_${personType}`;
-                        valSpan.textContent = data.items[name] ? data.items[name][personType] : 0;
+                        valSpan.textContent = tab.items[name] ? tab.items[name][personType] : 0;
                         controls.appendChild(valSpan);
 
                         const plusBtn = document.createElement('button');
@@ -489,8 +658,6 @@
             });
         }
 
-        renderList();
-
         function getPersonnelLabel(type) {
             if (type === 'enc') return 'Encarregado';
             if (type === 'mot') return 'Motorista';
@@ -498,64 +665,44 @@
         }
 
         function updateQuantity(itemName, personType, change) {
-            if (!data.items[itemName]) {
-                data.items[itemName] = { enc: 0, mot: 0, aux: 0 };
-            }
-            const currentValue = data.items[itemName][personType];
-            const newValue = Math.max(0, currentValue + change);
-            data.items[itemName][personType] = newValue;
-            document.getElementById(`q_${itemName}_${personType}`).textContent = newValue;
+            const tab = getActiveTab();
+            if (!tab.items[itemName]) tab.items[itemName] = { enc: 0, mot: 0, aux: 0 };
+            const curr = tab.items[itemName][personType];
+            const newVal = Math.max(0, curr + change);
+            tab.items[itemName][personType] = newVal;
+            document.getElementById(`q_${itemName}_${personType}`).textContent = newVal;
             saveLocalStorage();
         }
 
-        function saveRadarQuantity(personType, value) {
-            let val = parseInt(value, 10);
-            if (isNaN(val)) val = '';
-            if (val > 999) val = 999;
-            data.radar[personType] = val;
-            saveLocalStorage();
-        }
+        // Gerar Texto Formatado (Individual da Aba Atual)
+        function generateTabText(tab) {
+            if (!appState.personnel.enc) return null;
 
-        function saveLocalStorage() {
-            localStorage.setItem('pmrAtividadeData', JSON.stringify(data));
-        }
-
-        function generateFormattedText() {
-            if (!data.personnel.enc || !data.personnel.mot) {
-                alert('Preencha pelo menos Encarregado e Motorista obrigatórios.');
-                return null;
-            }
-
-            let text = `*Atividade Polícia Militar Rodoviária - ${new Date().toLocaleDateString('pt-BR')}*\n`;
-            text += `*Encarregado:* ${data.personnel.enc}\n`;
-            text += `*Motorista:* ${data.personnel.mot}\n`;
-            if (data.personnel.aux) {
-                text += `*Auxiliar:* ${data.personnel.aux}\n`;
-            }
+            let text = `*${tab.name} - Polícia Militar Rodoviária - ${new Date().toLocaleDateString('pt-BR')}*\n`;
+            text += `*Encarregado:* ${appState.personnel.enc}\n`;
+            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
+            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
             text += `---\n`;
 
             let hasContent = false;
-
             itemNames.forEach(name => {
                 let itemTotal = 0;
                 let personOutputs = [];
 
                 if (name === 'Imagens Radar') {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = data.radar[p];
+                        const val = tab.radar[p];
                         if (val && val !== '') {
                             itemTotal++;
-                            const label = getPersonnelLabel(p);
-                            personOutputs.push(`  - ${label}: ${val}`);
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
                         }
                     });
                 } else {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = data.items[name] ? data.items[name][p] : 0;
+                        const val = tab.items[name] ? tab.items[name][p] : 0;
                         if (val > 0) {
                             itemTotal += val;
-                            const label = getPersonnelLabel(p);
-                            personOutputs.push(`  - ${label}: ${val}`);
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
                         }
                     });
                 }
@@ -567,38 +714,125 @@
                 }
             });
 
-            if (!hasContent) {
-                alert('Nenhum campo de atividade preenchido.');
-                return null;
-            }
-
-            return text;
+            return hasContent ? text : null;
         }
 
+        // Gerar Texto Consolidado Geral (Somando todas as abas)
+        function generateGeneralText() {
+            let consolidatedItems = {};
+            let consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
+            let hasAnyData = false;
+
+            itemNames.forEach(name => {
+                if (name !== 'Imagens Radar') consolidatedItems[name] = { enc: 0, mot: 0, aux: 0 };
+            });
+
+            appState.tabs.forEach(tab => {
+                itemNames.forEach(name => {
+                    if (name !== 'Imagens Radar' && tab.items[name]) {
+                        ['enc', 'mot', 'aux'].forEach(p => {
+                            consolidatedItems[name][p] += (tab.items[name][p] || 0);
+                        });
+                    }
+                });
+
+                if (tab.radar) {
+                    ['enc', 'mot', 'aux'].forEach(p => {
+                        let val = parseInt(tab.radar[p], 10);
+                        if (!isNaN(val)) consolidatedRadar[p] += val;
+                    });
+                }
+            });
+
+            let text = `*RELATÓRIO GERAL CONSOLIDADO - PMR - ${new Date().toLocaleDateString('pt-BR')}*\n`;
+            text += `*Encarregado:* ${appState.personnel.enc}\n`;
+            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
+            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
+            text += `---\n`;
+
+            itemNames.forEach(name => {
+                let itemTotal = 0;
+                let personOutputs = [];
+
+                if (name === 'Imagens Radar') {
+                    ['enc', 'mot', 'aux'].forEach(p => {
+                        const val = consolidatedRadar[p];
+                        if (val > 0) {
+                            itemTotal += val;
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
+                        }
+                    });
+                } else {
+                    ['enc', 'mot', 'aux'].forEach(p => {
+                        const val = consolidatedItems[name][p];
+                        if (val > 0) {
+                            itemTotal += val;
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
+                        }
+                    });
+                }
+
+                if (itemTotal > 0) {
+                    text += `\n*${name}:*\n`;
+                    text += personOutputs.join('\n') + '\n';
+                    hasAnyData = true;
+                }
+            });
+
+            return hasAnyData ? text : null;
+        }
+
+        // Botões de Ação
         document.getElementById('btnWhatsapp').addEventListener('click', () => {
-            const text = generateFormattedText();
-            if (text) {
-                const url = `whatsapp://send?text=${encodeURIComponent(text)}`;
-                window.location.href = url;
+            if (!appState.personnel.enc) {
+                alert('Preencha pelo menos o Encarregado obrigatório.');
+                return;
             }
+            const tab = getActiveTab();
+            const text = generateTabText(tab);
+            if (!text) {
+                alert('Preencha algum valor na aba atual para enviar.');
+                return;
+            }
+            window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
         });
 
         document.getElementById('btnCopy').addEventListener('click', () => {
-            const text = generateFormattedText();
-            if (text) {
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        alert('Texto copiado com sucesso!');
-                    }).catch(err => {
-                        fallbackCopyText(text);
-                    });
-                } else {
-                    fallbackCopyText(text);
-                }
+            if (!appState.personnel.enc) {
+                alert('Preencha pelo menos o Encarregado obrigatório.');
+                return;
             }
+            const tab = getActiveTab();
+            const text = generateTabText(tab);
+            if (!text) {
+                alert('Preencha algum valor na aba atual para copiar.');
+                return;
+            }
+            copyToClipboard(text);
         });
 
-        function fallbackCopyText(text) {
+        document.getElementById('btnGeneral').addEventListener('click', () => {
+            if (!appState.personnel.enc) {
+                alert('Preencha pelo menos o Encarregado obrigatório.');
+                return;
+            }
+            const text = generateGeneralText();
+            if (!text) {
+                alert('Nenhum dado preenchido nas atividades.');
+                return;
+            }
+            copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
+        });
+
+        function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => alert(successMsg)).catch(() => fallbackCopy(text, successMsg));
+            } else {
+                fallbackCopy(text, successMsg);
+            }
+        }
+
+        function fallbackCopy(text, successMsg) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
@@ -607,21 +841,21 @@
             textArea.select();
             try {
                 document.execCommand('copy');
-                alert('Texto copiado com sucesso!');
+                alert(successMsg);
             } catch (err) {
-                alert('Não foi possível copiar o texto automaticamente.');
+                alert('Não foi possível copiar automaticamente.');
             }
             document.body.removeChild(textArea);
         }
 
         document.getElementById('btnClear').addEventListener('click', () => {
-            if (confirm('Tem certeza de que deseja apagar todos os dados registrados?')) {
-                localStorage.removeItem('pmrAtividadeData');
+            if (confirm('Tem certeza de que deseja apagar todos os dados de TODAS as abas?')) {
+                localStorage.removeItem('pmrMultiAtividadeStateV2');
                 location.reload();
             }
         });
 
-        // Lógica de Importação de Texto
+        // Lógica de Importação de Texto na Aba Atual
         const importModal = document.getElementById('importModal');
         const importText = document.getElementById('importText');
 
@@ -637,7 +871,7 @@
         document.getElementById('btnConfirmImport').addEventListener('click', () => {
             const rawText = importText.value;
             if (!rawText.trim()) {
-                alert('Por favor, cole um texto válido para importar.');
+                alert('Cole um texto válido.');
                 return;
             }
             parseAndLoadText(rawText);
@@ -645,72 +879,48 @@
         });
 
         function parseAndLoadText(text) {
-            let newData = {
-                personnel: { enc: '', mot: '', aux: '' },
-                items: {},
-                radar: { enc: '', mot: '', aux: '' }
-            };
+            let tab = getActiveTab();
+            tab.radar = { enc: '', mot: '', aux: '' };
+            initTabItems(tab);
 
-            itemNames.forEach(name => {
-                if (name !== 'Imagens Radar') {
-                    newData.items[name] = { enc: 0, mot: 0, aux: 0 };
-                }
-            });
-
-            // Extrair Encarregado, Motorista e Auxiliar
             const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
-            if (encMatch) newData.personnel.enc = encMatch[1].trim();
+            if (encMatch) appState.personnel.enc = encMatch[1].trim();
 
             const motMatch = text.match(/\*Motorista:\*\s*(.+)/i);
-            if (motMatch) newData.personnel.mot = motMatch[1].trim();
+            if (motMatch) appState.personnel.mot = motMatch[1].trim();
 
             const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
-            if (auxMatch) newData.personnel.aux = auxMatch[1].trim();
+            if (auxMatch) appState.personnel.aux = auxMatch[1].trim();
 
-            // Dividir por seções de itens (*Nome do Item:*)
             const sections = text.split(/\n\*(.*?):\*\n/);
-
             for (let i = 1; i < sections.length; i += 2) {
                 const itemName = sections[i].trim();
                 const itemContent = sections[i + 1];
-
                 if (!itemContent) continue;
 
-                const lines = itemContent.split('\n');
-                lines.forEach(line => {
+                itemContent.split('\n').forEach(line => {
                     const personMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
                     if (personMatch) {
-                        const personRole = personMatch[1].toLowerCase();
-                        let pKey = '';
-                        if (personRole.includes('encarregado')) pKey = 'enc';
-                        else if (personRole.includes('motorista')) pKey = 'mot';
-                        else if (personRole.includes('auxiliar')) pKey = 'aux';
-
-                        const val = parseInt(personMatch[2], 10);
+                        let pKey = personMatch[1].toLowerCase().includes('enc') ? 'enc' : personMatch[1].toLowerCase().includes('mot') ? 'mot' : 'aux';
+                        let val = parseInt(personMatch[2], 10);
 
                         if (itemName === 'Imagens Radar') {
-                            if (pKey) newData.radar[pKey] = val;
-                        } else {
-                            if (newData.items[itemName] && pKey) {
-                                newData.items[itemName][pKey] = val;
-                            }
+                            tab.radar[pKey] = val;
+                        } else if (tab.items[itemName]) {
+                            tab.items[itemName][pKey] = val;
                         }
                     }
                 });
             }
 
-            data = newData;
             saveLocalStorage();
-
-            // Atualizar campos da tela
-            document.getElementById('encarregado').value = data.personnel.enc || '';
-            document.getElementById('motorista').value = data.personnel.mot || '';
-            document.getElementById('auxiliar').value = data.personnel.aux || '';
-            
-            renderList();
-            alert('Atividade importada e carregada com sucesso!');
+            loadActiveTabData();
+            alert('Atividade importada com sucesso na aba atual!');
         }
 
+        // Inicialização
+        renderTabs();
+        loadActiveTabData();
     </script>
 </body>
 </html>
