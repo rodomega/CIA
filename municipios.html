@@ -5,73 +5,137 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Códigos (SENATRAN) — Municípios de São Paulo</title>
 <style>
-:root{--accent:#06b6d4;--muted:#94a3b8}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#071026 0%, #071626 60%);color:#e6eef6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
-.app{max-width:980px;margin:0 auto;padding:18px}
-header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#012}
-h1{font-size:18px;margin:0}
-p.sub{margin:0;color:var(--muted);font-size:13px}
-.controls{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}
-input.search{flex:1;min-width:160px;padding:12px;border-radius:12px;border:0;background:rgba(255,255,255,0.03);color:inherit;font-size:15px}
-.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:10px;font-weight:600;cursor:pointer}
-.btn.primary{background:linear-gradient(90deg,var(--accent),#60a5fa);color:#012;border:0}
-.card{background:rgba(255,255,255,0.02);padding:12px;border-radius:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-thead th{font-size:12px;text-align:left;padding:10px 8px;color:var(--muted);position:sticky;top:0;background:linear-gradient(180deg, rgba(2,6,23,0.85), rgba(2,6,23,0.6))}
-tbody td{padding:10px 8px;border-top:1px solid rgba(255,255,255,0.03);font-size:15px}
-tr:hover td{background:rgba(255,255,255,0.02)}
-.no-results{padding:20px;text-align:center;color:var(--muted)}
-.copy-hint{font-size:12px;color:var(--muted);margin-top:8px}
-pre.raw{white-space:pre-wrap;background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;color:var(--muted);font-size:13px;max-height:220px;overflow:auto;margin-top:10px}
-@media (max-width:640px){h1{font-size:16px}.logo{width:48px;height:48px}thead th:nth-child(3), tbody td:nth-child(3){display:none}}
+:root {
+  --bg-main: #000000;
+  --bg-card: #121212;
+  --accent: #eab308;
+  --accent-hover: #facc15;
+  --text-main: #f8fafc;
+  --text-muted: #a1a1aa;
+  --border-color: #27272a;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 18px;
+}
+
+.card {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.controls {
+  margin-bottom: 16px;
+}
+
+input.search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: #18181b;
+  color: var(--text-main);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input.search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+}
+
+input.search::placeholder {
+  color: var(--text-muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-size: 13px;
+  text-align: left;
+  padding: 12px 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--border-color);
+}
+
+tbody td {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border-color);
+  font-size: 15px;
+}
+
+tbody tr {
+  transition: background 0.15s;
+}
+
+tbody tr:hover td {
+  background: rgba(234, 179, 8, 0.08);
+  color: #ffffff;
+}
+
+.no-results {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.copy-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  text-align: center;
+}
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="logo">SP</div>
-    <div>
-      <h1>Códigos (SENATRAN) — Municípios de São Paulo</h1>
-      <p class="sub">Lista extraída do documento que você indicou (Scribd). Toque em uma linha para copiar o código. Pesquise por código ou município.</p>
-    </div>
-  </header>
-
   <div class="card">
     <div class="controls">
       <input id="q" class="search" placeholder="Procurar por código (ex: 07107) ou município (ex: São Paulo)" />
-      <div style="display:flex;gap:8px">
-        <button id="csvBtn" class="btn primary">Baixar CSV</button>
-        <button id="fullscreenBtn" class="btn">Ver em tela cheia</button>
-      </div>
     </div>
 
     <div id="tableWrap">
       <table id="tbl" aria-live="polite">
         <thead>
-          <tr><th style="width:22%;">Código</th><th style="width:62%;">Município</th><th style="width:16%;">UF</th></tr>
+          <tr>
+            <th style="width:25%;">Código</th>
+            <th style="width:60%;">Município</th>
+            <th style="width:15%;">UF</th>
+          </tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
-      <div id="nores" class="no-results" style="display:none">Nenhum resultado</div>
+      <div id="nores" class="no-results" style="display:none">Nenhum resultado encontrado</div>
     </div>
 
-    <div class="copy-hint">Dica: no celular toque na linha para copiar o código; no desktop clique na linha.</div>
+    <div class="copy-hint">Dica: clique ou toque na linha para copiar o código.</div>
   </div>
-
-  <p style="margin-top:12px;color:var(--muted);font-size:13px">
-    Observação: os códigos e nomes foram mantidos no mesmo formato do documento de referência. Se quiser que eu gere também um arquivo JSON/CSV e cole aqui o conteúdo, diga "CSV" ou "JSON".
-  </p>
-
-  <!-- Caso queira ver o texto bruto (útil para conferência) -->
-  <details style="margin-top:10px;color:var(--muted)"><summary style="cursor:pointer">Ver texto bruto extraído (fonte)</summary>
-    <pre class="raw" id="rawBlock"></pre>
-  </details>
 </div>
 
 <script>
-/* Texto extraído da listagem que você indicou (Scribd) — mantido fiel.
-   O parser abaixo varre token-a-token para garantir montagem correta da tabela. */
 const rawText = `
 06101 ADAMANTINA 06103 ADOLFO 06105 AGUAI
 06107 AGUAS DA PRATA 06109 AGUAS DE LINDOIA 07019 AGUAS DE SANTA BARBARA
@@ -290,39 +354,28 @@ const rawText = `
 02973 ZACARIAS
 `;
 
-/* Put raw text in details panel for inspection */
-document.getElementById('rawBlock').textContent = rawText.trim();
-
-/* Robust parser: split into tokens and iterate. Numbers (3-5 digits) are codes.
-   Everything between codes is the municipality name. */
 function parseTokens(text){
   const tokens = text.replace(/\r/g,'\n').split(/\s+/).filter(Boolean);
   const items = [];
   let i = 0;
   while(i < tokens.length){
     const tok = tokens[i];
-    // detect code: 3-5 digits numeric
     if(/^[0-9]{3,5}$/.test(tok)){
       const code = tok;
       i++;
-      // collect name tokens until next token that is a 3-5 digit number or end
       const nameParts = [];
       while(i < tokens.length && !/^[0-9]{3,5}$/.test(tokens[i])){
         nameParts.push(tokens[i]);
         i++;
       }
-      // assemble name (replace sequences like D OESTE -> D OESTE kept)
       const nameRaw = nameParts.join(' ');
-      // Make name more readable: capitalize words but keep uppercase letters with accents safe
       const name = nameRaw.toLowerCase().split(' ').map(w=>{
-        // keep short tokens (D, DO, DA, DOS, DAS, E) uppercase if originally D/O etc.
         if(/^(d|do|da|dos|das|e)$/.test(w)) return w.toUpperCase();
         if(w.length===0) return w;
         return w[0].toUpperCase() + w.slice(1);
       }).join(' ');
       items.push({codigo: code, municipio: name, uf: 'SP'});
     } else {
-      // token not code — skip it to avoid infinite loops (these are stray tokens from source)
       i++;
     }
   }
@@ -331,7 +384,6 @@ function parseTokens(text){
 
 let data = parseTokens(rawText);
 
-/* Render function */
 const tbody = document.getElementById('tbody');
 const q = document.getElementById('q');
 const nores = document.getElementById('nores');
@@ -343,20 +395,26 @@ function renderList(list){
   const frag = document.createDocumentFragment();
   for(const row of list){
     const tr = document.createElement('tr');
-    const td1 = document.createElement('td'); td1.textContent = row.codigo;
+    const td1 = document.createElement('td'); 
+    td1.textContent = row.codigo;
+    td1.style.color = 'var(--accent)';
+    td1.style.fontWeight = '600';
+    
     const td2 = document.createElement('td'); td2.textContent = row.municipio;
     const td3 = document.createElement('td'); td3.textContent = row.uf;
+    
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
-    tr.style.cursor='copy';
-    tr.title = 'Toque para copiar o código';
+    tr.style.cursor='pointer';
+    tr.title = 'Clique para copiar o código';
+    
     tr.addEventListener('click', ()=> {
       const text = row.codigo;
       if(navigator.clipboard){
         navigator.clipboard.writeText(text).then(()=> {
-          tr.animate([{background:'#07303a'},{background:'transparent'}],{duration:300});
-        }).catch(()=> { alert('Não foi possível copiar automaticamente — selecione e copie: ' + text); });
+          tr.animate([{background:'rgba(234, 179, 8, 0.3)'},{background:'transparent'}],{duration:400});
+        }).catch(()=> { alert('Código: ' + text); });
       } else {
-        alert('Copie manualmente: ' + text);
+        alert('Código: ' + text);
       }
     });
     frag.appendChild(tr);
@@ -364,15 +422,12 @@ function renderList(list){
   tbody.appendChild(frag);
 }
 
-/* search helper (normalize removing diacritics) */
 function normalize(s){
   return s.toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
 }
 
-/* initial render */
 renderList(data);
 
-/* search */
 q.addEventListener('input', ()=>{
   const v = normalize(q.value.trim());
   if(!v){ renderList(data); return; }
@@ -380,25 +435,6 @@ q.addEventListener('input', ()=>{
     return normalize(r.codigo).includes(v) || normalize(r.municipio).includes(v);
   });
   renderList(filtered);
-});
-
-/* CSV download */
-document.getElementById('csvBtn').addEventListener('click', ()=>{
-  const rows = data.map(r=> [r.codigo, r.municipio, r.uf]);
-  let csv = 'codigo,municipio,uf\n' + rows.map(r=> r.map(c=> '"'+String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'codigos_municipios_sp_senatran.csv'; a.click();
-  URL.revokeObjectURL(url);
-});
-
-/* Fullscreen view */
-document.getElementById('fullscreenBtn').addEventListener('click', ()=>{
-  const w = window.open('', '_blank');
-  const pre = data.map(r=> r.codigo + ' — ' + r.municipio).join('\n');
-  const html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lista — Tela Cheia</title></head><body style="font-family:Arial,Helvetica,sans-serif;background:#071026;color:#e6eef6;padding:18px;"><h2>Lista de Códigos — Municípios de SP</h2><pre style="white-space:pre-wrap">'+ pre +'</pre></body></html>';
-  w.document.write(html); w.document.close();
 });
 </script>
 </body>
