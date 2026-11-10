@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Multi-Atividades</title>
+    <title>Mandar Atividade - Envio por Servidor</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -53,7 +53,7 @@
 
         .btn-whatsapp { background-color: #25d366; color: #fff; }
         .btn-copy { background-color: #ffd700; color: #000; }
-        .btn-import { background-color: #007bff; color: #fff; }
+        .btn-server { background-color: #007bff; color: #fff; }
         .btn-general { background-color: #ff851b; color: #fff; }
         .btn-clear { background-color: #444; color: #ffd700; }
 
@@ -84,7 +84,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: background-color 0.2s, color 0.2s;
             touch-action: manipulation;
         }
 
@@ -193,11 +192,6 @@
             box-sizing: border-box;
         }
 
-        .input-group input:focus {
-            outline: none;
-            border-color: #ffd700;
-        }
-
         .item-list {
             width: 100%;
             max-width: 600px;
@@ -215,7 +209,6 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -277,7 +270,6 @@
             line-height: 1;
             touch-action: manipulation;
             user-select: none;
-            -webkit-user-select: none;
         }
 
         .btn-minus { margin-right: 10px; }
@@ -314,6 +306,7 @@
             box-sizing: border-box;
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -322,7 +315,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             justify-content: center;
             align-items: center;
         }
@@ -332,10 +325,11 @@
             padding: 20px;
             border-radius: 8px;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            max-width: 450px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
             border: 1px solid #ffd700;
             box-sizing: border-box;
+            text-align: center;
         }
 
         .modal-content h3 {
@@ -343,24 +337,22 @@
             color: #ffd700;
         }
 
-        .modal-content textarea {
+        .modal-content input, .modal-content textarea {
             width: 100%;
-            height: 200px;
             background-color: #333;
             color: #ffd700;
             border: 1px solid #555;
             border-radius: 4px;
-            padding: 10px;
+            padding: 12px;
             box-sizing: border-box;
-            font-family: inherit;
-            resize: vertical;
+            font-size: 1em;
+            margin-bottom: 15px;
         }
 
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 15px;
         }
     </style>
 </head>
@@ -369,10 +361,10 @@
     <h1>Mandar Atividade</h1>
 
     <div class="top-action-bar">
-        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
+        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar WhatsApp</button>
         <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
+        <button class="btn-top btn-server" id="btnServer">Enviar p/ Servidor</button>
         <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
-        <button class="btn-top btn-import" id="btnImport">Importar</button>
         <button class="btn-top btn-clear" id="btnClear">Apagar Tudo</button>
     </div>
 
@@ -401,19 +393,39 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <div class="modal" id="importModal">
+    <!-- Modal para Enviar via Servidor (Definir ID/Código) -->
+    <div class="modal" id="serverModal">
         <div class="modal-content">
-            <h3>Importar Atividade</h3>
-            <p style="color: #ccc; font-size: 0.9em;">Cole abaixo o texto recebido do WhatsApp para carregar na <b>atividade atual</b>:</p>
-            <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
+            <h3>Enviar Relatório ao Servidor</h3>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID ou Código da Viatura destino:</p>
+            <input type="text" id="targetServerId" placeholder="Ex: VIATURA-01">
+            <div style="background:#111; padding:10px; border-radius:4px; margin-bottom:15px; text-align:left; max-height:120px; overflow-y:auto; font-size:0.85em; color:#aaa;" id="previewTextServer"></div>
             <div class="modal-buttons">
-                <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-import" id="btnConfirmImport" style="padding: 10px 15px; min-width: auto;">Processar</button>
+                <button class="btn-top btn-clear" onclick="closeServerModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
+                <button class="btn-top btn-server" onclick="confirmSendToServer()" style="padding: 10px 15px; min-width: auto;">Enviar Agora</button>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs (Compat v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7u9yPMqkswESx3jJh4I4fCUS8tiu-MjM",
+            authDomain: "rodoviariolimeira.firebaseapp.com",
+            databaseURL: "https://rodoviariolimeira-default-rtdb.firebaseio.com",
+            projectId: "rodoviariolimeira",
+            storageBucket: "rodoviariolimeira.firebasestorage.app",
+            messagingSenderId: "131653476917",
+            appId: "1:131653476917:web:3758f0247b5be006c9077c",
+            measurementId: "G-0CJ7FD2MN2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
             'Total Autuados - AP', 'Total Autuados - OA', 'Total Autuados - CA', 'Total Autuados - MO',
@@ -483,7 +495,6 @@
                     const closeBtn = document.createElement('button');
                     closeBtn.className = 'tab-close';
                     closeBtn.textContent = '×';
-                    closeBtn.title = 'Excluir aba';
                     closeBtn.onclick = (e) => {
                         e.stopPropagation();
                         deleteTab(tab.id);
@@ -497,7 +508,6 @@
             const addBtn = document.createElement('button');
             addBtn.className = 'btn-add-tab';
             addBtn.textContent = '+';
-            addBtn.title = 'Adicionar nova atividade';
             addBtn.onclick = addNewTab;
             container.appendChild(addBtn);
         }
@@ -769,6 +779,7 @@
             return hasAnyData ? text : null;
         }
 
+        // Botões de Ação
         document.getElementById('btnWhatsapp').addEventListener('click', () => {
             if (!appState.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
@@ -810,6 +821,48 @@
             copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
         });
 
+        // ENVIAR VIA SERVIDOR (POR CÓDIGO)
+        let textToUpload = '';
+
+        document.getElementById('btnServer').addEventListener('click', () => {
+            if (!appState.personnel.enc) {
+                alert('Preencha pelo menos o Encarregado obrigatório.');
+                return;
+            }
+            const tab = getActiveTab();
+            textToUpload = generateTabText(tab);
+            if (!textToUpload) {
+                alert('Preencha algum valor na aba atual para enviar.');
+                return;
+            }
+            document.getElementById('previewTextServer').textContent = textToUpload;
+            document.getElementById('targetServerId').value = localStorage.getItem('pmrLastServerId') || '';
+            document.getElementById('serverModal').style.display = 'flex';
+        });
+
+        function closeServerModal() {
+            document.getElementById('serverModal').style.display = 'none';
+        }
+
+        function confirmSendToServer() {
+            const targetId = document.getElementById('targetServerId').value.trim().toUpperCase();
+            if (!targetId) {
+                alert('Digite um ID ou código de destino válido!');
+                return;
+            }
+            localStorage.setItem('pmrLastServerId', targetId);
+
+            db.ref('pmr_relatorios_enviados/' + targetId).set({
+                timestamp: new Date().toISOString(),
+                conteudo: textToUpload
+            }).then(() => {
+                alert('Relatório enviado com sucesso para o servidor (ID: ' + targetId + ')!');
+                closeServerModal();
+            }).catch((err) => {
+                alert('Erro ao enviar: ' + err.message);
+            });
+        }
+
         function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => alert(successMsg)).catch(() => fallbackCopy(text, successMsg));
@@ -840,67 +893,6 @@
                 location.reload();
             }
         });
-
-        const importModal = document.getElementById('importModal');
-        const importText = document.getElementById('importText');
-
-        document.getElementById('btnImport').addEventListener('click', () => {
-            importText.value = '';
-            importModal.style.display = 'flex';
-        });
-
-        document.getElementById('btnCancelImport').addEventListener('click', () => {
-            importModal.style.display = 'none';
-        });
-
-        document.getElementById('btnConfirmImport').addEventListener('click', () => {
-            const rawText = importText.value;
-            if (!rawText.trim()) {
-                alert('Cole um texto válido.');
-                return;
-            }
-            parseAndLoadText(rawText);
-            importModal.style.display = 'none';
-        });
-
-        function parseAndLoadText(text) {
-            let tab = getActiveTab();
-            tab.radar = { enc: '', mot: '', aux: '' };
-            initTabItems(tab);
-
-            const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
-            if (encMatch) appState.personnel.enc = encMatch[1].trim();
-
-            const motMatch = text.match(/\*Motorista:\*\s*(.+)/i);
-            if (motMatch) appState.personnel.mot = motMatch[1].trim();
-
-            const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
-            if (auxMatch) appState.personnel.aux = auxMatch[1].trim();
-
-            let currentItem = null;
-            text.split('\n').forEach(line => {
-                let itemHeader = line.match(/^\*(.+?):\*$/);
-                if (itemHeader && itemHeader[1] !== 'Encarregado' && itemHeader[1] !== 'Motorista' && itemHeader[1] !== 'Auxiliar') {
-                    currentItem = itemHeader[1].trim();
-                }
-                let pMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
-                if (currentItem && pMatch) {
-                    let pName = pMatch[1].toLowerCase();
-                    let pKey = pName.includes('enc') ? 'enc' : pName.includes('mot') ? 'mot' : 'aux';
-                    let val = parseInt(pMatch[2], 10);
-
-                    if (currentItem === 'Imagens Radar') {
-                        tab.radar[pKey] = val;
-                    } else if (tab.items[currentItem]) {
-                        tab.items[currentItem][pKey] = val;
-                    }
-                }
-            });
-
-            saveLocalStorage();
-            loadActiveTabData();
-            alert('Atividade importada com sucesso na aba atual!');
-        }
 
         renderTabs();
         loadActiveTabData();
