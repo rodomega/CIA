@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Acesso por Código</title>
+    <title>Mandar Atividade - Painel por Código</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,51 +20,19 @@
         h1 {
             border-bottom: 2px solid #ffd700;
             padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
             font-size: 1.5em;
             width: 100%;
             max-width: 600px;
         }
 
-        /* Tela de Autenticação por Código Fixo */
-        #authScreen {
-            width: 100%;
-            max-width: 450px;
-            background-color: #222;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid #ffd700;
-            box-sizing: border-box;
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        #authScreen h3 {
-            margin-top: 0;
-            color: #ffd700;
-        }
-
-        #authScreen input {
-            width: 100%;
-            background-color: #333;
-            color: #ffd700;
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 12px;
-            box-sizing: border-box;
-            font-size: 1.1em;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        /* Banner de Código Conectado */
-        .code-banner {
+        /* Barra de Configuração de Código e Status */
+        .config-bar {
             width: 100%;
             max-width: 600px;
-            background-color: #1a1a1a;
-            border: 1px solid #25d366;
+            background-color: #1f1f1f;
+            border: 1px solid #ffd700;
             padding: 10px 15px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -75,19 +43,33 @@
             font-size: 0.95em;
         }
 
-        .code-banner span {
+        .code-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             color: #fff;
         }
 
-        .code-banner strong {
-            color: #25d366;
+        /* Luz de Status (Verde = Online, Vermelho = Offline) */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff4d4d; /* Vermelho padrão inicial */
+            box-shadow: 0 0 6px rgba(0,0,0,0.5);
+            transition: background-color 0.3s;
         }
 
-        .btn-change-code {
+        .status-dot.online {
+            background-color: #25d366; /* Verde */
+            box-shadow: 0 0 8px #25d366;
+        }
+
+        .btn-config {
             background-color: #333;
             color: #ffd700;
             border: 1px solid #ffd700;
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.85em;
@@ -125,6 +107,7 @@
 
         .btn-top:hover { opacity: 0.9; }
 
+        /* Sistema de Abas (Atividades) */
         .tabs-container {
             width: 100%;
             max-width: 600px;
@@ -376,60 +359,107 @@
             width: 100%;
             box-sizing: border-box;
         }
+
+        /* Modal para alterar ou definir o código */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            border: 1px solid #ffd700;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+
+        .modal-content input {
+            width: 100%;
+            background-color: #333;
+            color: #ffd700;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 12px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <h1>Mandar Atividade</h1>
 
-    <!-- Tela Inicial de Inserir o Código Fixo do Aparelho -->
-    <div id="authScreen">
-        <h3>Acesso por Código Fixo</h3>
-        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Digite o código permanente deste celular/viatura:</p>
-        <input type="text" id="deviceCodeInput" placeholder="Ex: PREFIXO-10">
-        <button class="btn-top btn-whatsapp" style="width: 100%; padding: 12px;" onclick="connectDevice()">Acessar Painel</button>
+    <!-- Barra de Configuração e Status (Luz Verde/Vermelha) -->
+    <div class="config-bar">
+        <div class="code-info">
+            <div id="statusDot" class="status-dot" title="Status da Conexão"></div>
+            <span>Código: <strong id="displayCode" style="color:#25d366;">Definindo...</strong></span>
+        </div>
+        <button class="btn-config" onclick="openCodeModal()">Mudar Código</button>
     </div>
 
-    <!-- Painel Principal (Oculto até digitar o código) -->
-    <div id="mainApp" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
-        
-        <!-- Banner indicando o Código Conectado -->
-        <div class="code-banner">
-            <span>Código Ativo: <strong id="displayCode"></strong></span>
-            <button class="btn-change-code" onclick="changeCode()">Trocar Código</button>
-        </div>
+    <!-- Painel Principal de Atividades (Sempre visível) -->
+    <div class="top-action-bar">
+        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
+        <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
+        <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
+        <button class="btn-top btn-clear" id="btnClear">Zerar Dados</button>
+    </div>
 
-        <div class="top-action-bar">
-            <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
-            <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
-            <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
-            <button class="btn-top btn-clear" id="btnClear">Zerar Dados</button>
-        </div>
+    <div class="tabs-container" id="tabsContainer"></div>
+    
+    <div class="tab-config-section">
+        <label for="activityNameInput">Nome da Aba:</label>
+        <input type="text" id="activityNameInput" placeholder="Ex: Atividade 1">
+    </div>
 
-        <div class="tabs-container" id="tabsContainer"></div>
-        
-        <div class="tab-config-section">
-            <label for="activityNameInput">Nome da Aba:</label>
-            <input type="text" id="activityNameInput" placeholder="Ex: Atividade 1">
+    <div class="section">
+        <div class="section-title">Informações do Pessoal (Unidade de Serviço)</div>
+        <div class="input-group">
+            <label for="encarregado">Encarregado (Obrigatório):</label>
+            <input type="text" id="encarregado" placeholder="Digite o nome">
         </div>
-
-        <div class="section">
-            <div class="section-title">Informações do Pessoal (Unidade de Serviço)</div>
-            <div class="input-group">
-                <label for="encarregado">Encarregado (Obrigatório):</label>
-                <input type="text" id="encarregado" placeholder="Digite o nome">
-            </div>
-            <div class="input-group">
-                <label for="motorista">Motorista (Opcional):</label>
-                <input type="text" id="motorista" placeholder="Digite o nome (se houver)">
-            </div>
-            <div class="input-group">
-                <label for="auxiliar">Auxiliar (Opcional):</label>
-                <input type="text" id="auxiliar" placeholder="Digite o nome">
-            </div>
+        <div class="input-group">
+            <label for="motorista">Motorista (Opcional):</label>
+            <input type="text" id="motorista" placeholder="Digite o nome (se houver)">
         </div>
+        <div class="input-group">
+            <label for="auxiliar">Auxiliar (Opcional):</label>
+            <input type="text" id="auxiliar" placeholder="Digite o nome">
+        </div>
+    </div>
 
-        <div class="item-list" id="itemList"></div>
+    <div class="item-list" id="itemList"></div>
+
+    <!-- Modal para Inserir / Mudar Código Fixo -->
+    <div class="modal" id="codeModal">
+        <div class="modal-content">
+            <h3>Definir Código Fixo</h3>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Digite o código deste celular ou da viatura (quem usar o mesmo código sincroniza junto):</p>
+            <input type="text" id="codeInputModal" placeholder="Ex: VIATURA-01">
+            <button class="btn-top btn-whatsapp" style="width: 100%; padding: 12px;" onclick="saveNewCode()">Salvar Código</button>
+        </div>
     </div>
 
     <!-- Firebase SDKs (Compat v8) -->
@@ -505,38 +535,49 @@
             });
         }
 
-        function connectDevice() {
-            const inputVal = document.getElementById('deviceCodeInput').value.trim().toUpperCase();
+        function openCodeModal() {
+            document.getElementById('codeInputModal').value = deviceCode || '';
+            document.getElementById('codeModal').style.display = 'flex';
+        }
+
+        function saveNewCode() {
+            const inputVal = document.getElementById('codeInputModal').value.trim().toUpperCase();
             if (!inputVal) {
                 alert('Digite um código válido!');
                 return;
             }
             deviceCode = inputVal;
             localStorage.setItem('pmrPermanentDeviceCode', deviceCode);
+            document.getElementById('codeModal').style.display = 'none';
             initApp();
         }
 
-        function changeCode() {
-            if (confirm('Deseja desconectar deste código e inserir outro?')) {
-                localStorage.removeItem('pmrPermanentDeviceCode');
-                location.reload();
+        function setStatus(isOnline) {
+            const dot = document.getElementById('statusDot');
+            if (isOnline) {
+                dot.classList.add('online');
+            } else {
+                dot.classList.remove('online');
             }
         }
 
         function initApp() {
+            // Se não tiver código salvo, define um padrão automático (ex: PMR-01) na primeira vez para não travar a tela
             if (!deviceCode) {
-                document.getElementById('authScreen').style.display = 'block';
-                document.getElementById('mainApp').style.display = 'none';
-                return;
+                deviceCode = 'PMR-01';
+                localStorage.setItem('pmrPermanentDeviceCode', deviceCode);
             }
 
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'flex';
             document.getElementById('displayCode').textContent = deviceCode;
 
             buildUI();
 
             const ref = db.ref('pmr_codigos_ativos/' + deviceCode);
+
+            // Monitor de Conexão do Firebase (.info/connected)
+            db.ref('.info/connected').on('value', (snap) => {
+                setStatus(snap.val() === true);
+            });
 
             ref.once('value').then((snapshot) => {
                 const val = snapshot.val();
@@ -553,7 +594,6 @@
                 }
                 updateUIValues();
 
-                // Escuta atualizações de outros celulares em tempo real
                 ref.on('value', (snap) => {
                     if (isSaving) return;
                     const updatedVal = snap.val();
@@ -886,7 +926,7 @@
             if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
             text += `---\n`;
 
-            itemNames.forEach(name =>5 {
+            itemNames.forEach(name => {
                 if (name.startsWith('Total Autuados')) return;
 
                 let itemTotal = 0;
@@ -994,7 +1034,7 @@
             }
         });
 
-        // Inicializa verificando se já tem o código gravado no celular
+        // Inicializa direto na tela de atividades com um código padrão ou salvo
         initApp();
     </script>
 </body>
