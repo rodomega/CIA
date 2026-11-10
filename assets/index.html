@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Multi-Atividades</title>
+    <title>Mandar Atividade - Online Firebase</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,14 +20,46 @@
         h1 {
             border-bottom: 2px solid #ffd700;
             padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.4em;
             width: 100%;
             max-width: 600px;
         }
 
-        /* Barra de Topo / Botões Principais Organizados */
+        /* Banner de Identificação da Sala (ID) */
+        .id-banner {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1f1f1f;
+            border: 1px solid #ffd700;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            font-size: 0.95em;
+        }
+
+        .id-banner span {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .btn-change-id {
+            background-color: #333;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        /* Barra de Topo / Botões Principais */
         .top-action-bar {
             width: 100%;
             max-width: 600px;
@@ -40,7 +72,7 @@
 
         .btn-top {
             flex: 1;
-            min-width: 130px;
+            min-width: 120px;
             padding: 12px 10px;
             font-size: 0.95em;
             font-weight: bold;
@@ -52,15 +84,14 @@
             touch-action: manipulation;
         }
 
-        .btn-whatsapp { background-color: #25d366; color: #fff; }
-        .btn-copy { background-color: #ffd700; color: #000; }
+        .btn-general { background-color: #25d366; color: #fff; }
         .btn-import { background-color: #007bff; color: #fff; }
-        .btn-general { background-color: #ff851b; color: #fff; }
+        .btn-list { background-color: #ff851b; color: #fff; }
         .btn-clear { background-color: #444; color: #ffd700; }
 
         .btn-top:hover { opacity: 0.9; }
 
-        /* Sistema de Abas (Atividades) */
+        /* Sistema de Abas (Sub-atividades dentro do ID) */
         .tabs-container {
             width: 100%;
             max-width: 600px;
@@ -317,7 +348,7 @@
             box-sizing: border-box;
         }
 
-        /* Modal de Importação */
+        /* Modais */
         .modal {
             display: none;
             position: fixed;
@@ -326,7 +357,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             justify-content: center;
             align-items: center;
         }
@@ -336,10 +367,11 @@
             padding: 20px;
             border-radius: 8px;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            max-width: 450px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
             border: 1px solid #ffd700;
             box-sizing: border-box;
+            text-align: center;
         }
 
         .modal-content h3 {
@@ -347,24 +379,44 @@
             color: #ffd700;
         }
 
-        .modal-content textarea {
+        .modal-content input, .modal-content textarea {
             width: 100%;
-            height: 200px;
             background-color: #333;
             color: #ffd700;
             border: 1px solid #555;
             border-radius: 4px;
-            padding: 10px;
+            padding: 12px;
             box-sizing: border-box;
-            font-family: inherit;
-            resize: vertical;
+            font-size: 1em;
+            margin-bottom: 15px;
         }
 
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 15px;
+        }
+
+        .id-list-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .id-item {
+            background-color: #333;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .id-item:hover {
+            background-color: #444;
         }
     </style>
 </head>
@@ -372,27 +424,30 @@
 
     <h1>Mandar Atividade</h1>
 
+    <!-- Banner Indicativo do ID Ativo -->
+    <div class="id-banner" id="idBanner" style="display:none;">
+        <span>Atividade ID: <strong id="currentIdDisplay" style="color:#25d366;"></strong></span>
+        <button class="btn-change-id" onclick="promptLogin()">Trocar / Sair ID</button>
+    </div>
+
     <!-- Botões Principais no Topo -->
     <div class="top-action-bar">
-        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
-        <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
-        <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
-        <button class="btn-top btn-import" id="btnImport">Importar</button>
-        <button class="btn-top btn-clear" id="btnClear">Apagar Tudo</button>
+        <button class="btn-top btn-general" id="btnGeneral">Enviar Relatório Geral</button>
+        <button class="btn-top btn-import" id="btnImport">Importar Texto</button>
+        <button class="btn-top btn-list" id="btnListIds">Atividades Criadas</button>
+        <button class="btn-top btn-clear" id="btnClear">Apagar Dados</button>
     </div>
 
-    <!-- Abas de Atividades -->
-    <div class="tabs-container" id="tabsContainer">
-        <!-- Renderizado via JS -->
-    </div>
+    <!-- Abas de Sub-atividades -->
+    <div class="tabs-container" id="tabsContainer" style="display:none;"></div>
     
-    <!-- Nome da Atividade Atual -->
-    <div class="tab-config-section">
+    <!-- Nome da Aba Atual -->
+    <div class="tab-config-section" id="tabConfigSection" style="display:none;">
         <label for="activityNameInput">Nome da Aba:</label>
-        <input type="text" id="activityNameInput" placeholder="Ex: Atividade 1">
+        <input type="text" id="activityNameInput" placeholder="Ex: Operação Rodovia">
     </div>
 
-    <div class="section">
+    <div class="section" id="mainSection" style="display:none;">
         <div class="section-title">Informações do Pessoal (Unidade de Serviço)</div>
         <div class="input-group">
             <label for="encarregado">Encarregado (Obrigatório):</label>
@@ -408,15 +463,36 @@
         </div>
     </div>
 
-    <div class="item-list" id="itemList">
-        <!-- Itens gerados dinamicamente -->
+    <div class="item-list" id="itemList"></div>
+
+    <!-- Modal de Autenticação / Inserir ID -->
+    <div class="modal" id="loginModal" style="display:flex;">
+        <div class="modal-content">
+            <h3>Acessar ou Criar Atividade</h3>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Insira um ID para entrar na sala compartilhada:</p>
+            <input type="text" id="loginIdInput" placeholder="Ex: 2540, base-norte">
+            <button class="btn-top btn-general" style="width:100%; padding: 12px;" onclick="confirmLogin()">Entrar / Acessar</button>
+            <div style="margin-top: 15px;">
+                <button class="btn-top btn-list" style="width:100%; padding: 10px;" onclick="openIdsModalFromLogin()">Ver Atividades Salvas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Listar Atividades Criadas -->
+    <div class="modal" id="idsModal">
+        <div class="modal-content">
+            <h3>Atividades Salvas</h3>
+            <div class="id-list-container" id="savedIdsContainer"></div>
+            <div class="modal-buttons">
+                <button class="btn-top btn-clear" onclick="closeIdsModal()" style="padding: 10px 15px; min-width:auto;">Fechar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal para Importação de Texto -->
     <div class="modal" id="importModal">
         <div class="modal-content">
             <h3>Importar Atividade</h3>
-            <p style="color: #ccc; font-size: 0.9em;">Cole abaixo o texto recebido do WhatsApp para carregar na <b>atividade atual</b>:</p>
             <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
             <div class="modal-buttons">
                 <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
@@ -425,7 +501,26 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs (Compat v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7u9yPMqkswESx3jJh4I4fCUS8tiu-MjM",
+            authDomain: "rodoviariolimeira.firebaseapp.com",
+            databaseURL: "https://rodoviariolimeira-default-rtdb.firebaseio.com",
+            projectId: "rodoviariolimeira",
+            storageBucket: "rodoviariolimeira.firebasestorage.app",
+            messagingSenderId: "131653476917",
+            appId: "1:131653476917:web:3758f0247b5be006c9077c",
+            measurementId: "G-0CJ7FD2MN2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
             'Total Autuados - AP', 'Total Autuados - OA', 'Total Autuados - CA', 'Total Autuados - MO',
@@ -438,27 +533,23 @@
             'Procurado capturado', 'Flagrante', 'Presos', 'BOPM (exceto art. 306)'
         ];
 
-        // Estado global compartilhado para equipe e abas
-        let appState = JSON.parse(localStorage.getItem('pmrMultiAtividadeStateV3')) || {
-            personnel: { enc: '', mot: '', aux: '' },
-            activeTabId: 'tab_1',
-            tabs: [
-                {
-                    id: 'tab_1',
-                    name: 'Atividade 1',
-                    items: {},
-                    radar: { enc: '', mot: '', aux: '' }
-                }
-            ]
-        };
+        let currentId = localStorage.getItem('pmrActiveId') || null;
+        let remoteData = null;
+        let isSyncing = false; // Evita loop infinito ao atualizar da nuvem
 
-        function getActiveTab() {
-            let tab = appState.tabs.find(t => t.id === appState.activeTabId);
-            if (!tab) {
-                appState.activeTabId = appState.tabs[0].id;
-                tab = appState.tabs[0];
-            }
-            return tab;
+        function getDefaultData() {
+            return {
+                personnel: { enc: '', mot: '', aux: '' },
+                activeTabId: 'tab_1',
+                tabs: [
+                    {
+                        id: 'tab_1',
+                        name: 'Atividade 1',
+                        items: {},
+                        radar: { enc: '', mot: '', aux: '' }
+                    }
+                ]
+            };
         }
 
         function initTabItems(tab) {
@@ -473,31 +564,131 @@
             });
         }
 
-        appState.tabs.forEach(t => initTabItems(t));
-
-        function saveLocalStorage() {
-            localStorage.setItem('pmrMultiAtividadeStateV3', JSON.stringify(appState));
+        function promptLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
         }
 
-        // Renderizar Abas no Topo
+        function confirmLogin() {
+            const inputVal = document.getElementById('loginIdInput').value.trim();
+            if (!inputVal) {
+                alert('Por favor, insira um ID válido.');
+                return;
+            }
+            currentId = inputVal;
+            
+            let savedIds = JSON.parse(localStorage.getItem('pmrSavedIdsList')) || [];
+            if (!savedIds.includes(currentId)) {
+                savedIds.push(currentId);
+                localStorage.setItem('pmrSavedIdsList', JSON.stringify(savedIds));
+            }
+
+            localStorage.setItem('pmrActiveId', currentId);
+            document.getElementById('loginModal').style.display = 'none';
+            connectFirebase();
+        }
+
+        function openIdsModalFromLogin() {
+            document.getElementById('loginModal').style.display = 'none';
+            openIdsModal();
+        }
+
+        function openIdsModal() {
+            const container = document.getElementById('savedIdsContainer');
+            container.innerHTML = '';
+            let savedIds = JSON.parse(localStorage.getItem('pmrSavedIdsList')) || [];
+
+            if (savedIds.length === 0) {
+                container.innerHTML = '<p style="color:#888;">Nenhuma atividade salva ainda.</p>';
+            } else {
+                savedIds.forEach(id => {
+                    const item = document.createElement('div');
+                    item.className = 'id-item';
+                    item.innerHTML = `<span><b>ID:</b> ${id}</span> <button class="btn-change-id" style="padding:4px 8px;">Acessar</button>`;
+                    item.onclick = () => {
+                        currentId = id;
+                        localStorage.setItem('pmrActiveId', currentId);
+                        document.getElementById('idsModal').style.display = 'none';
+                        document.getElementById('loginModal').style.display = 'none';
+                        connectFirebase();
+                    };
+                    container.appendChild(item);
+                });
+            }
+            document.getElementById('idsModal').style.display = 'flex';
+        }
+
+        function closeIdsModal() {
+            document.getElementById('idsModal').style.display = 'none';
+            if (!currentId) document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        document.getElementById('btnListIds').addEventListener('click', openIdsModal);
+
+        // Conectar e ouvir o Firebase em Tempo Real
+        function connectFirebase() {
+            if (!currentId) {
+                promptLogin();
+                return;
+            }
+
+            document.getElementById('idBanner').style.display = 'flex';
+            document.getElementById('currentIdDisplay').textContent = currentId;
+            document.getElementById('tabsContainer').style.display = 'flex';
+            document.getElementById('tabConfigSection').style.display = 'flex';
+            document.getElementById('mainSection').style.display = 'block';
+
+            const ref = db.ref('pmr_atividades/' + currentId);
+
+            ref.on('value', (snapshot) => {
+                isSyncing = true;
+                const val = snapshot.val();
+                if (!val) {
+                    remoteData = getDefaultData();
+                    remoteData.tabs.forEach(t => initTabItems(t));
+                    ref.set(remoteData);
+                } else {
+                    remoteData = val;
+                    remoteData.tabs.forEach(t => initTabItems(t));
+                }
+                loadActiveTabData();
+                renderTabs();
+                isSyncing = false;
+            });
+        }
+
+        function saveDataToFirebase() {
+            if (!currentId || isSyncing || !remoteData) return;
+            db.ref('pmr_atividades/' + currentId).set(remoteData);
+        }
+
+        function getActiveTab() {
+            if (!remoteData) return null;
+            let tab = remoteData.tabs.find(t => t.id === remoteData.activeTabId);
+            if (!tab) {
+                remoteData.activeTabId = remoteData.tabs[0].id;
+                tab = remoteData.tabs[0];
+            }
+            return tab;
+        }
+
         function renderTabs() {
+            if (!remoteData) return;
             const container = document.getElementById('tabsContainer');
             container.innerHTML = '';
 
-            appState.tabs.forEach(tab => {
+            remoteData.tabs.forEach(tab => {
                 const tabEl = document.createElement('div');
-                tabEl.className = `tab ${tab.id === appState.activeTabId ? 'active' : ''}`;
+                tabEl.className = `tab ${tab.id === remoteData.activeTabId ? 'active' : ''}`;
                 
                 const spanName = document.createElement('span');
                 spanName.textContent = tab.name;
                 spanName.onclick = () => switchTab(tab.id);
                 tabEl.appendChild(spanName);
 
-                if (appState.tabs.length > 1) {
+                if (remoteData.tabs.length > 1) {
                     const closeBtn = document.createElement('button');
                     closeBtn.className = 'tab-close';
                     closeBtn.textContent = '×';
-                    closeBtn.title = 'Excluir aba';
                     closeBtn.onclick = (e) => {
                         e.stopPropagation();
                         deleteTab(tab.id);
@@ -508,25 +699,23 @@
                 container.appendChild(tabEl);
             });
 
-            // Botão Adicionar Aba (+)
             const addBtn = document.createElement('button');
             addBtn.className = 'btn-add-tab';
             addBtn.textContent = '+';
-            addBtn.title = 'Adicionar nova atividade';
             addBtn.onclick = addNewTab;
             container.appendChild(addBtn);
         }
 
         function switchTab(tabId) {
-            appState.activeTabId = tabId;
-            saveLocalStorage();
+            remoteData.activeTabId = tabId;
+            saveDataToFirebase();
             loadActiveTabData();
             renderTabs();
         }
 
         function addNewTab() {
             const newId = 'tab_' + Date.now();
-            const newName = `Atividade ${appState.tabs.length + 1}`;
+            const newName = `Atividade ${remoteData.tabs.length + 1}`;
             const newTab = {
                 id: newId,
                 name: newName,
@@ -534,51 +723,54 @@
                 radar: { enc: '', mot: '', aux: '' }
             };
             initTabItems(newTab);
-            appState.tabs.push(newTab);
-            appState.activeTabId = newId;
-            saveLocalStorage();
+            remoteData.tabs.push(newTab);
+            remoteData.activeTabId = newId;
+            saveDataToFirebase();
             loadActiveTabData();
             renderTabs();
         }
 
         function deleteTab(tabId) {
-            if (appState.tabs.length <= 1) return;
-            if (confirm('Tem certeza de que deseja excluir esta atividade?')) {
-                appState.tabs = appState.tabs.filter(t => t.id !== tabId);
-                appState.activeTabId = appState.tabs[0].id;
-                saveLocalStorage();
+            if (remoteData.tabs.length <= 1) return;
+            if (confirm('Tem certeza de que deseja excluir esta aba?')) {
+                remoteData.tabs = remoteData.tabs.filter(t => t.id !== tabId);
+                remoteData.activeTabId = remoteData.tabs[0].id;
+                saveDataToFirebase();
                 loadActiveTabData();
                 renderTabs();
             }
         }
 
-        // Carregar dados da aba e equipe atual
         function loadActiveTabData() {
+            if (!remoteData) return;
             const tab = getActiveTab();
+            if (!tab) return;
             document.getElementById('activityNameInput').value = tab.name;
-            document.getElementById('encarregado').value = appState.personnel.enc || '';
-            document.getElementById('motorista').value = appState.personnel.mot || '';
-            document.getElementById('auxiliar').value = appState.personnel.aux || '';
+            document.getElementById('encarregado').value = remoteData.personnel.enc || '';
+            document.getElementById('motorista').value = remoteData.personnel.mot || '';
+            document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
             renderItemList();
         }
 
-        // Ouvintes de Pessoal (Globais para todas as abas)
         document.getElementById('activityNameInput').addEventListener('input', e => {
             const tab = getActiveTab();
-            tab.name = e.target.value;
-            saveLocalStorage();
-            renderTabs();
+            if (tab) {
+                tab.name = e.target.value;
+                saveDataToFirebase();
+                renderTabs();
+            }
         });
 
-        document.getElementById('encarregado').addEventListener('input', e => { appState.personnel.enc = e.target.value; saveLocalStorage(); });
-        document.getElementById('motorista').addEventListener('input', e => { appState.personnel.mot = e.target.value; saveLocalStorage(); });
-        document.getElementById('auxiliar').addEventListener('input', e => { appState.personnel.aux = e.target.value; saveLocalStorage(); });
+        document.getElementById('encarregado').addEventListener('input', e => { remoteData.personnel.enc = e.target.value; saveDataToFirebase(); });
+        document.getElementById('motorista').addEventListener('input', e => { remoteData.personnel.mot = e.target.value; saveDataToFirebase(); });
+        document.getElementById('auxiliar').addEventListener('input', e => { remoteData.personnel.aux = e.target.value; saveDataToFirebase(); });
 
         const itemListElement = document.getElementById('itemList');
 
         function renderItemList() {
             itemListElement.innerHTML = '';
             const tab = getActiveTab();
+            if (!tab) return;
 
             itemNames.forEach(name => {
                 const itemContainer = document.createElement('div');
@@ -606,7 +798,7 @@
                             if (isNaN(val)) val = '';
                             if (val > 999) val = 999;
                             tab.radar[personType] = val;
-                            saveLocalStorage();
+                            saveDataToFirebase();
                         });
                         contentDiv.appendChild(group);
                     });
@@ -671,57 +863,13 @@
             const newVal = Math.max(0, curr + change);
             tab.items[itemName][personType] = newVal;
             document.getElementById(`q_${itemName}_${personType}`).textContent = newVal;
-            saveLocalStorage();
+            saveDataToFirebase();
         }
 
-        // Gerar Texto Formatado (Individual da Aba Atual) - Ignora "Total Autuados"
-        function generateTabText(tab) {
-            if (!appState.personnel.enc) return null;
-
-            let text = `*${tab.name} - Polícia Militar Rodoviária - ${new Date().toLocaleDateString('pt-BR')}*\n`;
-            text += `*Encarregado:* ${appState.personnel.enc}\n`;
-            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
-            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
-            text += `---\n`;
-
-            let hasContent = false;
-            itemNames.forEach(name => {
-                // Ignorar os itens de Total Autuados no envio
-                if (name.startsWith('Total Autuados')) return;
-
-                let itemTotal = 0;
-                let personOutputs = [];
-
-                if (name === 'Imagens Radar') {
-                    ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = tab.radar[p];
-                        if (val && val !== '') {
-                            itemTotal++;
-                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
-                        }
-                    });
-                } else {
-                    ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = tab.items[name] ? tab.items[name][p] : 0;
-                        if (val > 0) {
-                            itemTotal += val;
-                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
-                        }
-                    });
-                }
-
-                if (itemTotal > 0) {
-                    text += `\n*${name}:*\n`;
-                    text += personOutputs.join('\n') + '\n';
-                    hasContent = true;
-                }
-            });
-
-            return hasContent ? text : null;
-        }
-
-        // Gerar Texto Consolidado Geral - Ignora "Total Autuados"
+        // Relatório Geral Consolidado
         function generateGeneralText() {
+            if (!remoteData || !remoteData.personnel.enc) return null;
+
             let consolidatedItems = {};
             let consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
             let hasAnyData = false;
@@ -732,7 +880,7 @@
                 }
             });
 
-            appState.tabs.forEach(tab => {
+            remoteData.tabs.forEach(tab => {
                 itemNames.forEach(name => {
                     if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados') && tab.items[name]) {
                         ['enc', 'mot', 'aux'].forEach(p => {
@@ -749,10 +897,10 @@
                 }
             });
 
-            let text = `*RELATÓRIO GERAL CONSOLIDADO - PMR - ${new Date().toLocaleDateString('pt-BR')}*\n`;
-            text += `*Encarregado:* ${appState.personnel.enc}\n`;
-            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
-            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
+            let text = `*RELATÓRIO GERAL (ID: ${currentId}) - PMR - ${new Date().toLocaleDateString('pt-BR')}*\n`;
+            text += `*Encarregado:* ${remoteData.personnel.enc}\n`;
+            if (remoteData.personnel.mot) text += `*Motorista:* ${remoteData.personnel.mot}\n`;
+            if (remoteData.personnel.aux) text += `*Auxiliar:* ${remoteData.personnel.aux}\n`;
             text += `---\n`;
 
             itemNames.forEach(name => {
@@ -789,37 +937,8 @@
             return hasAnyData ? text : null;
         }
 
-        // Botões de Ação
-        document.getElementById('btnWhatsapp').addEventListener('click', () => {
-            if (!appState.personnel.enc) {
-                alert('Preencha pelo menos o Encarregado obrigatório.');
-                return;
-            }
-            const tab = getActiveTab();
-            const text = generateTabText(tab);
-            if (!text) {
-                alert('Preencha algum valor na aba atual para enviar.');
-                return;
-            }
-            window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
-        });
-
-        document.getElementById('btnCopy').addEventListener('click', () => {
-            if (!appState.personnel.enc) {
-                alert('Preencha pelo menos o Encarregado obrigatório.');
-                return;
-            }
-            const tab = getActiveTab();
-            const text = generateTabText(tab);
-            if (!text) {
-                alert('Preencha algum valor na aba atual para copiar.');
-                return;
-            }
-            copyToClipboard(text);
-        });
-
         document.getElementById('btnGeneral').addEventListener('click', () => {
-            if (!appState.personnel.enc) {
+            if (!remoteData || !remoteData.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
                 return;
             }
@@ -828,18 +947,15 @@
                 alert('Nenhum dado preenchido nas atividades.');
                 return;
             }
-            copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => alert('Relatório geral copiado com sucesso!')).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
         });
 
-        function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => alert(successMsg)).catch(() => fallbackCopy(text, successMsg));
-            } else {
-                fallbackCopy(text, successMsg);
-            }
-        }
-
-        function fallbackCopy(text, successMsg) {
+        function fallbackCopy(text) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
             textArea.style.position = 'fixed';
@@ -848,7 +964,7 @@
             textArea.select();
             try {
                 document.execCommand('copy');
-                alert(successMsg);
+                alert('Relatório geral copiado com sucesso!');
             } catch (err) {
                 alert('Não foi possível copiar automaticamente.');
             }
@@ -856,13 +972,16 @@
         }
 
         document.getElementById('btnClear').addEventListener('click', () => {
-            if (confirm('Tem certeza de que deseja apagar todos os dados de TODAS as abas?')) {
-                localStorage.removeItem('pmrMultiAtividadeStateV3');
-                location.reload();
+            if (confirm('Deseja zerar todos os dados desta atividade (ID: ' + currentId + ')?')) {
+                remoteData = getDefaultData();
+                remoteData.tabs.forEach(t => initTabItems(t));
+                saveDataToFirebase();
+                loadActiveTabData();
+                alert('Dados limpos com sucesso.');
             }
         });
 
-        // Lógica de Importação de Texto na Aba Atual
+        // Importação
         const importModal = document.getElementById('importModal');
         const importText = document.getElementById('importText');
 
@@ -891,13 +1010,13 @@
             initTabItems(tab);
 
             const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
-            if (encMatch) appState.personnel.enc = encMatch[1].trim();
+            if (encMatch) remoteData.personnel.enc = encMatch[1].trim();
 
             const motMatch = text.match(/\*Motorista:\*\s*(.+)/i);
-            if (motMatch) appState.personnel.mot = motMatch[1].trim();
+            if (motMatch) remoteData.personnel.mot = motMatch[1].trim();
 
             const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
-            if (auxMatch) appState.personnel.aux = auxMatch[1].trim();
+            if (auxMatch) remoteData.personnel.aux = auxMatch[1].trim();
 
             const sections = text.split(/\n\*(.*?):\*\n/);
             for (let i = 1; i < sections.length; i += 2) {
@@ -920,14 +1039,16 @@
                 });
             }
 
-            saveLocalStorage();
+            saveDataToFirebase();
             loadActiveTabData();
             alert('Atividade importada com sucesso na aba atual!');
         }
 
         // Inicialização
-        renderTabs();
-        loadActiveTabData();
+        if (currentId) {
+            document.getElementById('loginModal').style.display = 'none';
+            connectFirebase();
+        }
     </script>
 </body>
 </html>
