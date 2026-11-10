@@ -641,11 +641,9 @@
 
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Ouvir em tempo real (garante sincronização e persistência)
-            ref.on('value', (snapshot) => {
+            // Verificar se o ID existe na nuvem antes de criar vazio
+            ref.once('value', (snapshot) => {
                 const val = snapshot.val();
-                isSyncing = true;
-                
                 if (!val) {
                     remoteData = getDefaultData();
                     ref.set(remoteData);
@@ -660,13 +658,33 @@
                 loadActiveTabData();
                 renderTabs();
                 renderItemList();
-                isSyncing = false;
+
+                // Ativar sincronização contínua em tempo real após o carregamento inicial
+                ref.on('value', (snap) => {
+                    if (isSyncing) return; // Se a alteração partiu deste próprio aparelho, ignora
+                    const updatedVal = snap.val();
+                    if (updatedVal) {
+                        remoteData = updatedVal;
+                        if (!remoteData.personnel) remoteData.personnel = { enc: '', mot: '', aux: '' };
+                        if (!remoteData.tabs) remoteData.tabs = getDefaultData().tabs;
+                        remoteData.tabs.forEach(t => initTabItems(t));
+                        
+                        loadActiveTabData();
+                        renderTabs();
+                        renderItemList();
+                    }
+                });
             });
         }
 
         function saveDataToFirebase() {
-            if (!currentId || isSyncing || !isDataLoaded || !remoteData) return;
-            db.ref('pmr_atividades/' + currentId).set(remoteData);
+            if (!currentId || !isDataLoaded || !remoteData) return;
+            isSyncing = true;
+            db.ref('pmr_atividades/' + currentId).set(remoteData).then(() => {
+                isSyncing = false;
+            }).catch(() => {
+                isSyncing = false;
+            });
         }
 
         function getActiveTab() {
