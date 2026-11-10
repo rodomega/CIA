@@ -506,7 +506,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC7u9yPMqkswESx3jJh4I4fCUS8tiu-MjM",
             authDomain: "rodoviariolimeira.firebaseapp.com",
@@ -536,9 +535,10 @@
         let currentId = localStorage.getItem('pmrActiveId') || null;
         let remoteData = null;
         let isSyncing = false;
+        let isDataLoaded = false;
 
         function getDefaultData() {
-            return {
+            let data = {
                 personnel: { enc: '', mot: '', aux: '' },
                 activeTabId: 'tab_1',
                 tabs: [
@@ -550,6 +550,8 @@
                     }
                 ]
             };
+            data.tabs.forEach(t => initTabItems(t));
+            return data;
         }
 
         function initTabItems(tab) {
@@ -630,6 +632,7 @@
                 return;
             }
 
+            document.getElementById('loginModal').style.display = 'none';
             document.getElementById('idBanner').style.display = 'flex';
             document.getElementById('currentIdDisplay').textContent = currentId;
             document.getElementById('tabsContainer').style.display = 'flex';
@@ -638,31 +641,36 @@
 
             const ref = db.ref('pmr_atividades/' + currentId);
 
+            // Ouvir em tempo real (garante sincronização e persistência)
             ref.on('value', (snapshot) => {
-                isSyncing = true;
                 const val = snapshot.val();
+                isSyncing = true;
+                
                 if (!val) {
                     remoteData = getDefaultData();
-                    remoteData.tabs.forEach(t => initTabItems(t));
                     ref.set(remoteData);
                 } else {
                     remoteData = val;
+                    if (!remoteData.personnel) remoteData.personnel = { enc: '', mot: '', aux: '' };
+                    if (!remoteData.tabs) remoteData.tabs = getDefaultData().tabs;
                     remoteData.tabs.forEach(t => initTabItems(t));
                 }
+
+                isDataLoaded = true;
                 loadActiveTabData();
                 renderTabs();
-                renderItemList(); // <- CORRIGIDO: Garante que os itens sejam renderizados a cada atualização da nuvem
+                renderItemList();
                 isSyncing = false;
             });
         }
 
         function saveDataToFirebase() {
-            if (!currentId || isSyncing || !remoteData) return;
+            if (!currentId || isSyncing || !isDataLoaded || !remoteData) return;
             db.ref('pmr_atividades/' + currentId).set(remoteData);
         }
 
         function getActiveTab() {
-            if (!remoteData) return null;
+            if (!remoteData || !remoteData.tabs) return null;
             let tab = remoteData.tabs.find(t => t.id === remoteData.activeTabId);
             if (!tab) {
                 remoteData.activeTabId = remoteData.tabs[0].id;
@@ -748,7 +756,7 @@
             if (!remoteData) return;
             const tab = getActiveTab();
             if (!tab) return;
-            document.getElementById('activityNameInput').value = tab.name;
+            document.getElementById('activityNameInput').value = tab.name || '';
             document.getElementById('encarregado').value = remoteData.personnel.enc || '';
             document.getElementById('motorista').value = remoteData.personnel.mot || '';
             document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
@@ -763,9 +771,21 @@
             }
         });
 
-        document.getElementById('encarregado').addEventListener('input', e => { remoteData.personnel.enc = e.target.value; saveDataToFirebase(); });
-        document.getElementById('motorista').addEventListener('input', e => { remoteData.personnel.mot = e.target.value; saveDataToFirebase(); });
-        document.getElementById('auxiliar').addEventListener('input', e => { remoteData.personnel.aux = e.target.value; saveDataToFirebase(); });
+        document.getElementById('encarregado').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.enc = e.target.value; 
+            saveDataToFirebase(); 
+        });
+        document.getElementById('motorista').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.mot = e.target.value; 
+            saveDataToFirebase(); 
+        });
+        document.getElementById('auxiliar').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.aux = e.target.value; 
+            saveDataToFirebase(); 
+        });
 
         const itemListElement = document.getElementById('itemList');
 
@@ -793,13 +813,14 @@
                         const group = document.createElement('div');
                         group.className = 'input-group';
                         const labelText = getPersonnelLabel(personType);
-                        group.innerHTML = `<label for="radar_${personType}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}" min="0" max="999" placeholder="0 até 999">`;
+                        group.innerHTML = `<label for="radar_${personType}_${name}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}_${name}" min="0" max="999" placeholder="0 até 999">`;
                         const input = group.querySelector('input');
-                        input.value = tab.radar[personType] || '';
+                        input.value = (tab.radar && tab.radar[personType] !== undefined) ? tab.radar[personType] : '';
                         input.addEventListener('input', e => {
                             let val = parseInt(e.target.value, 10);
                             if (isNaN(val)) val = '';
                             if (val > 999) val = 999;
+                            if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
                             tab.radar[personType] = val;
                             saveDataToFirebase();
                         });
@@ -827,7 +848,7 @@
                         const valSpan = document.createElement('span');
                         valSpan.className = 'counter-value';
                         valSpan.id = `q_${name}_${personType}`;
-                        valSpan.textContent = tab.items[name] ? tab.items[name][personType] : 0;
+                        valSpan.textContent = (tab.items[name] && tab.items[name][personType] !== undefined) ? tab.items[name][personType] : 0;
                         controls.appendChild(valSpan);
 
                         const plusBtn = document.createElement('button');
@@ -863,16 +884,19 @@
         function updateQuantity(itemName, personType, change) {
             const tab = getActiveTab();
             if (!tab.items[itemName]) tab.items[itemName] = { enc: 0, mot: 0, aux: 0 };
-            const curr = tab.items[itemName][personType];
+            const curr = tab.items[itemName][personType] || 0;
             const newVal = Math.max(0, curr + change);
             tab.items[itemName][personType] = newVal;
-            document.getElementById(`q_${itemName}_${personType}`).textContent = newVal;
+            
+            const spanEl = document.getElementById(`q_${itemName}_${personType}`);
+            if (spanEl) spanEl.textContent = newVal;
+            
             saveDataToFirebase();
         }
 
         // Relatório Geral Consolidado
         function generateGeneralText() {
-            if (!remoteData || !remoteData.personnel.enc) return null;
+            if (!remoteData || !remoteData.personnel || !remoteData.personnel.enc) return null;
 
             let consolidatedItems = {};
             let consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
@@ -942,7 +966,7 @@
         }
 
         document.getElementById('btnGeneral').addEventListener('click', () => {
-            if (!remoteData || !remoteData.personnel.enc) {
+            if (!remoteData || !remoteData.personnel || !remoteData.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
                 return;
             }
@@ -978,9 +1002,9 @@
         document.getElementById('btnClear').addEventListener('click', () => {
             if (confirm('Deseja zerar todos os dados desta atividade (ID: ' + currentId + ')?')) {
                 remoteData = getDefaultData();
-                remoteData.tabs.forEach(t => initTabItems(t));
                 saveDataToFirebase();
                 loadActiveTabData();
+                renderTabs();
                 renderItemList();
                 alert('Dados limpos com sucesso.');
             }
@@ -1052,8 +1076,9 @@
 
         // Inicialização
         if (currentId) {
-            document.getElementById('loginModal').style.display = 'none';
             connectFirebase();
+        } else {
+            promptLogin();
         }
     </script>
 </body>
