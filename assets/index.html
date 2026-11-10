@@ -648,22 +648,20 @@
 
         document.getElementById('btnListIds').addEventListener('click', openIdsModal);
 
-        // Função para Excluir / Apagar a Sala Inteira do Firebase e do Local
         function deleteCurrentRoom() {
             if (!currentId) return;
             if (confirm(`Tem certeza que deseja EXCLUIR e APAGAR COMPLETAMENTE a sala ID: ${currentId}?`)) {
                 db.ref('pmr_atividades/' + currentId).remove().then(() => {
-                    // Remover da lista de salvos do localStorage
                     let savedIds = JSON.parse(localStorage.getItem('pmrSavedIdsList')) || [];
                     savedIds = savedIds.filter(id => id !== currentId);
                     localStorage.setItem('pmrSavedIdsList', JSON.stringify(savedIds));
 
                     localStorage.removeItem('pmrActiveId');
+                    localStorage.removeItem('pmr_cache_' + currentId);
                     currentId = null;
                     isDataLoaded = false;
                     remoteData = null;
 
-                    // Ocultar painel e abrir login
                     document.getElementById('idBanner').style.display = 'none';
                     document.getElementById('tabsContainer').style.display = 'none';
                     document.getElementById('tabConfigSection').style.display = 'none';
@@ -689,13 +687,33 @@
             document.getElementById('tabConfigSection').style.display = 'flex';
             document.getElementById('mainSection').style.display = 'block';
 
+            // Carregamento instantâneo via cache local (evita tela em branco ao atualizar)
+            const cached = localStorage.getItem('pmr_cache_' + currentId);
+            if (cached) {
+                try {
+                    remoteData = JSON.parse(cached);
+                    if (remoteData && remoteData.tabs) {
+                        remoteData.tabs.forEach(t => initTabItems(t));
+                        isDataLoaded = true;
+                        loadActiveTabData();
+                        renderTabs();
+                        renderItemList();
+                    }
+                } catch (e) {}
+            }
+
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Carrega e desenha imediatamente
-            ref.once('value', (snapshot) => {
+            // Sincronização em tempo real segura
+            ref.on('value', (snapshot) => {
+                if (isSyncing) return;
                 const val = snapshot.val();
+                
                 if (!val) {
-                    remoteData = getDefaultData();
+                    // Se a nuvem estiver vazia, usa o cache local ou cria dados padrões
+                    if (!remoteData) {
+                        remoteData = getDefaultData();
+                    }
                     ref.set(remoteData);
                 } else {
                     remoteData = val;
@@ -705,33 +723,21 @@
                 }
 
                 isDataLoaded = true;
+                localStorage.setItem('pmr_cache_' + currentId, JSON.stringify(remoteData));
+                
                 loadActiveTabData();
                 renderTabs();
-                renderItemList(); // Garante que os itens aparecem logo no início!
-
-                // Escuta atualizações de outros policiais na mesma sala em tempo real
-                ref.on('value', (snap) => {
-                    if (isSyncing) return;
-                    const updatedVal = snap.val();
-                    if (updatedVal) {
-                        remoteData = updatedVal;
-                        if (!remoteData.personnel) remoteData.personnel = { enc: '', mot: '', aux: '' };
-                        if (!remoteData.tabs) remoteData.tabs = getDefaultData().tabs;
-                        remoteData.tabs.forEach(t => initTabItems(t));
-                        
-                        loadActiveTabData();
-                        renderTabs();
-                        renderItemList();
-                    }
-                });
+                renderItemList();
             });
         }
 
         function saveDataToFirebase() {
             if (!currentId || !isDataLoaded || !remoteData) return;
             isSyncing = true;
+            localStorage.setItem('pmr_cache_' + currentId, JSON.stringify(remoteData));
+            
             db.ref('pmr_atividades/' + currentId).set(remoteData).then(() => {
-                isSyncing = false;
+                setTimeout(() => { isSyncing = false; }, 300);
             }).catch(() => {
                 isSyncing = false;
             });
