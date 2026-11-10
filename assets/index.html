@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Com ID Próprio</title>
+    <title>Mandar Atividade - Completo</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,7 +27,6 @@
             max-width: 600px;
         }
 
-        /* Barra de Identificação do Aparelho (Seu ID) */
         .my-id-bar {
             width: 100%;
             max-width: 600px;
@@ -75,9 +74,9 @@
 
         .btn-top {
             flex: 1;
-            min-width: 120px;
+            min-width: 110px;
             padding: 12px 10px;
-            font-size: 0.95em;
+            font-size: 0.9em;
             font-weight: bold;
             border: none;
             border-radius: 8px;
@@ -90,6 +89,7 @@
         .btn-whatsapp { background-color: #25d366; color: #fff; }
         .btn-copy { background-color: #ffd700; color: #000; }
         .btn-server { background-color: #007bff; color: #fff; }
+        .btn-import { background-color: #17a2b8; color: #fff; }
         .btn-general { background-color: #ff851b; color: #fff; }
         .btn-clear { background-color: #444; color: #ffd700; }
 
@@ -395,18 +395,18 @@
 
     <h1>Mandar Atividade</h1>
 
-    <!-- Exibe o ID Próprio deste Celular -->
     <div class="my-id-bar">
-        <span>Meu ID (Este Aparelho): <strong id="displayMyId">...</strong></span>
+        <span>Meu ID: <strong id="displayMyId">...</strong></span>
         <button class="btn-change-id" onclick="openMyIdModal()">Mudar Meu ID</button>
     </div>
 
     <div class="top-action-bar">
-        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar WhatsApp</button>
+        <button class="btn-top btn-whatsapp" id="btnWhatsapp">WhatsApp</button>
         <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
-        <button class="btn-top btn-server" id="btnServer">Enviar p/ Servidor</button>
+        <button class="btn-top btn-server" id="btnServer">Enviar Servidor</button>
+        <button class="btn-top btn-import" id="btnImport">Importar</button>
         <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
-        <button class="btn-top btn-clear" id="btnClear">Apagar Tudo</button>
+        <button class="btn-top btn-clear" id="btnClear">Apagar</button>
     </div>
 
     <div class="tabs-container" id="tabsContainer"></div>
@@ -434,12 +434,12 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <!-- Modal para Alterar o Próprio ID -->
+    <!-- Modal Mudar ID Próprio -->
     <div class="modal" id="myIdModal">
         <div class="modal-content">
             <h3>Definir Meu ID</h3>
             <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Informe o código permanente deste celular/viatura:</p>
-            <input type="text" id="inputMyIdModal" placeholder="Ex: VIATURA-01, PREFIXO-10">
+            <input type="text" id="inputMyIdModal" placeholder="Ex: VIATURA-01">
             <div class="modal-buttons">
                 <button class="btn-top btn-clear" onclick="closeMyIdModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
                 <button class="btn-top btn-whatsapp" onclick="saveMyId()" style="padding: 10px 15px; min-width: auto;">Salvar ID</button>
@@ -447,11 +447,11 @@
         </div>
     </div>
 
-    <!-- Modal para Enviar ao Servidor (Informar ID de Destino) -->
+    <!-- Modal Enviar Servidor -->
     <div class="modal" id="serverModal">
         <div class="modal-content">
             <h3>Enviar Relatório ao Servidor</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID de destino (para quem você quer mandar):</p>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID de destino:</p>
             <input type="text" id="targetServerId" placeholder="Ex: VIATURA-02">
             <div style="background:#111; padding:10px; border-radius:4px; margin-bottom:15px; text-align:left; max-height:100px; overflow-y:auto; font-size:0.85em; color:#aaa;" id="previewTextServer"></div>
             <div class="modal-buttons">
@@ -461,7 +461,19 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat v8) -->
+    <!-- Modal Importar Texto (Colar ou Receber) -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <h3>Importar Atividade</h3>
+            <p style="color: #ccc; font-size: 0.9em;">Cole o relatório recebido (WhatsApp ou servidor) para carregar na <b>aba atual</b>:</p>
+            <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
+                <button class="btn-top btn-import" id="btnConfirmImport" style="padding: 10px 15px; min-width: auto;">Processar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -480,7 +492,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Gerenciamento do ID Próprio do Aparelho
         let myDeviceId = localStorage.getItem('pmrMyPermanentId') || ('PMR-' + Math.floor(1000 + Math.random() * 9000));
         localStorage.setItem('pmrMyPermanentId', myDeviceId);
         document.getElementById('displayMyId').textContent = myDeviceId;
@@ -901,21 +912,19 @@
             copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
         });
 
-        // Enviar p/ Servidor com ID de Destino
-        let textToUpload = '';
-
+        // Enviar p/ Servidor
         document.getElementById('btnServer').addEventListener('click', () => {
             if (!appState.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
                 return;
             }
             const tab = getActiveTab();
-            textToUpload = generateTabText(tab);
-            if (!textToUpload) {
+            const text = generateTabText(tab);
+            if (!text) {
                 alert('Preencha algum valor na aba atual para enviar.');
                 return;
             }
-            document.getElementById('previewTextServer').textContent = textToUpload;
+            document.getElementById('previewTextServer').textContent = text;
             document.getElementById('targetServerId').value = localStorage.getItem('pmrLastTargetId') || '';
             document.getElementById('serverModal').style.display = 'flex';
         });
@@ -932,6 +941,9 @@
             }
             localStorage.setItem('pmrLastTargetId', targetId);
 
+            const tab = getActiveTab();
+            const textToUpload = generateTabText(tab);
+
             db.ref('pmr_relatorios/' + targetId).set({
                 enviadoPor: myDeviceId,
                 timestamp: new Date().toISOString(),
@@ -942,6 +954,68 @@
             }).catch((err) => {
                 alert('Erro ao enviar: ' + err.message);
             });
+        }
+
+        // Importar Texto na Aba Atual (Botão de Importação restaurado)
+        const importModal = document.getElementById('importModal');
+        const importText = document.getElementById('importText');
+
+        document.getElementById('btnImport').addEventListener('click', () => {
+            importText.value = '';
+            importModal.style.display = 'flex';
+        });
+
+        document.getElementById('btnCancelImport').addEventListener('click', () => {
+            importModal.style.display = 'none';
+        });
+
+        document.getElementById('btnConfirmImport').addEventListener('click', () => {
+            const rawText = importText.value;
+            if (!rawText.trim()) {
+                alert('Cole um texto válido.');
+                return;
+            }
+            parseAndLoadText(rawText);
+            importModal.style.display = 'none';
+        });
+
+        function parseAndLoadText(text) {
+            let tab = getActiveTab();
+            tab.radar = { enc: '', mot: '', aux: '' };
+            initTabItems(tab);
+
+            const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
+            if (encMatch) appState.personnel.enc = encMatch[1].trim();
+
+            const motMatch = text.match(/\*Motorista:\*\s*(.+)/i);
+            if (motMatch) appState.personnel.mot = motMatch[1].trim();
+
+            const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
+            if (auxMatch) appState.personnel.aux = auxMatch[1].trim();
+
+            let currentItem = null;
+            text.split('\n').forEach(line => {
+                let itemHeader = line.match(/^\*(.+?):\*$/);
+                if (itemHeader && itemHeader[1] !== 'Encarregado' && itemHeader[1] !== 'Motorista' && itemHeader[1] !== 'Auxiliar') {
+                    currentItem = itemHeader[1].trim();
+                }
+                let pMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
+                if (currentItem && pMatch) {
+                    let pName = pMatch[1].toLowerCase();
+                    let pKey = pName.includes('enc') ? 'enc' : pName.includes('mot') ? 'mot' : 'aux';
+                    let val = parseInt(pMatch[2], 10);
+
+                    if (currentItem === 'Imagens Radar') {
+                        tab.radar[pKey] = val;
+                    } else if (tab.items[currentItem]) {
+                        tab.items[currentItem][pKey] = val;
+                    }
+                }
+            });
+
+            saveLocalStorage();
+            loadActiveTabData();
+            alert('Atividade importada com sucesso na aba atual!');
         }
 
         function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
