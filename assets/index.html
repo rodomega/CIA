@@ -27,7 +27,6 @@
             max-width: 600px;
         }
 
-        /* Banner de Identificação da Sala (ID) */
         .id-banner {
             width: 100%;
             max-width: 600px;
@@ -75,7 +74,6 @@
             font-weight: bold;
         }
 
-        /* Barra de Topo / Botões Principais */
         .top-action-bar {
             width: 100%;
             max-width: 600px;
@@ -107,7 +105,6 @@
 
         .btn-top:hover { opacity: 0.9; }
 
-        /* Sistema de Abas (Sub-atividades dentro do ID) */
         .tabs-container {
             width: 100%;
             max-width: 600px;
@@ -133,7 +130,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: background-color 0.2s, color 0.2s;
             touch-action: manipulation;
         }
 
@@ -172,7 +168,6 @@
             touch-action: manipulation;
         }
 
-        /* Configuração do Nome da Aba Atual */
         .tab-config-section {
             width: 100%;
             max-width: 600px;
@@ -265,7 +260,6 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -327,7 +321,6 @@
             line-height: 1;
             touch-action: manipulation;
             user-select: none;
-            -webkit-user-select: none;
         }
 
         .btn-minus { margin-right: 10px; }
@@ -364,7 +357,6 @@
             box-sizing: border-box;
         }
 
-        /* Modais */
         .modal {
             display: none;
             position: fixed;
@@ -440,7 +432,6 @@
 
     <h1>Mandar Atividade</h1>
 
-    <!-- Banner Indicativo do ID Ativo com Botão de Excluir Sala -->
     <div class="id-banner" id="idBanner" style="display:none;">
         <span>Atividade ID: <strong id="currentIdDisplay" style="color:#25d366;"></strong></span>
         <div class="id-banner-actions">
@@ -449,7 +440,6 @@
         </div>
     </div>
 
-    <!-- Botões Principais no Topo -->
     <div class="top-action-bar">
         <button class="btn-top btn-general" id="btnGeneral">Enviar Relatório Geral</button>
         <button class="btn-top btn-import" id="btnImport">Importar Texto</button>
@@ -457,10 +447,8 @@
         <button class="btn-top btn-clear" id="btnClear">Zerar Dados</button>
     </div>
 
-    <!-- Abas de Sub-atividades -->
     <div class="tabs-container" id="tabsContainer" style="display:none;"></div>
     
-    <!-- Nome da Aba Atual -->
     <div class="tab-config-section" id="tabConfigSection" style="display:none;">
         <label for="activityNameInput">Nome da Aba:</label>
         <input type="text" id="activityNameInput" placeholder="Ex: Operação Rodovia">
@@ -484,7 +472,6 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <!-- Modal de Autenticação / Inserir ID -->
     <div class="modal" id="loginModal" style="display:flex;">
         <div class="modal-content">
             <h3>Acessar ou Criar Atividade</h3>
@@ -497,7 +484,6 @@
         </div>
     </div>
 
-    <!-- Modal de Listar Atividades Criadas -->
     <div class="modal" id="idsModal">
         <div class="modal-content">
             <h3>Atividades Salvas</h3>
@@ -508,7 +494,6 @@
         </div>
     </div>
 
-    <!-- Modal para Importação de Texto -->
     <div class="modal" id="importModal">
         <div class="modal-content">
             <h3>Importar Atividade</h3>
@@ -520,7 +505,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -590,6 +574,93 @@
                         if (tab.items[name].aux === undefined) tab.items[name].aux = 0;
                     }
                 }
+            });
+        }
+
+        // MONTAGEM ESTÁTICA IMEDIATA DA TELA (Garante que nunca fica em branco)
+        function buildStaticUI() {
+            const itemListElement = document.getElementById('itemList');
+            itemListElement.innerHTML = '';
+
+            itemNames.forEach((name, index) => {
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'item-container';
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'item-toggle';
+                toggleBtn.textContent = name;
+                itemContainer.appendChild(toggleBtn);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'item-content';
+                contentDiv.id = `content_item_${index}`;
+
+                if (name === 'Imagens Radar') {
+                    contentDiv.classList.add('radar-input-container');
+                    ['enc', 'mot', 'aux'].forEach(personType => {
+                        const group = document.createElement('div');
+                        group.className = 'input-group';
+                        const labelText = getPersonnelLabel(personType);
+                        group.innerHTML = `<label for="radar_${personType}_${index}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}_${index}" min="0" max="999" placeholder="0 até 999">`;
+                        
+                        const input = group.querySelector('input');
+                        input.addEventListener('input', e => {
+                            let val = parseInt(e.target.value, 10);
+                            if (isNaN(val)) val = '';
+                            if (val > 999) val = 999;
+                            const tab = getActiveTab();
+                            if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
+                            tab.radar[personType] = val;
+                            syncToFirebase();
+                        });
+                        contentDiv.appendChild(group);
+                    });
+                } else {
+                    ['enc', 'mot', 'aux'].forEach(personType => {
+                        const counterGroup = document.createElement('div');
+                        counterGroup.className = 'counter-group';
+
+                        const label = document.createElement('span');
+                        label.className = 'person-label';
+                        label.textContent = getPersonnelLabel(personType);
+                        counterGroup.appendChild(label);
+
+                        const controls = document.createElement('div');
+                        controls.className = 'counter-controls';
+
+                        const minusBtn = document.createElement('button');
+                        minusBtn.className = 'btn-minus';
+                        minusBtn.textContent = '−';
+                        minusBtn.onclick = () => updateQuantity(name, personType, -1);
+                        controls.appendChild(minusBtn);
+
+                        const valSpan = document.createElement('span');
+                        valSpan.className = 'counter-value';
+                        valSpan.id = `val_${index}_${personType}`;
+                        valSpan.textContent = '0';
+                        controls.appendChild(valSpan);
+
+                        const plusBtn = document.createElement('button');
+                        plusBtn.className = 'btn-plus';
+                        plusBtn.textContent = '+';
+                        plusBtn.onclick = () => updateQuantity(name, personType, 1);
+                        controls.appendChild(plusBtn);
+
+                        counterGroup.appendChild(controls);
+                        contentDiv.appendChild(counterGroup);
+                    });
+                }
+
+                itemContainer.appendChild(contentDiv);
+                itemListElement.appendChild(itemContainer);
+
+                toggleBtn.onclick = function() {
+                    const isOpen = contentDiv.classList.contains('active-content');
+                    document.querySelectorAll('.item-content').forEach(el => el.classList.remove('active-content'));
+                    if (!isOpen) {
+                        contentDiv.classList.add('active-content');
+                    }
+                };
             });
         }
 
@@ -690,18 +761,16 @@
             document.getElementById('tabConfigSection').style.display = 'flex';
             document.getElementById('mainSection').style.display = 'block';
 
+            buildStaticUI(); // Monta a interface na mesma hora
+
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Carregamento imediato com dados padrão na memória para os campos abrirem na hora
-            remoteData = getDefaultData();
-            renderUI();
-
-            // Sincronização em tempo real com o Firebase
             ref.on('value', (snapshot) => {
                 if (isSyncing) return;
                 const val = snapshot.val();
                 
                 if (!val) {
+                    remoteData = getDefaultData();
                     ref.set(remoteData);
                 } else {
                     remoteData = val;
@@ -710,8 +779,8 @@
                         remoteData.tabs = getDefaultData().tabs;
                     }
                     remoteData.tabs.forEach(t => fillMissingItems(t));
-                    renderUI();
                 }
+                updateUIValues();
             });
         }
 
@@ -736,21 +805,36 @@
             return tab;
         }
 
-        function renderUI() {
+        function updateUIValues() {
             if (!remoteData) return;
-            loadPersonnelData();
-            renderTabs();
-            renderItemList();
-        }
-
-        function loadPersonnelData() {
             document.getElementById('encarregado').value = remoteData.personnel.enc || '';
             document.getElementById('motorista').value = remoteData.personnel.mot || '';
             document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
+            
             const activeTab = getActiveTab();
             if (activeTab) {
                 document.getElementById('activityNameInput').value = activeTab.name || '';
+                
+                itemNames.forEach((name, index) => {
+                    if (name === 'Imagens Radar') {
+                        ['enc', 'mot', 'aux'].forEach(personType => {
+                            const input = document.getElementById(`radar_${personType}_${index}`);
+                            if (input) {
+                                input.value = (activeTab.radar && activeTab.radar[personType] !== undefined) ? activeTab.radar[personType] : '';
+                            }
+                        });
+                    } else {
+                        ['enc', 'mot', 'aux'].forEach(personType => {
+                            const valSpan = document.getElementById(`val_${index}_${personType}`);
+                            if (valSpan) {
+                                const val = (activeTab.items[name] && activeTab.items[name][personType] !== undefined) ? activeTab.items[name][personType] : 0;
+                                valSpan.textContent = val;
+                            }
+                        });
+                    }
+                });
             }
+            renderTabs();
         }
 
         document.getElementById('activityNameInput').addEventListener('input', e => {
@@ -815,7 +899,7 @@
         function switchTab(tabId) {
             remoteData.activeTabId = tabId;
             syncToFirebase();
-            renderUI();
+            updateUIValues();
         }
 
         function addNewTab() {
@@ -831,7 +915,7 @@
             remoteData.tabs.push(newTab);
             remoteData.activeTabId = newId;
             syncToFirebase();
-            renderUI();
+            updateUIValues();
         }
 
         function deleteTab(tabId) {
@@ -840,95 +924,8 @@
                 remoteData.tabs = remoteData.tabs.filter(t => t.id !== tabId);
                 remoteData.activeTabId = remoteData.tabs[0].id;
                 syncToFirebase();
-                renderUI();
+                updateUIValues();
             }
-        }
-
-        const itemListElement = document.getElementById('itemList');
-
-        function renderItemList() {
-            itemListElement.innerHTML = '';
-            const tab = getActiveTab();
-            if (!tab) return;
-
-            itemNames.forEach(name => {
-                const itemContainer = document.createElement('div');
-                itemContainer.className = 'item-container';
-
-                const toggleBtn = document.createElement('button');
-                toggleBtn.className = 'item-toggle';
-                toggleBtn.textContent = name;
-                itemContainer.appendChild(toggleBtn);
-
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'item-content';
-
-                if (name === 'Imagens Radar') {
-                    contentDiv.classList.add('radar-input-container');
-                    ['enc', 'mot', 'aux'].forEach(personType => {
-                        const group = document.createElement('div');
-                        group.className = 'input-group';
-                        const labelText = getPersonnelLabel(personType);
-                        group.innerHTML = `<label for="radar_${personType}_${name}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}_${name}" min="0" max="999" placeholder="0 até 999">`;
-                        const input = group.querySelector('input');
-                        input.value = (tab.radar && tab.radar[personType] !== undefined) ? tab.radar[personType] : '';
-                        input.addEventListener('input', e => {
-                            let val = parseInt(e.target.value, 10);
-                            if (isNaN(val)) val = '';
-                            if (val > 999) val = 999;
-                            if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
-                            tab.radar[personType] = val;
-                            syncToFirebase();
-                        });
-                        contentDiv.appendChild(group);
-                    });
-                } else {
-                    ['enc', 'mot', 'aux'].forEach(personType => {
-                        const counterGroup = document.createElement('div');
-                        counterGroup.className = 'counter-group';
-
-                        const label = document.createElement('span');
-                        label.className = 'person-label';
-                        label.textContent = getPersonnelLabel(personType);
-                        counterGroup.appendChild(label);
-
-                        const controls = document.createElement('div');
-                        controls.className = 'counter-controls';
-
-                        const minusBtn = document.createElement('button');
-                        minusBtn.className = 'btn-minus';
-                        minusBtn.textContent = '−';
-                        minusBtn.onclick = () => updateQuantity(name, personType, -1);
-                        controls.appendChild(minusBtn);
-
-                        const valSpan = document.createElement('span');
-                        valSpan.className = 'counter-value';
-                        valSpan.id = `q_${name}_${personType}`;
-                        valSpan.textContent = (tab.items[name] && tab.items[name][personType] !== undefined) ? tab.items[name][personType] : 0;
-                        controls.appendChild(valSpan);
-
-                        const plusBtn = document.createElement('button');
-                        plusBtn.className = 'btn-plus';
-                        plusBtn.textContent = '+';
-                        plusBtn.onclick = () => updateQuantity(name, personType, 1);
-                        controls.appendChild(plusBtn);
-
-                        counterGroup.appendChild(controls);
-                        contentDiv.appendChild(counterGroup);
-                    });
-                }
-
-                itemContainer.appendChild(contentDiv);
-                itemListElement.appendChild(itemContainer);
-
-                toggleBtn.onclick = function() {
-                    const isOpen = contentDiv.classList.contains('active-content');
-                    document.querySelectorAll('.item-content').forEach(el => el.classList.remove('active-content'));
-                    if (!isOpen) {
-                        contentDiv.classList.add('active-content');
-                    }
-                };
-            });
         }
 
         function getPersonnelLabel(type) {
@@ -944,13 +941,10 @@
             const newVal = Math.max(0, curr + change);
             tab.items[itemName][personType] = newVal;
             
-            const spanEl = document.getElementById(`q_${itemName}_${personType}`);
-            if (spanEl) spanEl.textContent = newVal;
-            
             syncToFirebase();
+            updateUIValues();
         }
 
-        // Relatório Geral Consolidado
         function generateGeneralText() {
             if (!remoteData || !remoteData.personnel || !remoteData.personnel.enc) return null;
 
@@ -1059,12 +1053,11 @@
             if (confirm('Deseja zerar todos os dados desta atividade (ID: ' + currentId + ')?')) {
                 remoteData = getDefaultData();
                 syncToFirebase();
-                renderUI();
+                updateUIValues();
                 alert('Dados zerados com sucesso.');
             }
         });
 
-        // Importação
         const importModal = document.getElementById('importModal');
         const importText = document.getElementById('importText');
 
@@ -1123,11 +1116,10 @@
             }
 
             syncToFirebase();
-            renderUI();
+            updateUIValues();
             alert('Atividade importada com sucesso na aba atual!');
         }
 
-        // Inicialização
         if (currentId) {
             connectFirebase();
         } else {
