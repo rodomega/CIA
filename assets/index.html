@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Envio por Servidor</title>
+    <title>Mandar Atividade - Com ID Próprio</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,11 +20,47 @@
         h1 {
             border-bottom: 2px solid #ffd700;
             padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
             font-size: 1.5em;
             width: 100%;
             max-width: 600px;
+        }
+
+        /* Barra de Identificação do Aparelho (Seu ID) */
+        .my-id-bar {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1f1f1f;
+            border: 1px solid #ffd700;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            font-size: 0.95em;
+        }
+
+        .my-id-bar span {
+            color: #fff;
+        }
+
+        .my-id-bar strong {
+            color: #25d366;
+            font-size: 1.1em;
+        }
+
+        .btn-change-id {
+            background-color: #333;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
         }
 
         .top-action-bar {
@@ -39,7 +75,7 @@
 
         .btn-top {
             flex: 1;
-            min-width: 130px;
+            min-width: 120px;
             padding: 12px 10px;
             font-size: 0.95em;
             font-weight: bold;
@@ -306,7 +342,6 @@
             box-sizing: border-box;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -360,6 +395,12 @@
 
     <h1>Mandar Atividade</h1>
 
+    <!-- Exibe o ID Próprio deste Celular -->
+    <div class="my-id-bar">
+        <span>Meu ID (Este Aparelho): <strong id="displayMyId">...</strong></span>
+        <button class="btn-change-id" onclick="openMyIdModal()">Mudar Meu ID</button>
+    </div>
+
     <div class="top-action-bar">
         <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar WhatsApp</button>
         <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
@@ -393,16 +434,29 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <!-- Modal para Enviar via Servidor (Definir ID/Código) -->
+    <!-- Modal para Alterar o Próprio ID -->
+    <div class="modal" id="myIdModal">
+        <div class="modal-content">
+            <h3>Definir Meu ID</h3>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Informe o código permanente deste celular/viatura:</p>
+            <input type="text" id="inputMyIdModal" placeholder="Ex: VIATURA-01, PREFIXO-10">
+            <div class="modal-buttons">
+                <button class="btn-top btn-clear" onclick="closeMyIdModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
+                <button class="btn-top btn-whatsapp" onclick="saveMyId()" style="padding: 10px 15px; min-width: auto;">Salvar ID</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Enviar ao Servidor (Informar ID de Destino) -->
     <div class="modal" id="serverModal">
         <div class="modal-content">
             <h3>Enviar Relatório ao Servidor</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID ou Código da Viatura destino:</p>
-            <input type="text" id="targetServerId" placeholder="Ex: VIATURA-01">
-            <div style="background:#111; padding:10px; border-radius:4px; margin-bottom:15px; text-align:left; max-height:120px; overflow-y:auto; font-size:0.85em; color:#aaa;" id="previewTextServer"></div>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID de destino (para quem você quer mandar):</p>
+            <input type="text" id="targetServerId" placeholder="Ex: VIATURA-02">
+            <div style="background:#111; padding:10px; border-radius:4px; margin-bottom:15px; text-align:left; max-height:100px; overflow-y:auto; font-size:0.85em; color:#aaa;" id="previewTextServer"></div>
             <div class="modal-buttons">
                 <button class="btn-top btn-clear" onclick="closeServerModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-server" onclick="confirmSendToServer()" style="padding: 10px 15px; min-width: auto;">Enviar Agora</button>
+                <button class="btn-top btn-server" onclick="confirmSendToServer()" style="padding: 10px 15px; min-width: auto;">Enviar</button>
             </div>
         </div>
     </div>
@@ -425,6 +479,33 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // Gerenciamento do ID Próprio do Aparelho
+        let myDeviceId = localStorage.getItem('pmrMyPermanentId') || ('PMR-' + Math.floor(1000 + Math.random() * 9000));
+        localStorage.setItem('pmrMyPermanentId', myDeviceId);
+        document.getElementById('displayMyId').textContent = myDeviceId;
+
+        function openMyIdModal() {
+            document.getElementById('inputMyIdModal').value = myDeviceId;
+            document.getElementById('myIdModal').style.display = 'flex';
+        }
+
+        function closeMyIdModal() {
+            document.getElementById('myIdModal').style.display = 'none';
+        }
+
+        function saveMyId() {
+            const val = document.getElementById('inputMyIdModal').value.trim().toUpperCase();
+            if (!val) {
+                alert('Digite um ID válido.');
+                return;
+            }
+            myDeviceId = val;
+            localStorage.setItem('pmrMyPermanentId', myDeviceId);
+            document.getElementById('displayMyId').textContent = myDeviceId;
+            closeMyIdModal();
+            alert('Seu ID foi alterado com sucesso para: ' + myDeviceId);
+        }
 
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
@@ -779,7 +860,6 @@
             return hasAnyData ? text : null;
         }
 
-        // Botões de Ação
         document.getElementById('btnWhatsapp').addEventListener('click', () => {
             if (!appState.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
@@ -821,7 +901,7 @@
             copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
         });
 
-        // ENVIAR VIA SERVIDOR (POR CÓDIGO)
+        // Enviar p/ Servidor com ID de Destino
         let textToUpload = '';
 
         document.getElementById('btnServer').addEventListener('click', () => {
@@ -836,7 +916,7 @@
                 return;
             }
             document.getElementById('previewTextServer').textContent = textToUpload;
-            document.getElementById('targetServerId').value = localStorage.getItem('pmrLastServerId') || '';
+            document.getElementById('targetServerId').value = localStorage.getItem('pmrLastTargetId') || '';
             document.getElementById('serverModal').style.display = 'flex';
         });
 
@@ -847,16 +927,17 @@
         function confirmSendToServer() {
             const targetId = document.getElementById('targetServerId').value.trim().toUpperCase();
             if (!targetId) {
-                alert('Digite um ID ou código de destino válido!');
+                alert('Digite o ID de destino!');
                 return;
             }
-            localStorage.setItem('pmrLastServerId', targetId);
+            localStorage.setItem('pmrLastTargetId', targetId);
 
-            db.ref('pmr_relatorios_enviados/' + targetId).set({
+            db.ref('pmr_relatorios/' + targetId).set({
+                enviadoPor: myDeviceId,
                 timestamp: new Date().toISOString(),
                 conteudo: textToUpload
             }).then(() => {
-                alert('Relatório enviado com sucesso para o servidor (ID: ' + targetId + ')!');
+                alert('Relatório enviado com sucesso para o ID: ' + targetId + '!');
                 closeServerModal();
             }).catch((err) => {
                 alert('Erro ao enviar: ' + err.message);
