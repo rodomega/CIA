@@ -48,10 +48,26 @@
             font-weight: bold;
         }
 
+        .id-banner-actions {
+            display: flex;
+            gap: 5px;
+        }
+
         .btn-change-id {
             background-color: #333;
             color: #ffd700;
             border: 1px solid #ffd700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .btn-delete-room {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
@@ -424,10 +440,13 @@
 
     <h1>Mandar Atividade</h1>
 
-    <!-- Banner Indicativo do ID Ativo -->
+    <!-- Banner Indicativo do ID Ativo com Botão de Excluir Sala -->
     <div class="id-banner" id="idBanner" style="display:none;">
         <span>Atividade ID: <strong id="currentIdDisplay" style="color:#25d366;"></strong></span>
-        <button class="btn-change-id" onclick="promptLogin()">Trocar / Sair ID</button>
+        <div class="id-banner-actions">
+            <button class="btn-change-id" onclick="promptLogin()">Trocar</button>
+            <button class="btn-delete-room" onclick="deleteCurrentRoom()">Excluir Sala</button>
+        </div>
     </div>
 
     <!-- Botões Principais no Topo -->
@@ -435,7 +454,7 @@
         <button class="btn-top btn-general" id="btnGeneral">Enviar Relatório Geral</button>
         <button class="btn-top btn-import" id="btnImport">Importar Texto</button>
         <button class="btn-top btn-list" id="btnListIds">Atividades Criadas</button>
-        <button class="btn-top btn-clear" id="btnClear">Apagar Dados</button>
+        <button class="btn-top btn-clear" id="btnClear">Zerar Dados</button>
     </div>
 
     <!-- Abas de Sub-atividades -->
@@ -470,7 +489,7 @@
         <div class="modal-content">
             <h3>Acessar ou Criar Atividade</h3>
             <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Insira um ID para entrar na sala compartilhada:</p>
-            <input type="text" id="loginIdInput" placeholder="Ex: 2540, base-norte">
+            <input type="text" id="loginIdInput" placeholder="Ex: R04406, 2540">
             <button class="btn-top btn-general" style="width:100%; padding: 12px;" onclick="confirmLogin()">Entrar / Acessar</button>
             <div style="margin-top: 15px;">
                 <button class="btn-top btn-list" style="width:100%; padding: 10px;" onclick="openIdsModalFromLogin()">Ver Atividades Salvas</button>
@@ -555,9 +574,12 @@
         }
 
         function initTabItems(tab) {
+            if (!tab.items) tab.items = {};
+            if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
+
             itemNames.forEach(name => {
                 if (name === 'Imagens Radar') {
-                    if (!tab.radar || tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
+                    if (tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
                 } else {
                     if (!tab.items[name]) {
                         tab.items[name] = { enc: 0, mot: 0, aux: 0 };
@@ -626,6 +648,34 @@
 
         document.getElementById('btnListIds').addEventListener('click', openIdsModal);
 
+        // Função para Excluir / Apagar a Sala Inteira do Firebase e do Local
+        function deleteCurrentRoom() {
+            if (!currentId) return;
+            if (confirm(`Tem certeza que deseja EXCLUIR e APAGAR COMPLETAMENTE a sala ID: ${currentId}?`)) {
+                db.ref('pmr_atividades/' + currentId).remove().then(() => {
+                    // Remover da lista de salvos do localStorage
+                    let savedIds = JSON.parse(localStorage.getItem('pmrSavedIdsList')) || [];
+                    savedIds = savedIds.filter(id => id !== currentId);
+                    localStorage.setItem('pmrSavedIdsList', JSON.stringify(savedIds));
+
+                    localStorage.removeItem('pmrActiveId');
+                    currentId = null;
+                    isDataLoaded = false;
+                    remoteData = null;
+
+                    // Ocultar painel e abrir login
+                    document.getElementById('idBanner').style.display = 'none';
+                    document.getElementById('tabsContainer').style.display = 'none';
+                    document.getElementById('tabConfigSection').style.display = 'none';
+                    document.getElementById('mainSection').style.display = 'none';
+                    document.getElementById('itemList').innerHTML = '';
+                    
+                    alert('Sala excluída com sucesso.');
+                    promptLogin();
+                });
+            }
+        }
+
         function connectFirebase() {
             if (!currentId) {
                 promptLogin();
@@ -641,7 +691,7 @@
 
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Verificar se o ID existe na nuvem antes de criar vazio
+            // Carrega e desenha imediatamente
             ref.once('value', (snapshot) => {
                 const val = snapshot.val();
                 if (!val) {
@@ -657,11 +707,11 @@
                 isDataLoaded = true;
                 loadActiveTabData();
                 renderTabs();
-                renderItemList();
+                renderItemList(); // Garante que os itens aparecem logo no início!
 
-                // Ativar sincronização contínua em tempo real após o carregamento inicial
+                // Escuta atualizações de outros policiais na mesma sala em tempo real
                 ref.on('value', (snap) => {
-                    if (isSyncing) return; // Se a alteração partiu deste próprio aparelho, ignora
+                    if (isSyncing) return;
                     const updatedVal = snap.val();
                     if (updatedVal) {
                         remoteData = updatedVal;
@@ -694,6 +744,7 @@
                 remoteData.activeTabId = remoteData.tabs[0].id;
                 tab = remoteData.tabs[0];
             }
+            initTabItems(tab);
             return tab;
         }
 
@@ -707,7 +758,7 @@
                 tabEl.className = `tab ${tab.id === remoteData.activeTabId ? 'active' : ''}`;
                 
                 const spanName = document.createElement('span');
-                spanName.textContent = tab.name;
+                spanName.textContent = tab.name || 'Atividade';
                 spanName.onclick = () => switchTab(tab.id);
                 tabEl.appendChild(spanName);
 
@@ -928,7 +979,7 @@
 
             remoteData.tabs.forEach(tab => {
                 itemNames.forEach(name => {
-                    if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados') && tab.items[name]) {
+                    if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados') && tab.items && tab.items[name]) {
                         ['enc', 'mot', 'aux'].forEach(p => {
                             consolidatedItems[name][p] += (tab.items[name][p] || 0);
                         });
@@ -1024,7 +1075,7 @@
                 loadActiveTabData();
                 renderTabs();
                 renderItemList();
-                alert('Dados limpos com sucesso.');
+                alert('Dados zerados com sucesso.');
             }
         });
 
