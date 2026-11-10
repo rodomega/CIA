@@ -27,7 +27,6 @@
             max-width: 600px;
         }
 
-        /* Barra de Configuração de Código e Status */
         .config-bar {
             width: 100%;
             max-width: 600px;
@@ -50,18 +49,17 @@
             color: #fff;
         }
 
-        /* Luz de Status (Verde = Online, Vermelho = Offline) */
         .status-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: #ff4d4d; /* Vermelho padrão inicial */
+            background-color: #ff4d4d;
             box-shadow: 0 0 6px rgba(0,0,0,0.5);
             transition: background-color 0.3s;
         }
 
         .status-dot.online {
-            background-color: #25d366; /* Verde */
+            background-color: #25d366;
             box-shadow: 0 0 8px #25d366;
         }
 
@@ -107,7 +105,6 @@
 
         .btn-top:hover { opacity: 0.9; }
 
-        /* Sistema de Abas (Atividades) */
         .tabs-container {
             width: 100%;
             max-width: 600px;
@@ -360,7 +357,6 @@
             box-sizing: border-box;
         }
 
-        /* Modal para alterar ou definir o código */
         .modal {
             display: none;
             position: fixed;
@@ -410,16 +406,14 @@
 
     <h1>Mandar Atividade</h1>
 
-    <!-- Barra de Configuração e Status (Luz Verde/Vermelha) -->
     <div class="config-bar">
         <div class="code-info">
             <div id="statusDot" class="status-dot" title="Status da Conexão"></div>
-            <span>Código: <strong id="displayCode" style="color:#25d366;">Definindo...</strong></span>
+            <span>Código: <strong id="displayCode" style="color:#25d366;">Carregando...</strong></span>
         </div>
         <button class="btn-config" onclick="openCodeModal()">Mudar Código</button>
     </div>
 
-    <!-- Painel Principal de Atividades (Sempre visível) -->
     <div class="top-action-bar">
         <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar Aba</button>
         <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
@@ -452,17 +446,15 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <!-- Modal para Inserir / Mudar Código Fixo -->
     <div class="modal" id="codeModal">
         <div class="modal-content">
             <h3>Definir Código Fixo</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Digite o código deste celular ou da viatura (quem usar o mesmo código sincroniza junto):</p>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Digite o código deste celular ou viatura:</p>
             <input type="text" id="codeInputModal" placeholder="Ex: VIATURA-01">
             <button class="btn-top btn-whatsapp" style="width: 100%; padding: 12px;" onclick="saveNewCode()">Salvar Código</button>
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -493,7 +485,7 @@
             'Procurado capturado', 'Flagrante', 'Presos', 'BOPM (exceto art. 306)'
         ];
 
-        let deviceCode = localStorage.getItem('pmrPermanentDeviceCode') || null;
+        let deviceCode = localStorage.getItem('pmrPermanentDeviceCode') || 'PMR-01';
         let appState = null;
         let isSaving = false;
 
@@ -536,7 +528,7 @@
         }
 
         function openCodeModal() {
-            document.getElementById('codeInputModal').value = deviceCode || '';
+            document.getElementById('codeInputModal').value = deviceCode;
             document.getElementById('codeModal').style.display = 'flex';
         }
 
@@ -562,23 +554,17 @@
         }
 
         function initApp() {
-            // Se não tiver código salvo, define um padrão automático (ex: PMR-01) na primeira vez para não travar a tela
-            if (!deviceCode) {
-                deviceCode = 'PMR-01';
-                localStorage.setItem('pmrPermanentDeviceCode', deviceCode);
-            }
-
             document.getElementById('displayCode').textContent = deviceCode;
 
             buildUI();
 
             const ref = db.ref('pmr_codigos_ativos/' + deviceCode);
 
-            // Monitor de Conexão do Firebase (.info/connected)
             db.ref('.info/connected').on('value', (snap) => {
                 setStatus(snap.val() === true);
             });
 
+            // Carrega os dados salvos uma vez ao iniciar
             ref.once('value').then((snapshot) => {
                 const val = snapshot.val();
                 if (!val) {
@@ -593,15 +579,6 @@
                     appState.tabs.forEach(t => fillMissingItems(t));
                 }
                 updateUIValues();
-
-                ref.on('value', (snap) => {
-                    if (isSaving) return;
-                    const updatedVal = snap.val();
-                    if (updatedVal) {
-                        appState = updatedVal;
-                        updateUIValues();
-                    }
-                });
             });
         }
 
@@ -609,7 +586,7 @@
             if (!deviceCode || !appState) return;
             isSaving = true;
             db.ref('pmr_codigos_ativos/' + deviceCode).set(appState).then(() => {
-                setTimeout(() => { isSaving = false; }, 250);
+                setTimeout(() => { isSaving = false; }, 200);
             }).catch(() => {
                 isSaving = false;
             });
@@ -715,27 +692,19 @@
         function updateUIValues() {
             if (!appState) return;
             
-            if (document.activeElement !== document.getElementById('encarregado')) {
-                document.getElementById('encarregado').value = appState.personnel.enc || '';
-            }
-            if (document.activeElement !== document.getElementById('motorista')) {
-                document.getElementById('motorista').value = appState.personnel.mot || '';
-            }
-            if (document.activeElement !== document.getElementById('auxiliar')) {
-                document.getElementById('auxiliar').value = appState.personnel.aux || '';
-            }
+            document.getElementById('encarregado').value = appState.personnel.enc || '';
+            document.getElementById('motorista').value = appState.personnel.mot || '';
+            document.getElementById('auxiliar').value = appState.personnel.aux || '';
             
             const activeTab = getActiveTab();
             if (activeTab) {
-                if (document.activeElement !== document.getElementById('activityNameInput')) {
-                    document.getElementById('activityNameInput').value = activeTab.name || '';
-                }
+                document.getElementById('activityNameInput').value = activeTab.name || '';
                 
                 itemNames.forEach((name, index) => {
                     if (name === 'Imagens Radar') {
                         ['enc', 'mot', 'aux'].forEach(personType => {
                             const input = document.getElementById(`radar_${personType}_${index}`);
-                            if (input && document.activeElement !== input) {
+                            if (input) {
                                 input.value = (activeTab.radar && activeTab.radar[personType] !== undefined) ? activeTab.radar[personType] : '';
                             }
                         });
@@ -1034,7 +1003,6 @@
             }
         });
 
-        // Inicializa direto na tela de atividades com um código padrão ou salvo
         initApp();
     </script>
 </body>
