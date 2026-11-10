@@ -535,7 +535,7 @@
 
         let currentId = localStorage.getItem('pmrActiveId') || null;
         let remoteData = null;
-        let isSyncing = false; // Evita loop infinito ao atualizar da nuvem
+        let isSyncing = false;
 
         function getDefaultData() {
             return {
@@ -624,7 +624,6 @@
 
         document.getElementById('btnListIds').addEventListener('click', openIdsModal);
 
-        // Conectar e ouvir o Firebase em Tempo Real
         function connectFirebase() {
             if (!currentId) {
                 promptLogin();
@@ -652,6 +651,7 @@
                 }
                 loadActiveTabData();
                 renderTabs();
+                renderItemList(); // <- CORRIGIDO: Garante que os itens sejam renderizados a cada atualização da nuvem
                 isSyncing = false;
             });
         }
@@ -711,6 +711,7 @@
             saveDataToFirebase();
             loadActiveTabData();
             renderTabs();
+            renderItemList();
         }
 
         function addNewTab() {
@@ -728,6 +729,7 @@
             saveDataToFirebase();
             loadActiveTabData();
             renderTabs();
+            renderItemList();
         }
 
         function deleteTab(tabId) {
@@ -738,6 +740,7 @@
                 saveDataToFirebase();
                 loadActiveTabData();
                 renderTabs();
+                renderItemList();
             }
         }
 
@@ -749,7 +752,6 @@
             document.getElementById('encarregado').value = remoteData.personnel.enc || '';
             document.getElementById('motorista').value = remoteData.personnel.mot || '';
             document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
-            renderItemList();
         }
 
         document.getElementById('activityNameInput').addEventListener('input', e => {
@@ -768,6 +770,7 @@
         const itemListElement = document.getElementById('itemList');
 
         function renderItemList() {
+            if (!remoteData) return;
             itemListElement.innerHTML = '';
             const tab = getActiveTab();
             if (!tab) return;
@@ -842,10 +845,11 @@
                 itemListElement.appendChild(itemContainer);
 
                 toggleBtn.onclick = function() {
-                    document.querySelectorAll('.item-content').forEach(el => {
-                        if (el !== contentDiv) el.classList.remove('active-content');
-                    });
-                    contentDiv.classList.toggle('active-content');
+                    const isOpen = contentDiv.classList.contains('active-content');
+                    document.querySelectorAll('.item-content').forEach(el => el.classList.remove('active-content'));
+                    if (!isOpen) {
+                        contentDiv.classList.add('active-content');
+                    }
                 };
             });
         }
@@ -977,6 +981,7 @@
                 remoteData.tabs.forEach(t => initTabItems(t));
                 saveDataToFirebase();
                 loadActiveTabData();
+                renderItemList();
                 alert('Dados limpos com sucesso.');
             }
         });
@@ -1041,6 +1046,7 @@
 
             saveDataToFirebase();
             loadActiveTabData();
+            renderItemList();
             alert('Atividade importada com sucesso na aba atual!');
         }
 
