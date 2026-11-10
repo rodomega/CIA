@@ -553,7 +553,7 @@
 
         let currentId = localStorage.getItem('pmrActiveId') || null;
         let remoteData = null;
-        let isLocalUpdate = false;
+        let isSyncing = false;
 
         function getDefaultData() {
             let data = {
@@ -692,13 +692,16 @@
 
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Escuta em tempo real absoluta direto do Firebase
-            ref.on('value', (snapshot) => {
-                if (isLocalUpdate) return; // Evita loop de renderização própria
+            // Carregamento imediato com dados padrão na memória para os campos abrirem na hora
+            remoteData = getDefaultData();
+            renderUI();
 
+            // Sincronização em tempo real com o Firebase
+            ref.on('value', (snapshot) => {
+                if (isSyncing) return;
                 const val = snapshot.val();
+                
                 if (!val) {
-                    remoteData = getDefaultData();
                     ref.set(remoteData);
                 } else {
                     remoteData = val;
@@ -707,19 +710,18 @@
                         remoteData.tabs = getDefaultData().tabs;
                     }
                     remoteData.tabs.forEach(t => fillMissingItems(t));
+                    renderUI();
                 }
-
-                renderUI();
             });
         }
 
         function syncToFirebase() {
             if (!currentId || !remoteData) return;
-            isLocalUpdate = true;
+            isSyncing = true;
             db.ref('pmr_atividades/' + currentId).set(remoteData).then(() => {
-                setTimeout(() => { isLocalUpdate = false; }, 200);
+                setTimeout(() => { isSyncing = false; }, 150);
             }).catch(() => {
-                isLocalUpdate = false;
+                isSyncing = false;
             });
         }
 
