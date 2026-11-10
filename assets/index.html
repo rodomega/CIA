@@ -553,8 +553,7 @@
 
         let currentId = localStorage.getItem('pmrActiveId') || null;
         let remoteData = null;
-        let isSyncing = false;
-        let isDataLoaded = false;
+        let isLocalUpdate = false;
 
         function getDefaultData() {
             let data = {
@@ -569,20 +568,26 @@
                     }
                 ]
             };
-            data.tabs.forEach(t => initTabItems(t));
+            data.tabs.forEach(t => fillMissingItems(t));
             return data;
         }
 
-        function initTabItems(tab) {
+        function fillMissingItems(tab) {
             if (!tab.items) tab.items = {};
             if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
 
             itemNames.forEach(name => {
                 if (name === 'Imagens Radar') {
-                    if (tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
+                    if (tab.radar.enc === undefined) tab.radar.enc = '';
+                    if (tab.radar.mot === undefined) tab.radar.mot = '';
+                    if (tab.radar.aux === undefined) tab.radar.aux = '';
                 } else {
                     if (!tab.items[name]) {
                         tab.items[name] = { enc: 0, mot: 0, aux: 0 };
+                    } else {
+                        if (tab.items[name].enc === undefined) tab.items[name].enc = 0;
+                        if (tab.items[name].mot === undefined) tab.items[name].mot = 0;
+                        if (tab.items[name].aux === undefined) tab.items[name].aux = 0;
                     }
                 }
             });
@@ -657,9 +662,7 @@
                     localStorage.setItem('pmrSavedIdsList', JSON.stringify(savedIds));
 
                     localStorage.removeItem('pmrActiveId');
-                    localStorage.removeItem('pmr_cache_' + currentId);
                     currentId = null;
-                    isDataLoaded = false;
                     remoteData = null;
 
                     document.getElementById('idBanner').style.display = 'none';
@@ -687,59 +690,36 @@
             document.getElementById('tabConfigSection').style.display = 'flex';
             document.getElementById('mainSection').style.display = 'block';
 
-            // Carregamento instantâneo via cache local (evita tela em branco ao atualizar)
-            const cached = localStorage.getItem('pmr_cache_' + currentId);
-            if (cached) {
-                try {
-                    remoteData = JSON.parse(cached);
-                    if (remoteData && remoteData.tabs) {
-                        remoteData.tabs.forEach(t => initTabItems(t));
-                        isDataLoaded = true;
-                        loadActiveTabData();
-                        renderTabs();
-                        renderItemList();
-                    }
-                } catch (e) {}
-            }
-
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            // Sincronização em tempo real segura
+            // Escuta em tempo real absoluta direto do Firebase
             ref.on('value', (snapshot) => {
-                if (isSyncing) return;
+                if (isLocalUpdate) return; // Evita loop de renderização própria
+
                 const val = snapshot.val();
-                
                 if (!val) {
-                    // Se a nuvem estiver vazia, usa o cache local ou cria dados padrões
-                    if (!remoteData) {
-                        remoteData = getDefaultData();
-                    }
+                    remoteData = getDefaultData();
                     ref.set(remoteData);
                 } else {
                     remoteData = val;
                     if (!remoteData.personnel) remoteData.personnel = { enc: '', mot: '', aux: '' };
-                    if (!remoteData.tabs) remoteData.tabs = getDefaultData().tabs;
-                    remoteData.tabs.forEach(t => initTabItems(t));
+                    if (!remoteData.tabs || !Array.isArray(remoteData.tabs) || remoteData.tabs.length === 0) {
+                        remoteData.tabs = getDefaultData().tabs;
+                    }
+                    remoteData.tabs.forEach(t => fillMissingItems(t));
                 }
 
-                isDataLoaded = true;
-                localStorage.setItem('pmr_cache_' + currentId, JSON.stringify(remoteData));
-                
-                loadActiveTabData();
-                renderTabs();
-                renderItemList();
+                renderUI();
             });
         }
 
-        function saveDataToFirebase() {
-            if (!currentId || !isDataLoaded || !remoteData) return;
-            isSyncing = true;
-            localStorage.setItem('pmr_cache_' + currentId, JSON.stringify(remoteData));
-            
+        function syncToFirebase() {
+            if (!currentId || !remoteData) return;
+            isLocalUpdate = true;
             db.ref('pmr_atividades/' + currentId).set(remoteData).then(() => {
-                setTimeout(() => { isSyncing = false; }, 300);
+                setTimeout(() => { isLocalUpdate = false; }, 200);
             }).catch(() => {
-                isSyncing = false;
+                isLocalUpdate = false;
             });
         }
 
@@ -750,12 +730,53 @@
                 remoteData.activeTabId = remoteData.tabs[0].id;
                 tab = remoteData.tabs[0];
             }
-            initTabItems(tab);
+            fillMissingItems(tab);
             return tab;
         }
 
-        function renderTabs() {
+        function renderUI() {
             if (!remoteData) return;
+            loadPersonnelData();
+            renderTabs();
+            renderItemList();
+        }
+
+        function loadPersonnelData() {
+            document.getElementById('encarregado').value = remoteData.personnel.enc || '';
+            document.getElementById('motorista').value = remoteData.personnel.mot || '';
+            document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
+            const activeTab = getActiveTab();
+            if (activeTab) {
+                document.getElementById('activityNameInput').value = activeTab.name || '';
+            }
+        }
+
+        document.getElementById('activityNameInput').addEventListener('input', e => {
+            const tab = getActiveTab();
+            if (tab) {
+                tab.name = e.target.value;
+                syncToFirebase();
+                renderTabs();
+            }
+        });
+
+        document.getElementById('encarregado').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.enc = e.target.value; 
+            syncToFirebase(); 
+        });
+        document.getElementById('motorista').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.mot = e.target.value; 
+            syncToFirebase(); 
+        });
+        document.getElementById('auxiliar').addEventListener('input', e => { 
+            if (!remoteData) return;
+            remoteData.personnel.aux = e.target.value; 
+            syncToFirebase(); 
+        });
+
+        function renderTabs() {
             const container = document.getElementById('tabsContainer');
             container.innerHTML = '';
 
@@ -791,10 +812,8 @@
 
         function switchTab(tabId) {
             remoteData.activeTabId = tabId;
-            saveDataToFirebase();
-            loadActiveTabData();
-            renderTabs();
-            renderItemList();
+            syncToFirebase();
+            renderUI();
         }
 
         function addNewTab() {
@@ -806,13 +825,11 @@
                 items: {},
                 radar: { enc: '', mot: '', aux: '' }
             };
-            initTabItems(newTab);
+            fillMissingItems(newTab);
             remoteData.tabs.push(newTab);
             remoteData.activeTabId = newId;
-            saveDataToFirebase();
-            loadActiveTabData();
-            renderTabs();
-            renderItemList();
+            syncToFirebase();
+            renderUI();
         }
 
         function deleteTab(tabId) {
@@ -820,52 +837,14 @@
             if (confirm('Tem certeza de que deseja excluir esta aba?')) {
                 remoteData.tabs = remoteData.tabs.filter(t => t.id !== tabId);
                 remoteData.activeTabId = remoteData.tabs[0].id;
-                saveDataToFirebase();
-                loadActiveTabData();
-                renderTabs();
-                renderItemList();
+                syncToFirebase();
+                renderUI();
             }
         }
-
-        function loadActiveTabData() {
-            if (!remoteData) return;
-            const tab = getActiveTab();
-            if (!tab) return;
-            document.getElementById('activityNameInput').value = tab.name || '';
-            document.getElementById('encarregado').value = remoteData.personnel.enc || '';
-            document.getElementById('motorista').value = remoteData.personnel.mot || '';
-            document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
-        }
-
-        document.getElementById('activityNameInput').addEventListener('input', e => {
-            const tab = getActiveTab();
-            if (tab) {
-                tab.name = e.target.value;
-                saveDataToFirebase();
-                renderTabs();
-            }
-        });
-
-        document.getElementById('encarregado').addEventListener('input', e => { 
-            if (!remoteData) return;
-            remoteData.personnel.enc = e.target.value; 
-            saveDataToFirebase(); 
-        });
-        document.getElementById('motorista').addEventListener('input', e => { 
-            if (!remoteData) return;
-            remoteData.personnel.mot = e.target.value; 
-            saveDataToFirebase(); 
-        });
-        document.getElementById('auxiliar').addEventListener('input', e => { 
-            if (!remoteData) return;
-            remoteData.personnel.aux = e.target.value; 
-            saveDataToFirebase(); 
-        });
 
         const itemListElement = document.getElementById('itemList');
 
         function renderItemList() {
-            if (!remoteData) return;
             itemListElement.innerHTML = '';
             const tab = getActiveTab();
             if (!tab) return;
@@ -897,7 +876,7 @@
                             if (val > 999) val = 999;
                             if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
                             tab.radar[personType] = val;
-                            saveDataToFirebase();
+                            syncToFirebase();
                         });
                         contentDiv.appendChild(group);
                     });
@@ -966,7 +945,7 @@
             const spanEl = document.getElementById(`q_${itemName}_${personType}`);
             if (spanEl) spanEl.textContent = newVal;
             
-            saveDataToFirebase();
+            syncToFirebase();
         }
 
         // Relatório Geral Consolidado
@@ -1077,10 +1056,8 @@
         document.getElementById('btnClear').addEventListener('click', () => {
             if (confirm('Deseja zerar todos os dados desta atividade (ID: ' + currentId + ')?')) {
                 remoteData = getDefaultData();
-                saveDataToFirebase();
-                loadActiveTabData();
-                renderTabs();
-                renderItemList();
+                syncToFirebase();
+                renderUI();
                 alert('Dados zerados com sucesso.');
             }
         });
@@ -1111,7 +1088,7 @@
         function parseAndLoadText(text) {
             let tab = getActiveTab();
             tab.radar = { enc: '', mot: '', aux: '' };
-            initTabItems(tab);
+            fillMissingItems(tab);
 
             const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
             if (encMatch) remoteData.personnel.enc = encMatch[1].trim();
@@ -1143,9 +1120,8 @@
                 });
             }
 
-            saveDataToFirebase();
-            loadActiveTabData();
-            renderItemList();
+            syncToFirebase();
+            renderUI();
             alert('Atividade importada com sucesso na aba atual!');
         }
 
