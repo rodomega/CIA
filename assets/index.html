@@ -537,7 +537,7 @@
 
         let currentId = localStorage.getItem('pmrActiveId') || null;
         let remoteData = null;
-        let isSyncing = false;
+        let isSaving = false;
 
         function getDefaultData() {
             let data = {
@@ -577,8 +577,8 @@
             });
         }
 
-        // MONTAGEM ESTÁTICA IMEDIATA DA TELA (Garante que nunca fica em branco)
-        function buildStaticUI() {
+        // MONTAGEM DA INTERFACE UMA ÚNICA VEZ
+        function buildUI() {
             const itemListElement = document.getElementById('itemList');
             itemListElement.innerHTML = '';
 
@@ -593,7 +593,6 @@
 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'item-content';
-                contentDiv.id = `content_item_${index}`;
 
                 if (name === 'Imagens Radar') {
                     contentDiv.classList.add('radar-input-container');
@@ -761,14 +760,12 @@
             document.getElementById('tabConfigSection').style.display = 'flex';
             document.getElementById('mainSection').style.display = 'block';
 
-            buildStaticUI(); // Monta a interface na mesma hora
+            buildUI();
 
             const ref = db.ref('pmr_atividades/' + currentId);
 
-            ref.on('value', (snapshot) => {
-                if (isSyncing) return;
+            ref.once('value').then((snapshot) => {
                 const val = snapshot.val();
-                
                 if (!val) {
                     remoteData = getDefaultData();
                     ref.set(remoteData);
@@ -781,16 +778,26 @@
                     remoteData.tabs.forEach(t => fillMissingItems(t));
                 }
                 updateUIValues();
+                
+                // Ativa escuta em tempo real apenas para atualizações externas, sem resetar inputs focados
+                ref.on('value', (snap) => {
+                    if (isSaving) return;
+                    const updatedVal = snap.val();
+                    if (updatedVal) {
+                        remoteData = updatedVal;
+                        updateUIValues();
+                    }
+                });
             });
         }
 
         function syncToFirebase() {
             if (!currentId || !remoteData) return;
-            isSyncing = true;
+            isSaving = true;
             db.ref('pmr_atividades/' + currentId).set(remoteData).then(() => {
-                setTimeout(() => { isSyncing = false; }, 150);
+                setTimeout(() => { isSaving = false; }, 300);
             }).catch(() => {
-                isSyncing = false;
+                isSaving = false;
             });
         }
 
@@ -807,19 +814,29 @@
 
         function updateUIValues() {
             if (!remoteData) return;
-            document.getElementById('encarregado').value = remoteData.personnel.enc || '';
-            document.getElementById('motorista').value = remoteData.personnel.mot || '';
-            document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
+            
+            // Atualiza inputs de pessoal apenas se não estiver focado neles
+            if (document.activeElement !== document.getElementById('encarregado')) {
+                document.getElementById('encarregado').value = remoteData.personnel.enc || '';
+            }
+            if (document.activeElement !== document.getElementById('motorista')) {
+                document.getElementById('motorista').value = remoteData.personnel.mot || '';
+            }
+            if (document.activeElement !== document.getElementById('auxiliar')) {
+                document.getElementById('auxiliar').value = remoteData.personnel.aux || '';
+            }
             
             const activeTab = getActiveTab();
             if (activeTab) {
-                document.getElementById('activityNameInput').value = activeTab.name || '';
+                if (document.activeElement !== document.getElementById('activityNameInput')) {
+                    document.getElementById('activityNameInput').value = activeTab.name || '';
+                }
                 
                 itemNames.forEach((name, index) => {
                     if (name === 'Imagens Radar') {
                         ['enc', 'mot', 'aux'].forEach(personType => {
                             const input = document.getElementById(`radar_${personType}_${index}`);
-                            if (input) {
+                            if (input && document.activeElement !== input) {
                                 input.value = (activeTab.radar && activeTab.radar[personType] !== undefined) ? activeTab.radar[personType] : '';
                             }
                         });
