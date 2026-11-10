@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Completo</title>
+    <title>Mandar Atividade - Servidor e Download</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -67,16 +67,16 @@
             max-width: 600px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             margin-bottom: 20px;
         }
 
         .btn-top {
             flex: 1;
-            min-width: 110px;
-            padding: 12px 10px;
-            font-size: 0.9em;
+            min-width: 100px;
+            padding: 10px 8px;
+            font-size: 0.85em;
             font-weight: bold;
             border: none;
             border-radius: 8px;
@@ -89,6 +89,7 @@
         .btn-whatsapp { background-color: #25d366; color: #fff; }
         .btn-copy { background-color: #ffd700; color: #000; }
         .btn-server { background-color: #007bff; color: #fff; }
+        .btn-download { background-color: #6f42c1; color: #fff; }
         .btn-import { background-color: #17a2b8; color: #fff; }
         .btn-general { background-color: #ff851b; color: #fff; }
         .btn-clear { background-color: #444; color: #ffd700; }
@@ -402,10 +403,11 @@
 
     <div class="top-action-bar">
         <button class="btn-top btn-whatsapp" id="btnWhatsapp">WhatsApp</button>
-        <button class="btn-top btn-copy" id="btnCopy">Copiar Aba</button>
+        <button class="btn-top btn-copy" id="btnCopy">Copiar</button>
         <button class="btn-top btn-server" id="btnServer">Enviar Servidor</button>
-        <button class="btn-top btn-import" id="btnImport">Importar</button>
-        <button class="btn-top btn-general" id="btnGeneral">Enviar Geral</button>
+        <button class="btn-top btn-download" id="btnDownload">Baixar Servidor</button>
+        <button class="btn-top btn-import" id="btnImport">Importar (Colar)</button>
+        <button class="btn-top btn-general" id="btnGeneral">Geral</button>
         <button class="btn-top btn-clear" id="btnClear">Apagar</button>
     </div>
 
@@ -461,11 +463,24 @@
         </div>
     </div>
 
-    <!-- Modal Importar Texto (Colar ou Receber) -->
+    <!-- Modal Baixar do Servidor (Usando o ID próprio ou outro ID) -->
+    <div class="modal" id="downloadModal">
+        <div class="modal-content">
+            <h3>Baixar Relatório do Servidor</h3>
+            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Digite o ID para puxar o relatório:</p>
+            <input type="text" id="downloadServerId" placeholder="Ex: VIATURA-01">
+            <div class="modal-buttons">
+                <button class="btn-top btn-clear" onclick="closeDownloadModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
+                <button class="btn-top btn-download" onclick="confirmDownloadFromServer()" style="padding: 10px 15px; min-width: auto;">Baixar e Carregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Importar Texto (Colar) -->
     <div class="modal" id="importModal">
         <div class="modal-content">
-            <h3>Importar Atividade</h3>
-            <p style="color: #ccc; font-size: 0.9em;">Cole o relatório recebido (WhatsApp ou servidor) para carregar na <b>aba atual</b>:</p>
+            <h3>Importar Atividade (Colar)</h3>
+            <p style="color: #ccc; font-size: 0.9em;">Cole o relatório para carregar na <b>aba atual</b>:</p>
             <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
             <div class="modal-buttons">
                 <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
@@ -515,7 +530,7 @@
             localStorage.setItem('pmrMyPermanentId', myDeviceId);
             document.getElementById('displayMyId').textContent = myDeviceId;
             closeMyIdModal();
-            alert('Seu ID foi alterado com sucesso para: ' + myDeviceId);
+            alert('Seu ID foi alterado para: ' + myDeviceId);
         }
 
         const itemNames = [
@@ -912,7 +927,7 @@
             copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
         });
 
-        // Enviar p/ Servidor
+        // Enviar p/ Servidor (Substitui o anterior do ID destino)
         document.getElementById('btnServer').addEventListener('click', () => {
             if (!appState.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
@@ -944,19 +959,53 @@
             const tab = getActiveTab();
             const textToUpload = generateTabText(tab);
 
+            // .set() substitui/sobrescreve o texto anterior que estava lá
             db.ref('pmr_relatorios/' + targetId).set({
                 enviadoPor: myDeviceId,
                 timestamp: new Date().toISOString(),
                 conteudo: textToUpload
             }).then(() => {
-                alert('Relatório enviado com sucesso para o ID: ' + targetId + '!');
+                alert('Relatório enviado e atualizado com sucesso para o ID: ' + targetId + '!');
                 closeServerModal();
             }).catch((err) => {
                 alert('Erro ao enviar: ' + err.message);
             });
         }
 
-        // Importar Texto na Aba Atual (Botão de Importação restaurado)
+        // Baixar do Servidor (O receptor usa o ID dele para puxar)
+        document.getElementById('btnDownload').addEventListener('click', () => {
+            document.getElementById('downloadServerId').value = myDeviceId; // Sugere o próprio ID
+            document.getElementById('downloadModal').style.display = 'flex';
+        });
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').style.display = 'none';
+        }
+
+        function confirmDownloadFromServer() {
+            const sourceId = document.getElementById('downloadServerId').value.trim().toUpperCase();
+            if (!sourceId) {
+                alert('Digite o ID para baixar!');
+                return;
+            }
+
+            db.ref('pmr_relatorios/' + sourceId).once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (!data || !data.conteudo) {
+                    alert('Nenhum relatório encontrado no servidor para o ID: ' + sourceId);
+                    return;
+                }
+
+                // Processa e carrega o texto baixado na aba atual
+                parseAndLoadText(data.conteudo);
+                closeDownloadModal();
+                alert('Relatório baixado e carregado com sucesso!');
+            }).catch((err) => {
+                alert('Erro ao baixar: ' + err.message);
+            });
+        }
+
+        // Importar Texto (Colar manualmente)
         const importModal = document.getElementById('importModal');
         const importText = document.getElementById('importText');
 
@@ -1015,7 +1064,6 @@
 
             saveLocalStorage();
             loadActiveTabData();
-            alert('Atividade importada com sucesso na aba atual!');
         }
 
         function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
