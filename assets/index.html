@@ -577,7 +577,7 @@
             });
         }
 
-        // MONTAGEM DA INTERFACE UMA ÚNICA VEZ
+        // MONTAGEM COMPLETA DA INTERFACE E DOS BOTÕES
         function buildUI() {
             const itemListElement = document.getElementById('itemList');
             itemListElement.innerHTML = '';
@@ -630,18 +630,20 @@
                         const minusBtn = document.createElement('button');
                         minusBtn.className = 'btn-minus';
                         minusBtn.textContent = '−';
+                        minusBtn.type = 'button';
                         minusBtn.onclick = () => updateQuantity(name, personType, -1);
                         controls.appendChild(minusBtn);
 
                         const valSpan = document.createElement('span');
                         valSpan.className = 'counter-value';
-                        valSpan.id = `val_${index}_${personType}`;
+                        valSpan.id = `val_${CSS.escape(name)}_${personType}`;
                         valSpan.textContent = '0';
                         controls.appendChild(valSpan);
 
                         const plusBtn = document.createElement('button');
                         plusBtn.className = 'btn-plus';
                         plusBtn.textContent = '+';
+                        plusBtn.type = 'button';
                         plusBtn.onclick = () => updateQuantity(name, personType, 1);
                         controls.appendChild(plusBtn);
 
@@ -779,7 +781,6 @@
                 }
                 updateUIValues();
                 
-                // Ativa escuta em tempo real apenas para atualizações externas, sem resetar inputs focados
                 ref.on('value', (snap) => {
                     if (isSaving) return;
                     const updatedVal = snap.val();
@@ -815,7 +816,6 @@
         function updateUIValues() {
             if (!remoteData) return;
             
-            // Atualiza inputs de pessoal apenas se não estiver focado neles
             if (document.activeElement !== document.getElementById('encarregado')) {
                 document.getElementById('encarregado').value = remoteData.personnel.enc || '';
             }
@@ -842,7 +842,7 @@
                         });
                     } else {
                         ['enc', 'mot', 'aux'].forEach(personType => {
-                            const valSpan = document.getElementById(`val_${index}_${personType}`);
+                            const valSpan = document.getElementById(`val_${CSS.escape(name)}_${personType}`);
                             if (valSpan) {
                                 const val = (activeTab.items[name] && activeTab.items[name][personType] !== undefined) ? activeTab.items[name][personType] : 0;
                                 valSpan.textContent = val;
@@ -909,6 +909,7 @@
             const addBtn = document.createElement('button');
             addBtn.className = 'btn-add-tab';
             addBtn.textContent = '+';
+            addBtn.type = 'button';
             addBtn.onclick = addNewTab;
             container.appendChild(addBtn);
         }
