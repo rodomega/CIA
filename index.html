@@ -32,19 +32,21 @@
 html, body{
     height:100%;
     overflow:hidden;
+    position: fixed;
+    width: 100%;
 }
 body{
     background:linear-gradient(135deg,var(--bg1),var(--bg2));
     color:var(--text);display:flex;flex-direction:column;align-items:center;
-    padding:12px 10px env(safe-area-inset-bottom, 10px);transition:background .25s,color .25s;
+    padding:10px 10px env(safe-area-inset-bottom, 10px);transition:background .25s,color .25s;
 }
 
 /* CONTAINER PADRÃO (CELULAR) */
 .phone-container{
     width:100%;max-width:420px;display:flex;flex-direction:column;height:100%;position:relative;justify-content:space-between;
 }
-.header{text-align:center;padding:5px 0 10px;flex-shrink:0;}
-.header h1{font-size:1.05rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.header{text-align:center;padding:2px 0 6px;flex-shrink:0;}
+.header h1{font-size:1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
 
 .grid-apps{
     display:grid;grid-template-columns:repeat(4,1fr);gap:var(--appGap) 10px;padding:5px;
@@ -62,7 +64,7 @@ body{
 .app-icon img{width:100%;height:100%;object-fit:cover}
 .plus-symbol{font-size:32px;color:var(--accent);font-weight:bold}
 .app-name{
-    margin-top:5px;font-size:.7rem;text-align:center;color:var(--appName);text-shadow:0 1px 3px rgba(0,0,0,.9);
+    margin-top:4px;font-size:.68rem;text-align:center;color:var(--appName);text-shadow:0 1px 3px rgba(0,0,0,.9);
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
 
@@ -132,27 +134,27 @@ body{
 /* ESTILO DO RODAPÉ */
 .donation-footer{
     flex-shrink:0;
-    margin-top:10px;
-    padding:12px;
+    margin-top:6px;
+    padding:10px 12px;
     background:rgba(255, 255, 255, 0.05);
     border:1px solid var(--border);
-    border-radius:14px;
+    border-radius:12px;
     text-align:center;
     width:100%;
 }
 .donation-footer h3{
-    font-size:0.8rem;
+    font-size:0.75rem;
     color:var(--accent);
-    margin-bottom:4px;
+    margin-bottom:2px;
     font-weight:600;
     text-transform:uppercase;
     letter-spacing:1px;
 }
 .donation-footer p{
-    font-size:0.7rem;
+    font-size:0.68rem;
     color:var(--muted);
-    line-height:1.3;
-    margin-bottom:8px;
+    line-height:1.2;
+    margin-bottom:6px;
 }
 .pix-actions-row{
     display:flex;
@@ -164,8 +166,8 @@ body{
     color:#fff;
     border:0;
     border-radius:8px;
-    padding:8px;
-    font-size:0.75rem;
+    padding:7px;
+    font-size:0.72rem;
     font-weight:600;
     cursor:pointer;
     text-decoration:none;
@@ -182,18 +184,41 @@ body{
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
+/* ID COLAR BOX ESPECIAL */
+.id-display-box {
+    background: var(--input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-all;
+}
+
 /* ============================================================
-   ADAPTAÇÃO AUTOMÁTICA PARA COMPUTADOR (TAMPAS MAIORES)
+   ADAPTAÇÃO AUTOMÁTICA PARA COMPUTADOR (TELAS MAIORES)
    ============================================================ */
 @media(min-width: 768px) {
+    html, body {
+        position: static;
+        overflow: auto;
+    }
     body {
         padding: 24px;
     }
     .phone-container {
-        max-width: 850px; /* Expande o painel para aproveitar o monitor */
+        max-width: 850px;
     }
     .grid-apps {
-        grid-template-columns: repeat(6, 1fr); /* Aumenta para 6 colunas de apps no PC */
+        grid-template-columns: repeat(6, 1fr);
         gap: 20px 16px;
     }
     .header h1 {
@@ -230,7 +255,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     <!-- SEÇÃO DE APOIO / RODAPÉ -->
     <div class="donation-footer">
         <h3>"ANJOS DO ASFALTO"</h3>
-        <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook e continuidade das melhorias!</p>
+        <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook!</p>
         
         <div class="pix-actions-row">
             <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">📋 Copiar Pix</button>
@@ -265,14 +290,21 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- PROMPT -->
+<!-- PROMPT SEM TECLADO (COLAR ID DA ÁREA DE TRANSFERÊNCIA) -->
 <div class="modal-overlay" id="promptModal">
     <div class="modal-card">
-        <div class="modal-title" id="promptTitle">Digite a informação</div>
-        <input type="text" id="promptInput" placeholder="Digite aqui...">
+        <div class="modal-title" id="promptTitle" style="margin-bottom:12px;">ID da Escala</div>
+        
+        <div class="id-display-box" id="idDisplayValue">Toque em colar abaixo</div>
+
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="colarIdClipboard()">📋 Colar ID</button>
+            <button class="btn btn-danger" style="flex:1;" onclick="limparIdClipboard()">🗑️ Excluir</button>
+        </div>
+
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharPromptModal(null)">Cancelar</button>
-            <button class="btn btn-primary" onclick="confirmarPromptModal()">Acessar</button>
+            <button class="btn btn-warning" id="btnConfirmarEscala" onclick="confirmarPromptModal()" disabled>🔍 Pesquisar Escala</button>
         </div>
     </div>
 </div>
@@ -314,17 +346,17 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <input type="hidden" id="editAppDocId" value="">
 
         <label>Nome do App:</label>
-        <input type="text" id="newAppName" placeholder="Ex: Escala ID">
+        <input type="text" id="newAppName" placeholder="Ex: Dejem Delegada">
 
         <label>Tipo de Atalho:</label>
         <select id="newAppType" onchange="alternarCamposTipo()">
-            <option value="link">Link Direto (URL única)</option>
+            <option value="link">Link Direto (URL única / PDF)</option>
             <option value="submenu">Com Submenu (Múltiplos Links)</option>
         </select>
 
         <div id="campoUrlUnica">
-            <label>Link / URL:</label>
-            <input type="text" id="newAppUrl" placeholder="https://exemplo.com">
+            <label>Link / URL ou PDF:</label>
+            <input type="text" id="newAppUrl" placeholder="https://exemplo.com ou link.pdf">
         </div>
 
         <label>Tipo de Ícone:</label>
@@ -335,9 +367,8 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         </select>
 
         <div id="iconTypeFile">
-            <label>Escolher Imagem dos Seus Arquivos:</label>
+            <label>Escolher Imagem:</label>
             <input type="file" id="newAppIconFile" accept="image/*">
-            <div class="status-box">PNG, JPG, WEBP e outras imagens. O arquivo será enviado ao Firebase Storage.</div>
         </div>
 
         <div id="iconTypeUrl" style="display:none">
@@ -419,8 +450,6 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
             <span class="range-value" id="vGap"></span>
         </div>
 
-        <div class="status-box">As alterações são salvas no Firestore e aplicadas automaticamente para quem abrir o Portal.</div>
-
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharModais()">Cancelar</button>
             <button class="btn btn-primary" id="btnSalvarTema" onclick="salvarAparencia()">💾 Salvar Tema</button>
@@ -435,9 +464,6 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <img id="logoPreview" class="preview-logo" src="./icons/icon-192.png" alt="Logo">
         <label>Escolher nova imagem:</label>
         <input type="file" id="portalLogoFile" accept="image/*">
-        <div class="status-box">
-            A imagem será enviada ao Firebase Storage. O favicon e a logo do Portal passam a usar a imagem salva.
-        </div>
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharModais()">Cancelar</button>
             <button class="btn btn-primary" id="btnSalvarLogo" onclick="salvarLogo()">💾 Salvar Logo</button>
@@ -451,7 +477,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <div class="modal-title">Configurar Submenu</div>
         <input type="hidden" id="editSubIndex" value="-1">
         <input type="text" id="subItemName" placeholder="Nome (ex: Setor A)">
-        <input type="text" id="subItemUrl" placeholder="Link Correspondente">
+        <input type="text" id="subItemUrl" placeholder="Link Correspondente / PDF">
         <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="btnSalvarSubitem" onclick="salvarSubitemAtual()">Adicionar Subitem</button>
         <div class="sub-list" id="subItemsListAdmin" style="max-height:180px"></div>
         <button class="btn btn-secondary" style="width:100%" onclick="concluirSubitensAdmin()">Concluir</button>
@@ -486,9 +512,6 @@ const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
 const adminConfigRef = doc(db, "config", "admin");
 
-const ESCALA_BASE_URL =
-    "https://sistemasadmin.intranet.policiamilitar.sp.gov.br/escala/arrelpreesc.aspx?";
-
 const DEFAULT_THEME = {
     title: "SISTEMA OPERACIONAL PM",
     bg1: "#0f172a",
@@ -511,6 +534,7 @@ let promptCallback = null;
 let currentTheme = {...DEFAULT_THEME};
 let senhaModoAcao = "admin";
 let textoDicasAtual = "";
+let idArmazenadoClipboard = "";
 
 const $ = id => document.getElementById(id);
 
@@ -545,7 +569,7 @@ window.copiarPixCopiaECola = async function() {
         }, 2000);
     } catch (err) {
         console.error("Erro ao copiar Pix:", err);
-        alert("Erro ao copiar automaticamente. Tente selecionar o texto.");
+        alert("Erro ao copiar automaticamente.");
     }
 };
 
@@ -638,8 +662,7 @@ window.aplicarPresetVisual = function(preset) {
         if (id) $(id).value = v;
     });
     $("cIconBg").value = normalizarHex(p.iconBg, "#ffffff");
-    const previewTheme = lerCamposTema();
-    aplicarTema(previewTheme);
+    aplicarTema(lerCamposTema());
 };
 
 window.abrirAparencia = function() {
@@ -661,7 +684,7 @@ window.salvarAparencia = async function() {
         $("appearanceModal").style.display = "none";
     } catch (err) {
         console.error(err);
-        alert("Erro ao salvar o tema.\n\n" + (err.code || err.message || err));
+        alert("Erro ao salvar o tema.");
     } finally {
         btn.disabled = false;
         btn.textContent = "💾 Salvar Tema";
@@ -679,9 +702,9 @@ function nomeSeguroArquivo(name) {
 }
 
 function validarImagem(file, maxMB) {
-    if (!file) throw new Error("Nenhuma imagem foi selecionada.");
-    if (!file.type.startsWith("image/")) throw new Error("O arquivo selecionado não é uma imagem.");
-    if (file.size > maxMB * 1024 * 1024) throw new Error(`A imagem é maior que ${maxMB} MB.`);
+    if (!file) throw new Error("Nenhuma imagem selecionada.");
+    if (!file.type.startsWith("image/")) throw new Error("O arquivo não é uma imagem.");
+    if (file.size > maxMB * 1024 * 1024) throw new Error(`Imagem maior que ${maxMB} MB.`);
 }
 
 function uploadArquivo(file, pasta, onProgress) {
@@ -690,33 +713,13 @@ function uploadArquivo(file, pasta, onProgress) {
         const fileRef = ref(storage, path);
         const task = uploadBytesResumable(fileRef, file, {contentType:file.type});
 
-        let finished = false;
-        const timer = setTimeout(() => {
-            if (!finished) {
-                task.cancel();
-                reject(new Error("Tempo limite excedido no upload. Verifique a conexão e as regras do Firebase Storage."));
-            }
-        }, 60000);
-
         task.on("state_changed",
             snapshot => {
                 const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
                 if (onProgress) onProgress(pct);
             },
-            error => {
-                finished = true;
-                clearTimeout(timer);
-                reject(error);
-            },
-            async () => {
-                try {
-                    finished = true;
-                    clearTimeout(timer);
-                    resolve(await getDownloadURL(task.snapshot.ref));
-                } catch (error) {
-                    reject(error);
-                }
-            }
+            error => reject(error),
+            async () => resolve(await getDownloadURL(task.snapshot.ref))
         );
     });
 }
@@ -724,11 +727,7 @@ function uploadArquivo(file, pasta, onProgress) {
 window.salvarLogo = async function() {
     const btn = $("btnSalvarLogo");
     const file = $("portalLogoFile").files?.[0];
-
-    if (!file) {
-        alert("Escolha uma imagem primeiro.");
-        return;
-    }
+    if (!file) { alert("Escolha uma imagem."); return; }
 
     try {
         validarImagem(file, 8);
@@ -747,8 +746,7 @@ window.salvarLogo = async function() {
         alert("Logo salva com sucesso.");
         $("logoModal").style.display = "none";
     } catch (err) {
-        console.error("ERRO AO ENVIAR LOGO:", err);
-        alert("Não foi possível salvar a logo.\n\n" + (err.code || err.message || err));
+        alert("Erro ao salvar logo.");
     } finally {
         btn.disabled = false;
         btn.textContent = "💾 Salvar Logo";
@@ -757,7 +755,6 @@ window.salvarLogo = async function() {
 
 $("portalLogoFile").addEventListener("change", e => {
     const file = e.target.files?.[0];
-
     if (file) {
         const reader = new FileReader();
         reader.onload = () => $("logoPreview").src = reader.result;
@@ -768,14 +765,12 @@ $("portalLogoFile").addEventListener("change", e => {
 async function carregarConfigPortal() {
     try {
         const snap = await getDoc(portalConfigRef);
-
         if (snap.exists() && snap.data().theme) {
             aplicarTema(snap.data().theme);
         } else {
             aplicarTema(DEFAULT_THEME);
         }
     } catch (err) {
-        console.error("Erro ao carregar configuração:", err);
         aplicarTema(DEFAULT_THEME);
     }
 }
@@ -810,7 +805,6 @@ function habilitarEdicaoDicas() {
     $("dicasModoLeitura").style.display = "none";
     $("dicasModoEdicao").style.display = "block";
     $("dicasModal").style.display = "flex";
-    $("dicasInputText").focus();
 }
 
 window.cancelarEdicaoDicas = function() {
@@ -831,8 +825,7 @@ window.salvarDicas = async function() {
         window.cancelarEdicaoDicas();
         alert("Dicas salvas com sucesso!");
     } catch (err) {
-        console.error("Erro ao salvar dicas:", err);
-        alert("Erro ao salvar as dicas.\n\n" + (err.code || err.message || err));
+        alert("Erro ao salvar dicas.");
     } finally {
         btn.disabled = false;
         btn.textContent = "💾 Salvar";
@@ -840,54 +833,28 @@ window.salvarDicas = async function() {
 };
 
 window.copiarGeolocalizacao = function() {
-    if (!navigator.geolocation) {
-        alert("A localização não é suportada neste dispositivo.");
-        return;
-    }
-
+    if (!navigator.geolocation) { alert("GPS não suportado."); return; }
     navigator.geolocation.getCurrentPosition(
-        async position => {
-            const latitude = position.coords.latitude.toFixed(6);
-            const longitude = position.coords.longitude.toFixed(6);
-            const coordenadas = `${latitude}, ${longitude}`;
-
+        async pos => {
+            const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
             try {
-                await navigator.clipboard.writeText(coordenadas);
-                alert("Coordenadas copiadas para a área de transferência:\n" + coordenadas);
-            } catch (error) {
-                console.error("Erro ao copiar localização:", error);
-                alert("Coordenadas obtidas: " + coordenadas);
+                await navigator.clipboard.writeText(coords);
+                alert("Coordenadas copiadas:\n" + coords);
+            } catch {
+                alert("Coordenadas: " + coords);
             }
         },
-        error => {
-            console.error("Erro ao obter localização:", error);
-            alert("Erro ao obter localização. Verifique a permissão do GPS.");
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-        }
+        () => alert("Erro ao obter localização. Verifique permissões."),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
 };
 
 onSnapshot(appsCol, snapshot => {
     globalApps = [];
-
-    snapshot.forEach(s => {
-        globalApps.push({
-            docId:s.id,
-            ...s.data()
-        });
-    });
-
+    snapshot.forEach(s => globalApps.push({ docId:s.id, ...s.data() }));
     globalApps.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
-
     renderizarGrid();
-
-    if ($("adminModal").style.display === "flex") {
-        atualizarListaAdmin();
-    }
+    if ($("adminModal").style.display === "flex") atualizarListaAdmin();
 });
 
 function renderizarGrid() {
@@ -896,54 +863,37 @@ function renderizarGrid() {
 
     globalApps.forEach(appItem => {
         const div = document.createElement("div");
-
         div.className = "app-item";
         div.onclick = () => clicarApp(appItem);
 
         let iconHtml;
-
         if (appItem.iconType === "color") {
-            iconHtml =
-                `<div class="app-icon" style="background:${escapeHtml(appItem.bgColor || "#0284c7")}">${escapeHtml(appItem.symbol || "📁")}</div>`;
+            iconHtml = `<div class="app-icon" style="background:${escapeHtml(appItem.bgColor || "#0284c7")}">${escapeHtml(appItem.symbol || "📁")}</div>`;
         } else {
-            const src =
-                appItem.icon ||
-                "https://cdn-icons-png.flaticon.com/512/2838/2838912.png";
-
-            iconHtml =
-                `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" onerror="this.style.display='none'"></div>`;
+            const src = appItem.icon || "https://cdn-icons-png.flaticon.com/512/2838/2838912.png";
+            iconHtml = `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" onerror="this.style.display='none'"></div>`;
         }
 
-        div.innerHTML =
-            `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
-
+        div.innerHTML = `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
         grid.appendChild(div);
     });
 
     const gpsItem = document.createElement("div");
     gpsItem.className = "app-item";
     gpsItem.onclick = window.copiarGeolocalizacao;
-    gpsItem.innerHTML =
-        `<div class="app-icon" style="background:rgba(34, 197, 94, 0.15);"><span style="font-size:26px">📍</span></div><div class="app-name">Coordenadas</div>`;
+    gpsItem.innerHTML = `<div class="app-icon" style="background:rgba(34, 197, 94, 0.15);"><span style="font-size:26px">📍</span></div><div class="app-name">Coordenadas</div>`;
     grid.appendChild(gpsItem);
 
     const dicasItem = document.createElement("div");
     dicasItem.className = "app-item";
     dicasItem.onclick = window.abrirModalDicas;
-    dicasItem.innerHTML =
-        `<div class="app-icon" style="background:rgba(56, 189, 248, 0.15);"><span style="font-size:26px">💡</span></div><div class="app-name">Dicas Úteis</div>`;
+    dicasItem.innerHTML = `<div class="app-icon" style="background:rgba(56, 189, 248, 0.15);"><span style="font-size:26px">💡</span></div><div class="app-name">Dicas Úteis</div>`;
     grid.appendChild(dicasItem);
 
     const plus = document.createElement("div");
     plus.className = "app-item";
-    plus.onclick = () => {
-        senhaModoAcao = "admin";
-        window.abrirModalSenha();
-    };
-
-    plus.innerHTML =
-        `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
-
+    plus.onclick = () => { senhaModoAcao = "admin"; window.abrirModalSenha(); };
+    plus.innerHTML = `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
     grid.appendChild(plus);
 }
 
@@ -957,16 +907,26 @@ function clicarApp(appItem) {
 
 function abrirUrlComInput(url) {
     if (url.endsWith("?") || url.includes("$ID$")) {
-        abrirPromptModal("Digite o ID da Escala:", idDigitado => {
-            if (idDigitado) {
-                const finalUrl =
-                    url.endsWith("?")
-                        ? url + idDigitado
-                        : url.replace("$ID$", idDigitado);
-
-                window.location.href = finalUrl;
+        abrirPromptModal("Informe o ID", id => {
+            if (id) {
+                const finalUrl = url.endsWith("?") ? url + id : url.replace("$ID$", id);
+                processarAberturaOuDownload(finalUrl);
             }
         });
+    } else {
+        processarAberturaOuDownload(url);
+    }
+}
+
+function processarAberturaOuDownload(url) {
+    if (url.toLowerCase().endsWith('.pdf') || url.includes('.pdf?')) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     } else {
         window.location.href = url;
     }
@@ -974,49 +934,62 @@ function abrirUrlComInput(url) {
 
 function abrirPromptModal(titulo, callback) {
     $("promptTitle").textContent = titulo;
-    $("promptInput").value = "";
+    idArmazenadoClipboard = "";
+    $("idDisplayValue").textContent = "Nenhum ID colado";
+    $("btnConfirmarEscala").disabled = true;
     promptCallback = callback;
     $("promptModal").style.display = "flex";
-    $("promptInput").focus();
 }
+
+window.colarIdClipboard = async function() {
+    try {
+        const texto = await navigator.clipboard.readText();
+        if (texto && texto.trim()) {
+            idArmazenadoClipboard = texto.trim();
+            $("idDisplayValue").textContent = idArmazenadoClipboard;
+            $("btnConfirmarEscala").disabled = false;
+        } else {
+            alert("A área de transferência está vazia.");
+        }
+    } catch (err) {
+        alert("Não foi possível ler a área de transferência. Verifique as permissões do navegador.");
+    }
+};
+
+window.limparIdClipboard = function() {
+    idArmazenadoClipboard = "";
+    $("idDisplayValue").textContent = "Nenhum ID colado";
+    $("btnConfirmarEscala").disabled = true;
+};
 
 window.fecharPromptModal = function(valor) {
     $("promptModal").style.display = "none";
-
-    if (promptCallback) {
-        promptCallback(valor);
-    }
-
+    if (promptCallback) promptCallback(valor);
     promptCallback = null;
 };
 
 window.confirmarPromptModal = function() {
-    window.fecharPromptModal(
-        $("promptInput").value.trim()
-    );
+    if (!idArmazenadoClipboard) return;
+    const val = idArmazenadoClipboard;
+    window.fecharPromptModal(val);
 };
 
 function abrirSubmenu(appItem) {
     $("submenuModalTitle").textContent = appItem.name;
-
     const list = $("submenuList");
     list.innerHTML = "";
 
     if (!appItem.subitems?.length) {
-        list.innerHTML =
-            `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:10px">Nenhum item cadastrado.</div>`;
+        list.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:10px">Nenhum item.</div>`;
     } else {
         appItem.subitems.forEach(sub => {
             const btn = document.createElement("button");
-
             btn.className = "sub-item-btn";
             btn.textContent = sub.name;
             btn.onclick = () => abrirUrlComInput(sub.url);
-
             list.appendChild(btn);
         });
     }
-
     $("submenuModal").style.display = "flex";
 }
 
@@ -1029,11 +1002,7 @@ window.abrirModalSenha = function() {
 window.verificarSenha = async function() {
     const inputSenha = $("adminPassword").value.trim();
     const btn = $("btnVerificarSenha");
-
-    if (!inputSenha) {
-        alert("Digite a senha!");
-        return;
-    }
+    if (!inputSenha) { alert("Digite a senha!"); return; }
 
     btn.disabled = true;
     btn.textContent = "Verificando...";
@@ -1041,7 +1010,6 @@ window.verificarSenha = async function() {
     try {
         const snap = await getDoc(adminConfigRef);
         let senhaCorreta = "3303";
-
         if (snap.exists() && snap.data().pass) {
             senhaCorreta = snap.data().pass;
         } else {
@@ -1050,17 +1018,13 @@ window.verificarSenha = async function() {
 
         if (inputSenha === senhaCorreta) {
             fecharModais();
-            if (senhaModoAcao === "dicas") {
-                habilitarEdicaoDicas();
-            } else {
-                abrirPainelAdmin();
-            }
+            if (senhaModoAcao === "dicas") habilitarEdicaoDicas();
+            else abrirPainelAdmin();
         } else {
             alert("Senha incorreta!");
         }
     } catch (err) {
-        console.error("Erro ao verificar senha no Firestore:", err);
-        alert("Erro ao validar acesso. Verifique a conexão.");
+        alert("Erro ao validar acesso.");
     } finally {
         btn.disabled = false;
         btn.textContent = "Entrar";
@@ -1074,21 +1038,14 @@ function abrirPainelAdmin() {
 }
 
 window.alternarCamposTipo = function() {
-    $("campoUrlUnica").style.display =
-        $("newAppType").value === "link" ? "block" : "none";
+    $("campoUrlUnica").style.display = $("newAppType").value === "link" ? "block" : "none";
 };
 
 window.alternarTipoIcone = function() {
     const tipo = $("iconTypeSelect").value;
-
-    $("iconTypeFile").style.display =
-        tipo === "file" ? "block" : "none";
-
-    $("iconTypeUrl").style.display =
-        tipo === "url" ? "block" : "none";
-
-    $("iconTypeColor").style.display =
-        tipo === "color" ? "block" : "none";
+    $("iconTypeFile").style.display = tipo === "file" ? "block" : "none";
+    $("iconTypeUrl").style.display = tipo === "url" ? "block" : "none";
+    $("iconTypeColor").style.display = tipo === "color" ? "block" : "none";
 };
 
 window.limparFormularioAdmin = function() {
@@ -1096,14 +1053,13 @@ window.limparFormularioAdmin = function() {
     $("editAppDocId").value = "";
     $("newAppName").value = "";
     $("newAppType").value = "link";
-    $("newAppUrl").value = ESCALA_BASE_URL;
+    $("newAppUrl").value = "";
     $("iconTypeSelect").value = "file";
     $("newAppIcon").value = "";
     $("newAppIconFile").value = "";
     $("newAppBgColor").value = "#0284c7";
     $("newAppSymbol").value = "";
     $("btnSalvarApp").textContent = "Instalar App";
-
     window.alternarCamposTipo();
     window.alternarTipoIcone();
 };
@@ -1116,15 +1072,8 @@ window.salvarNovoApp = async function() {
     const iconType = $("iconTypeSelect").value;
     const btn = $("btnSalvarApp");
 
-    if (!name) {
-        alert("Preencha o nome do aplicativo!");
-        return;
-    }
-
-    if (type === "link" && !url) {
-        alert("Preencha o link / URL.");
-        return;
-    }
+    if (!name) { alert("Preencha o nome!"); return; }
+    if (type === "link" && !url) { alert("Preencha a URL ou link do PDF."); return; }
 
     btn.disabled = true;
     btn.textContent = "Salvando...";
@@ -1136,74 +1085,29 @@ window.salvarNovoApp = async function() {
 
         if (iconType === "file") {
             const file = $("newAppIconFile").files?.[0];
-
             if (file) {
                 validarImagem(file, 8);
-
-                iconData = await uploadArquivo(
-                    file,
-                    "icones",
-                    pct => {
-                        btn.textContent = `Enviando ${pct}%...`;
-                    }
-                );
+                iconData = await uploadArquivo(file, "icones", pct => { btn.textContent = `Enviando ${pct}%...`; });
             } else if (docId) {
-                const atual = globalApps.find(
-                    a => a.docId === docId
-                );
-
-                iconData = atual?.icon || "";
+                iconData = globalApps.find(a => a.docId === docId)?.icon || "";
             }
-
         } else if (iconType === "url") {
-
             iconData = $("newAppIcon").value.trim();
-
-            if (!iconData && !docId) {
-                throw new Error("Informe a URL da imagem.");
-            }
-
         } else if (iconType === "color") {
-
             bgColor = $("newAppBgColor").value;
-
-            symbol =
-                $("newAppSymbol").value.trim() ||
-                name.charAt(0).toUpperCase();
+            symbol = $("newAppSymbol").value.trim() || name.charAt(0).toUpperCase();
         }
 
-        const appObj = {
-            name,
-            type,
-            iconType,
-            icon:iconData,
-            bgColor,
-            symbol,
-            url:type === "link" ? url : ""
-        };
+        const appObj = { name, type, iconType, icon: iconData, bgColor, symbol, url: type === "link" ? url : "" };
 
         if (docId) {
             const atual = globalApps.find(a => a.docId === docId);
-
-            if (atual?.subitems) {
-                appObj.subitems = atual.subitems;
-            }
-
-            await updateDoc(
-                doc(db, "apps", docId),
-                appObj
-            );
-
+            if (atual?.subitems) appObj.subitems = atual.subitems;
+            await updateDoc(doc(db, "apps", docId), appObj);
         } else {
-
             appObj.createdAt = Date.now();
             appObj.subitems = [];
-
-            const res = await addDoc(
-                appsCol,
-                appObj
-            );
-
+            const res = await addDoc(appsCol, appObj);
             if (type === "submenu") {
                 fecharModais();
                 abrirConfigSubitems(res.id);
@@ -1212,69 +1116,30 @@ window.salvarNovoApp = async function() {
         }
 
         limparFormularioAdmin();
-
-        alert(
-            docId
-                ? "Aplicativo atualizado com sucesso."
-                : "Aplicativo instalado com sucesso."
-        );
-
+        alert(docId ? "Atualizado com sucesso." : "Instalado com sucesso.");
     } catch (err) {
-
-        console.error("ERRO AO SALVAR APP:", err);
-
-        let detalhe =
-            err?.code ||
-            err?.message ||
-            String(err);
-
-        alert(
-            "Não foi possível salvar o aplicativo.\n\n" +
-            detalhe
-        );
-
+        alert("Erro ao salvar aplicativo.");
     } finally {
-
         btn.disabled = false;
-
-        btn.textContent =
-            $("editAppDocId").value
-                ? "Atualizar App"
-                : "Instalar App";
+        btn.textContent = $("editAppDocId").value ? "Atualizar App" : "Instalar App";
     }
 };
 
 window.editarApp = function(docId) {
-    const appItem =
-        globalApps.find(a => a.docId === docId);
-
+    const appItem = globalApps.find(a => a.docId === docId);
     if (!appItem) return;
 
-    $("adminFormTitle").textContent =
-        "Editar Aplicativo";
-
+    $("adminFormTitle").textContent = "Editar Aplicativo";
     $("editAppDocId").value = docId;
     $("newAppName").value = appItem.name || "";
     $("newAppType").value = appItem.type || "link";
     $("newAppUrl").value = appItem.url || "";
-    $("iconTypeSelect").value =
-        appItem.iconType || "url";
-
-    $("newAppIcon").value =
-        appItem.iconType === "url"
-            ? (appItem.icon || "")
-            : "";
-
-    $("newAppBgColor").value =
-        appItem.bgColor || "#0284c7";
-
-    $("newAppSymbol").value =
-        appItem.symbol || "";
-
+    $("iconTypeSelect").value = appItem.iconType || "url";
+    $("newAppIcon").value = appItem.iconType === "url" ? (appItem.icon || "") : "";
+    $("newAppBgColor").value = appItem.bgColor || "#0284c7";
+    $("newAppSymbol").value = appItem.symbol || "";
     $("newAppIconFile").value = "";
-
-    $("btnSalvarApp").textContent =
-        "Atualizar App";
+    $("btnSalvarApp").textContent = "Atualizar App";
 
     window.alternarCamposTipo();
     window.alternarTipoIcone();
@@ -1286,260 +1151,138 @@ function atualizarListaAdmin() {
 
     globalApps.forEach(appItem => {
         const row = document.createElement("div");
-
-        row.className =
-            "admin-item-row";
-
+        row.className = "admin-item-row";
         const span = document.createElement("span");
+        span.textContent = appItem.name || "(sem nome)";
 
-        span.textContent =
-            appItem.name || "(sem nome)";
+        const actions = document.createElement("div");
+        actions.className = "admin-actions";
 
-        const actions =
-            document.createElement("div");
-
-        actions.className =
-            "admin-actions";
-
-        const sub =
-            document.createElement("button");
-
+        const sub = document.createElement("button");
         sub.className = "sub-btn";
         sub.textContent = "Subitens";
+        sub.onclick = () => abrirConfigSubitems(appItem.docId);
 
-        sub.onclick = () =>
-            abrirConfigSubitems(appItem.docId);
-
-        actions.appendChild(sub);
-
-        const edit =
-            document.createElement("button");
-
+        const edit = document.createElement("button");
         edit.className = "edit-btn";
         edit.textContent = "Editar";
+        edit.onclick = () => editarApp(appItem.docId);
 
-        edit.onclick = () =>
-            editarApp(appItem.docId);
-
-        const del =
-            document.createElement("button");
-
+        const del = document.createElement("button");
         del.className = "delete-btn";
         del.textContent = "Excluir";
+        del.onclick = () => removerApp(appItem.docId);
 
-        del.onclick = () =>
-            removerApp(appItem.docId);
-
-        actions.append(edit, del);
-
+        actions.append(sub, edit, del);
         row.append(span, actions);
-
         list.appendChild(row);
     });
 }
 
 window.removerApp = async function(docId) {
-    const appItem =
-        globalApps.find(a => a.docId === docId);
-
-    if (!confirm(
-        `Deseja realmente remover "${appItem?.name || "este aplicativo"}" para todos?`
-    )) {
-        return;
-    }
-
+    if (!confirm("Deseja realmente remover este aplicativo?")) return;
     try {
-        await deleteDoc(
-            doc(db, "apps", docId)
-        );
+        await deleteDoc(doc(db, "apps", docId));
     } catch (err) {
-        console.error(err);
         alert("Erro ao excluir.");
     }
 };
 
 window.abrirConfigSubitems = async function(docId) {
-    appEmEdicaoSub =
-        globalApps.find(a => a.docId === docId);
-
+    appEmEdicaoSub = globalApps.find(a => a.docId === docId);
     if (!appEmEdicaoSub) return;
 
     if (appEmEdicaoSub.type !== "submenu") {
         try {
-            await updateDoc(
-                doc(db, "apps", docId),
-                {
-                    type: "submenu",
-                    url: "",
-                    subitems: appEmEdicaoSub.subitems || []
-                }
-            );
-
+            await updateDoc(doc(db, "apps", docId), { type: "submenu", url: "", subitems: appEmEdicaoSub.subitems || [] });
             appEmEdicaoSub.type = "submenu";
             appEmEdicaoSub.url = "";
-            appEmEdicaoSub.subitems =
-                appEmEdicaoSub.subitems || [];
-
+            appEmEdicaoSub.subitems = appEmEdicaoSub.subitems || [];
         } catch (err) {
-            console.error(err);
-            alert("Não foi possível transformar este app em submenu.");
+            alert("Erro ao converter para submenu.");
             return;
         }
     }
 
-    if (!appEmEdicaoSub.subitems) {
-        appEmEdicaoSub.subitems = [];
-    }
-
+    if (!appEmEdicaoSub.subitems) appEmEdicaoSub.subitems = [];
     limparSubitemForm();
     renderizarSubitemsAdmin();
-
-    $("subItemsAdminModal").style.display =
-        "flex";
+    $("subItemsAdminModal").style.display = "flex";
 };
 
 function limparSubitemForm() {
     $("editSubIndex").value = "-1";
     $("subItemName").value = "";
     $("subItemUrl").value = "";
-    $("btnSalvarSubitem").textContent =
-        "Adicionar Subitem";
+    $("btnSalvarSubitem").textContent = "Adicionar Subitem";
 }
 
 function renderizarSubitemsAdmin() {
-    const list =
-        $("subItemsListAdmin");
-
+    const list = $("subItemsListAdmin");
     list.innerHTML = "";
 
-    (appEmEdicaoSub?.subitems || [])
-        .forEach((sub, idx) => {
+    (appEmEdicaoSub?.subitems || []).forEach((sub, idx) => {
+        const row = document.createElement("div");
+        row.className = "admin-item-row";
+        const span = document.createElement("span");
+        span.textContent = sub.name;
 
-            const row =
-                document.createElement("div");
+        const actions = document.createElement("div");
+        actions.className = "admin-actions";
 
-            row.className =
-                "admin-item-row";
+        const edit = document.createElement("button");
+        edit.className = "edit-btn";
+        edit.textContent = "Editar";
+        edit.onclick = () => editarSubitem(idx);
 
-            const span =
-                document.createElement("span");
+        const del = document.createElement("button");
+        del.className = "delete-btn";
+        del.textContent = "Excluir";
+        del.onclick = () => removerSubitem(idx);
 
-            span.textContent = sub.name;
-
-            const actions =
-                document.createElement("div");
-
-            actions.className =
-                "admin-actions";
-
-            const edit =
-                document.createElement("button");
-
-            edit.className = "edit-btn";
-            edit.textContent = "Editar";
-
-            edit.onclick = () =>
-                editarSubitem(idx);
-
-            const del =
-                document.createElement("button");
-
-            del.className = "delete-btn";
-            del.textContent = "Excluir";
-
-            del.onclick = () =>
-                removerSubitem(idx);
-
-            actions.append(edit, del);
-
-            row.append(span, actions);
-
-            list.appendChild(row);
-        });
+        actions.append(edit, del);
+        row.append(span, actions);
+        list.appendChild(row);
+    });
 }
 
 window.editarSubitem = function(idx) {
-    const sub =
-        appEmEdicaoSub.subitems[idx];
-
+    const sub = appEmEdicaoSub.subitems[idx];
     $("editSubIndex").value = idx;
     $("subItemName").value = sub.name;
     $("subItemUrl").value = sub.url;
-
-    $("btnSalvarSubitem").textContent =
-        "Atualizar Subitem";
+    $("btnSalvarSubitem").textContent = "Atualizar Subitem";
 };
 
 window.salvarSubitemAtual = async function() {
-    const idx =
-        parseInt(
-            $("editSubIndex").value,
-            10
-        );
+    const idx = parseInt($("editSubIndex").value, 10);
+    const name = $("subItemName").value.trim();
+    const url = $("subItemUrl").value.trim();
+    if (!name || !url) { alert("Preencha nome e link."); return; }
 
-    const name =
-        $("subItemName").value.trim();
+    if (!appEmEdicaoSub.subitems) appEmEdicaoSub.subitems = [];
+    const item = { name, url };
 
-    const url =
-        $("subItemUrl").value.trim();
-
-    if (!name || !url) {
-        alert("Preencha o nome e o link do subitem.");
-        return;
-    }
-
-    if (!appEmEdicaoSub.subitems) {
-        appEmEdicaoSub.subitems = [];
-    }
-
-    const item = {
-        name,
-        url
-    };
-
-    if (idx >= 0) {
-        appEmEdicaoSub.subitems[idx] = item;
-    } else {
-        appEmEdicaoSub.subitems.push(item);
-    }
+    if (idx >= 0) appEmEdicaoSub.subitems[idx] = item;
+    else appEmEdicaoSub.subitems.push(item);
 
     try {
-        await updateDoc(
-            doc(db, "apps", appEmEdicaoSub.docId),
-            {
-                subitems:
-                    appEmEdicaoSub.subitems
-            }
-        );
-
+        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), { subitems: appEmEdicaoSub.subitems });
         limparSubitemForm();
         renderizarSubitemsAdmin();
     } catch (err) {
-        console.error(err);
         alert("Erro ao salvar subitem.");
     }
 };
 
 window.removerSubitem = async function(idx) {
-    if (!confirm("Excluir este subitem?")) {
-        return;
-    }
-
+    if (!confirm("Excluir subitem?")) return;
     appEmEdicaoSub.subitems.splice(idx, 1);
-
     try {
-        await updateDoc(
-            doc(db, "apps", appEmEdicaoSub.docId),
-            {
-                subitems:
-                    appEmEdicaoSub.subitems
-            }
-        );
-
+        await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), { subitems: appEmEdicaoSub.subitems });
         renderizarSubitemsAdmin();
     } catch (err) {
-        console.error(err);
-        alert("Erro ao excluir subitem.");
+        alert("Erro ao excluir.");
     }
 };
 
@@ -1549,16 +1292,10 @@ window.concluirSubitensAdmin = function() {
 };
 
 window.fecharModais = function() {
-    document
-        .querySelectorAll(".modal-overlay")
-        .forEach(m => {
-            m.style.display = "none";
-        });
+    document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
 };
 
 carregarConfigPortal();
-
-window.alternarCamposTest = window.alternarCamposTipo;
 window.alternarCamposTipo();
 window.alternarTipoIcone();
 </script>
