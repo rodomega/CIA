@@ -131,30 +131,16 @@ body{
 }
 .dicas-box-text a{color:var(--accent);text-decoration:underline}
 
-/* ESTILO DO RODAPÉ */
+/* RODAPÉ SIMPLIFICADO */
 .donation-footer{
     flex-shrink:0;
     margin-top:6px;
-    padding:10px 12px;
+    padding:8px 10px;
     background:rgba(255, 255, 255, 0.05);
     border:1px solid var(--border);
     border-radius:12px;
     text-align:center;
     width:100%;
-}
-.donation-footer h3{
-    font-size:0.75rem;
-    color:var(--accent);
-    margin-bottom:2px;
-    font-weight:600;
-    text-transform:uppercase;
-    letter-spacing:1px;
-}
-.donation-footer p{
-    font-size:0.68rem;
-    color:var(--muted);
-    line-height:1.2;
-    margin-bottom:6px;
 }
 .pix-actions-row{
     display:flex;
@@ -166,8 +152,8 @@ body{
     color:#fff;
     border:0;
     border-radius:8px;
-    padding:7px;
-    font-size:0.72rem;
+    padding:8px;
+    font-size:0.75rem;
     font-weight:600;
     cursor:pointer;
     text-decoration:none;
@@ -184,7 +170,7 @@ body{
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
-/* ID COLAR BOX ESPECIAL */
+/* ID COLAR BOX EDITÁVEL */
 .id-display-box {
     background: var(--input);
     border: 1px solid var(--border);
@@ -201,6 +187,12 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     align-items: center;
     justify-content: center;
     word-break: break-all;
+    outline: none;
+    user-select: text;
+    -webkit-user-select: text;
+}
+.id-display-box:focus {
+    border-color: var(--accent);
 }
 
 /* ============================================================
@@ -229,13 +221,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         font-size: 0.78rem;
     }
     .donation-footer {
-        padding: 16px 24px;
-    }
-    .donation-footer h3 {
-        font-size: 0.9rem;
-    }
-    .donation-footer p {
-        font-size: 0.78rem;
+        padding: 12px 20px;
     }
 }
 </style>
@@ -254,11 +240,8 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
     <!-- SEÇÃO DE APOIO / RODAPÉ -->
     <div class="donation-footer">
-        <h3>"ANJOS DO ASFALTO"</h3>
-        <p>Desenvolvido nas horas vagas pelo celular. Ajude com qualquer valor para a aquisição de um notebook!</p>
-        
         <div class="pix-actions-row">
-            <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">📋 Copiar Pix</button>
+            <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">💳 Doações (Pix)</button>
             <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
         </div>
     </div>
@@ -295,7 +278,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     <div class="modal-card">
         <div class="modal-title" id="promptTitle" style="margin-bottom:12px;">ID da Escala</div>
         
-        <div class="id-display-box" id="idDisplayValue">Toque em colar abaixo</div>
+        <div class="id-display-box" id="idDisplayValue" contenteditable="true" placeholder="Toque em colar ou digite aqui">Toque em colar abaixo</div>
 
         <div style="display:flex; gap:8px; margin-bottom:12px;">
             <button class="btn btn-primary" style="flex:1;" onclick="colarIdClipboard()">📋 Colar ID</button>
@@ -534,7 +517,6 @@ let promptCallback = null;
 let currentTheme = {...DEFAULT_THEME};
 let senhaModoAcao = "admin";
 let textoDicasAtual = "";
-let idArmazenadoClipboard = "";
 
 const $ = id => document.getElementById(id);
 
@@ -560,11 +542,11 @@ window.copiarPixCopiaECola = async function() {
 
     try {
         await navigator.clipboard.writeText(pixPayload);
-        btn.textContent = "✓ Copiado!";
+        btn.textContent = "✓ Pix Copiado!";
         btn.classList.add("copied");
 
         setTimeout(() => {
-            btn.textContent = "📋 Copiar Pix";
+            btn.textContent = "💳 Doações (Pix)";
             btn.classList.remove("copied");
         }, 2000);
     } catch (err) {
@@ -934,31 +916,38 @@ function processarAberturaOuDownload(url) {
 
 function abrirPromptModal(titulo, callback) {
     $("promptTitle").textContent = titulo;
-    idArmazenadoClipboard = "";
-    $("idDisplayValue").textContent = "Nenhum ID colado";
+    const displayBox = $("idDisplayValue");
+    displayBox.textContent = "";
+    displayBox.setAttribute("data-placeholder", "Toque em colar ou digite o ID");
     $("btnConfirmarEscala").disabled = true;
     promptCallback = callback;
     $("promptModal").style.display = "flex";
 }
 
+// Evento para monitorar edição manual no box do ID
+$("idDisplayValue").addEventListener("input", function() {
+    const texto = this.textContent.trim();
+    $("btnConfirmarEscala").disabled = texto.length === 0;
+});
+
 window.colarIdClipboard = async function() {
     try {
         const texto = await navigator.clipboard.readText();
         if (texto && texto.trim()) {
-            idArmazenadoClipboard = texto.trim();
-            $("idDisplayValue").textContent = idArmazenadoClipboard;
+            const displayBox = $("idDisplayValue");
+            displayBox.textContent = texto.trim();
             $("btnConfirmarEscala").disabled = false;
         } else {
             alert("A área de transferência está vazia.");
         }
     } catch (err) {
-        alert("Não foi possível ler a área de transferência. Verifique as permissões do navegador.");
+        alert("Não foi possível ler a área de transferência. Cole manualmente clicando na caixa de texto.");
     }
 };
 
 window.limparIdClipboard = function() {
-    idArmazenadoClipboard = "";
-    $("idDisplayValue").textContent = "Nenhum ID colado";
+    const displayBox = $("idDisplayValue");
+    displayBox.textContent = "";
     $("btnConfirmarEscala").disabled = true;
 };
 
@@ -969,8 +958,8 @@ window.fecharPromptModal = function(valor) {
 };
 
 window.confirmarPromptModal = function() {
-    if (!idArmazenadoClipboard) return;
-    const val = idArmazenadoClipboard;
+    const val = $("idDisplayValue").textContent.trim();
+    if (!val) return;
     window.fecharPromptModal(val);
 };
 
