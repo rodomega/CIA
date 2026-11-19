@@ -795,7 +795,7 @@
         <span class="brand-icon">OS</span>
         <div>
           <h1>ORDENS DE SERVIÇO</h1>
-          <div class="subtitle">Consulta, visualização e download • Exclusão automática em 6 meses</div>
+          <div class="subtitle">Consulta, visualização e download • Exclusão automática 3 meses após o término</div>
         </div>
       </div>
       <div class="header-actions">
@@ -927,7 +927,7 @@
     <section class="card">
       <div class="card-header">
         <div class="card-title">Ordens de Serviço Cadastradas</div>
-        <span class="hint" id="cleanupInfo">Retenção automática: 6 meses</span>
+        <span class="hint" id="cleanupInfo">Exclusão automática: 3 meses após término</span>
       </div>
 
       <div class="table-wrap">
@@ -977,13 +977,7 @@
       query,
       orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-    import {
-      getStorage,
-      ref,
-      uploadBytesResumable,
-      getDownloadURL,
-      deleteObject
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
@@ -995,15 +989,20 @@
       measurementId: "G-5491XBMX00"
     };
 
+    const SUPABASE_URL = "https://ktkfckrnosxtulhpxkxd.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_AfZnvDP7cMQ0h-PpngsFsA_sdWt7zPD";
+    const SUPABASE_BUCKET = "ordens_servico";
+
     const app = initializeApp(firebaseConfig);
     try { getAnalytics(app); } catch (_) {}
     const db = getFirestore(app);
-    const storage = getStorage(app);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     const SENHA_MESTRA = "3303";
     const SESSION_KEY = "os_3303_session_ok";
     const THEME_KEY = "os_theme_preference";
-    const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
+    const RETENTION_DAYS = 90; // 3 meses a partir da Data Término
+    const DAY_MS = 24 * 60 * 60 * 1000;
     const osCollection = collection(db, "ordens_servico");
 
     let allOrders = [];
@@ -1047,7 +1046,6 @@
     const modalDirectDownload = document.getElementById("modalDirectDownload");
     const btnCloseModal = document.getElementById("btnCloseModal");
 
-    // Abrir / fechar gaveta de filtros
     btnToggleFilters.addEventListener("click", () => {
       filtersDrawer.classList.toggle("hidden");
     });
@@ -1064,7 +1062,6 @@
       }
     }
 
-    // Tema claro / escuro
     function applyTheme(mode) {
       const isLight = mode === "light";
       document.body.classList.toggle("light-theme", isLight);
@@ -1193,6 +1190,31 @@
       return `${parseFloat((bytes / Math.pow(k, idx)).toFixed(1))} ${units[idx]}`;
     }
 
+    // Calcula a data/timestamp de expiração: 3 meses (90 dias) a partir da Data Término
+    function getExpirationTimestamp(order) {
+      const refDateStr = order.endDate || order.startDate;
+      if (refDateStr) {
+        const [y, m, d] = refDateStr.split("-").map(Number);
+        if (y && m && d) {
+          const endOfDayUTC = Date.UTC(y, m - 1, d, 23, 59, 59, 999);
+          return endOfDayUTC + (RETENTION_DAYS * DAY_MS);
+        }
+      }
+      if (order.expiresAt) return order.expiresAt;
+      if (order.createdAt) return order.createdAt + (RETENTION_DAYS * DAY_MS);
+      return null;
+    }
+
+    function formatExpirationDateBR(order) {
+      const exp = getExpirationTimestamp(order);
+      if (!exp) return "-";
+      const dt = new Date(exp);
+      const y = dt.getUTCFullYear();
+      const m = String(dt.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(dt.getUTCDate()).padStart(2, "0");
+      return `${d}/${m}/${y}`;
+    }
+
     function isVigente(order) {
       const today = getTodayISO();
       if (order.dateMode === "specific") {
@@ -1213,6 +1235,46 @@
       const start = order.startDate || "";
       const end = order.endDate || start;
       return targetISO >= start && targetISO <= end;
+    }
+
+    async function uploadFileToSupabase(file, storagePath) {
+      const { error } = await supabase.storage
+        .from(SUPABASE_BUCKET)
+        .upload(storagePath, file, {
+          cacheControl: "3600",
+          upsert: true,
+          contentType: file.type || "application/octet-stream"
+        });
+
+      if (error) {
+        throw new Error(`Supabase (${file.name}): ${error.message}`);
+      }
+
+      const { data } = supabase.storage
+        .from(SUPABASE_BUCKET)
+        .getPublicUrl(storagePath);
+
+      if (!data?.publicUrl) {
+        throw new Error(`Não foi possível gerar link público para ${file.name}`);
+      }
+
+      return data.publicUrl;
+    }
+
+    async function removeFilesFromSupabase(files = []) {
+      const paths = (files || [])
+        .map((f) => f.storagePath)
+        .filter((p) => typeof p === "string" && p.length > 0);
+
+      if (!paths.length) return;
+
+      const { error } = await supabase.storage
+        .from(SUPABASE_BUCKET)
+        .remove(paths);
+
+      if (error) {
+        console.warn("Aviso ao remover arquivos no Supabase:", error.message);
+      }
     }
 
     osForm.addEventListener("submit", async (e) => {
@@ -1244,58 +1306,51 @@
 
       btnSubmitOs.disabled = true;
       uploadProgress.style.width = "0%";
-      uploadStatus.textContent = "Iniciando envio dos arquivos...";
+      uploadStatus.textContent = "Enviando arquivos para o Supabase...";
 
       try {
         const folderId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         const uploaded = [];
-        const totalBytes = files.reduce((acc, f) => acc + f.size, 0) || 1;
-        let doneBytes = 0;
 
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          const safeName = file.name.replace(/[^\w.\-() ]+/g, "_");
+          const safeName = file.name.replace(/[^\w.\-()]+/g, "_");
           const storagePath = `ordens_servico/${folderId}/${i}_${safeName}`;
-          const storageRef = ref(storage, storagePath);
 
-          await new Promise((resolve, reject) => {
-            const task = uploadBytesResumable(storageRef, file);
-            task.on(
-              "state_changed",
-              (snap) => {
-                const pct = Math.min(100, Math.round(((doneBytes + snap.bytesTransferred) / totalBytes) * 100));
-                uploadProgress.style.width = `${pct}%`;
-                uploadStatus.textContent = `Enviando (${i + 1}/${files.length}): ${file.name} — ${pct}%`;
-              },
-              reject,
-              async () => {
-                const url = await getDownloadURL(task.snapshot.ref);
-                uploaded.push({
-                  name: file.name,
-                  type: file.type || "application/octet-stream",
-                  size: file.size,
-                  url,
-                  storagePath
-                });
-                doneBytes += file.size;
-                resolve();
-              }
-            );
+          const pctStart = Math.round((i / files.length) * 85);
+          uploadProgress.style.width = `${pctStart}%`;
+          uploadStatus.textContent = `Enviando (${i + 1}/${files.length}): ${file.name}...`;
+
+          const url = await uploadFileToSupabase(file, storagePath);
+          uploaded.push({
+            name: file.name,
+            type: file.type || "application/octet-stream",
+            size: file.size,
+            url,
+            storagePath,
+            storageProvider: "supabase"
           });
+
+          const pctDone = Math.round(((i + 1) / files.length) * 85);
+          uploadProgress.style.width = `${pctDone}%`;
         }
 
-        uploadStatus.textContent = "Salvando no Firestore...";
+        uploadProgress.style.width = "92%";
+        uploadStatus.textContent = "Salvando registro no Firestore...";
+
         const now = Date.now();
-        await addDoc(osCollection, {
+        const orderPayload = {
           title,
           dateMode: mode,
           startDate,
           endDate,
           specificDates: sortedSpecific,
           files: uploaded,
-          createdAt: now,
-          expiresAt: now + SIX_MONTHS_MS
-        });
+          createdAt: now
+        };
+        orderPayload.expiresAt = getExpirationTimestamp(orderPayload);
+
+        await addDoc(osCollection, orderPayload);
 
         uploadProgress.style.width = "100%";
         uploadStatus.textContent = "Ordem de Serviço salva com sucesso!";
@@ -1322,11 +1377,7 @@
       if (!ok) return;
 
       try {
-        for (const f of order.files || []) {
-          if (f.storagePath) {
-            try { await deleteObject(ref(storage, f.storagePath)); } catch (_) {}
-          }
-        }
+        await removeFilesFromSupabase(order.files || []);
         await deleteDoc(doc(db, "ordens_servico", order.id));
       } catch (err) {
         console.error(err);
@@ -1334,23 +1385,24 @@
       }
     }
 
-    async function runSixMonthCleanup(orders) {
+    async function runThreeMonthCleanup(orders) {
       const now = Date.now();
-      const expired = orders.filter((o) => o.expiresAt && now >= o.expiresAt);
+      const expired = orders.filter((o) => {
+        const exp = getExpirationTimestamp(o);
+        return exp !== null && now >= exp;
+      });
+
       if (!expired.length) {
-        cleanupInfo.textContent = "Retenção automática: 6 meses";
+        cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
         return;
       }
-      cleanupInfo.textContent = `Limpando ${expired.length} O.S. com mais de 6 meses...`;
+
+      cleanupInfo.textContent = `Removendo ${expired.length} O.S. vencidas há mais de 3 meses...`;
       for (const order of expired) {
-        for (const f of order.files || []) {
-          if (f.storagePath) {
-            try { await deleteObject(ref(storage, f.storagePath)); } catch (_) {}
-          }
-        }
+        await removeFilesFromSupabase(order.files || []);
         try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
       }
-      cleanupInfo.textContent = "Retenção automática: 6 meses";
+      cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
     }
 
     function openSingleViewer(file) {
@@ -1510,6 +1562,7 @@
         const vigente = isVigente(order);
         const files = order.files || [];
         const isFolder = files.length > 1;
+        const expDateStr = formatExpirationDateBR(order);
 
         const tr = document.createElement("tr");
         tr.className = vigente ? "os-vigente" : "os-vencida";
@@ -1537,9 +1590,13 @@
           tdEnd.innerHTML = `
             <div><strong>${formatDateBR(order.endDate)}</strong></div>
             <div class="hint">Dias: ${escapeHtml(diasStr)}</div>
+            <div class="hint">Exclui em: ${escapeHtml(expDateStr)}</div>
           `;
         } else {
-          tdEnd.textContent = formatDateBR(order.endDate);
+          tdEnd.innerHTML = `
+            <div><strong>${formatDateBR(order.endDate)}</strong></div>
+            <div class="hint">Exclui em: ${escapeHtml(expDateStr)}</div>
+          `;
         }
 
         const tdActions = document.createElement("td");
@@ -1609,14 +1666,14 @@
       (snap) => {
         allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         renderList();
-        runSixMonthCleanup(allOrders);
+        runThreeMonthCleanup(allOrders);
       },
       (err) => {
         console.error(err);
         osTableBody.innerHTML = `
           <tr>
             <td colspan="4" class="empty-state">
-              Não foi possível carregar os dados. Confira se Firestore, Storage e as regras foram publicados.
+              Não foi possível carregar os dados do Firestore. Confira as regras do banco.
             </td>
           </tr>
         `;
