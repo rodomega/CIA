@@ -71,6 +71,9 @@ textarea {
   resize:vertical;
   line-height:1.5;
 }
+#textoRapido {
+  min-height:125px;
+}
 label {
   display:block;
   font-size:13px;
@@ -255,15 +258,22 @@ footer {
 </section>
 
 <section class="painel">
+  <h2>QR Code rápido (temporário)</h2>
+  <label for="textoRapido">Cole aqui um texto avulso para gerar QR Code na hora (não salva na biblioteca)</label>
+  <textarea id="textoRapido"
+    placeholder="Cole aqui o texto gerado pela IA ou qualquer anotação temporária..."></textarea>
+  <button id="btnGerarRapido">GERAR QR TEMPORÁRIO</button>
+  <button class="secundario" id="btnLimparRapido">LIMPAR CAMPO</button>
+  <p id="statusRapido" class="status"></p>
+</section>
+
+<section class="painel">
   <h2>Modo edição</h2>
 
   <div id="loginArea">
-
-    
     <input id="emailLogin" type="email"
       placeholder="E-mail">
 
-   
     <input id="senhaLogin" type="password"
       placeholder="Senha">
 
@@ -380,6 +390,27 @@ let temporizadorScroll = null;
 function mostrarStatus(id, mensagem) {
   $(id).textContent = mensagem;
 }
+
+// QR CODE RÁPIDO (TEMPORÁRIO / SEM SALVAR NO BANCO)
+$("btnGerarRapido").addEventListener("click", () => {
+  const texto = $("textoRapido").value.trim();
+
+  if (!texto) {
+    mostrarStatus("statusRapido", "Cole ou digite algum texto antes de gerar o QR Code.");
+    return;
+  }
+
+  mostrarStatus("statusRapido", "");
+  $("modal").classList.remove("oculto");
+  $("opcoes").innerHTML = "";
+  $("opcoes").classList.add("oculto");
+  gerarQr("QR CODE TEMPORÁRIO", texto);
+});
+
+$("btnLimparRapido").addEventListener("click", () => {
+  $("textoRapido").value = "";
+  mostrarStatus("statusRapido", "");
+});
 
 // AUTENTICAÇÃO
 $("btnEntrar").addEventListener("click", async () => {
