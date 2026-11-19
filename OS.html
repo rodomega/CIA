@@ -3,30 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OS.html — Controle de Ordens de Serviço</title>
+  <title>Ordens de Serviço</title>
   <style>
     :root {
-      --preto-abs: #07080a;
-      --preto-card: #111318;
-      --preto-elevado: #191c24;
-      --amarelo: #ffd000;
-      --amarelo-claro: #ffe047;
-      --amarelo-suave: rgba(255, 208, 0, 0.12);
-      --borda-amarela: rgba(255, 208, 0, 0.42);
-      --borda-padrao: #252934;
-      --texto: #f5f6f8;
-      --texto-muted: #a1a8b5;
+      --bg-app: #07080a;
+      --bg-card: #111318;
+      --bg-elevado: #191c24;
+      --bg-input: #07080a;
+      --bg-header: #000000;
+      --destaque: #ffd000;
+      --destaque-hover: #ffe047;
+      --texto-principal: #f5f6f8;
+      --texto-suave: #a1a8b5;
+      --texto-destaque: #ffd000;
+      --texto-botao-destaque: #000000;
+      --borda: #252934;
+      --borda-destaque: rgba(255, 208, 0, 0.45);
+      --sombra-topo: rgba(255, 208, 0, 0.07);
 
-      /* Cores de vigência pensadas para destacar sobre fundo escuro sem brigar com o amarelo */
-      --verde-bg: rgba(22, 163, 74, 0.22);
-      --verde-borda: #22c55e;
-      --verde-texto: #86efac;
-      --verde-badge: #16a34a;
+      /* Vigência: Verde (vigente) e Vermelha (vencida) */
+      --vigente-bg: rgba(22, 163, 74, 0.22);
+      --vigente-borda: #22c55e;
+      --vigente-texto: #86efac;
+      --vigente-badge: #16a34a;
 
-      --vermelho-bg: rgba(220, 38, 38, 0.22);
-      --vermelho-borda: #ef4444;
-      --vermelho-texto: #fca5a5;
-      --vermelho-badge: #dc2626;
+      --vencida-bg: rgba(220, 38, 38, 0.22);
+      --vencida-borda: #ef4444;
+      --vencida-texto: #fca5a5;
+      --vencida-badge: #dc2626;
+    }
+
+    body.light-theme {
+      --bg-app: #ffffff;
+      --bg-card: #ffffff;
+      --bg-elevado: #f4f5f7;
+      --bg-input: #ffffff;
+      --bg-header: #ffffff;
+      --destaque: #000000;
+      --destaque-hover: #222222;
+      --texto-principal: #000000;
+      --texto-suave: #374151;
+      --texto-destaque: #000000;
+      --texto-botao-destaque: #ffffff;
+      --borda: #d1d5db;
+      --borda-destaque: #000000;
+      --sombra-topo: rgba(255, 208, 0, 0.14);
+
+      --vigente-bg: #dcfce7;
+      --vigente-borda: #15803d;
+      --vigente-texto: #14532d;
+      --vigente-badge: #15803d;
+
+      --vencida-bg: #fee2e2;
+      --vencida-borda: #b91c1c;
+      --vencida-texto: #7f1d1d;
+      --vencida-badge: #b91c1c;
     }
 
     * {
@@ -37,22 +68,23 @@
     }
 
     body {
-      background: var(--preto-abs);
-      color: var(--texto);
+      background: var(--bg-app);
+      color: var(--texto-principal);
       min-height: 100vh;
       padding-bottom: 56px;
-      background-image: radial-gradient(circle at top, rgba(255, 208, 0, 0.07), transparent 45%);
+      background-image: radial-gradient(circle at top, var(--sombra-topo), transparent 45%);
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    /* Cabeçalho Preto & Amarelo */
+    /* Cabeçalho */
     header {
-      background: #000000;
-      border-bottom: 3px solid var(--amarelo);
+      background: var(--bg-header);
+      border-bottom: 3px solid var(--destaque);
       padding: 14px 20px;
       position: sticky;
       top: 0;
       z-index: 40;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
     }
 
     .header-inner {
@@ -72,26 +104,25 @@
     }
 
     .brand-icon {
-      background: var(--amarelo);
-      color: #000000;
+      background: var(--destaque);
+      color: var(--texto-botao-destaque);
       font-weight: 900;
       font-size: 0.95rem;
       padding: 8px 12px;
       border-radius: 8px;
       letter-spacing: 0.8px;
-      border: 1px solid var(--amarelo-claro);
     }
 
     h1 {
       font-size: clamp(1.05rem, 2vw, 1.35rem);
       font-weight: 900;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
       letter-spacing: 0.3px;
     }
 
     .subtitle {
       font-size: 0.78rem;
-      color: var(--texto-muted);
+      color: var(--texto-suave);
       margin-top: 2px;
     }
 
@@ -100,6 +131,7 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+      margin-left: auto;
     }
 
     .auth-pill {
@@ -107,15 +139,15 @@
       font-weight: 700;
       padding: 7px 12px;
       border-radius: 999px;
-      background: var(--preto-card);
-      color: var(--amarelo);
-      border: 1px solid var(--borda-amarela);
+      background: var(--bg-elevado);
+      color: var(--texto-destaque);
+      border: 1px solid var(--borda-destaque);
     }
 
     .auth-pill.unlocked {
-      background: rgba(34, 197, 94, 0.14);
-      color: var(--verde-texto);
-      border-color: var(--verde-borda);
+      background: rgba(34, 197, 94, 0.16);
+      color: var(--vigente-texto);
+      border-color: var(--vigente-borda);
     }
 
     /* Botões */
@@ -143,55 +175,54 @@
       cursor: not-allowed;
     }
 
-    .btn-amarelo {
-      background: var(--amarelo);
-      color: #000000;
-      border: 1px solid var(--amarelo-claro);
+    .btn-primario {
+      background: var(--destaque);
+      color: var(--texto-botao-destaque);
+      border: 1px solid var(--destaque);
     }
 
-    .btn-amarelo:hover:not(:disabled) {
-      background: var(--amarelo-claro);
+    .btn-primario:hover:not(:disabled) {
+      background: var(--destaque-hover);
     }
 
-    .btn-preto-amarelo {
-      background: var(--preto-elevado);
-      color: var(--amarelo);
-      border: 1px solid var(--borda-amarela);
+    .btn-secundario {
+      background: var(--bg-elevado);
+      color: var(--texto-destaque);
+      border: 1px solid var(--borda-destaque);
     }
 
-    .btn-preto-amarelo:hover:not(:disabled) {
-      background: var(--amarelo-suave);
-      border-color: var(--amarelo);
+    .btn-secundario:hover:not(:disabled) {
+      border-color: var(--destaque);
     }
 
     .btn-ver {
-      background: var(--amarelo);
-      color: #000000;
+      background: var(--destaque);
+      color: var(--texto-botao-destaque);
       padding: 8px 12px;
       font-size: 0.8rem;
     }
 
     .btn-ver:hover:not(:disabled) {
-      background: var(--amarelo-claro);
+      background: var(--destaque-hover);
     }
 
     .btn-download {
-      background: #000000;
-      color: var(--amarelo);
-      border: 1px solid var(--amarelo);
+      background: var(--bg-elevado);
+      color: var(--texto-destaque);
+      border: 1px solid var(--texto-destaque);
       padding: 8px 12px;
       font-size: 0.8rem;
     }
 
     .btn-download:hover:not(:disabled) {
-      background: var(--amarelo);
-      color: #000000;
+      background: var(--destaque);
+      color: var(--texto-botao-destaque);
     }
 
     .btn-excluir {
-      background: rgba(239, 68, 68, 0.16);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.55);
+      background: rgba(239, 68, 68, 0.14);
+      color: var(--vencida-texto);
+      border: 1px solid var(--vencida-borda);
       padding: 8px 11px;
       font-size: 0.8rem;
     }
@@ -213,12 +244,12 @@
     }
 
     .card {
-      background: var(--preto-card);
-      border: 1px solid var(--borda-padrao);
-      border-top: 2px solid var(--amarelo);
+      background: var(--bg-card);
+      border: 1px solid var(--borda);
+      border-top: 3px solid var(--destaque);
       border-radius: 12px;
       padding: 18px 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
     .card-header {
@@ -229,13 +260,13 @@
       flex-wrap: wrap;
       margin-bottom: 16px;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--borda-padrao);
+      border-bottom: 1px solid var(--borda);
     }
 
     .card-title {
       font-size: 1rem;
       font-weight: 800;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -271,21 +302,21 @@
     label {
       font-size: 0.84rem;
       font-weight: 700;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
     }
 
     .hint {
       font-size: 0.75rem;
-      color: var(--texto-muted);
+      color: var(--texto-suave);
       line-height: 1.35;
     }
 
     input[type="text"],
     input[type="date"],
     select {
-      background: var(--preto-abs);
-      color: var(--texto);
-      border: 1px solid var(--borda-padrao);
+      background: var(--bg-input);
+      color: var(--texto-principal);
+      border: 1px solid var(--borda);
       border-radius: 8px;
       padding: 11px 12px;
       font-size: 0.92rem;
@@ -296,14 +327,14 @@
     input[type="date"]:focus,
     select:focus {
       outline: none;
-      border-color: var(--amarelo);
-      box-shadow: 0 0 0 2px rgba(255, 208, 0, 0.16);
+      border-color: var(--destaque);
+      box-shadow: 0 0 0 2px rgba(255, 208, 0, 0.2);
     }
 
     input[type="file"] {
-      background: var(--preto-abs);
-      color: var(--texto-muted);
-      border: 1.5px dashed var(--amarelo);
+      background: var(--bg-input);
+      color: var(--texto-suave);
+      border: 1.5px dashed var(--destaque);
       border-radius: 8px;
       padding: 14px;
       width: 100%;
@@ -326,9 +357,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--preto-abs);
-      border: 1px solid var(--borda-padrao);
-      color: var(--texto);
+      background: var(--bg-input);
+      border: 1px solid var(--borda);
+      color: var(--texto-principal);
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 0.85rem;
@@ -337,14 +368,14 @@
     }
 
     .mode-option input[type="radio"] {
-      accent-color: var(--amarelo);
+      accent-color: var(--destaque);
       width: 16px;
       height: 16px;
     }
 
     .specific-box {
-      background: var(--preto-abs);
-      border: 1px solid var(--borda-amarela);
+      background: var(--bg-input);
+      border: 1px solid var(--borda-destaque);
       border-radius: 8px;
       padding: 12px;
       display: flex;
@@ -379,9 +410,9 @@
     }
 
     .chip {
-      background: var(--amarelo-suave);
-      border: 1px solid var(--amarelo);
-      color: var(--amarelo);
+      background: var(--bg-elevado);
+      border: 1px solid var(--destaque);
+      color: var(--texto-destaque);
       padding: 5px 10px;
       border-radius: 999px;
       font-size: 0.8rem;
@@ -393,7 +424,7 @@
 
     .chip button {
       background: none;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
       padding: 0;
       font-size: 1rem;
       line-height: 1;
@@ -402,7 +433,7 @@
     .selected-files-list {
       margin-top: 6px;
       font-size: 0.82rem;
-      color: var(--texto-muted);
+      color: var(--texto-suave);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -410,8 +441,8 @@
 
     .progress-wrap {
       margin-top: 12px;
-      background: var(--preto-abs);
-      border: 1px solid var(--borda-padrao);
+      background: var(--bg-input);
+      border: 1px solid var(--borda);
       border-radius: 8px;
       overflow: hidden;
       height: 12px;
@@ -420,7 +451,7 @@
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: var(--amarelo);
+      background: var(--destaque);
       transition: width 0.2s ease;
     }
 
@@ -428,7 +459,7 @@
       margin-top: 8px;
       font-size: 0.85rem;
       font-weight: 700;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
       min-height: 20px;
     }
 
@@ -467,36 +498,36 @@
       flex-wrap: wrap;
       margin-top: 14px;
       padding-top: 12px;
-      border-top: 1px solid var(--borda-padrao);
+      border-top: 1px solid var(--borda);
       font-size: 0.8rem;
     }
 
     .stat-pill {
-      background: var(--preto-abs);
-      border: 1px solid var(--borda-padrao);
+      background: var(--bg-elevado);
+      border: 1px solid var(--borda);
       padding: 5px 10px;
       border-radius: 999px;
-      color: var(--texto-muted);
+      color: var(--texto-principal);
     }
 
     .stat-pill.vigente {
-      border-color: var(--verde-borda);
-      color: var(--verde-texto);
-      background: rgba(22, 163, 74, 0.12);
+      border-color: var(--vigente-borda);
+      color: var(--vigente-texto);
+      background: var(--vigente-bg);
     }
 
     .stat-pill.vencida {
-      border-color: var(--vermelho-borda);
-      color: var(--vermelho-texto);
-      background: rgba(220, 38, 38, 0.12);
+      border-color: var(--vencida-borda);
+      color: var(--vencida-texto);
+      background: var(--vencida-bg);
     }
 
-    /* Lista / Tabela (Desktop) + Cards (Mobile) */
+    /* Tabela (Desktop) + Cartões (Mobile) */
     .table-wrap {
       width: 100%;
       overflow-x: auto;
       border-radius: 10px;
-      border: 1px solid var(--borda-padrao);
+      border: 1px solid var(--borda);
     }
 
     table {
@@ -505,49 +536,40 @@
     }
 
     th {
-      background: #000000;
-      color: var(--amarelo);
+      background: var(--bg-elevado);
+      color: var(--texto-destaque);
       text-align: left;
       padding: 13px 14px;
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 2px solid var(--borda-amarela);
+      border-bottom: 2px solid var(--destaque);
     }
 
     td {
       padding: 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      border-bottom: 1px solid rgba(128, 128, 128, 0.16);
       font-size: 0.9rem;
       vertical-align: middle;
     }
 
-    /* Linhas Verdes (Vigente) e Vermelhas (Vencida) */
     tr.os-vigente {
-      background: var(--verde-bg);
-      box-shadow: inset 6px 0 0 var(--verde-borda);
-    }
-
-    tr.os-vigente:hover {
-      background: rgba(22, 163, 74, 0.3);
+      background: var(--vigente-bg);
+      box-shadow: inset 6px 0 0 var(--vigente-borda);
     }
 
     tr.os-vigente .os-title-text {
-      color: var(--verde-texto);
+      color: var(--vigente-texto);
       font-weight: 800;
     }
 
     tr.os-vencida {
-      background: var(--vermelho-bg);
-      box-shadow: inset 6px 0 0 var(--vermelho-borda);
-    }
-
-    tr.os-vencida:hover {
-      background: rgba(220, 38, 38, 0.3);
+      background: var(--vencida-bg);
+      box-shadow: inset 6px 0 0 var(--vencida-borda);
     }
 
     tr.os-vencida .os-title-text {
-      color: var(--vermelho-texto);
+      color: var(--vencida-texto);
       font-weight: 800;
     }
 
@@ -562,12 +584,12 @@
     }
 
     .badge-vigente {
-      background: var(--verde-badge);
+      background: var(--vigente-badge);
       color: #ffffff;
     }
 
     .badge-vencida {
-      background: var(--vermelho-badge);
+      background: var(--vencida-badge);
       color: #ffffff;
     }
 
@@ -575,9 +597,9 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background: #000000;
-      color: var(--amarelo);
-      border: 1px solid var(--amarelo);
+      background: var(--bg-card);
+      color: var(--texto-destaque);
+      border: 1px solid var(--destaque);
       padding: 2px 8px;
       border-radius: 6px;
       font-size: 0.74rem;
@@ -594,12 +616,11 @@
     .empty-state {
       text-align: center;
       padding: 34px 16px;
-      color: var(--texto-muted);
+      color: var(--texto-suave);
       font-size: 0.92rem;
-      background: var(--preto-abs);
+      background: var(--bg-card);
     }
 
-    /* Adaptação Mobile: vira blocos de cartão sem rolagem horizontal */
     @media (max-width: 768px) {
       .table-wrap {
         border: none;
@@ -619,22 +640,22 @@
         border-radius: 12px;
         margin-bottom: 14px;
         padding: 4px 0;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(128, 128, 128, 0.25);
       }
 
       tr.os-vigente {
-        border-left: 6px solid var(--verde-borda);
+        border-left: 6px solid var(--vigente-borda);
         box-shadow: none;
       }
 
       tr.os-vencida {
-        border-left: 6px solid var(--vermelho-borda);
+        border-left: 6px solid var(--vencida-borda);
         box-shadow: none;
       }
 
       td {
         padding: 8px 14px;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        border-bottom: 1px dashed rgba(128, 128, 128, 0.22);
         display: flex;
         flex-direction: column;
         gap: 3px;
@@ -645,7 +666,7 @@
         font-size: 0.7rem;
         font-weight: 800;
         text-transform: uppercase;
-        color: var(--amarelo);
+        color: var(--texto-destaque);
         letter-spacing: 0.4px;
       }
 
@@ -665,7 +686,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.86);
+      background: rgba(0, 0, 0, 0.78);
       z-index: 100;
       display: flex;
       align-items: center;
@@ -674,8 +695,8 @@
     }
 
     .modal {
-      background: var(--preto-card);
-      border: 2px solid var(--amarelo);
+      background: var(--bg-card);
+      border: 2px solid var(--destaque);
       border-radius: 12px;
       width: 100%;
       max-width: 980px;
@@ -686,20 +707,20 @@
     }
 
     .modal-header {
-      background: #000000;
+      background: var(--bg-header);
       padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
-      border-bottom: 2px solid var(--amarelo);
+      border-bottom: 2px solid var(--destaque);
     }
 
     .modal-title {
       font-size: 0.95rem;
       font-weight: 800;
-      color: var(--amarelo);
+      color: var(--texto-destaque);
       word-break: break-word;
       flex: 1 1 220px;
     }
@@ -713,7 +734,7 @@
     .viewer-frame {
       width: 100%;
       height: 70vh;
-      border: 1px solid var(--borda-amarela);
+      border: 1px solid var(--borda);
       border-radius: 8px;
       background: #ffffff;
     }
@@ -724,13 +745,13 @@
       display: block;
       margin: 0 auto;
       border-radius: 8px;
-      border: 1px solid var(--borda-amarela);
+      border: 1px solid var(--borda);
     }
 
     .folder-item {
-      background: var(--preto-abs);
-      border: 1px solid var(--borda-padrao);
-      border-left: 4px solid var(--amarelo);
+      background: var(--bg-elevado);
+      border: 1px solid var(--borda);
+      border-left: 4px solid var(--destaque);
       border-radius: 8px;
       padding: 12px 14px;
       display: flex;
@@ -744,13 +765,13 @@
     .folder-item-name {
       font-weight: 800;
       font-size: 0.9rem;
-      color: var(--texto);
+      color: var(--texto-principal);
       word-break: break-word;
     }
 
     .folder-item-meta {
       font-size: 0.76rem;
-      color: var(--texto-muted);
+      color: var(--texto-suave);
       margin-top: 2px;
     }
   </style>
@@ -759,15 +780,16 @@
   <header>
     <div class="header-inner">
       <div class="brand">
-        <span class="brand-icon">OS.HTML</span>
+        <span class="brand-icon">OS</span>
         <div>
           <h1>ORDENS DE SERVIÇO</h1>
           <div class="subtitle">Consulta, visualização e download • Exclusão automática em 6 meses</div>
         </div>
       </div>
       <div class="header-actions">
-        <span id="authStatusPill" class="auth-pill">Acesso: Senha 3303</span>
-        <button id="btnToggleInsert" class="btn-amarelo" type="button">+ Inserir Ordem de Serviço</button>
+        <span id="authStatusPill" class="auth-pill">Edição: Bloqueada</span>
+        <button id="btnToggleInsert" class="btn-primario" type="button">+ Inserir Ordem de Serviço</button>
+        <button id="btnToggleTheme" class="btn-secundario" type="button">☀️ Tema Claro</button>
       </div>
     </div>
   </header>
@@ -777,7 +799,7 @@
     <section id="insertCard" class="card hidden">
       <div class="card-header">
         <div class="card-title">Nova Ordem de Serviço</div>
-        <button id="btnCloseInsert" class="btn-preto-amarelo" type="button">Fechar</button>
+        <button id="btnCloseInsert" class="btn-secundario" type="button">Fechar</button>
       </div>
 
       <form id="osForm">
@@ -824,7 +846,7 @@
               <label for="specificDateInput">Adicionar Dias Específicos</label>
               <div class="specific-add-row">
                 <input type="date" id="specificDateInput" />
-                <button type="button" id="btnAddSpecificDate" class="btn-preto-amarelo">+ Adicionar Dia</button>
+                <button type="button" id="btnAddSpecificDate" class="btn-secundario">+ Adicionar Dia</button>
               </div>
               <span class="hint">Cada dia adicionado entra na lista. A menor data aparece como Data Inicial e a maior como Data Término.</span>
               <div id="specificChips" class="chips"></div>
@@ -839,7 +861,7 @@
           </div>
 
           <div class="field full">
-            <button type="submit" id="btnSubmitOs" class="btn-amarelo">Salvar Ordem de Serviço</button>
+            <button type="submit" id="btnSubmitOs" class="btn-primario">Salvar Ordem de Serviço</button>
             <div class="progress-wrap">
               <div id="uploadProgress" class="progress-bar"></div>
             </div>
@@ -880,7 +902,7 @@
         </div>
 
         <div class="field">
-          <button type="button" id="btnClearFilters" class="btn-preto-amarelo">Limpar</button>
+          <button type="button" id="btnClearFilters" class="btn-secundario">Limpar</button>
         </div>
       </div>
 
@@ -921,7 +943,7 @@
         <div id="modalTitle" class="modal-title">Visualizador</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <a id="modalDirectDownload" class="btn-link btn-download" download>Download</a>
-          <button id="btnCloseModal" class="btn-preto-amarelo" type="button">✕ Fechar</button>
+          <button id="btnCloseModal" class="btn-secundario" type="button">✕ Fechar</button>
         </div>
       </div>
       <div id="modalBody" class="modal-body"></div>
@@ -966,12 +988,14 @@
 
     const SENHA_MESTRA = "3303";
     const SESSION_KEY = "os_3303_session_ok";
+    const THEME_KEY = "os_theme_preference";
     const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
     const osCollection = collection(db, "ordens_servico");
 
     let allOrders = [];
     let specificDates = [];
 
+    const btnToggleTheme = document.getElementById("btnToggleTheme");
     const authStatusPill = document.getElementById("authStatusPill");
     const btnToggleInsert = document.getElementById("btnToggleInsert");
     const btnCloseInsert = document.getElementById("btnCloseInsert");
@@ -1006,21 +1030,36 @@
     const modalDirectDownload = document.getElementById("modalDirectDownload");
     const btnCloseModal = document.getElementById("btnCloseModal");
 
+    // Tema claro / escuro
+    function applyTheme(mode) {
+      const isLight = mode === "light";
+      document.body.classList.toggle("light-theme", isLight);
+      btnToggleTheme.textContent = isLight ? "🌙 Tema Escuro" : "☀️ Tema Claro";
+      localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+    }
+
+    applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+    btnToggleTheme.addEventListener("click", () => {
+      const currentlyLight = document.body.classList.contains("light-theme");
+      applyTheme(currentlyLight ? "dark" : "light");
+    });
+
     function isUnlocked() {
       return sessionStorage.getItem(SESSION_KEY) === "true";
     }
 
     function updateAuthBadge() {
       if (isUnlocked()) {
-        authStatusPill.textContent = "Acesso: Liberado (Sessão)";
+        authStatusPill.textContent = "Edição: Liberada";
         authStatusPill.classList.add("unlocked");
       } else {
-        authStatusPill.textContent = "Acesso: Senha 3303";
+        authStatusPill.textContent = "Edição: Bloqueada";
         authStatusPill.classList.remove("unlocked");
       }
     }
 
-    function checkPassword3303() {
+    function checkPassword() {
       if (isUnlocked()) return true;
       const input = prompt("Digite a senha para inserir ou excluir Ordem de Serviço:");
       if (input === null) return false;
@@ -1036,7 +1075,7 @@
     updateAuthBadge();
 
     btnToggleInsert.addEventListener("click", () => {
-      if (!checkPassword3303()) return;
+      if (!checkPassword()) return;
       insertCard.classList.remove("hidden");
       insertCard.scrollIntoView({ behavior: "smooth" });
     });
@@ -1085,7 +1124,7 @@
       if (!files.length) return;
 
       const label = document.createElement("strong");
-      label.style.color = "#ffd000";
+      label.style.color = "var(--texto-destaque)";
       label.textContent = files.length > 1
         ? `Pasta com ${files.length} arquivos:`
         : "Arquivo selecionado:";
@@ -1144,7 +1183,7 @@
 
     osForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!checkPassword3303()) return;
+      if (!checkPassword()) return;
 
       const title = osTitle.value.trim();
       const mode = document.querySelector('input[name="dateMode"]:checked').value;
@@ -1244,7 +1283,7 @@
     });
 
     async function deleteOrder(order) {
-      if (!checkPassword3303()) return;
+      if (!checkPassword()) return;
       const ok = confirm(`Excluir "${order.title}" e todos os arquivos vinculados?`);
       if (!ok) return;
 
@@ -1265,7 +1304,7 @@
       const now = Date.now();
       const expired = orders.filter((o) => o.expiresAt && now >= o.expiresAt);
       if (!expired.length) {
-        cleanupInfo.textContent = "Retenção ativa: exclusão automática em 6 meses";
+        cleanupInfo.textContent = "Retenção automática: 6 meses";
         return;
       }
       cleanupInfo.textContent = `Limpando ${expired.length} O.S. com mais de 6 meses...`;
@@ -1277,7 +1316,7 @@
         }
         try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
       }
-      cleanupInfo.textContent = "Retenção ativa: exclusão automática em 6 meses";
+      cleanupInfo.textContent = "Retenção automática: 6 meses";
     }
 
     function openSingleViewer(file) {
@@ -1418,7 +1457,7 @@
         <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
         <span class="stat-pill vigente">Vigentes (Verde): <strong>${vigentesCount}</strong></span>
         <span class="stat-pill vencida">Vencidas (Vermelha): <strong>${vencidasCount}</strong></span>
-        <span class="stat-pill">Filtrados: <strong style="color:#ffd000">${filtered.length}</strong></span>
+        <span class="stat-pill">Filtrados: <strong>${filtered.length}</strong></span>
       `;
 
       osTableBody.innerHTML = "";
@@ -1440,7 +1479,6 @@
         const tr = document.createElement("tr");
         tr.className = vigente ? "os-vigente" : "os-vencida";
 
-        // Título
         const tdTitle = document.createElement("td");
         tdTitle.setAttribute("data-label", "Título");
         const pastaBadge = isFolder ? `<span class="badge-pasta">📁 Pasta (${files.length})</span>` : "";
@@ -1453,12 +1491,10 @@
           <div>${statusBadge}</div>
         `;
 
-        // Data Inicial
         const tdStart = document.createElement("td");
         tdStart.setAttribute("data-label", "Data Inicial");
         tdStart.textContent = formatDateBR(order.startDate);
 
-        // Data Término
         const tdEnd = document.createElement("td");
         tdEnd.setAttribute("data-label", "Data Término");
         if (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length) {
@@ -1471,7 +1507,6 @@
           tdEnd.textContent = formatDateBR(order.endDate);
         }
 
-        // Botões Ver / Download / Excluir
         const tdActions = document.createElement("td");
         tdActions.setAttribute("data-label", "Ações");
         const group = document.createElement("div");
