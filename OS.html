@@ -80,7 +80,7 @@
     header {
       background: var(--bg-header);
       border-bottom: 3px solid var(--destaque);
-      padding: 14px 20px;
+      padding: 12px 18px;
       position: sticky;
       top: 0;
       z-index: 40;
@@ -94,50 +94,50 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-icon {
       background: var(--destaque);
       color: var(--texto-botao-destaque);
       font-weight: 900;
-      font-size: 0.95rem;
-      padding: 8px 12px;
+      font-size: 0.9rem;
+      padding: 7px 11px;
       border-radius: 8px;
       letter-spacing: 0.8px;
     }
 
     h1 {
-      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      font-size: clamp(1rem, 2vw, 1.3rem);
       font-weight: 900;
       color: var(--texto-destaque);
       letter-spacing: 0.3px;
     }
 
     .subtitle {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: var(--texto-suave);
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       margin-left: auto;
     }
 
     .auth-pill {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 7px 12px;
+      padding: 6px 11px;
       border-radius: 999px;
       background: var(--bg-elevado);
       color: var(--texto-destaque);
@@ -156,8 +156,8 @@
       border: none;
       border-radius: 8px;
       font-weight: 800;
-      font-size: 0.86rem;
-      padding: 10px 15px;
+      font-size: 0.84rem;
+      padding: 9px 14px;
       transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
       display: inline-flex;
       align-items: center;
@@ -236,11 +236,11 @@
     /* Container Principal */
     .container {
       max-width: 1280px;
-      margin: 22px auto 0;
-      padding: 0 16px;
+      margin: 16px auto 0;
+      padding: 0 14px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 14px;
     }
 
     .card {
@@ -248,7 +248,7 @@
       border: 1px solid var(--borda);
       border-top: 3px solid var(--destaque);
       border-radius: 12px;
-      padding: 18px 20px;
+      padding: 14px 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
@@ -258,13 +258,13 @@
       justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--borda);
     }
 
     .card-title {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 800;
       color: var(--texto-destaque);
       display: flex;
@@ -300,13 +300,13 @@
     }
 
     label {
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--texto-destaque);
     }
 
     .hint {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--texto-suave);
       line-height: 1.35;
     }
@@ -318,8 +318,8 @@
       color: var(--texto-principal);
       border: 1px solid var(--borda);
       border-radius: 8px;
-      padding: 11px 12px;
-      font-size: 0.92rem;
+      padding: 10px 12px;
+      font-size: 0.9rem;
       width: 100%;
     }
 
@@ -336,9 +336,9 @@
       color: var(--texto-suave);
       border: 1.5px dashed var(--destaque);
       border-radius: 8px;
-      padding: 14px;
+      padding: 12px;
       width: 100%;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
     }
 
     .mode-switch {
@@ -463,29 +463,43 @@
       min-height: 20px;
     }
 
-    /* Filtros */
+    /* Barra compacta de pesquisa + painel recolhível de filtros */
+    .search-bar-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-bar-row input[type="text"] {
+      flex: 1 1 auto;
+    }
+
+    .filter-count-badge {
+      background: var(--destaque);
+      color: var(--texto-botao-destaque);
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 2px;
+    }
+
+    .filters-drawer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--borda);
+    }
+
     .filters-grid {
       display: grid;
-      grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
+      grid-template-columns: repeat(2, minmax(160px, 1fr)) auto;
       gap: 12px;
       align-items: end;
     }
 
-    @media (max-width: 900px) {
-      .filters-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .filters-grid .field:first-child {
-        grid-column: 1 / -1;
-      }
-    }
-
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
       .filters-grid {
         grid-template-columns: 1fr;
-      }
-      .filters-grid .field:first-child {
-        grid-column: auto;
       }
       #btnClearFilters {
         width: 100%;
@@ -494,18 +508,16 @@
 
     .stats-bar {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--borda);
-      font-size: 0.8rem;
+      margin-top: 12px;
+      font-size: 0.78rem;
     }
 
     .stat-pill {
       background: var(--bg-elevado);
       border: 1px solid var(--borda);
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 999px;
       color: var(--texto-principal);
     }
@@ -539,7 +551,7 @@
       background: var(--bg-elevado);
       color: var(--texto-destaque);
       text-align: left;
-      padding: 13px 14px;
+      padding: 12px 14px;
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -547,7 +559,7 @@
     }
 
     td {
-      padding: 14px;
+      padding: 13px 14px;
       border-bottom: 1px solid rgba(128, 128, 128, 0.16);
       font-size: 0.9rem;
       vertical-align: middle;
@@ -615,9 +627,9 @@
 
     .empty-state {
       text-align: center;
-      padding: 34px 16px;
+      padding: 32px 16px;
       color: var(--texto-suave);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       background: var(--bg-card);
     }
 
@@ -638,7 +650,7 @@
 
       tr.os-vigente, tr.os-vencida {
         border-radius: 12px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         padding: 4px 0;
         border: 1px solid rgba(128, 128, 128, 0.25);
       }
@@ -871,42 +883,44 @@
       </form>
     </section>
 
-    <!-- Filtros e Pesquisa -->
+    <!-- Campo de Escrever Sempre Visível + Filtros Recolhíveis -->
     <section class="card">
-      <div class="card-header">
-        <div class="card-title">Pesquisa e Filtros</div>
+      <div class="search-bar-row">
+        <input
+          type="text"
+          id="searchInput"
+          aria-label="Buscar por Nome, Número da O.S. ou Arquivo"
+          placeholder="Buscar por nome, número da O.S. ou arquivo..."
+        />
+        <button id="btnToggleFilters" class="btn-secundario" type="button">
+          <span>Filtros</span>
+          <span id="activeFiltersBadge" class="filter-count-badge hidden">0</span>
+        </button>
       </div>
 
-      <div class="filters-grid">
-        <div class="field">
-          <label for="searchInput">Buscar por Nome / Número da O.S. ou Arquivo</label>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Escreva o número, título ou nome do arquivo..."
-          />
+      <div id="filtersDrawer" class="filters-drawer hidden">
+        <div class="filters-grid">
+          <div class="field">
+            <label for="filterDate">Filtrar por Data</label>
+            <input type="date" id="filterDate" />
+          </div>
+
+          <div class="field">
+            <label for="filterStatus">Vigência (Cor na Lista)</label>
+            <select id="filterStatus">
+              <option value="all">Todas (Verdes e Vermelhas)</option>
+              <option value="vigente">Vigentes (Verde)</option>
+              <option value="vencida">Vencidas (Vermelha)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <button type="button" id="btnClearFilters" class="btn-secundario">Limpar</button>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="filterDate">Filtrar por Data</label>
-          <input type="date" id="filterDate" />
-        </div>
-
-        <div class="field">
-          <label for="filterStatus">Vigência (Cor na Lista)</label>
-          <select id="filterStatus">
-            <option value="all">Todas (Verdes e Vermelhas)</option>
-            <option value="vigente">Vigentes (Verde)</option>
-            <option value="vencida">Vencidas (Vermelha)</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <button type="button" id="btnClearFilters" class="btn-secundario">Limpar</button>
-        </div>
+        <div id="statsBar" class="stats-bar"></div>
       </div>
-
-      <div id="statsBar" class="stats-bar"></div>
     </section>
 
     <!-- Lista de Ordens de Serviço -->
@@ -1017,6 +1031,9 @@
     const btnSubmitOs = document.getElementById("btnSubmitOs");
 
     const searchInput = document.getElementById("searchInput");
+    const btnToggleFilters = document.getElementById("btnToggleFilters");
+    const activeFiltersBadge = document.getElementById("activeFiltersBadge");
+    const filtersDrawer = document.getElementById("filtersDrawer");
     const filterDate = document.getElementById("filterDate");
     const filterStatus = document.getElementById("filterStatus");
     const btnClearFilters = document.getElementById("btnClearFilters");
@@ -1029,6 +1046,23 @@
     const modalBody = document.getElementById("modalBody");
     const modalDirectDownload = document.getElementById("modalDirectDownload");
     const btnCloseModal = document.getElementById("btnCloseModal");
+
+    // Abrir / fechar gaveta de filtros
+    btnToggleFilters.addEventListener("click", () => {
+      filtersDrawer.classList.toggle("hidden");
+    });
+
+    function updateFilterBadge() {
+      let activeCount = 0;
+      if (filterDate.value) activeCount++;
+      if (filterStatus.value !== "all") activeCount++;
+      if (activeCount > 0) {
+        activeFiltersBadge.textContent = String(activeCount);
+        activeFiltersBadge.classList.remove("hidden");
+      } else {
+        activeFiltersBadge.classList.add("hidden");
+      }
+    }
 
     // Tema claro / escuro
     function applyTheme(mode) {
@@ -1426,6 +1460,7 @@
     }
 
     function renderList() {
+      updateFilterBadge();
       const term = searchInput.value.trim().toLowerCase();
       const dateVal = filterDate.value;
       const statusVal = filterStatus.value;
@@ -1457,7 +1492,7 @@
         <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
         <span class="stat-pill vigente">Vigentes (Verde): <strong>${vigentesCount}</strong></span>
         <span class="stat-pill vencida">Vencidas (Vermelha): <strong>${vencidasCount}</strong></span>
-        <span class="stat-pill">Filtrados: <strong>${filtered.length}</strong></span>
+        <span class="stat-pill">Exibidos: <strong>${filtered.length}</strong></span>
       `;
 
       osTableBody.innerHTML = "";
