@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OS.html — Controle de Ordens de Serviço</title>
+  <style>
+    :root {
+      --preto-abs: #07080a;
+      --preto-card: #111318;
+      --preto-elevado: #191c24;
+      --amarelo: #ffd000;
+      --amarelo-claro: #ffe047;
+      --amarelo-suave: rgba(255, 208, 0, 0.12);
+      --borda-amarela: rgba(255, 208, 0, 0.42);
+      --borda-padrao: #252934;
+      --texto: #f5f6f8;
+      --texto-muted: #a1a8b5;
+
+      /* Cores de vigência pensadas para destacar sobre fundo escuro sem brigar com o amarelo */
+      --verde-bg: rgba(22, 163, 74, 0.22);
+      --verde-borda: #22c55e;
+      --verde-texto: #86efac;
+      --verde-badge: #16a34a;
+
+      --vermelho-bg: rgba(220, 38, 38, 0.22);
+      --vermelho-borda: #ef4444;
+      --vermelho-texto: #fca5a5;
+      --vermelho-badge: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--preto-abs);
+      color: var(--texto);
+      min-height: 100vh;
+      padding-bottom: 56px;
+      background-image: radial-gradient(circle at top, rgba(255, 208, 0, 0.07), transparent 45%);
+    }
+
+    /* Cabeçalho Preto & Amarelo */
+    header {
+      background: #000000;
+      border-bottom: 3px solid var(--amarelo);
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      background: var(--amarelo);
+      color: #000000;
+      font-weight: 900;
+      font-size: 0.95rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.8px;
+      border: 1px solid var(--amarelo-claro);
+    }
+
+    h1 {
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      font-weight: 900;
+      color: var(--amarelo);
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .auth-pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--preto-card);
+      color: var(--amarelo);
+      border: 1px solid var(--borda-amarela);
+    }
+
+    .auth-pill.unlocked {
+      background: rgba(34, 197, 94, 0.14);
+      color: var(--verde-texto);
+      border-color: var(--verde-borda);
+    }
+
+    /* Botões */
+    button, a.btn-link {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 10px 15px;
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    button:active, a.btn-link:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-amarelo {
+      background: var(--amarelo);
+      color: #000000;
+      border: 1px solid var(--amarelo-claro);
+    }
+
+    .btn-amarelo:hover:not(:disabled) {
+      background: var(--amarelo-claro);
+    }
+
+    .btn-preto-amarelo {
+      background: var(--preto-elevado);
+      color: var(--amarelo);
+      border: 1px solid var(--borda-amarela);
+    }
+
+    .btn-preto-amarelo:hover:not(:disabled) {
+      background: var(--amarelo-suave);
+      border-color: var(--amarelo);
+    }
+
+    .btn-ver {
+      background: var(--amarelo);
+      color: #000000;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+
+    .btn-ver:hover:not(:disabled) {
+      background: var(--amarelo-claro);
+    }
+
+    .btn-download {
+      background: #000000;
+      color: var(--amarelo);
+      border: 1px solid var(--amarelo);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+
+    .btn-download:hover:not(:disabled) {
+      background: var(--amarelo);
+      color: #000000;
+    }
+
+    .btn-excluir {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      padding: 8px 11px;
+      font-size: 0.8rem;
+    }
+
+    .btn-excluir:hover:not(:disabled) {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+
+    /* Container Principal */
+    .container {
+      max-width: 1280px;
+      margin: 22px auto 0;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--preto-card);
+      border: 1px solid var(--borda-padrao);
+      border-top: 2px solid var(--amarelo);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--borda-padrao);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--amarelo);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Formulário */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 720px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--amarelo);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--texto-muted);
+      line-height: 1.35;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      background: var(--preto-abs);
+      color: var(--texto);
+      border: 1px solid var(--borda-padrao);
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 0.92rem;
+      width: 100%;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--amarelo);
+      box-shadow: 0 0 0 2px rgba(255, 208, 0, 0.16);
+    }
+
+    input[type="file"] {
+      background: var(--preto-abs);
+      color: var(--texto-muted);
+      border: 1.5px dashed var(--amarelo);
+      border-radius: 8px;
+      padding: 14px;
+      width: 100%;
+      font-size: 0.86rem;
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .mode-switch {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--preto-abs);
+      border: 1px solid var(--borda-padrao);
+      color: var(--texto);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mode-option input[type="radio"] {
+      accent-color: var(--amarelo);
+      width: 16px;
+      height: 16px;
+    }
+
+    .specific-box {
+      background: var(--preto-abs);
+      border: 1px solid var(--borda-amarela);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .specific-add-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .specific-add-row input[type="date"] {
+      max-width: 240px;
+    }
+
+    @media (max-width: 540px) {
+      .specific-add-row input[type="date"] {
+        max-width: 100%;
+      }
+      .specific-add-row button {
+        width: 100%;
+      }
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--amarelo-suave);
+      border: 1px solid var(--amarelo);
+      color: var(--amarelo);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip button {
+      background: none;
+      color: var(--amarelo);
+      padding: 0;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .selected-files-list {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--texto-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .progress-wrap {
+      margin-top: 12px;
+      background: var(--preto-abs);
+      border: 1px solid var(--borda-padrao);
+      border-radius: 8px;
+      overflow: hidden;
+      height: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--amarelo);
+      transition: width 0.2s ease;
+    }
+
+    .status-msg {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--amarelo);
+      min-height: 20px;
+    }
+
+    /* Filtros */
+    .filters-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    @media (max-width: 900px) {
+      .filters-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .filters-grid .field:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+      .filters-grid .field:first-child {
+        grid-column: auto;
+      }
+      #btnClearFilters {
+        width: 100%;
+      }
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--borda-padrao);
+      font-size: 0.8rem;
+    }
+
+    .stat-pill {
+      background: var(--preto-abs);
+      border: 1px solid var(--borda-padrao);
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: var(--texto-muted);
+    }
+
+    .stat-pill.vigente {
+      border-color: var(--verde-borda);
+      color: var(--verde-texto);
+      background: rgba(22, 163, 74, 0.12);
+    }
+
+    .stat-pill.vencida {
+      border-color: var(--vermelho-borda);
+      color: var(--vermelho-texto);
+      background: rgba(220, 38, 38, 0.12);
+    }
+
+    /* Lista / Tabela (Desktop) + Cards (Mobile) */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--borda-padrao);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #000000;
+      color: var(--amarelo);
+      text-align: left;
+      padding: 13px 14px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--borda-amarela);
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    /* Linhas Verdes (Vigente) e Vermelhas (Vencida) */
+    tr.os-vigente {
+      background: var(--verde-bg);
+      box-shadow: inset 6px 0 0 var(--verde-borda);
+    }
+
+    tr.os-vigente:hover {
+      background: rgba(22, 163, 74, 0.3);
+    }
+
+    tr.os-vigente .os-title-text {
+      color: var(--verde-texto);
+      font-weight: 800;
+    }
+
+    tr.os-vencida {
+      background: var(--vermelho-bg);
+      box-shadow: inset 6px 0 0 var(--vermelho-borda);
+    }
+
+    tr.os-vencida:hover {
+      background: rgba(220, 38, 38, 0.3);
+    }
+
+    tr.os-vencida .os-title-text {
+      color: var(--vermelho-texto);
+      font-weight: 800;
+    }
+
+    .badge-status {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-vigente {
+      background: var(--verde-badge);
+      color: #ffffff;
+    }
+
+    .badge-vencida {
+      background: var(--vermelho-badge);
+      color: #ffffff;
+    }
+
+    .badge-pasta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #000000;
+      color: var(--amarelo);
+      border: 1px solid var(--amarelo);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin-left: 6px;
+    }
+
+    .actions-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 34px 16px;
+      color: var(--texto-muted);
+      font-size: 0.92rem;
+      background: var(--preto-abs);
+    }
+
+    /* Adaptação Mobile: vira blocos de cartão sem rolagem horizontal */
+    @media (max-width: 768px) {
+      .table-wrap {
+        border: none;
+        overflow-x: visible;
+      }
+
+      table, thead, tbody, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr.os-vigente, tr.os-vencida {
+        border-radius: 12px;
+        margin-bottom: 14px;
+        padding: 4px 0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      tr.os-vigente {
+        border-left: 6px solid var(--verde-borda);
+        box-shadow: none;
+      }
+
+      tr.os-vencida {
+        border-left: 6px solid var(--vermelho-borda);
+        box-shadow: none;
+      }
+
+      td {
+        padding: 8px 14px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--amarelo);
+        letter-spacing: 0.4px;
+      }
+
+      td:last-child {
+        border-bottom: none;
+        padding-top: 10px;
+        padding-bottom: 14px;
+      }
+
+      .actions-group button,
+      .actions-group a.btn-link {
+        flex: 1 1 auto;
+      }
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.86);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .modal {
+      background: var(--preto-card);
+      border: 2px solid var(--amarelo);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 980px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: #000000;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 2px solid var(--amarelo);
+    }
+
+    .modal-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--amarelo);
+      word-break: break-word;
+      flex: 1 1 220px;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .viewer-frame {
+      width: 100%;
+      height: 70vh;
+      border: 1px solid var(--borda-amarela);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .viewer-media {
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+      border: 1px solid var(--borda-amarela);
+    }
+
+    .folder-item {
+      background: var(--preto-abs);
+      border: 1px solid var(--borda-padrao);
+      border-left: 4px solid var(--amarelo);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .folder-item-name {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--texto);
+      word-break: break-word;
+    }
+
+    .folder-item-meta {
+      font-size: 0.76rem;
+      color: var(--texto-muted);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">OS.HTML</span>
+        <div>
+          <h1>ORDENS DE SERVIÇO</h1>
+          <div class="subtitle">Consulta, visualização e download • Exclusão automática em 6 meses</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="authStatusPill" class="auth-pill">Acesso: Senha 3303</span>
+        <button id="btnToggleInsert" class="btn-amarelo" type="button">+ Inserir Ordem de Serviço</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Formulário de Inserção -->
+    <section id="insertCard" class="card hidden">
+      <div class="card-header">
+        <div class="card-title">Nova Ordem de Serviço</div>
+        <button id="btnCloseInsert" class="btn-preto-amarelo" type="button">Fechar</button>
+      </div>
+
+      <form id="osForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="osTitle">Título da Ordem de Serviço</label>
+            <input
+              type="text"
+              id="osTitle"
+              placeholder="ORDEM DE SERVIÇO N° XXXX/XXXX/XXXX"
+              required
+            />
+            <span class="hint">Digite o título completo, ex.: ORDEM DE SERVIÇO N° 0045/2026/PMESP</span>
+          </div>
+
+          <div class="field full">
+            <label>Como são os dias dessa Ordem de Serviço?</label>
+            <div class="mode-switch">
+              <label class="mode-option">
+                <input type="radio" name="dateMode" value="range" checked />
+                Período corrido (Data Início até Data Término)
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="dateMode" value="specific" />
+                Dias específicos / alternados (ex.: 01, 04, 08, 14...)
+              </label>
+            </div>
+          </div>
+
+          <!-- Período Corrido -->
+          <div id="rangeStartBox" class="field">
+            <label for="startDate">Data Início</label>
+            <input type="date" id="startDate" />
+          </div>
+
+          <div id="rangeEndBox" class="field">
+            <label for="endDate">Data Término</label>
+            <input type="date" id="endDate" />
+          </div>
+
+          <!-- Dias Específicos -->
+          <div id="specificBox" class="field full hidden">
+            <div class="specific-box">
+              <label for="specificDateInput">Adicionar Dias Específicos</label>
+              <div class="specific-add-row">
+                <input type="date" id="specificDateInput" />
+                <button type="button" id="btnAddSpecificDate" class="btn-preto-amarelo">+ Adicionar Dia</button>
+              </div>
+              <span class="hint">Cada dia adicionado entra na lista. A menor data aparece como Data Inicial e a maior como Data Término.</span>
+              <div id="specificChips" class="chips"></div>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="osFiles">Arquivos (PDF, Word, Excel, Imagem, Vídeo ou qualquer arquivo)</label>
+            <input type="file" id="osFiles" multiple required />
+            <span class="hint">1 arquivo abre direto na visualização; 2 ou mais arquivos abrem como pasta com opção de ver e baixar cada um.</span>
+            <div id="selectedFilesPreview" class="selected-files-list"></div>
+          </div>
+
+          <div class="field full">
+            <button type="submit" id="btnSubmitOs" class="btn-amarelo">Salvar Ordem de Serviço</button>
+            <div class="progress-wrap">
+              <div id="uploadProgress" class="progress-bar"></div>
+            </div>
+            <div id="uploadStatus" class="status-msg"></div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Filtros e Pesquisa -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Pesquisa e Filtros</div>
+      </div>
+
+      <div class="filters-grid">
+        <div class="field">
+          <label for="searchInput">Buscar por Nome / Número da O.S. ou Arquivo</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Escreva o número, título ou nome do arquivo..."
+          />
+        </div>
+
+        <div class="field">
+          <label for="filterDate">Filtrar por Data</label>
+          <input type="date" id="filterDate" />
+        </div>
+
+        <div class="field">
+          <label for="filterStatus">Vigência (Cor na Lista)</label>
+          <select id="filterStatus">
+            <option value="all">Todas (Verdes e Vermelhas)</option>
+            <option value="vigente">Vigentes (Verde)</option>
+            <option value="vencida">Vencidas (Vermelha)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <button type="button" id="btnClearFilters" class="btn-preto-amarelo">Limpar</button>
+        </div>
+      </div>
+
+      <div id="statsBar" class="stats-bar"></div>
+    </section>
+
+    <!-- Lista de Ordens de Serviço -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Ordens de Serviço Cadastradas</div>
+        <span class="hint" id="cleanupInfo">Retenção automática: 6 meses</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Data Inicial</th>
+              <th>Data Término</th>
+              <th>Ver / Download</th>
+            </tr>
+          </thead>
+          <tbody id="osTableBody">
+            <tr>
+              <td colspan="4" class="empty-state">Carregando ordens de serviço...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Visualizador / Pasta -->
+  <div id="modalBackdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <div id="modalTitle" class="modal-title">Visualizador</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <a id="modalDirectDownload" class="btn-link btn-download" download>Download</a>
+          <button id="btnCloseModal" class="btn-preto-amarelo" type="button">✕ Fechar</button>
+        </div>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytesResumable,
+      getDownloadURL,
+      deleteObject
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
+      authDomain: "ordemservico-dc112.firebaseapp.com",
+      projectId: "ordemservico-dc112",
+      storageBucket: "ordemservico-dc112.firebasestorage.app",
+      messagingSenderId: "1062507814991",
+      appId: "1:1062507814991:web:4bd85ddd56d3d6086dca3a",
+      measurementId: "G-5491XBMX00"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const SENHA_MESTRA = "3303";
+    const SESSION_KEY = "os_3303_session_ok";
+    const SIX_MONTHS_MS = 180 * 24 * 60 * 60 * 1000;
+    const osCollection = collection(db, "ordens_servico");
+
+    let allOrders = [];
+    let specificDates = [];
+
+    const authStatusPill = document.getElementById("authStatusPill");
+    const btnToggleInsert = document.getElementById("btnToggleInsert");
+    const btnCloseInsert = document.getElementById("btnCloseInsert");
+    const insertCard = document.getElementById("insertCard");
+    const osForm = document.getElementById("osForm");
+    const osTitle = document.getElementById("osTitle");
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+    const specificDateInput = document.getElementById("specificDateInput");
+    const btnAddSpecificDate = document.getElementById("btnAddSpecificDate");
+    const specificChips = document.getElementById("specificChips");
+    const rangeStartBox = document.getElementById("rangeStartBox");
+    const rangeEndBox = document.getElementById("rangeEndBox");
+    const specificBox = document.getElementById("specificBox");
+    const osFilesInput = document.getElementById("osFiles");
+    const selectedFilesPreview = document.getElementById("selectedFilesPreview");
+    const uploadProgress = document.getElementById("uploadProgress");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const btnSubmitOs = document.getElementById("btnSubmitOs");
+
+    const searchInput = document.getElementById("searchInput");
+    const filterDate = document.getElementById("filterDate");
+    const filterStatus = document.getElementById("filterStatus");
+    const btnClearFilters = document.getElementById("btnClearFilters");
+    const statsBar = document.getElementById("statsBar");
+    const osTableBody = document.getElementById("osTableBody");
+    const cleanupInfo = document.getElementById("cleanupInfo");
+
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const modalDirectDownload = document.getElementById("modalDirectDownload");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+
+    function isUnlocked() {
+      return sessionStorage.getItem(SESSION_KEY) === "true";
+    }
+
+    function updateAuthBadge() {
+      if (isUnlocked()) {
+        authStatusPill.textContent = "Acesso: Liberado (Sessão)";
+        authStatusPill.classList.add("unlocked");
+      } else {
+        authStatusPill.textContent = "Acesso: Senha 3303";
+        authStatusPill.classList.remove("unlocked");
+      }
+    }
+
+    function checkPassword3303() {
+      if (isUnlocked()) return true;
+      const input = prompt("Digite a senha para inserir ou excluir Ordem de Serviço:");
+      if (input === null) return false;
+      if (input.trim() === SENHA_MESTRA) {
+        sessionStorage.setItem(SESSION_KEY, "true");
+        updateAuthBadge();
+        return true;
+      }
+      alert("Senha incorreta.");
+      return false;
+    }
+
+    updateAuthBadge();
+
+    btnToggleInsert.addEventListener("click", () => {
+      if (!checkPassword3303()) return;
+      insertCard.classList.remove("hidden");
+      insertCard.scrollIntoView({ behavior: "smooth" });
+    });
+
+    btnCloseInsert.addEventListener("click", () => {
+      insertCard.classList.add("hidden");
+    });
+
+    document.querySelectorAll('input[name="dateMode"]').forEach((radio) => {
+      radio.addEventListener("change", (e) => {
+        const isRange = e.target.value === "range";
+        rangeStartBox.classList.toggle("hidden", !isRange);
+        rangeEndBox.classList.toggle("hidden", !isRange);
+        specificBox.classList.toggle("hidden", isRange);
+      });
+    });
+
+    function renderSpecificChips() {
+      specificDates.sort();
+      specificChips.innerHTML = "";
+      specificDates.forEach((d) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `${formatDateBR(d)} <button type="button" title="Remover">×</button>`;
+        chip.querySelector("button").addEventListener("click", () => {
+          specificDates = specificDates.filter((item) => item !== d);
+          renderSpecificChips();
+        });
+        specificChips.appendChild(chip);
+      });
+    }
+
+    btnAddSpecificDate.addEventListener("click", () => {
+      const val = specificDateInput.value;
+      if (!val) return;
+      if (!specificDates.includes(val)) {
+        specificDates.push(val);
+        renderSpecificChips();
+      }
+      specificDateInput.value = "";
+    });
+
+    osFilesInput.addEventListener("change", () => {
+      selectedFilesPreview.innerHTML = "";
+      const files = Array.from(osFilesInput.files || []);
+      if (!files.length) return;
+
+      const label = document.createElement("strong");
+      label.style.color = "#ffd000";
+      label.textContent = files.length > 1
+        ? `Pasta com ${files.length} arquivos:`
+        : "Arquivo selecionado:";
+      selectedFilesPreview.appendChild(label);
+
+      files.forEach((f) => {
+        const line = document.createElement("div");
+        line.textContent = `• ${f.name} (${formatBytes(f.size)})`;
+        selectedFilesPreview.appendChild(line);
+      });
+    });
+
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDateBR(iso) {
+      if (!iso) return "-";
+      const [y, m, d] = iso.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatBytes(bytes = 0) {
+      if (!bytes) return "0 B";
+      const k = 1024;
+      const units = ["B", "KB", "MB", "GB"];
+      const idx = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${parseFloat((bytes / Math.pow(k, idx)).toFixed(1))} ${units[idx]}`;
+    }
+
+    function isVigente(order) {
+      const today = getTodayISO();
+      if (order.dateMode === "specific") {
+        const list = Array.isArray(order.specificDates) ? order.specificDates : [];
+        return list.includes(today);
+      }
+      const start = order.startDate || "";
+      const end = order.endDate || start;
+      if (!start) return false;
+      return today >= start && today <= end;
+    }
+
+    function matchDateFilter(order, targetISO) {
+      if (!targetISO) return true;
+      if (order.dateMode === "specific") {
+        return (order.specificDates || []).includes(targetISO);
+      }
+      const start = order.startDate || "";
+      const end = order.endDate || start;
+      return targetISO >= start && targetISO <= end;
+    }
+
+    osForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!checkPassword3303()) return;
+
+      const title = osTitle.value.trim();
+      const mode = document.querySelector('input[name="dateMode"]:checked').value;
+      const files = Array.from(osFilesInput.files || []);
+
+      if (!title) return alert("Informe o título da Ordem de Serviço.");
+      if (!files.length) return alert("Selecione pelo menos um arquivo.");
+
+      let startDate = "";
+      let endDate = "";
+      let sortedSpecific = [];
+
+      if (mode === "range") {
+        startDate = startDateInput.value;
+        endDate = endDateInput.value || startDate;
+        if (!startDate) return alert("Informe a Data Início.");
+        if (endDate < startDate) return alert("A Data Término não pode ser menor que a Data Início.");
+      } else {
+        if (!specificDates.length) return alert("Adicione pelo menos um dia específico.");
+        sortedSpecific = [...specificDates].sort();
+        startDate = sortedSpecific[0];
+        endDate = sortedSpecific[sortedSpecific.length - 1];
+      }
+
+      btnSubmitOs.disabled = true;
+      uploadProgress.style.width = "0%";
+      uploadStatus.textContent = "Iniciando envio dos arquivos...";
+
+      try {
+        const folderId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const uploaded = [];
+        const totalBytes = files.reduce((acc, f) => acc + f.size, 0) || 1;
+        let doneBytes = 0;
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const safeName = file.name.replace(/[^\w.\-() ]+/g, "_");
+          const storagePath = `ordens_servico/${folderId}/${i}_${safeName}`;
+          const storageRef = ref(storage, storagePath);
+
+          await new Promise((resolve, reject) => {
+            const task = uploadBytesResumable(storageRef, file);
+            task.on(
+              "state_changed",
+              (snap) => {
+                const pct = Math.min(100, Math.round(((doneBytes + snap.bytesTransferred) / totalBytes) * 100));
+                uploadProgress.style.width = `${pct}%`;
+                uploadStatus.textContent = `Enviando (${i + 1}/${files.length}): ${file.name} — ${pct}%`;
+              },
+              reject,
+              async () => {
+                const url = await getDownloadURL(task.snapshot.ref);
+                uploaded.push({
+                  name: file.name,
+                  type: file.type || "application/octet-stream",
+                  size: file.size,
+                  url,
+                  storagePath
+                });
+                doneBytes += file.size;
+                resolve();
+              }
+            );
+          });
+        }
+
+        uploadStatus.textContent = "Salvando no Firestore...";
+        const now = Date.now();
+        await addDoc(osCollection, {
+          title,
+          dateMode: mode,
+          startDate,
+          endDate,
+          specificDates: sortedSpecific,
+          files: uploaded,
+          createdAt: now,
+          expiresAt: now + SIX_MONTHS_MS
+        });
+
+        uploadProgress.style.width = "100%";
+        uploadStatus.textContent = "Ordem de Serviço salva com sucesso!";
+        osForm.reset();
+        specificDates = [];
+        renderSpecificChips();
+        selectedFilesPreview.innerHTML = "";
+        setTimeout(() => {
+          uploadProgress.style.width = "0%";
+          uploadStatus.textContent = "";
+          insertCard.classList.add("hidden");
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        uploadStatus.textContent = "Erro ao salvar: " + (err.message || err);
+      } finally {
+        btnSubmitOs.disabled = false;
+      }
+    });
+
+    async function deleteOrder(order) {
+      if (!checkPassword3303()) return;
+      const ok = confirm(`Excluir "${order.title}" e todos os arquivos vinculados?`);
+      if (!ok) return;
+
+      try {
+        for (const f of order.files || []) {
+          if (f.storagePath) {
+            try { await deleteObject(ref(storage, f.storagePath)); } catch (_) {}
+          }
+        }
+        await deleteDoc(doc(db, "ordens_servico", order.id));
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao excluir: " + (err.message || err));
+      }
+    }
+
+    async function runSixMonthCleanup(orders) {
+      const now = Date.now();
+      const expired = orders.filter((o) => o.expiresAt && now >= o.expiresAt);
+      if (!expired.length) {
+        cleanupInfo.textContent = "Retenção ativa: exclusão automática em 6 meses";
+        return;
+      }
+      cleanupInfo.textContent = `Limpando ${expired.length} O.S. com mais de 6 meses...`;
+      for (const order of expired) {
+        for (const f of order.files || []) {
+          if (f.storagePath) {
+            try { await deleteObject(ref(storage, f.storagePath)); } catch (_) {}
+          }
+        }
+        try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
+      }
+      cleanupInfo.textContent = "Retenção ativa: exclusão automática em 6 meses";
+    }
+
+    function openSingleViewer(file) {
+      modalTitle.textContent = file.name;
+      modalDirectDownload.href = file.url;
+      modalDirectDownload.download = file.name;
+      modalDirectDownload.classList.remove("hidden");
+      modalBody.innerHTML = "";
+
+      const lower = (file.name || "").toLowerCase();
+      const mime = (file.type || "").toLowerCase();
+
+      if (mime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(lower)) {
+        const img = document.createElement("img");
+        img.src = file.url;
+        img.alt = file.name;
+        img.className = "viewer-media";
+        modalBody.appendChild(img);
+      } else if (mime.startsWith("video/") || /\.(mp4|webm|ogg|mov)$/.test(lower)) {
+        const video = document.createElement("video");
+        video.src = file.url;
+        video.controls = true;
+        video.className = "viewer-media";
+        modalBody.appendChild(video);
+      } else if (mime === "application/pdf" || lower.endsWith(".pdf")) {
+        const iframe = document.createElement("iframe");
+        iframe.src = file.url;
+        iframe.className = "viewer-frame";
+        modalBody.appendChild(iframe);
+      } else if (/\.(doc|docx|xls|xlsx|ppt|pptx)$/.test(lower)) {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(file.url)}`;
+        iframe.className = "viewer-frame";
+        modalBody.appendChild(iframe);
+      } else {
+        modalBody.innerHTML = `
+          <div class="empty-state">
+            Pré-visualização direta indisponível para este tipo de arquivo.<br/>
+            Clique em <strong>Download</strong> no topo para baixar <strong>${escapeHtml(file.name)}</strong>.
+          </div>
+        `;
+      }
+
+      modalBackdrop.classList.remove("hidden");
+    }
+
+    function openFolderView(order) {
+      modalTitle.textContent = `📁 ${order.title} (${order.files.length} arquivos)`;
+      modalDirectDownload.classList.add("hidden");
+      modalBody.innerHTML = "";
+
+      (order.files || []).forEach((file) => {
+        const row = document.createElement("div");
+        row.className = "folder-item";
+
+        const info = document.createElement("div");
+        info.innerHTML = `
+          <div class="folder-item-name">${escapeHtml(file.name)}</div>
+          <div class="folder-item-meta">${formatBytes(file.size)} • ${escapeHtml(file.type || "arquivo")}</div>
+        `;
+
+        const btns = document.createElement("div");
+        btns.className = "actions-group";
+
+        const btnVer = document.createElement("button");
+        btnVer.type = "button";
+        btnVer.className = "btn-ver";
+        btnVer.textContent = "Ver";
+        btnVer.addEventListener("click", () => openSingleViewer(file));
+
+        const btnDl = document.createElement("a");
+        btnDl.href = file.url;
+        btnDl.download = file.name;
+        btnDl.target = "_blank";
+        btnDl.rel = "noopener";
+        btnDl.className = "btn-link btn-download";
+        btnDl.textContent = "Download";
+
+        btns.appendChild(btnVer);
+        btns.appendChild(btnDl);
+        row.appendChild(info);
+        row.appendChild(btns);
+        modalBody.appendChild(row);
+      });
+
+      modalBackdrop.classList.remove("hidden");
+    }
+
+    btnCloseModal.addEventListener("click", () => {
+      modalBackdrop.classList.add("hidden");
+      modalBody.innerHTML = "";
+    });
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) {
+        modalBackdrop.classList.add("hidden");
+        modalBody.innerHTML = "";
+      }
+    });
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderList() {
+      const term = searchInput.value.trim().toLowerCase();
+      const dateVal = filterDate.value;
+      const statusVal = filterStatus.value;
+
+      const filtered = allOrders.filter((order) => {
+        const vigente = isVigente(order);
+        if (statusVal === "vigente" && !vigente) return false;
+        if (statusVal === "vencida" && vigente) return false;
+        if (dateVal && !matchDateFilter(order, dateVal)) return false;
+
+        if (term) {
+          const hitTitle = (order.title || "").toLowerCase().includes(term);
+          const hitFiles = (order.files || []).some((f) => (f.name || "").toLowerCase().includes(term));
+          const hitDates =
+            (order.startDate || "").includes(term) ||
+            (order.endDate || "").includes(term) ||
+            formatDateBR(order.startDate).includes(term) ||
+            formatDateBR(order.endDate).includes(term) ||
+            (order.specificDates || []).some((d) => d.includes(term) || formatDateBR(d).includes(term));
+          if (!hitTitle && !hitFiles && !hitDates) return false;
+        }
+        return true;
+      });
+
+      const vigentesCount = allOrders.filter(isVigente).length;
+      const vencidasCount = allOrders.length - vigentesCount;
+
+      statsBar.innerHTML = `
+        <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
+        <span class="stat-pill vigente">Vigentes (Verde): <strong>${vigentesCount}</strong></span>
+        <span class="stat-pill vencida">Vencidas (Vermelha): <strong>${vencidasCount}</strong></span>
+        <span class="stat-pill">Filtrados: <strong style="color:#ffd000">${filtered.length}</strong></span>
+      `;
+
+      osTableBody.innerHTML = "";
+
+      if (!filtered.length) {
+        osTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço encontrada.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach((order) => {
+        const vigente = isVigente(order);
+        const files = order.files || [];
+        const isFolder = files.length > 1;
+
+        const tr = document.createElement("tr");
+        tr.className = vigente ? "os-vigente" : "os-vencida";
+
+        // Título
+        const tdTitle = document.createElement("td");
+        tdTitle.setAttribute("data-label", "Título");
+        const pastaBadge = isFolder ? `<span class="badge-pasta">📁 Pasta (${files.length})</span>` : "";
+        const statusBadge = vigente
+          ? `<span class="badge-status badge-vigente">VIGENTE</span>`
+          : `<span class="badge-status badge-vencida">VENCIDA</span>`;
+
+        tdTitle.innerHTML = `
+          <div><span class="os-title-text">${escapeHtml(order.title)}</span>${pastaBadge}</div>
+          <div>${statusBadge}</div>
+        `;
+
+        // Data Inicial
+        const tdStart = document.createElement("td");
+        tdStart.setAttribute("data-label", "Data Inicial");
+        tdStart.textContent = formatDateBR(order.startDate);
+
+        // Data Término
+        const tdEnd = document.createElement("td");
+        tdEnd.setAttribute("data-label", "Data Término");
+        if (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length) {
+          const diasStr = order.specificDates.map(formatDateBR).join(", ");
+          tdEnd.innerHTML = `
+            <div><strong>${formatDateBR(order.endDate)}</strong></div>
+            <div class="hint">Dias: ${escapeHtml(diasStr)}</div>
+          `;
+        } else {
+          tdEnd.textContent = formatDateBR(order.endDate);
+        }
+
+        // Botões Ver / Download / Excluir
+        const tdActions = document.createElement("td");
+        tdActions.setAttribute("data-label", "Ações");
+        const group = document.createElement("div");
+        group.className = "actions-group";
+
+        const btnVer = document.createElement("button");
+        btnVer.type = "button";
+        btnVer.className = "btn-ver";
+        btnVer.textContent = isFolder ? "Ver Pasta" : "Ver";
+        btnVer.addEventListener("click", () => {
+          if (isFolder) openFolderView(order);
+          else if (files[0]) openSingleViewer(files[0]);
+        });
+        group.appendChild(btnVer);
+
+        if (!isFolder && files[0]) {
+          const btnDl = document.createElement("a");
+          btnDl.href = files[0].url;
+          btnDl.download = files[0].name;
+          btnDl.target = "_blank";
+          btnDl.rel = "noopener";
+          btnDl.className = "btn-link btn-download";
+          btnDl.textContent = "Download";
+          group.appendChild(btnDl);
+        } else if (isFolder) {
+          const btnPastaDl = document.createElement("button");
+          btnPastaDl.type = "button";
+          btnPastaDl.className = "btn-download";
+          btnPastaDl.textContent = "Download";
+          btnPastaDl.addEventListener("click", () => openFolderView(order));
+          group.appendChild(btnPastaDl);
+        }
+
+        const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "btn-excluir";
+        btnDel.textContent = "Excluir";
+        btnDel.addEventListener("click", () => deleteOrder(order));
+        group.appendChild(btnDel);
+
+        tdActions.appendChild(group);
+
+        tr.appendChild(tdTitle);
+        tr.appendChild(tdStart);
+        tr.appendChild(tdEnd);
+        tr.appendChild(tdActions);
+        osTableBody.appendChild(tr);
+      });
+    }
+
+    searchInput.addEventListener("input", renderList);
+    filterDate.addEventListener("change", renderList);
+    filterStatus.addEventListener("change", renderList);
+
+    btnClearFilters.addEventListener("click", () => {
+      searchInput.value = "";
+      filterDate.value = "";
+      filterStatus.value = "all";
+      renderList();
+    });
+
+    const q = query(osCollection, orderBy("createdAt", "desc"));
+    onSnapshot(
+      q,
+      (snap) => {
+        allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        renderList();
+        runSixMonthCleanup(allOrders);
+      },
+      (err) => {
+        console.error(err);
+        osTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">
+              Não foi possível carregar os dados. Confira se Firestore, Storage e as regras foram publicados.
+            </td>
+          </tr>
+        `;
+      }
+    );
+  </script>
+</body>
+</html>
