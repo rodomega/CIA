@@ -196,6 +196,57 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 }
 
 /* ============================================================
+   PAINEL DE COORDENADAS EM TEMPO REAL (TOPO DIREITO)
+   ============================================================ */
+#coordLivePanel{
+    position: fixed;
+    top: max(6px, env(safe-area-inset-top, 6px));
+    right: 8px;
+    z-index: 950;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 10px;
+    padding: 4px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 9.5px;
+    line-height: 1.35;
+    color: #e2e8f0;
+    text-align: right;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    user-select: none;
+    -webkit-user-select: none;
+    max-width: 145px;
+}
+#coordLivePanel:active{
+    transform: scale(.95);
+    background: rgba(0,0,0,.7);
+}
+#coordLivePanel .coord-line{
+    display: block;
+    white-space: nowrap;
+    letter-spacing: .2px;
+}
+#coordLivePanel .coord-label{
+    color: #38bdf8;
+    font-weight: 700;
+    font-size: 8.5px;
+    margin-right: 2px;
+}
+#coordLivePanel .coord-acc{
+    color: #94a3b8;
+    font-size: 8px;
+    display: block;
+    white-space: nowrap;
+}
+#coordLivePanel.copiado{
+    background: rgba(34,197,94,.55);
+    border-color: rgba(34,197,94,.8);
+}
+
+/* ============================================================
    ADAPTAÇÃO AUTOMÁTICA PARA COMPUTADOR (TELAS MAIORES)
    ============================================================ */
 @media(min-width: 768px) {
@@ -223,11 +274,28 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     .donation-footer {
         padding: 12px 20px;
     }
+    #coordLivePanel{
+        font-size: 11px;
+        max-width: 180px;
+        padding: 6px 10px;
+        top: 12px;
+        right: 16px;
+    }
+    #coordLivePanel .coord-label{ font-size: 10px; }
+    #coordLivePanel .coord-acc{ font-size: 9px; }
 }
 </style>
 </head>
 
 <body>
+
+<!-- PAINEL DE COORDENADAS EM TEMPO REAL (TOPO DIREITO) -->
+<div id="coordLivePanel" title="Toque para copiar coordenadas">
+    <span class="coord-line"><span class="coord-label">LAT</span><span id="liveLat">--</span></span>
+    <span class="coord-line"><span class="coord-label">LNG</span><span id="liveLng">--</span></span>
+    <span class="coord-acc" id="liveAcc">aguardando GPS...</span>
+</div>
+
 <div class="phone-container">
     <div class="header">
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
@@ -814,23 +882,6 @@ window.salvarDicas = async function() {
     }
 };
 
-window.copiarGeolocalizacao = function() {
-    if (!navigator.geolocation) { alert("GPS não suportado."); return; }
-    navigator.geolocation.getCurrentPosition(
-        async pos => {
-            const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
-            try {
-                await navigator.clipboard.writeText(coords);
-                alert("Coordenadas copiadas:\n" + coords);
-            } catch {
-                alert("Coordenadas: " + coords);
-            }
-        },
-        () => alert("Erro ao obter localização. Verifique permissões."),
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-};
-
 onSnapshot(appsCol, snapshot => {
     globalApps = [];
     snapshot.forEach(s => globalApps.push({ docId:s.id, ...s.data() }));
@@ -859,12 +910,6 @@ function renderizarGrid() {
         div.innerHTML = `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
         grid.appendChild(div);
     });
-
-    const gpsItem = document.createElement("div");
-    gpsItem.className = "app-item";
-    gpsItem.onclick = window.copiarGeolocalizacao;
-    gpsItem.innerHTML = `<div class="app-icon" style="background:rgba(34, 197, 94, 0.15);"><span style="font-size:26px">📍</span></div><div class="app-name">Coordenadas</div>`;
-    grid.appendChild(gpsItem);
 
     const dicasItem = document.createElement("div");
     dicasItem.className = "app-item";
@@ -1283,6 +1328,61 @@ window.concluirSubitensAdmin = function() {
 window.fecharModais = function() {
     document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
 };
+
+/* ============================================================
+   COORDENADAS EM TEMPO REAL NO TOPO DIREITO
+   ============================================================ */
+let ultimasCoords = null;
+let ultimaPrecisaoGps = 0;
+
+(function iniciarGPSLive() {
+    const panel = $("coordLivePanel");
+    const latEl = $("liveLat");
+    const lngEl = $("liveLng");
+    const accEl = $("liveAcc");
+
+    if (!navigator.geolocation) {
+        accEl.textContent = "GPS indisponível";
+        return;
+    }
+
+    navigator.geolocation.watchPosition(
+        (pos) => {
+            const c = pos.coords;
+            const lat = c.latitude.toFixed(6);
+            const lng = c.longitude.toFixed(6);
+            ultimasCoords = `${lat}, ${lng}`;
+            ultimaPrecisaoGps = Math.round(c.accuracy);
+
+            latEl.textContent = lat;
+            lngEl.textContent = lng;
+            accEl.textContent = `±${ultimaPrecisaoGps}m`;
+        },
+        (err) => {
+            if (err.code === 1) accEl.textContent = "GPS sem permissão";
+            else accEl.textContent = "aguardando GPS...";
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+    );
+
+    panel.addEventListener("click", async () => {
+        if (!ultimasCoords) {
+            accEl.textContent = "Sem sinal ainda...";
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(ultimasCoords);
+            panel.classList.add("copiado");
+            accEl.textContent = "✓ copiado!";
+            setTimeout(() => {
+                panel.classList.remove("copiado");
+                if (ultimasCoords) accEl.textContent = `±${ultimaPrecisaoGps}m`;
+            }, 1400);
+        } catch {
+            accEl.textContent = "copie manualmente";
+        }
+    });
+})();
 
 carregarConfigPortal();
 window.alternarCamposTipo();
