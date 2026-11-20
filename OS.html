@@ -71,7 +71,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-primario:hover:not(:disabled) { background: var(--destaque-hover); }
 .btn-secundario { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
 .btn-secundario:hover:not(:disabled) { border-color: var(--destaque); }
-.btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); padding: 8px 12px; font-size: 0.8rem; }
+.btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); padding: 8px 14px; font-size: 0.82rem; }
 .btn-ver:hover:not(:disabled) { background: var(--destaque-hover); }
 .btn-download { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--texto-destaque); padding: 8px 12px; font-size: 0.8rem; }
 .btn-download:hover:not(:disabled) { background: var(--destaque); color: var(--texto-botao-destaque); }
@@ -88,6 +88,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .field.full { grid-column: 1 / -1; }
 label { font-size: 0.82rem; font-weight: 700; color: var(--texto-destaque); }
 .hint { font-size: 0.74rem; color: var(--texto-suave); line-height: 1.35; }
+.warn-text { color: #f59e0b; font-weight: 700; }
 input[type="text"], input[type="date"], select { background: var(--bg-input); color: var(--texto-principal); border: 1px solid var(--borda); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; width: 100%; }
 input[type="text"]:focus, input[type="date"]:focus, select:focus { outline: none; border-color: var(--destaque); box-shadow: 0 0 0 2px rgba(255,208,0,0.2); }
 input[type="file"] { background: var(--bg-input); color: var(--texto-suave); border: 1.5px dashed var(--destaque); border-radius: 8px; padding: 12px; width: 100%; font-size: 0.85rem; }
@@ -142,13 +143,16 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   td:last-child { border-bottom: none; padding-top: 10px; padding-bottom: 14px; }
   .actions-group button, .actions-group a.btn-link { flex: 1 1 auto; }
 }
-.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 14px; }
-.modal { background: var(--bg-card); border: 2px solid var(--destaque); border-radius: 12px; width: 100%; max-width: 980px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; }
-.modal-header { background: var(--bg-header); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid var(--destaque); }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 12px; }
+.modal { background: var(--bg-card); border: 2px solid var(--destaque); border-radius: 12px; width: 100%; max-width: 1020px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal-header { background: var(--bg-header); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid var(--destaque); }
 .modal-title { font-size: 0.95rem; font-weight: 800; color: var(--texto-destaque); word-break: break-word; flex: 1 1 220px; }
-.modal-body { padding: 16px; overflow-y: auto; flex: 1; }
-.viewer-frame { width: 100%; height: 70vh; border: 1px solid var(--borda); border-radius: 8px; background: #ffffff; }
-.viewer-media { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; border-radius: 8px; border: 1px solid var(--borda); }
+.modal-body { padding: 14px; overflow-y: auto; flex: 1; }
+.viewer-frame { width: 100%; height: 74vh; border: 1px solid var(--borda); border-radius: 8px; background: #ffffff; }
+@media (max-width: 768px) {
+  .viewer-frame { height: 78vh; }
+}
+.viewer-media { max-width: 100%; max-height: 74vh; display: block; margin: 0 auto; border-radius: 8px; border: 1px solid var(--borda); }
 .folder-item { background: var(--bg-elevado); border: 1px solid var(--borda); border-left: 4px solid var(--destaque); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .folder-item-name { font-weight: 800; font-size: 0.9rem; color: var(--texto-principal); word-break: break-word; }
 .folder-item-meta { font-size: 0.76rem; color: var(--texto-suave); margin-top: 2px; }
@@ -162,7 +166,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
       <span class="brand-icon">OS</span>
       <div>
         <h1>ORDENS DE SERVIÇO</h1>
-        <div class="subtitle">Consulta, visualização e download • Exclusão automática 3 meses após o término</div>
+        <div class="subtitle">Visualização rápida no navegador • Exclusão automática 3 meses após o término</div>
       </div>
     </div>
     <div class="header-actions">
@@ -228,7 +232,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
         <div class="field full">
           <label for="osFiles">Arquivos (PDF, Word, Excel, Imagem, Vídeo ou qualquer arquivo)</label>
           <input type="file" id="osFiles" multiple required />
-          <span class="hint">1 arquivo abre direto na visualização; 2 ou mais arquivos abrem como pasta com opção de ver e baixar cada um.</span>
+          <span class="hint">1 arquivo abre direto na visualização; 2 ou mais arquivos abrem como pasta. Para evitar lentidão no celular, prefira arquivos leves (até ~15 MB).</span>
           <div id="selectedFilesPreview" class="selected-files-list"></div>
         </div>
 
@@ -287,7 +291,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
             <th>Título</th>
             <th>Data Inicial</th>
             <th>Data Término</th>
-            <th>Ver / Download</th>
+            <th>Visualizar</th>
           </tr>
         </thead>
         <tbody id="osTableBody">
@@ -307,6 +311,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">Visualizador</div>
       <div class="actions-group">
+        <a id="modalOpenTab" class="btn-link btn-secundario hidden" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova guia</a>
         <a id="modalDirectDownload" class="btn-link btn-download hidden" href="#" target="_blank" rel="noopener">Download</a>
         <button id="btnCloseModal" class="btn-secundario" type="button">✕ Fechar</button>
       </div>
@@ -341,10 +346,12 @@ const SESSION_KEY = "os_3303_session_ok";
 const THEME_KEY = "os_theme_preference";
 const RETENTION_DAYS = 90;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const SOFT_FILE_WARN_BYTES = 15 * 1024 * 1024;
 
 const osCollection = collection(db, "ordens_servico");
 let allOrders = [];
 let specificDates = [];
+let cleanupRunning = false;
 
 const btnToggleTheme = document.getElementById("btnToggleTheme");
 const authStatusPill = document.getElementById("authStatusPill");
@@ -379,6 +386,7 @@ const cleanupInfo = document.getElementById("cleanupInfo");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
+const modalOpenTab = document.getElementById("modalOpenTab");
 const modalDirectDownload = document.getElementById("modalDirectDownload");
 const btnCloseModal = document.getElementById("btnCloseModal");
 
@@ -487,8 +495,9 @@ osFilesInput.addEventListener("change", () => {
   label.textContent = files.length > 1 ? `Pasta com ${files.length} arquivos:` : "Arquivo selecionado:";
   selectedFilesPreview.appendChild(label);
   files.forEach((f) => {
+    const isHeavy = f.size > SOFT_FILE_WARN_BYTES;
     const line = document.createElement("div");
-    line.textContent = `• ${f.name} (${formatBytes(f.size)})`;
+    line.innerHTML = `• ${escapeHtml(f.name)} (${formatBytes(f.size)})${isHeavy ? ' <span class="warn-text">— arquivo pesado, pode demorar no envio</span>' : ""}`;
     selectedFilesPreview.appendChild(line);
   });
 });
@@ -605,7 +614,7 @@ async function uploadFileToDrive(file) {
     viewUrl: data.viewUrl,
     downloadUrl: data.downloadUrl,
     directUrl: data.directUrl,
-    url: data.downloadUrl || data.viewUrl,
+    url: data.viewUrl || data.downloadUrl,
     storageProvider: "gdrive"
   };
 }
@@ -713,6 +722,7 @@ async function deleteOrder(order) {
 }
 
 async function runThreeMonthCleanup(orders) {
+  if (cleanupRunning) return;
   const now = Date.now();
   const expired = orders.filter((o) => {
     const exp = getExpirationTimestamp(o);
@@ -722,12 +732,17 @@ async function runThreeMonthCleanup(orders) {
     cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
     return;
   }
+  cleanupRunning = true;
   cleanupInfo.textContent = `Removendo ${expired.length} O.S. vencidas há mais de 3 meses...`;
-  for (const order of expired) {
-    await removeFilesFromDrive(order.files || []);
-    try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
+  try {
+    for (const order of expired) {
+      await removeFilesFromDrive(order.files || []);
+      try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
+    }
+  } finally {
+    cleanupRunning = false;
+    cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
   }
-  cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
 }
 
 function getFileDownloadUrl(file) {
@@ -745,9 +760,14 @@ function openSingleViewer(file) {
   const dlUrl = getFileDownloadUrl(file);
   const previewUrl = getFilePreviewUrl(file);
   modalTitle.textContent = file.name;
+
+  modalOpenTab.href = previewUrl || dlUrl;
+  modalOpenTab.classList.remove("hidden");
+
   modalDirectDownload.href = dlUrl;
   modalDirectDownload.download = file.name;
   modalDirectDownload.classList.remove("hidden");
+
   modalBody.innerHTML = "";
 
   const lower = (file.name || "").toLowerCase();
@@ -774,7 +794,7 @@ function openSingleViewer(file) {
     modalBody.innerHTML = `
       <div class="empty-state">
         Pré-visualização direta indisponível para este tipo de arquivo.<br/>
-        Clique em <strong>Download</strong> no topo para baixar <strong>${escapeHtml(file.name)}</strong>.
+        Use <strong>Abrir em nova guia</strong> ou <strong>Download</strong> no topo para acessar <strong>${escapeHtml(file.name)}</strong>.
       </div>`;
   }
   modalBackdrop.classList.remove("hidden");
@@ -782,6 +802,8 @@ function openSingleViewer(file) {
 
 function openFolderView(order) {
   modalTitle.textContent = `📁 ${order.title} (${order.files.length} arquivos)`;
+  modalOpenTab.classList.add("hidden");
+  modalOpenTab.href = "#";
   modalDirectDownload.classList.add("hidden");
   modalBody.innerHTML = "";
   (order.files || []).forEach((file) => {
@@ -815,15 +837,17 @@ function openFolderView(order) {
   modalBackdrop.classList.remove("hidden");
 }
 
-btnCloseModal.addEventListener("click", () => {
+function closeModal() {
   modalBackdrop.classList.add("hidden");
   modalBody.innerHTML = "";
-});
+  modalOpenTab.classList.add("hidden");
+  modalOpenTab.href = "#";
+  modalDirectDownload.classList.add("hidden");
+}
+
+btnCloseModal.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", (e) => {
-  if (e.target === modalBackdrop) {
-    modalBackdrop.classList.add("hidden");
-    modalBody.innerHTML = "";
-  }
+  if (e.target === modalBackdrop) closeModal();
 });
 
 function escapeHtml(str = "") {
@@ -917,7 +941,7 @@ function renderList() {
     }
 
     const tdActions = document.createElement("td");
-    tdActions.setAttribute("data-label", "Ações");
+    tdActions.setAttribute("data-label", "Visualizar");
     const group = document.createElement("div");
     group.className = "actions-group";
 
@@ -930,24 +954,6 @@ function renderList() {
       else if (files[0]) openSingleViewer(files[0]);
     });
     group.appendChild(btnVer);
-
-    if (!isFolder && files[0]) {
-      const btnDl = document.createElement("a");
-      btnDl.href = getFileDownloadUrl(files[0]);
-      btnDl.download = files[0].name;
-      btnDl.target = "_blank";
-      btnDl.rel = "noopener";
-      btnDl.className = "btn-link btn-download";
-      btnDl.textContent = "Download";
-      group.appendChild(btnDl);
-    } else if (isFolder) {
-      const btnPastaDl = document.createElement("button");
-      btnPastaDl.type = "button";
-      btnPastaDl.className = "btn-download";
-      btnPastaDl.textContent = "Download";
-      btnPastaDl.addEventListener("click", () => openFolderView(order));
-      group.appendChild(btnPastaDl);
-    }
 
     const btnDel = document.createElement("button");
     btnDel.type = "button";
