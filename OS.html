@@ -301,6 +301,14 @@ tr.os-em-breve .os-title-text { color: var(--breve-texto); font-weight: 800; }
 tr.os-vencida { background: var(--vencida-bg); box-shadow: inset 5px 0 0 var(--vencida-borda); }
 tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 
+.os-subject-text {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+  opacity: 0.92;
+  line-height: 1.25;
+}
+
 .badge-status {
   display: inline-block;
   padding: 2px 7px;
@@ -340,7 +348,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 .actions-group { display: flex; gap: 6px; align-items: center; }
 .empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
 
-/* Layout organizado no celular: status acima dos 3 botões à direita */
+/* Layout organizado no celular: título em cima, assunto abaixo, datas na base; status acima dos 3 botões à direita */
 @media (max-width: 768px) {
   .table-wrap { border: none; overflow-x: visible; border-radius: 0; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
@@ -379,7 +387,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
   }
   .os-title-line {
     display: flex;
@@ -392,10 +400,16 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     line-height: 1.25;
     word-break: break-word;
   }
+  .os-subject-text {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    word-break: break-word;
+  }
   .os-dates-line {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--texto-suave);
     line-height: 1.25;
+    margin-top: 1px;
   }
 
   .mobile-right-stack {
@@ -519,10 +533,16 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 
     <form id="osForm">
       <div class="form-grid">
-        <div class="field full">
-          <label for="osTitle">Título da Ordem de Serviço</label>
-          <input type="text" id="osTitle" placeholder="OS Nº 4º BPRv-2042/441/26 - OPERAÇÃO..." required />
-          <span class="hint">Pode incluir o número da O.S. e o nome da operação.</span>
+        <div class="field">
+          <label for="osTitle">Título</label>
+          <input type="text" id="osTitle" placeholder="OS Nº 4º BPRv-2042/441/26" required />
+          <span class="hint">Número ou identificação da Ordem de Serviço.</span>
+        </div>
+
+        <div class="field">
+          <label for="osSubject">Assunto</label>
+          <input type="text" id="osSubject" placeholder="OPERAÇÃO CONSCIÊNCIA NEGRA" />
+          <span class="hint">Exibe logo abaixo do título na lista.</span>
         </div>
 
         <div class="field full">
@@ -580,7 +600,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   <!-- Busca + Filtros -->
   <section class="card">
     <div class="search-bar-row">
-      <input type="text" id="searchInput" aria-label="Buscar por nome, número da O.S. ou arquivo" placeholder="Buscar por nome, número ou arquivo..." />
+      <input type="text" id="searchInput" aria-label="Buscar por título, assunto ou arquivo" placeholder="Buscar por título, assunto ou arquivo..." />
       <button id="btnToggleFilters" class="btn-secundario" type="button">
         <span>Filtros</span>
         <span id="activeFiltersBadge" class="filter-count-badge hidden">0</span>
@@ -615,7 +635,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
       <table>
         <thead>
           <tr>
-            <th>Título</th>
+            <th>Título / Assunto</th>
             <th>Início</th>
             <th>Término</th>
             <th>Ações</th>
@@ -689,6 +709,7 @@ const btnCloseInsert = document.getElementById("btnCloseInsert");
 const insertCard = document.getElementById("insertCard");
 const osForm = document.getElementById("osForm");
 const osTitle = document.getElementById("osTitle");
+const osSubject = document.getElementById("osSubject");
 const startDateInput = document.getElementById("startDate");
 const endDateInput = document.getElementById("endDate");
 const specificDateInput = document.getElementById("specificDateInput");
@@ -951,6 +972,7 @@ osForm.addEventListener("submit", async (e) => {
   if (!checkPassword()) return;
 
   const title = osTitle.value.trim();
+  const subject = osSubject.value.trim();
   const mode = document.querySelector('input[name="dateMode"]:checked').value;
   const files = Array.from(osFilesInput.files || []);
   if (!title) return alert("Informe o título.");
@@ -993,6 +1015,7 @@ osForm.addEventListener("submit", async (e) => {
     const now = Date.now();
     const orderPayload = {
       title,
+      subject,
       dateMode: mode,
       startDate,
       endDate,
@@ -1251,6 +1274,7 @@ function renderList() {
     if (dateVal && !matchDateFilter(order, dateVal)) return false;
     if (term) {
       const hitTitle = (order.title || "").toLowerCase().includes(term);
+      const hitSubject = (order.subject || "").toLowerCase().includes(term);
       const hitFiles = (order.files || []).some((f) => (f.name || "").toLowerCase().includes(term));
       const hitDates =
         (order.startDate || "").includes(term) ||
@@ -1258,7 +1282,7 @@ function renderList() {
         formatDateBR(order.startDate).includes(term) ||
         formatDateBR(order.endDate).includes(term) ||
         (order.specificDates || []).some((d) => d.includes(term) || formatDateBR(d).includes(term));
-      if (!hitTitle && !hitFiles && !hitDates) return false;
+      if (!hitTitle && !hitSubject && !hitFiles && !hitDates) return false;
     }
     return true;
   });
@@ -1308,6 +1332,9 @@ function renderList() {
     const dateSummary = (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
       ? order.specificDates.map(formatDateBR).join(", ")
       : `${startBR} → ${endBR}`;
+    const subjectHtml = order.subject
+      ? `<div class="os-subject-text">${escapeHtml(order.subject)}</div>`
+      : "";
 
     const tr = document.createElement("tr");
     tr.className = meta.rowClass;
@@ -1323,6 +1350,7 @@ function renderList() {
           <span class="os-title-text">${escapeHtml(order.title)}</span>
           <span class="desktop-status-row">${statusBadgeHtml}${pastaBadgeHtml}</span>
         </div>
+        ${subjectHtml}
         <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
       </div>
     `;
