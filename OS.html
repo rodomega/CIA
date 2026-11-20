@@ -24,6 +24,10 @@
   --vigente-borda: #22c55e;
   --vigente-texto: #86efac;
   --vigente-badge: #16a34a;
+  --breve-bg: rgba(37, 99, 235, 0.18);
+  --breve-borda: #3b82f6;
+  --breve-texto: #93c5fd;
+  --breve-badge: #2563eb;
   --vencida-bg: rgba(220, 38, 38, 0.18);
   --vencida-borda: #ef4444;
   --vencida-texto: #fca5a5;
@@ -48,6 +52,10 @@ body.light-theme {
   --vigente-borda: #15803d;
   --vigente-texto: #14532d;
   --vigente-badge: #15803d;
+  --breve-bg: #dbeafe;
+  --breve-borda: #1d4ed8;
+  --breve-texto: #1e3a8a;
+  --breve-badge: #1d4ed8;
   --vencida-bg: #fee2e2;
   --vencida-borda: #b91c1c;
   --vencida-texto: #7f1d1d;
@@ -120,12 +128,12 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-add-os { padding: 8px 11px; font-size: 0.8rem; letter-spacing: 0.2px; }
 .btn-theme-icon { padding: 8px 9px; font-size: 0.92rem; }
 .btn-icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-radius: 8px;
-  flex: 0 0 34px;
+  flex: 0 0 32px;
 }
 .btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); }
 .btn-ver:hover:not(:disabled) { background: var(--destaque-hover); }
@@ -261,6 +269,7 @@ input[type="file"] {
   color: var(--texto-principal);
 }
 .stat-pill.vigente { border-color: var(--vigente-borda); color: var(--vigente-texto); background: var(--vigente-bg); }
+.stat-pill.em-breve { border-color: var(--breve-borda); color: var(--breve-texto); background: var(--breve-bg); }
 .stat-pill.vencida { border-color: var(--vencida-borda); color: var(--vencida-texto); background: var(--vencida-bg); }
 
 /* Tabela Desktop */
@@ -282,22 +291,29 @@ td {
   font-size: 0.88rem;
   vertical-align: middle;
 }
+
 tr.os-vigente { background: var(--vigente-bg); box-shadow: inset 5px 0 0 var(--vigente-borda); }
 tr.os-vigente .os-title-text { color: var(--vigente-texto); font-weight: 800; }
+
+tr.os-em-breve { background: var(--breve-bg); box-shadow: inset 5px 0 0 var(--breve-borda); }
+tr.os-em-breve .os-title-text { color: var(--breve-texto); font-weight: 800; }
+
 tr.os-vencida { background: var(--vencida-bg); box-shadow: inset 5px 0 0 var(--vencida-borda); }
 tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
+
 .badge-status {
   display: inline-block;
-  margin-left: 6px;
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.3px;
-  vertical-align: middle;
+  line-height: 1.25;
 }
 .badge-vigente { background: var(--vigente-badge); color: #ffffff; }
+.badge-em-breve { background: var(--breve-badge); color: #ffffff; }
 .badge-vencida { background: var(--vencida-badge); color: #ffffff; }
+
 .badge-pasta {
   display: inline-flex;
   align-items: center;
@@ -307,43 +323,63 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   border: 1px solid var(--destaque);
   padding: 1px 6px;
   border-radius: 6px;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 800;
+  line-height: 1.25;
+}
+
+.desktop-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-left: 6px;
   vertical-align: middle;
 }
+
+.mobile-right-stack { display: none; }
 .actions-group { display: flex; gap: 6px; align-items: center; }
 .empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
 
-/* Linha única compacta no celular */
+/* Layout organizado no celular: status acima dos 3 botões à direita */
 @media (max-width: 768px) {
   .table-wrap { border: none; overflow-x: visible; border-radius: 0; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
   thead { display: none; }
   tbody { display: flex; flex-direction: column; gap: 8px; }
-  tr.os-vigente, tr.os-vencida {
+
+  tr.os-vigente,
+  tr.os-em-breve,
+  tr.os-vencida {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
     border-radius: 10px;
     padding: 9px 10px 9px 12px;
     border: 1px solid rgba(128,128,128,0.24);
   }
   tr.os-vigente { border-left: 4px solid var(--vigente-borda); box-shadow: none; }
+  tr.os-em-breve { border-left: 4px solid var(--breve-borda); box-shadow: none; }
   tr.os-vencida { border-left: 4px solid var(--vencida-borda); box-shadow: none; }
-  td {
-    padding: 0;
-    border: none;
-    width: auto;
-  }
-  td::before { display: none; }
+
+  td { padding: 0; border: none; width: auto; }
+  td.col-start, td.col-end, td.col-actions, .desktop-status-row { display: none; }
+
   td.col-info {
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .mobile-left-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
   }
   .os-title-line {
     display: flex;
@@ -352,21 +388,39 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     flex-wrap: wrap;
   }
   .os-title-text {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     line-height: 1.25;
     word-break: break-word;
   }
-  .badge-status { margin-left: 0; font-size: 0.64rem; padding: 1.5px 6px; }
-  .badge-pasta { margin-left: 0; font-size: 0.66rem; padding: 1px 5px; }
   .os-dates-line {
     font-size: 0.72rem;
     color: var(--texto-suave);
     line-height: 1.25;
   }
-  td.col-start, td.col-end { display: none; }
-  td.col-actions { flex: 0 0 auto; }
-  .actions-group { gap: 5px; flex-wrap: nowrap; }
-  .btn-icon { width: 32px; height: 32px; flex: 0 0 32px; font-size: 0.88rem; }
+
+  .mobile-right-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    flex: 0 0 auto;
+  }
+  .mobile-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .actions-group {
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    font-size: 0.84rem;
+  }
 }
 
 .modal-backdrop {
@@ -467,8 +521,8 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
       <div class="form-grid">
         <div class="field full">
           <label for="osTitle">Título da Ordem de Serviço</label>
-          <input type="text" id="osTitle" placeholder="ORDEM DE SERVIÇO N° XXXX/XXXX/XXXX" required />
-          <span class="hint">Ex.: ORDEM DE SERVIÇO N° 0045/2026/PMESP</span>
+          <input type="text" id="osTitle" placeholder="OS Nº 4º BPRv-2042/441/26 - OPERAÇÃO..." required />
+          <span class="hint">Pode incluir o número da O.S. e o nome da operação.</span>
         </div>
 
         <div class="field full">
@@ -543,6 +597,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
           <select id="filterStatus">
             <option value="all">Todas</option>
             <option value="vigente">Vigentes (Verde)</option>
+            <option value="em_breve">Em breve (Azul)</option>
             <option value="vencida">Vencidas (Vermelha)</option>
           </select>
         </div>
@@ -799,17 +854,24 @@ function getExpirationTimestamp(order) {
   return null;
 }
 
-function isVigente(order) {
+// Retorna: "vigente" | "em_breve" | "vencida"
+function getOrderStatus(order) {
   const today = getTodayISO();
   if (order.dateMode === "specific") {
-    const list = Array.isArray(order.specificDates) ? order.specificDates : [];
-    return list.includes(today);
+    const list = Array.isArray(order.specificDates) ? [...order.specificDates].sort() : [];
+    if (!list.length) return "vencida";
+    if (list.includes(today)) return "vigente";
+    if (today < list[list.length - 1]) return "em_breve";
+    return "vencida";
   }
   const start = order.startDate || "";
   const end = order.endDate || start;
-  if (!start) return false;
-  return today >= start && today <= end;
+  if (!start) return "vencida";
+  if (today < start) return "em_breve";
+  if (today > end) return "vencida";
+  return "vigente";
 }
+
 function matchDateFilter(order, targetISO) {
   if (!targetISO) return true;
   if (order.dateMode === "specific") {
@@ -1117,6 +1179,66 @@ function escapeHtml(str = "") {
     .replace(/"/g, "&quot;");
 }
 
+function getStatusMeta(status) {
+  if (status === "vigente") {
+    return { rowClass: "os-vigente", badgeClass: "badge-vigente", label: "VIGENTE" };
+  }
+  if (status === "em_breve") {
+    return { rowClass: "os-em-breve", badgeClass: "badge-em-breve", label: "EM BREVE" };
+  }
+  return { rowClass: "os-vencida", badgeClass: "badge-vencida", label: "VENCIDA" };
+}
+
+function createActionButtons(order, files, isFolder) {
+  const group = document.createElement("div");
+  group.className = "actions-group";
+
+  const btnVer = document.createElement("button");
+  btnVer.type = "button";
+  btnVer.className = "btn-ver btn-icon";
+  btnVer.title = isFolder ? "Abrir pasta" : "Visualizar";
+  btnVer.setAttribute("aria-label", isFolder ? "Abrir pasta" : "Visualizar");
+  btnVer.textContent = isFolder ? "📂" : "👁️";
+  btnVer.addEventListener("click", () => {
+    if (isFolder) openFolderView(order);
+    else if (files[0]) openSingleViewer(files[0]);
+  });
+  group.appendChild(btnVer);
+
+  if (!isFolder && files[0]) {
+    const btnDl = document.createElement("a");
+    btnDl.href = getFileDownloadUrl(files[0]);
+    btnDl.download = files[0].name;
+    btnDl.target = "_blank";
+    btnDl.rel = "noopener";
+    btnDl.className = "btn-link btn-download btn-icon";
+    btnDl.title = "Download";
+    btnDl.setAttribute("aria-label", "Download");
+    btnDl.textContent = "⬇️";
+    group.appendChild(btnDl);
+  } else if (isFolder) {
+    const btnPastaDl = document.createElement("button");
+    btnPastaDl.type = "button";
+    btnPastaDl.className = "btn-download btn-icon";
+    btnPastaDl.title = "Arquivos para download";
+    btnPastaDl.setAttribute("aria-label", "Arquivos para download");
+    btnPastaDl.textContent = "⬇️";
+    btnPastaDl.addEventListener("click", () => openFolderView(order));
+    group.appendChild(btnPastaDl);
+  }
+
+  const btnDel = document.createElement("button");
+  btnDel.type = "button";
+  btnDel.className = "btn-excluir btn-icon";
+  btnDel.title = "Excluir";
+  btnDel.setAttribute("aria-label", "Excluir");
+  btnDel.textContent = "🗑️";
+  btnDel.addEventListener("click", () => deleteOrder(order));
+  group.appendChild(btnDel);
+
+  return group;
+}
+
 function renderList() {
   updateFilterBadge();
   const term = searchInput.value.trim().toLowerCase();
@@ -1124,9 +1246,8 @@ function renderList() {
   const statusVal = filterStatus.value;
 
   const filtered = allOrders.filter((order) => {
-    const vigente = isVigente(order);
-    if (statusVal === "vigente" && !vigente) return false;
-    if (statusVal === "vencida" && vigente) return false;
+    const status = getOrderStatus(order);
+    if (statusVal !== "all" && status !== statusVal) return false;
     if (dateVal && !matchDateFilter(order, dateVal)) return false;
     if (term) {
       const hitTitle = (order.title || "").toLowerCase().includes(term);
@@ -1142,11 +1263,28 @@ function renderList() {
     return true;
   });
 
-  const vigentesCount = allOrders.filter(isVigente).length;
-  const vencidasCount = allOrders.length - vigentesCount;
+  // Sempre ordena: Vigentes (Verde) -> Em breve (Azul) -> Vencidas (Vermelha)
+  const statusPriority = {
+    vigente: 0,
+    em_breve: 1,
+    vencida: 2
+  };
+  filtered.sort((a, b) => {
+    const sa = getOrderStatus(a);
+    const sb = getOrderStatus(b);
+    const diffStatus = (statusPriority[sa] ?? 9) - (statusPriority[sb] ?? 9);
+    if (diffStatus !== 0) return diffStatus;
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+
+  const vigentesCount = allOrders.filter((o) => getOrderStatus(o) === "vigente").length;
+  const emBreveCount = allOrders.filter((o) => getOrderStatus(o) === "em_breve").length;
+  const vencidasCount = allOrders.filter((o) => getOrderStatus(o) === "vencida").length;
+
   statsBar.innerHTML = `
     <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
     <span class="stat-pill vigente">Vigentes: <strong>${vigentesCount}</strong></span>
+    <span class="stat-pill em-breve">Em breve: <strong>${emBreveCount}</strong></span>
     <span class="stat-pill vencida">Vencidas: <strong>${vencidasCount}</strong></span>
     <span class="stat-pill">Exibidos: <strong>${filtered.length}</strong></span>
   `;
@@ -1161,7 +1299,8 @@ function renderList() {
   }
 
   filtered.forEach((order) => {
-    const vigente = isVigente(order);
+    const status = getOrderStatus(order);
+    const meta = getStatusMeta(status);
     const files = order.files || [];
     const isFolder = files.length > 1;
     const startBR = formatDateBR(order.startDate);
@@ -1171,22 +1310,31 @@ function renderList() {
       : `${startBR} → ${endBR}`;
 
     const tr = document.createElement("tr");
-    tr.className = vigente ? "os-vigente" : "os-vencida";
+    tr.className = meta.rowClass;
 
     const tdInfo = document.createElement("td");
     tdInfo.className = "col-info";
-    const pastaBadge = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
-    const statusBadge = vigente
-      ? `<span class="badge-status badge-vigente">VIGENTE</span>`
-      : `<span class="badge-status badge-vencida">VENCIDA</span>`;
+    const pastaBadgeHtml = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
+    const statusBadgeHtml = `<span class="badge-status ${meta.badgeClass}">${meta.label}</span>`;
+
     tdInfo.innerHTML = `
-      <div class="os-title-line">
-        <span class="os-title-text">${escapeHtml(order.title)}</span>
-        ${statusBadge}
-        ${pastaBadge}
+      <div class="mobile-left-info">
+        <div class="os-title-line">
+          <span class="os-title-text">${escapeHtml(order.title)}</span>
+          <span class="desktop-status-row">${statusBadgeHtml}${pastaBadgeHtml}</span>
+        </div>
+        <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
       </div>
-      <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
     `;
+
+    const mobileRight = document.createElement("div");
+    mobileRight.className = "mobile-right-stack";
+    const mobileStatusBar = document.createElement("div");
+    mobileStatusBar.className = "mobile-status-bar";
+    mobileStatusBar.innerHTML = `${pastaBadgeHtml}${statusBadgeHtml}`;
+    mobileRight.appendChild(mobileStatusBar);
+    mobileRight.appendChild(createActionButtons(order, files, isFolder));
+    tdInfo.appendChild(mobileRight);
 
     const tdStart = document.createElement("td");
     tdStart.className = "col-start";
@@ -1198,53 +1346,7 @@ function renderList() {
 
     const tdActions = document.createElement("td");
     tdActions.className = "col-actions";
-    const group = document.createElement("div");
-    group.className = "actions-group";
-
-    const btnVer = document.createElement("button");
-    btnVer.type = "button";
-    btnVer.className = "btn-ver btn-icon";
-    btnVer.title = isFolder ? "Abrir pasta" : "Visualizar";
-    btnVer.setAttribute("aria-label", isFolder ? "Abrir pasta" : "Visualizar");
-    btnVer.textContent = isFolder ? "📂" : "👁️";
-    btnVer.addEventListener("click", () => {
-      if (isFolder) openFolderView(order);
-      else if (files[0]) openSingleViewer(files[0]);
-    });
-    group.appendChild(btnVer);
-
-    if (!isFolder && files[0]) {
-      const btnDl = document.createElement("a");
-      btnDl.href = getFileDownloadUrl(files[0]);
-      btnDl.download = files[0].name;
-      btnDl.target = "_blank";
-      btnDl.rel = "noopener";
-      btnDl.className = "btn-link btn-download btn-icon";
-      btnDl.title = "Download";
-      btnDl.setAttribute("aria-label", "Download");
-      btnDl.textContent = "⬇️";
-      group.appendChild(btnDl);
-    } else if (isFolder) {
-      const btnPastaDl = document.createElement("button");
-      btnPastaDl.type = "button";
-      btnPastaDl.className = "btn-download btn-icon";
-      btnPastaDl.title = "Arquivos para download";
-      btnPastaDl.setAttribute("aria-label", "Arquivos para download");
-      btnPastaDl.textContent = "⬇️";
-      btnPastaDl.addEventListener("click", () => openFolderView(order));
-      group.appendChild(btnPastaDl);
-    }
-
-    const btnDel = document.createElement("button");
-    btnDel.type = "button";
-    btnDel.className = "btn-excluir btn-icon";
-    btnDel.title = "Excluir";
-    btnDel.setAttribute("aria-label", "Excluir");
-    btnDel.textContent = "🗑️";
-    btnDel.addEventListener("click", () => deleteOrder(order));
-    group.appendChild(btnDel);
-
-    tdActions.appendChild(group);
+    tdActions.appendChild(createActionButtons(order, files, isFolder));
 
     tr.appendChild(tdInfo);
     tr.appendChild(tdStart);
