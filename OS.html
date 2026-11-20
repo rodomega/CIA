@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Ordens de Serviço</title>
 <style>
 :root {
@@ -20,11 +20,11 @@
   --borda: #252934;
   --borda-destaque: rgba(255, 208, 0, 0.45);
   --sombra-topo: rgba(255, 208, 0, 0.07);
-  --vigente-bg: rgba(22, 163, 74, 0.22);
+  --vigente-bg: rgba(22, 163, 74, 0.18);
   --vigente-borda: #22c55e;
   --vigente-texto: #86efac;
   --vigente-badge: #16a34a;
-  --vencida-bg: rgba(220, 38, 38, 0.22);
+  --vencida-bg: rgba(220, 38, 38, 0.18);
   --vencida-borda: #ef4444;
   --vencida-texto: #fca5a5;
   --vencida-badge: #dc2626;
@@ -54,125 +54,402 @@ body.light-theme {
   --vencida-badge: #b91c1c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-body { background: var(--bg-app); color: var(--texto-principal); min-height: 100vh; padding-bottom: 56px; background-image: radial-gradient(circle at top, var(--sombra-topo), transparent 45%); transition: background-color 0.2s ease, color 0.2s ease; }
-header { background: var(--bg-header); border-bottom: 3px solid var(--destaque); padding: 12px 18px; position: sticky; top: 0; z-index: 40; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
-.header-inner { max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-icon { background: var(--destaque); color: var(--texto-botao-destaque); font-weight: 900; font-size: 0.9rem; padding: 7px 11px; border-radius: 8px; letter-spacing: 0.8px; }
-h1 { font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 900; color: var(--texto-destaque); letter-spacing: 0.3px; }
-.subtitle { font-size: 0.75rem; color: var(--texto-suave); margin-top: 1px; }
-.header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-.auth-pill { font-size: 0.75rem; font-weight: 700; padding: 6px 11px; border-radius: 999px; background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
-.auth-pill.unlocked { background: rgba(34,197,94,0.16); color: var(--vigente-texto); border-color: var(--vigente-borda); }
-button, a.btn-link { cursor: pointer; border: none; border-radius: 8px; font-weight: 800; font-size: 0.84rem; padding: 9px 14px; transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
-button:active, a.btn-link:active { transform: scale(0.98); }
+body {
+  background: var(--bg-app);
+  color: var(--texto-principal);
+  min-height: 100vh;
+  padding-bottom: 48px;
+  background-image: radial-gradient(circle at top, var(--sombra-topo), transparent 45%);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  touch-action: manipulation;
+}
+body.pdf-zoom-active {
+  touch-action: auto;
+}
+header {
+  background: var(--bg-header);
+  border-bottom: 2.5px solid var(--destaque);
+  padding: 10px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+}
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+h1 {
+  font-size: clamp(0.98rem, 2vw, 1.22rem);
+  font-weight: 900;
+  color: var(--texto-destaque);
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+button, a.btn-link {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 8px 11px;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-decoration: none;
+  line-height: 1;
+}
+button:active, a.btn-link:active { transform: scale(0.97); }
 button:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-primario { background: var(--destaque); color: var(--texto-botao-destaque); border: 1px solid var(--destaque); }
 .btn-primario:hover:not(:disabled) { background: var(--destaque-hover); }
 .btn-secundario { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
 .btn-secundario:hover:not(:disabled) { border-color: var(--destaque); }
-.btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); padding: 8px 14px; font-size: 0.82rem; }
+.btn-add-os { padding: 8px 11px; font-size: 0.8rem; letter-spacing: 0.2px; }
+.btn-theme-icon { padding: 8px 9px; font-size: 0.92rem; }
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  flex: 0 0 34px;
+}
+.btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); }
 .btn-ver:hover:not(:disabled) { background: var(--destaque-hover); }
-.btn-download { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--texto-destaque); padding: 8px 12px; font-size: 0.8rem; }
+.btn-download { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
 .btn-download:hover:not(:disabled) { background: var(--destaque); color: var(--texto-botao-destaque); }
-.btn-excluir { background: rgba(239,68,68,0.14); color: var(--vencida-texto); border: 1px solid var(--vencida-borda); padding: 8px 11px; font-size: 0.8rem; }
+.btn-excluir { background: rgba(239,68,68,0.14); color: var(--vencida-texto); border: 1px solid var(--vencida-borda); }
 .btn-excluir:hover:not(:disabled) { background: #dc2626; color: #ffffff; border-color: #ef4444; }
-.container { max-width: 1280px; margin: 16px auto 0; padding: 0 14px; display: flex; flex-direction: column; gap: 14px; }
-.card { background: var(--bg-card); border: 1px solid var(--borda); border-top: 3px solid var(--destaque); border-radius: 12px; padding: 14px 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
-.card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
-.card-title { font-size: 0.98rem; font-weight: 800; color: var(--texto-destaque); display: flex; align-items: center; gap: 8px; }
+
+.container {
+  max-width: 1280px;
+  margin: 12px auto 0;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--borda);
+  border-top: 2.5px solid var(--destaque);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--borda);
+}
+.card-title { font-size: 0.94rem; font-weight: 800; color: var(--texto-destaque); }
 .hidden { display: none !important; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 720px) { .form-grid { grid-template-columns: 1fr; } }
-.field { display: flex; flex-direction: column; gap: 6px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
 .field.full { grid-column: 1 / -1; }
-label { font-size: 0.82rem; font-weight: 700; color: var(--texto-destaque); }
-.hint { font-size: 0.74rem; color: var(--texto-suave); line-height: 1.35; }
+label { font-size: 0.8rem; font-weight: 700; color: var(--texto-destaque); }
+.hint { font-size: 0.72rem; color: var(--texto-suave); line-height: 1.3; }
 .warn-text { color: #f59e0b; font-weight: 700; }
-input[type="text"], input[type="date"], select { background: var(--bg-input); color: var(--texto-principal); border: 1px solid var(--borda); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; width: 100%; }
-input[type="text"]:focus, input[type="date"]:focus, select:focus { outline: none; border-color: var(--destaque); box-shadow: 0 0 0 2px rgba(255,208,0,0.2); }
-input[type="file"] { background: var(--bg-input); color: var(--texto-suave); border: 1.5px dashed var(--destaque); border-radius: 8px; padding: 12px; width: 100%; font-size: 0.85rem; }
-.mode-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+input[type="text"], input[type="date"], select {
+  background: var(--bg-input);
+  color: var(--texto-principal);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 0.88rem;
+  width: 100%;
+}
+input[type="text"]:focus, input[type="date"]:focus, select:focus {
+  outline: none;
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 2px rgba(255,208,0,0.18);
+}
+input[type="file"] {
+  background: var(--bg-input);
+  color: var(--texto-suave);
+  border: 1.5px dashed var(--destaque);
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  font-size: 0.84rem;
+}
+.mode-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 @media (max-width: 640px) { .mode-switch { grid-template-columns: 1fr; } }
-.mode-option { display: flex; align-items: center; gap: 8px; background: var(--bg-input); border: 1px solid var(--borda); color: var(--texto-principal); padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
-.mode-option input[type="radio"] { accent-color: var(--destaque); width: 16px; height: 16px; }
-.specific-box { background: var(--bg-input); border: 1px solid var(--borda-destaque); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.specific-add-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.specific-add-row input[type="date"] { max-width: 240px; }
+.mode-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--borda);
+  color: var(--texto-principal);
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.mode-option input[type="radio"] { accent-color: var(--destaque); width: 15px; height: 15px; }
+.specific-box {
+  background: var(--bg-input);
+  border: 1px solid var(--borda-destaque);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.specific-add-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.specific-add-row input[type="date"] { max-width: 220px; }
 @media (max-width: 540px) { .specific-add-row input[type="date"] { max-width: 100%; } .specific-add-row button { width: 100%; } }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { background: var(--bg-elevado); border: 1px solid var(--destaque); color: var(--texto-destaque); padding: 5px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
-.chip button { background: none; color: var(--texto-destaque); padding: 0; font-size: 1rem; line-height: 1; }
-.selected-files-list { margin-top: 6px; font-size: 0.82rem; color: var(--texto-suave); display: flex; flex-direction: column; gap: 4px; }
-.progress-wrap { margin-top: 12px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; overflow: hidden; height: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--bg-elevado);
+  border: 1px solid var(--destaque);
+  color: var(--texto-destaque);
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip button { background: none; color: var(--texto-destaque); padding: 0; font-size: 0.95rem; line-height: 1; }
+.selected-files-list { margin-top: 4px; font-size: 0.8rem; color: var(--texto-suave); display: flex; flex-direction: column; gap: 3px; }
+.progress-wrap { margin-top: 10px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; overflow: hidden; height: 10px; }
 .progress-bar { height: 100%; width: 0%; background: var(--destaque); transition: width 0.2s ease; }
-.status-msg { margin-top: 8px; font-size: 0.85rem; font-weight: 700; color: var(--texto-destaque); min-height: 20px; }
-.search-bar-row { display: flex; gap: 10px; align-items: center; }
+.status-msg { margin-top: 6px; font-size: 0.82rem; font-weight: 700; color: var(--texto-destaque); min-height: 18px; }
+
+.search-bar-row { display: flex; gap: 8px; align-items: center; }
 .search-bar-row input[type="text"] { flex: 1 1 auto; }
-.filter-count-badge { background: var(--destaque); color: var(--texto-botao-destaque); font-size: 0.72rem; font-weight: 900; padding: 2px 7px; border-radius: 999px; margin-left: 2px; }
-.filters-drawer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borda); }
-.filters-grid { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)) auto; gap: 12px; align-items: end; }
+.filter-count-badge {
+  background: var(--destaque);
+  color: var(--texto-botao-destaque);
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+.filters-drawer { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--borda); }
+.filters-grid { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)) auto; gap: 10px; align-items: end; }
 @media (max-width: 640px) { .filters-grid { grid-template-columns: 1fr; } #btnClearFilters { width: 100%; } }
-.stats-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; font-size: 0.78rem; }
-.stat-pill { background: var(--bg-elevado); border: 1px solid var(--borda); padding: 4px 10px; border-radius: 999px; color: var(--texto-principal); }
+.stats-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; font-size: 0.75rem; }
+.stat-pill {
+  background: var(--bg-elevado);
+  border: 1px solid var(--borda);
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--texto-principal);
+}
 .stat-pill.vigente { border-color: var(--vigente-borda); color: var(--vigente-texto); background: var(--vigente-bg); }
 .stat-pill.vencida { border-color: var(--vencida-borda); color: var(--vencida-texto); background: var(--vencida-bg); }
+
+/* Tabela Desktop */
 .table-wrap { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid var(--borda); }
 table { width: 100%; border-collapse: collapse; }
-th { background: var(--bg-elevado); color: var(--texto-destaque); text-align: left; padding: 12px 14px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--destaque); }
-td { padding: 13px 14px; border-bottom: 1px solid rgba(128,128,128,0.16); font-size: 0.9rem; vertical-align: middle; }
-tr.os-vigente { background: var(--vigente-bg); box-shadow: inset 6px 0 0 var(--vigente-borda); }
+th {
+  background: var(--bg-elevado);
+  color: var(--texto-destaque);
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--destaque);
+}
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(128,128,128,0.16);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+tr.os-vigente { background: var(--vigente-bg); box-shadow: inset 5px 0 0 var(--vigente-borda); }
 tr.os-vigente .os-title-text { color: var(--vigente-texto); font-weight: 800; }
-tr.os-vencida { background: var(--vencida-bg); box-shadow: inset 6px 0 0 var(--vencida-borda); }
+tr.os-vencida { background: var(--vencida-bg); box-shadow: inset 5px 0 0 var(--vencida-borda); }
 tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
-.badge-status { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.3px; }
+.badge-status {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
 .badge-vigente { background: var(--vigente-badge); color: #ffffff; }
 .badge-vencida { background: var(--vencida-badge); color: #ffffff; }
-.badge-pasta { display: inline-flex; align-items: center; gap: 4px; background: var(--bg-card); color: var(--texto-destaque); border: 1px solid var(--destaque); padding: 2px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 800; margin-left: 6px; }
-.actions-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.empty-state { text-align: center; padding: 32px 16px; color: var(--texto-suave); font-size: 0.9rem; background: var(--bg-card); }
+.badge-pasta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-card);
+  color: var(--texto-destaque);
+  border: 1px solid var(--destaque);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.actions-group { display: flex; gap: 6px; align-items: center; }
+.empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
+
+/* Linha única compacta no celular */
 @media (max-width: 768px) {
-  .table-wrap { border: none; overflow-x: visible; }
+  .table-wrap { border: none; overflow-x: visible; border-radius: 0; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
   thead { display: none; }
-  tr.os-vigente, tr.os-vencida { border-radius: 12px; margin-bottom: 12px; padding: 4px 0; border: 1px solid rgba(128,128,128,0.25); }
-  tr.os-vigente { border-left: 6px solid var(--vigente-borda); box-shadow: none; }
-  tr.os-vencida { border-left: 6px solid var(--vencida-borda); box-shadow: none; }
-  td { padding: 8px 14px; border-bottom: 1px dashed rgba(128,128,128,0.22); display: flex; flex-direction: column; gap: 3px; }
-  td::before { content: attr(data-label); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--texto-destaque); letter-spacing: 0.4px; }
-  td:last-child { border-bottom: none; padding-top: 10px; padding-bottom: 14px; }
-  .actions-group button, .actions-group a.btn-link { flex: 1 1 auto; }
+  tbody { display: flex; flex-direction: column; gap: 8px; }
+  tr.os-vigente, tr.os-vencida {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 9px 10px 9px 12px;
+    border: 1px solid rgba(128,128,128,0.24);
+  }
+  tr.os-vigente { border-left: 4px solid var(--vigente-borda); box-shadow: none; }
+  tr.os-vencida { border-left: 4px solid var(--vencida-borda); box-shadow: none; }
+  td {
+    padding: 0;
+    border: none;
+    width: auto;
+  }
+  td::before { display: none; }
+  td.col-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .os-title-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .os-title-text {
+    font-size: 0.84rem;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .badge-status { margin-left: 0; font-size: 0.64rem; padding: 1.5px 6px; }
+  .badge-pasta { margin-left: 0; font-size: 0.66rem; padding: 1px 5px; }
+  .os-dates-line {
+    font-size: 0.72rem;
+    color: var(--texto-suave);
+    line-height: 1.25;
+  }
+  td.col-start, td.col-end { display: none; }
+  td.col-actions { flex: 0 0 auto; }
+  .actions-group { gap: 5px; flex-wrap: nowrap; }
+  .btn-icon { width: 32px; height: 32px; flex: 0 0 32px; font-size: 0.88rem; }
 }
-.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 12px; }
-.modal { background: var(--bg-card); border: 2px solid var(--destaque); border-radius: 12px; width: 100%; max-width: 1020px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
-.modal-header { background: var(--bg-header); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid var(--destaque); }
-.modal-title { font-size: 0.95rem; font-weight: 800; color: var(--texto-destaque); word-break: break-word; flex: 1 1 220px; }
-.modal-body { padding: 14px; overflow-y: auto; flex: 1; }
-.viewer-frame { width: 100%; height: 74vh; border: 1px solid var(--borda); border-radius: 8px; background: #ffffff; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+.modal {
+  background: var(--bg-card);
+  border: 2px solid var(--destaque);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1020px;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--bg-header);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--destaque);
+}
+.modal-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--texto-destaque);
+  word-break: break-word;
+  flex: 1 1 180px;
+}
+.modal-body { padding: 12px; overflow-y: auto; flex: 1; }
+.viewer-frame {
+  width: 100%;
+  height: 74vh;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: #ffffff;
+}
 @media (max-width: 768px) {
   .viewer-frame { height: 78vh; }
 }
-.viewer-media { max-width: 100%; max-height: 74vh; display: block; margin: 0 auto; border-radius: 8px; border: 1px solid var(--borda); }
-.folder-item { background: var(--bg-elevado); border: 1px solid var(--borda); border-left: 4px solid var(--destaque); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-.folder-item-name { font-weight: 800; font-size: 0.9rem; color: var(--texto-principal); word-break: break-word; }
-.folder-item-meta { font-size: 0.76rem; color: var(--texto-suave); margin-top: 2px; }
+.viewer-media {
+  max-width: 100%;
+  max-height: 74vh;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  border: 1px solid var(--borda);
+}
+.folder-item {
+  background: var(--bg-elevado);
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--destaque);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.folder-item-name { font-weight: 800; font-size: 0.86rem; color: var(--texto-principal); word-break: break-word; }
+.folder-item-meta { font-size: 0.72rem; color: var(--texto-suave); margin-top: 2px; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-inner">
-    <div class="brand">
-      <span class="brand-icon">OS</span>
-      <div>
-        <h1>ORDENS DE SERVIÇO</h1>
-        <div class="subtitle">Visualização rápida no navegador • Exclusão automática 3 meses após o término</div>
-      </div>
-    </div>
+    <h1>ORDENS DE SERVIÇO</h1>
     <div class="header-actions">
-      <span id="authStatusPill" class="auth-pill">Edição: Bloqueada</span>
-      <button id="btnToggleInsert" class="btn-secundario" type="button">+ Inserir Ordem de Serviço</button>
-      <button id="btnToggleTheme" class="btn-secundario" type="button">☀️ Tema Claro</button>
+      <button id="btnToggleInsert" class="btn-secundario btn-add-os" type="button">+ O.S</button>
+      <button id="btnToggleTheme" class="btn-secundario btn-theme-icon" type="button" aria-label="Alternar tema">☀️</button>
     </div>
   </div>
 </header>
@@ -191,19 +468,19 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
         <div class="field full">
           <label for="osTitle">Título da Ordem de Serviço</label>
           <input type="text" id="osTitle" placeholder="ORDEM DE SERVIÇO N° XXXX/XXXX/XXXX" required />
-          <span class="hint">Digite o título completo, ex.: ORDEM DE SERVIÇO N° 0045/2026/PMESP</span>
+          <span class="hint">Ex.: ORDEM DE SERVIÇO N° 0045/2026/PMESP</span>
         </div>
 
         <div class="field full">
-          <label>Como são os dias dessa Ordem de Serviço?</label>
+          <label>Vigência</label>
           <div class="mode-switch">
             <label class="mode-option">
               <input type="radio" name="dateMode" value="range" checked />
-              Período corrido (Data Início até Data Término)
+              Período corrido (Início até Término)
             </label>
             <label class="mode-option">
               <input type="radio" name="dateMode" value="specific" />
-              Dias específicos / alternados (ex.: 01, 04, 08, 14...)
+              Dias específicos / alternados
             </label>
           </div>
         </div>
@@ -222,22 +499,21 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
             <label for="specificDateInput">Adicionar Dias Específicos</label>
             <div class="specific-add-row">
               <input type="date" id="specificDateInput" />
-              <button type="button" id="btnAddSpecificDate" class="btn-secundario">+ Adicionar Dia</button>
+              <button type="button" id="btnAddSpecificDate" class="btn-secundario">+ Dia</button>
             </div>
-            <span class="hint">Cada dia adicionado entra na lista. A menor data aparece como Data Inicial e a maior como Data Término.</span>
             <div id="specificChips" class="chips"></div>
           </div>
         </div>
 
         <div class="field full">
-          <label for="osFiles">Arquivos (PDF, Word, Excel, Imagem, Vídeo ou qualquer arquivo)</label>
+          <label for="osFiles">Arquivos</label>
           <input type="file" id="osFiles" multiple required />
-          <span class="hint">1 arquivo abre direto na visualização; 2 ou mais arquivos abrem como pasta. Para evitar lentidão no celular, prefira arquivos leves (até ~15 MB).</span>
+          <span class="hint">1 arquivo abre direto; 2 ou mais abrem como pasta. Prefira arquivos leves (até ~15 MB).</span>
           <div id="selectedFilesPreview" class="selected-files-list"></div>
         </div>
 
         <div class="field full">
-          <button type="submit" id="btnSubmitOs" class="btn-primario">Salvar Ordem de Serviço</button>
+          <button type="submit" id="btnSubmitOs" class="btn-primario">Salvar</button>
           <div class="progress-wrap">
             <div id="uploadProgress" class="progress-bar"></div>
           </div>
@@ -250,7 +526,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   <!-- Busca + Filtros -->
   <section class="card">
     <div class="search-bar-row">
-      <input type="text" id="searchInput" aria-label="Buscar por Nome, Número da O.S. ou Arquivo" placeholder="Buscar por nome, número da O.S. ou arquivo..." />
+      <input type="text" id="searchInput" aria-label="Buscar por nome, número da O.S. ou arquivo" placeholder="Buscar por nome, número ou arquivo..." />
       <button id="btnToggleFilters" class="btn-secundario" type="button">
         <span>Filtros</span>
         <span id="activeFiltersBadge" class="filter-count-badge hidden">0</span>
@@ -259,13 +535,13 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     <div id="filtersDrawer" class="filters-drawer hidden">
       <div class="filters-grid">
         <div class="field">
-          <label for="filterDate">Filtrar por Data</label>
+          <label for="filterDate">Data</label>
           <input type="date" id="filterDate" />
         </div>
         <div class="field">
-          <label for="filterStatus">Vigência (Cor na Lista)</label>
+          <label for="filterStatus">Vigência</label>
           <select id="filterStatus">
-            <option value="all">Todas (Verdes e Vermelhas)</option>
+            <option value="all">Todas</option>
             <option value="vigente">Vigentes (Verde)</option>
             <option value="vencida">Vencidas (Vermelha)</option>
           </select>
@@ -280,23 +556,19 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 
   <!-- Lista -->
   <section class="card">
-    <div class="card-header">
-      <div class="card-title">Ordens de Serviço Cadastradas</div>
-      <span class="hint" id="cleanupInfo">Exclusão automática: 3 meses após término</span>
-    </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>Título</th>
-            <th>Data Inicial</th>
-            <th>Data Término</th>
-            <th>Visualizar</th>
+            <th>Início</th>
+            <th>Término</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="osTableBody">
           <tr>
-            <td colspan="4" class="empty-state">Carregando ordens de serviço...</td>
+            <td colspan="4" class="empty-state">Carregando...</td>
           </tr>
         </tbody>
       </table>
@@ -311,9 +583,9 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">Visualizador</div>
       <div class="actions-group">
-        <a id="modalOpenTab" class="btn-link btn-secundario hidden" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova guia</a>
-        <a id="modalDirectDownload" class="btn-link btn-download hidden" href="#" target="_blank" rel="noopener">Download</a>
-        <button id="btnCloseModal" class="btn-secundario" type="button">✕ Fechar</button>
+        <a id="modalOpenTab" class="btn-link btn-secundario hidden" href="#" target="_blank" rel="noopener noreferrer">Nova guia</a>
+        <a id="modalDirectDownload" class="btn-link btn-download btn-icon hidden" href="#" target="_blank" rel="noopener" title="Download" aria-label="Download">⬇️</a>
+        <button id="btnCloseModal" class="btn-secundario btn-icon" type="button" title="Fechar" aria-label="Fechar">✕</button>
       </div>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -347,14 +619,16 @@ const THEME_KEY = "os_theme_preference";
 const RETENTION_DAYS = 90;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SOFT_FILE_WARN_BYTES = 15 * 1024 * 1024;
+const LOCKED_VIEWPORT = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+const ZOOM_VIEWPORT = "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes";
 
 const osCollection = collection(db, "ordens_servico");
 let allOrders = [];
 let specificDates = [];
 let cleanupRunning = false;
 
+const viewportMeta = document.getElementById("viewportMeta");
 const btnToggleTheme = document.getElementById("btnToggleTheme");
-const authStatusPill = document.getElementById("authStatusPill");
 const btnToggleInsert = document.getElementById("btnToggleInsert");
 const btnCloseInsert = document.getElementById("btnCloseInsert");
 const insertCard = document.getElementById("insertCard");
@@ -382,13 +656,17 @@ const filterStatus = document.getElementById("filterStatus");
 const btnClearFilters = document.getElementById("btnClearFilters");
 const statsBar = document.getElementById("statsBar");
 const osTableBody = document.getElementById("osTableBody");
-const cleanupInfo = document.getElementById("cleanupInfo");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
 const modalOpenTab = document.getElementById("modalOpenTab");
 const modalDirectDownload = document.getElementById("modalDirectDownload");
 const btnCloseModal = document.getElementById("btnCloseModal");
+
+function setPdfZoomMode(enabled) {
+  viewportMeta.setAttribute("content", enabled ? ZOOM_VIEWPORT : LOCKED_VIEWPORT);
+  document.body.classList.toggle("pdf-zoom-active", enabled);
+}
 
 btnToggleFilters.addEventListener("click", () => {
   filtersDrawer.classList.toggle("hidden");
@@ -409,7 +687,7 @@ function updateFilterBadge() {
 function applyTheme(mode) {
   const isLight = mode === "light";
   document.body.classList.toggle("light-theme", isLight);
-  btnToggleTheme.textContent = isLight ? "🌙 Tema Escuro" : "☀️ Tema Claro";
+  btnToggleTheme.textContent = isLight ? "🌙" : "☀️";
   localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
 }
 applyTheme(localStorage.getItem(THEME_KEY) || "dark");
@@ -421,28 +699,17 @@ btnToggleTheme.addEventListener("click", () => {
 function isUnlocked() {
   return sessionStorage.getItem(SESSION_KEY) === "true";
 }
-function updateAuthBadge() {
-  if (isUnlocked()) {
-    authStatusPill.textContent = "Edição: Liberada";
-    authStatusPill.classList.add("unlocked");
-  } else {
-    authStatusPill.textContent = "Edição: Bloqueada";
-    authStatusPill.classList.remove("unlocked");
-  }
-}
 function checkPassword() {
   if (isUnlocked()) return true;
-  const input = prompt("Digite a senha para inserir ou excluir Ordem de Serviço:");
+  const input = prompt("Senha:");
   if (input === null) return false;
   if (input.trim() === SENHA_MESTRA) {
     sessionStorage.setItem(SESSION_KEY, "true");
-    updateAuthBadge();
     return true;
   }
   alert("Senha incorreta.");
   return false;
 }
-updateAuthBadge();
 
 btnToggleInsert.addEventListener("click", () => {
   if (!checkPassword()) return;
@@ -490,14 +757,10 @@ osFilesInput.addEventListener("change", () => {
   selectedFilesPreview.innerHTML = "";
   const files = Array.from(osFilesInput.files || []);
   if (!files.length) return;
-  const label = document.createElement("strong");
-  label.style.color = "var(--texto-destaque)";
-  label.textContent = files.length > 1 ? `Pasta com ${files.length} arquivos:` : "Arquivo selecionado:";
-  selectedFilesPreview.appendChild(label);
   files.forEach((f) => {
     const isHeavy = f.size > SOFT_FILE_WARN_BYTES;
     const line = document.createElement("div");
-    line.innerHTML = `• ${escapeHtml(f.name)} (${formatBytes(f.size)})${isHeavy ? ' <span class="warn-text">— arquivo pesado, pode demorar no envio</span>' : ""}`;
+    line.innerHTML = `• ${escapeHtml(f.name)} (${formatBytes(f.size)})${isHeavy ? ' <span class="warn-text">— arquivo pesado</span>' : ""}`;
     selectedFilesPreview.appendChild(line);
   });
 });
@@ -535,15 +798,6 @@ function getExpirationTimestamp(order) {
   if (order.createdAt) return order.createdAt + (RETENTION_DAYS * DAY_MS);
   return null;
 }
-function formatExpirationDateBR(order) {
-  const exp = getExpirationTimestamp(order);
-  if (!exp) return "-";
-  const dt = new Date(exp);
-  const y = dt.getUTCFullYear();
-  const m = String(dt.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(dt.getUTCDate()).padStart(2, "0");
-  return `${d}/${m}/${y}`;
-}
 
 function isVigente(order) {
   const today = getTodayISO();
@@ -574,7 +828,7 @@ function fileToBase64(file) {
       const commaIdx = result.indexOf(",");
       resolve(commaIdx >= 0 ? result.slice(commaIdx + 1) : result);
     };
-    reader.onerror = () => reject(new Error(`Falha ao ler o arquivo ${file.name}`));
+    reader.onerror = () => reject(new Error(`Falha ao ler ${file.name}`));
     reader.readAsDataURL(file);
   });
 }
@@ -590,7 +844,7 @@ async function postToAppsScript(payload) {
   try {
     json = JSON.parse(text);
   } catch (_) {
-    throw new Error(`Resposta inesperada do Apps Script: ${text.slice(0, 180)}`);
+    throw new Error(`Resposta inesperada: ${text.slice(0, 160)}`);
   }
   if (!res.ok || !json.ok) {
     throw new Error(json.error || `Erro HTTP ${res.status}`);
@@ -625,7 +879,7 @@ async function removeFilesFromDrive(files = []) {
     try {
       await postToAppsScript({ action: "delete", fileId: f.fileId });
     } catch (err) {
-      console.warn("Aviso ao mover arquivo para lixeira no Drive:", f.name, err);
+      console.warn("Aviso ao remover no Drive:", f.name, err);
     }
   }
 }
@@ -637,7 +891,7 @@ osForm.addEventListener("submit", async (e) => {
   const title = osTitle.value.trim();
   const mode = document.querySelector('input[name="dateMode"]:checked').value;
   const files = Array.from(osFilesInput.files || []);
-  if (!title) return alert("Informe o título da Ordem de Serviço.");
+  if (!title) return alert("Informe o título.");
   if (!files.length) return alert("Selecione pelo menos um arquivo.");
 
   let startDate = "";
@@ -648,7 +902,7 @@ osForm.addEventListener("submit", async (e) => {
     startDate = startDateInput.value;
     endDate = endDateInput.value || startDate;
     if (!startDate) return alert("Informe a Data Início.");
-    if (endDate < startDate) return alert("A Data Término não pode ser menor que a Data Início.");
+    if (endDate < startDate) return alert("Data Término menor que Data Início.");
   } else {
     if (!specificDates.length) return alert("Adicione pelo menos um dia específico.");
     sortedSpecific = [...specificDates].sort();
@@ -658,23 +912,21 @@ osForm.addEventListener("submit", async (e) => {
 
   btnSubmitOs.disabled = true;
   uploadProgress.style.width = "0%";
-  uploadStatus.textContent = "Enviando arquivos para o Google Drive...";
+  uploadStatus.textContent = "Enviando arquivos...";
 
   try {
     const uploaded = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const pctStart = Math.round((i / files.length) * 85);
-      uploadProgress.style.width = `${pctStart}%`;
+      uploadProgress.style.width = `${Math.round((i / files.length) * 85)}%`;
       uploadStatus.textContent = `Enviando (${i + 1}/${files.length}): ${file.name}...`;
       const item = await uploadFileToDrive(file);
       uploaded.push(item);
-      const pctDone = Math.round(((i + 1) / files.length) * 85);
-      uploadProgress.style.width = `${pctDone}%`;
+      uploadProgress.style.width = `${Math.round(((i + 1) / files.length) * 85)}%`;
     }
 
     uploadProgress.style.width = "92%";
-    uploadStatus.textContent = "Salvando registro no Firestore...";
+    uploadStatus.textContent = "Salvando...";
 
     const now = Date.now();
     const orderPayload = {
@@ -690,7 +942,7 @@ osForm.addEventListener("submit", async (e) => {
     await addDoc(osCollection, orderPayload);
 
     uploadProgress.style.width = "100%";
-    uploadStatus.textContent = "Ordem de Serviço salva com sucesso!";
+    uploadStatus.textContent = "Salvo!";
     osForm.reset();
     specificDates = [];
     renderSpecificChips();
@@ -699,10 +951,10 @@ osForm.addEventListener("submit", async (e) => {
       uploadProgress.style.width = "0%";
       uploadStatus.textContent = "";
       insertCard.classList.add("hidden");
-    }, 1200);
+    }, 900);
   } catch (err) {
     console.error(err);
-    uploadStatus.textContent = "Erro ao salvar: " + (err.message || err);
+    uploadStatus.textContent = "Erro: " + (err.message || err);
   } finally {
     btnSubmitOs.disabled = false;
   }
@@ -710,7 +962,7 @@ osForm.addEventListener("submit", async (e) => {
 
 async function deleteOrder(order) {
   if (!checkPassword()) return;
-  const ok = confirm(`Excluir "${order.title}" e mover os arquivos vinculados para a lixeira do Drive?`);
+  const ok = confirm(`Excluir "${order.title}"?`);
   if (!ok) return;
   try {
     await removeFilesFromDrive(order.files || []);
@@ -728,12 +980,8 @@ async function runThreeMonthCleanup(orders) {
     const exp = getExpirationTimestamp(o);
     return exp !== null && now >= exp;
   });
-  if (!expired.length) {
-    cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
-    return;
-  }
+  if (!expired.length) return;
   cleanupRunning = true;
-  cleanupInfo.textContent = `Removendo ${expired.length} O.S. vencidas há mais de 3 meses...`;
   try {
     for (const order of expired) {
       await removeFilesFromDrive(order.files || []);
@@ -741,7 +989,6 @@ async function runThreeMonthCleanup(orders) {
     }
   } finally {
     cleanupRunning = false;
-    cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
   }
 }
 
@@ -772,6 +1019,9 @@ function openSingleViewer(file) {
 
   const lower = (file.name || "").toLowerCase();
   const mime = (file.type || "").toLowerCase();
+  const isPdf = mime === "application/pdf" || lower.endsWith(".pdf");
+
+  setPdfZoomMode(isPdf);
 
   if (mime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(lower)) {
     const img = document.createElement("img");
@@ -785,7 +1035,7 @@ function openSingleViewer(file) {
     video.controls = true;
     video.className = "viewer-media";
     modalBody.appendChild(video);
-  } else if (mime === "application/pdf" || lower.endsWith(".pdf") || /\.(doc|docx|xls|xlsx|ppt|pptx)$/.test(lower)) {
+  } else if (isPdf || /\.(doc|docx|xls|xlsx|ppt|pptx)$/.test(lower)) {
     const iframe = document.createElement("iframe");
     iframe.src = previewUrl;
     iframe.className = "viewer-frame";
@@ -793,15 +1043,16 @@ function openSingleViewer(file) {
   } else {
     modalBody.innerHTML = `
       <div class="empty-state">
-        Pré-visualização direta indisponível para este tipo de arquivo.<br/>
-        Use <strong>Abrir em nova guia</strong> ou <strong>Download</strong> no topo para acessar <strong>${escapeHtml(file.name)}</strong>.
+        Pré-visualização indisponível para este arquivo.<br/>
+        Use <strong>Nova guia</strong> ou o botão de download no topo.
       </div>`;
   }
   modalBackdrop.classList.remove("hidden");
 }
 
 function openFolderView(order) {
-  modalTitle.textContent = `📁 ${order.title} (${order.files.length} arquivos)`;
+  setPdfZoomMode(false);
+  modalTitle.textContent = `${order.title} (${order.files.length})`;
   modalOpenTab.classList.add("hidden");
   modalOpenTab.href = "#";
   modalDirectDownload.classList.add("hidden");
@@ -812,22 +1063,29 @@ function openFolderView(order) {
     const info = document.createElement("div");
     info.innerHTML = `
       <div class="folder-item-name">${escapeHtml(file.name)}</div>
-      <div class="folder-item-meta">${formatBytes(file.size)} • ${escapeHtml(file.type || "arquivo")}</div>
+      <div class="folder-item-meta">${formatBytes(file.size)}</div>
     `;
     const btns = document.createElement("div");
     btns.className = "actions-group";
+
     const btnVer = document.createElement("button");
     btnVer.type = "button";
-    btnVer.className = "btn-ver";
-    btnVer.textContent = "Ver";
+    btnVer.className = "btn-ver btn-icon";
+    btnVer.title = "Visualizar";
+    btnVer.setAttribute("aria-label", "Visualizar");
+    btnVer.textContent = "👁️";
     btnVer.addEventListener("click", () => openSingleViewer(file));
+
     const btnDl = document.createElement("a");
     btnDl.href = getFileDownloadUrl(file);
     btnDl.download = file.name;
     btnDl.target = "_blank";
     btnDl.rel = "noopener";
-    btnDl.className = "btn-link btn-download";
-    btnDl.textContent = "Download";
+    btnDl.className = "btn-link btn-download btn-icon";
+    btnDl.title = "Download";
+    btnDl.setAttribute("aria-label", "Download");
+    btnDl.textContent = "⬇️";
+
     btns.appendChild(btnVer);
     btns.appendChild(btnDl);
     row.appendChild(info);
@@ -838,6 +1096,7 @@ function openFolderView(order) {
 }
 
 function closeModal() {
+  setPdfZoomMode(false);
   modalBackdrop.classList.add("hidden");
   modalBody.innerHTML = "";
   modalOpenTab.classList.add("hidden");
@@ -887,8 +1146,8 @@ function renderList() {
   const vencidasCount = allOrders.length - vigentesCount;
   statsBar.innerHTML = `
     <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
-    <span class="stat-pill vigente">Vigentes (Verde): <strong>${vigentesCount}</strong></span>
-    <span class="stat-pill vencida">Vencidas (Vermelha): <strong>${vencidasCount}</strong></span>
+    <span class="stat-pill vigente">Vigentes: <strong>${vigentesCount}</strong></span>
+    <span class="stat-pill vencida">Vencidas: <strong>${vencidasCount}</strong></span>
     <span class="stat-pill">Exibidos: <strong>${filtered.length}</strong></span>
   `;
 
@@ -905,66 +1164,89 @@ function renderList() {
     const vigente = isVigente(order);
     const files = order.files || [];
     const isFolder = files.length > 1;
-    const expDateStr = formatExpirationDateBR(order);
+    const startBR = formatDateBR(order.startDate);
+    const endBR = formatDateBR(order.endDate);
+    const dateSummary = (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
+      ? order.specificDates.map(formatDateBR).join(", ")
+      : `${startBR} → ${endBR}`;
+
     const tr = document.createElement("tr");
     tr.className = vigente ? "os-vigente" : "os-vencida";
 
-    const tdTitle = document.createElement("td");
-    tdTitle.setAttribute("data-label", "Título");
-    const pastaBadge = isFolder ? `<span class="badge-pasta">📁 Pasta (${files.length})</span>` : "";
+    const tdInfo = document.createElement("td");
+    tdInfo.className = "col-info";
+    const pastaBadge = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
     const statusBadge = vigente
       ? `<span class="badge-status badge-vigente">VIGENTE</span>`
       : `<span class="badge-status badge-vencida">VENCIDA</span>`;
-    tdTitle.innerHTML = `
-      <div><span class="os-title-text">${escapeHtml(order.title)}</span>${pastaBadge}</div>
-      <div>${statusBadge}</div>
+    tdInfo.innerHTML = `
+      <div class="os-title-line">
+        <span class="os-title-text">${escapeHtml(order.title)}</span>
+        ${statusBadge}
+        ${pastaBadge}
+      </div>
+      <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
     `;
 
     const tdStart = document.createElement("td");
-    tdStart.setAttribute("data-label", "Data Inicial");
-    tdStart.textContent = formatDateBR(order.startDate);
+    tdStart.className = "col-start";
+    tdStart.textContent = startBR;
 
     const tdEnd = document.createElement("td");
-    tdEnd.setAttribute("data-label", "Data Término");
-    if (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length) {
-      const diasStr = order.specificDates.map(formatDateBR).join(", ");
-      tdEnd.innerHTML = `
-        <div><strong>${formatDateBR(order.endDate)}</strong></div>
-        <div class="hint">Dias: ${escapeHtml(diasStr)}</div>
-        <div class="hint">Exclui em: ${escapeHtml(expDateStr)}</div>
-      `;
-    } else {
-      tdEnd.innerHTML = `
-        <div><strong>${formatDateBR(order.endDate)}</strong></div>
-        <div class="hint">Exclui em: ${escapeHtml(expDateStr)}</div>
-      `;
-    }
+    tdEnd.className = "col-end";
+    tdEnd.textContent = endBR;
 
     const tdActions = document.createElement("td");
-    tdActions.setAttribute("data-label", "Visualizar");
+    tdActions.className = "col-actions";
     const group = document.createElement("div");
     group.className = "actions-group";
 
     const btnVer = document.createElement("button");
     btnVer.type = "button";
-    btnVer.className = "btn-ver";
-    btnVer.textContent = isFolder ? "Ver Pasta" : "Ver";
+    btnVer.className = "btn-ver btn-icon";
+    btnVer.title = isFolder ? "Abrir pasta" : "Visualizar";
+    btnVer.setAttribute("aria-label", isFolder ? "Abrir pasta" : "Visualizar");
+    btnVer.textContent = isFolder ? "📂" : "👁️";
     btnVer.addEventListener("click", () => {
       if (isFolder) openFolderView(order);
       else if (files[0]) openSingleViewer(files[0]);
     });
     group.appendChild(btnVer);
 
+    if (!isFolder && files[0]) {
+      const btnDl = document.createElement("a");
+      btnDl.href = getFileDownloadUrl(files[0]);
+      btnDl.download = files[0].name;
+      btnDl.target = "_blank";
+      btnDl.rel = "noopener";
+      btnDl.className = "btn-link btn-download btn-icon";
+      btnDl.title = "Download";
+      btnDl.setAttribute("aria-label", "Download");
+      btnDl.textContent = "⬇️";
+      group.appendChild(btnDl);
+    } else if (isFolder) {
+      const btnPastaDl = document.createElement("button");
+      btnPastaDl.type = "button";
+      btnPastaDl.className = "btn-download btn-icon";
+      btnPastaDl.title = "Arquivos para download";
+      btnPastaDl.setAttribute("aria-label", "Arquivos para download");
+      btnPastaDl.textContent = "⬇️";
+      btnPastaDl.addEventListener("click", () => openFolderView(order));
+      group.appendChild(btnPastaDl);
+    }
+
     const btnDel = document.createElement("button");
     btnDel.type = "button";
-    btnDel.className = "btn-excluir";
-    btnDel.textContent = "Excluir";
+    btnDel.className = "btn-excluir btn-icon";
+    btnDel.title = "Excluir";
+    btnDel.setAttribute("aria-label", "Excluir");
+    btnDel.textContent = "🗑️";
     btnDel.addEventListener("click", () => deleteOrder(order));
     group.appendChild(btnDel);
 
     tdActions.appendChild(group);
 
-    tr.appendChild(tdTitle);
+    tr.appendChild(tdInfo);
     tr.appendChild(tdStart);
     tr.appendChild(tdEnd);
     tr.appendChild(tdActions);
@@ -995,7 +1277,7 @@ onSnapshot(
     osTableBody.innerHTML = `
       <tr>
         <td colspan="4" class="empty-state">
-          Não foi possível carregar os dados do Firestore. Confira as regras do banco.
+          Não foi possível carregar os dados. Confira as regras do Firestore.
         </td>
       </tr>`;
   }
