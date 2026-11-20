@@ -7,6 +7,9 @@
 <meta name="theme-color" content="#0f172a">
 <link id="faviconLink" rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link id="appleIconLink" rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="googleFontLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap">
 <meta name="google-site-verification" content="mwuop2gWQzgyrmQX0n_MnagevgrL2HqmZEjaIbZRQuA" />
 <style>
 :root{
@@ -27,60 +30,126 @@
     --iconSize:62px;
     --iconRadius:16px;
     --appGap:16px;
+    --titleSize:20px;
+    --titleFont:'Chakra Petch', sans-serif;
+    --titleWeight:700;
+    --titleColor:#f8fafc;
+    --titleTracking:1.5px;
+    --titleTransform:uppercase;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;user-select:none;-webkit-user-select:none}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 html, body{
     height:100%;
     overflow:hidden;
-    position: fixed;
-    width: 100%;
+    position:fixed;
+    width:100%;
 }
 body{
     background:linear-gradient(135deg,var(--bg1),var(--bg2));
     color:var(--text);display:flex;flex-direction:column;align-items:center;
-    padding:10px 10px env(safe-area-inset-bottom, 10px);transition:background .25s,color .25s;
+    padding:10px 10px env(safe-area-inset-bottom, 10px);
 }
+
+/* CONTROLES SUPERIORES DISCRETOS */
+#editPageBtn, #coordLivePanel{
+    position:fixed;
+    top:max(6px, env(safe-area-inset-top, 6px));
+    z-index:950;
+    background:rgba(15,23,42,.78);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;
+    padding:4px 9px;
+    font-size:9.5px;
+    line-height:1.2;
+    cursor:pointer;
+    white-space:nowrap;
+}
+#editPageBtn{
+    left:8px;
+    font-weight:600;
+    color:#cbd5e1;
+}
+#editPageBtn:active, #coordLivePanel:active{transform:scale(.95)}
+
+#coordLivePanel{
+    right:8px;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color:#e2e8f0;
+    max-width:calc(100vw - 110px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+#coordLivePanel .coord-sep{color:#64748b;margin:0 4px}
+#coordLivePanel .coord-label{color:var(--accent);font-weight:700;font-size:8.5px;margin-right:2px}
+#coordLivePanel .coord-acc{color:#94a3b8;font-size:8.5px;margin-left:4px}
+#coordLivePanel.copiado{background:rgba(34,197,94,.75);border-color:rgba(34,197,94,.9);color:#fff}
 
 /* CONTAINER PADRÃO (CELULAR) */
 .phone-container{
     width:100%;max-width:420px;display:flex;flex-direction:column;height:100%;position:relative;justify-content:space-between;
 }
-.header{text-align:center;padding:2px 0 6px;flex-shrink:0;}
-.header h1{font-size:1rem;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.header{
+    text-align:center;
+    padding:34px 4px 18px;
+    flex-shrink:0;
+    min-height:76px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+#portalTitle{
+    font-size:var(--titleSize);
+    font-family:var(--titleFont);
+    font-weight:var(--titleWeight);
+    color:var(--titleColor);
+    letter-spacing:var(--titleTracking);
+    text-transform:var(--titleTransform);
+    line-height:1.15;
+    max-width:100%;
+    word-break:break-word;
+}
+#portalTitle.has-texture, .title-preview-sample.has-texture{
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+    background-size:cover;
+    background-position:center;
+    background-repeat:repeat;
+    -webkit-background-clip:text;
+    background-clip:text;
+}
 
 .grid-apps{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:var(--appGap) 10px;padding:5px;
-    align-content:start;overflow-y:auto;flex:1;min-height:0;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:var(--appGap) 10px;padding:6px 5px 5px;
+    align-content:start;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;
+    contain:content;
 }
-.app-item{display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s,opacity .2s;animation:installApp .3s ease-out}
-@keyframes installApp{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-.app-item:active{transform:scale(.88)}
+.app-item{
+    display:flex;flex-direction:column;align-items:center;cursor:pointer;
+    transition:transform .1s;
+}
+.app-item:active{transform:scale(.9)}
 .app-icon{
     width:var(--iconSize);height:var(--iconSize);border-radius:var(--iconRadius);background:var(--iconBg);
-    backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 12px rgba(0,0,0,.35);overflow:hidden;border:1px solid rgba(255,255,255,.15);font-size:26px;
-    transition:width .2s,height .2s,border-radius .2s
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 8px rgba(0,0,0,.3);overflow:hidden;border:1px solid rgba(255,255,255,.14);font-size:26px;
 }
-.app-icon img{width:100%;height:100%;object-fit:cover}
-.plus-symbol{font-size:32px;color:var(--accent);font-weight:bold}
+.app-icon img{width:100%;height:100%;object-fit:cover;display:block}
 .app-name{
-    margin-top:4px;font-size:.68rem;text-align:center;color:var(--appName);text-shadow:0 1px 3px rgba(0,0,0,.9);
+    margin-top:4px;font-size:.68rem;text-align:center;color:var(--appName);text-shadow:0 1px 2px rgba(0,0,0,.85);
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
 
 .modal-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;
+    position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;
     justify-content:center;align-items:center;z-index:1000;padding:15px
 }
 .modal-card{
     background:var(--card);border:1px solid var(--border);width:100%;max-width:390px;border-radius:20px;padding:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,.5);animation:popUp .2s ease;max-height:92vh;overflow-y:auto
+    box-shadow:0 10px 25px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch
 }
-@keyframes popUp{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .modal-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .modal-title{font-size:1.1rem;font-weight:600;color:var(--accent);text-align:center;flex:1}
 .edit-pencil-btn{background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer;padding:4px}
-.edit-pencil-btn:active{transform:scale(.85)}
 .modal-card label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600}
 .modal-card input,.modal-card select,.modal-card textarea{
     width:100%;padding:10px 12px;margin-bottom:12px;background:var(--input);border:1px solid #475569;color:#fff;
@@ -95,7 +164,6 @@ body{
     flex:1;padding:10px;border:0;border-radius:8px;font-weight:bold;cursor:pointer;font-size:.85rem;text-align:center
 }
 .btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primaryHover)}
 .btn-danger{background:var(--danger);color:#fff}
 .btn-secondary{background:#475569;color:#fff}
 .btn-warning{background:var(--warning);color:#fff}
@@ -112,7 +180,7 @@ body{
 .delete-btn{background:var(--danger)}.edit-btn{background:var(--warning)}.sub-btn{background:var(--primary)}
 .loading-text{grid-column:span 4;text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0}
 .admin-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px}
-.admin-menu .btn{min-height:46px}
+.admin-menu .btn{min-height:42px;font-size:.8rem}
 .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .color-box{background:rgba(255,255,255,.04);padding:9px;border-radius:10px;border:1px solid var(--border)}
 .color-box label{margin-bottom:6px}
@@ -120,10 +188,24 @@ body{
     width:86px;height:86px;border-radius:18px;object-fit:cover;display:block;margin:4px auto 12px;
     background:rgba(255,255,255,.08);border:1px solid var(--border)
 }
+.title-preview-box{
+    background:rgba(0,0,0,.32);border:1px dashed var(--border);border-radius:12px;
+    padding:14px 10px;margin-bottom:12px;text-align:center;min-height:62px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden
+}
+.title-preview-sample{
+    font-size:var(--titleSize);
+    font-family:var(--titleFont);
+    font-weight:var(--titleWeight);
+    color:var(--titleColor);
+    letter-spacing:var(--titleTracking);
+    text-transform:var(--titleTransform);
+    line-height:1.15;
+    word-break:break-word;
+}
 .range-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .range-row input[type=range]{flex:1;margin:0}
-.range-value{width:48px;text-align:right;color:var(--accent);font-size:.8rem;font-weight:700}
-.status-box{font-size:.75rem;color:var(--muted);background:rgba(0,0,0,.18);padding:9px;border-radius:8px;margin:8px 0;line-height:1.4}
+.range-value{width:54px;text-align:right;color:var(--accent);font-size:.8rem;font-weight:700}
 .dicas-box-text{
     font-size:.9rem;line-height:1.5;color:var(--text);white-space:pre-wrap;
     background:var(--input);padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -131,7 +213,6 @@ body{
 }
 .dicas-box-text a{color:var(--accent);text-decoration:underline}
 
-/* RODAPÉ SIMPLIFICADO */
 .donation-footer{
     flex-shrink:0;
     margin-top:6px;
@@ -142,158 +223,46 @@ body{
     text-align:center;
     width:100%;
 }
-.pix-actions-row{
-    display:flex;
-    gap:8px;
-    width:100%;
-}
+.pix-actions-row{display:flex;gap:8px;width:100%}
 .btn-copy-pix,.btn-sugestao{
-    flex:1;
-    color:#fff;
-    border:0;
-    border-radius:8px;
-    padding:8px;
-    font-size:0.75rem;
-    font-weight:600;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    transition:background 0.2s, transform 0.1s;
+    flex:1;color:#fff;border:0;border-radius:8px;padding:8px;font-size:0.75rem;font-weight:600;
+    cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
 }
-.btn-copy-pix{background:var(--primary);}
-.btn-copy-pix:active,.btn-sugestao:active{transform:scale(0.95);}
-.btn-copy-pix.copied{background:#22c55e;}
-.btn-sugestao{background:#475569;}
-.btn-sugestao:hover{background:#64748b;}
+.btn-copy-pix{background:var(--primary)}
+.btn-copy-pix.copied{background:#22c55e}
+.btn-sugestao{background:#475569}
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
-/* ID COLAR BOX EDITÁVEL */
-.id-display-box {
-    background: var(--input);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--accent);
-    margin-bottom: 15px;
-    letter-spacing: 1px;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    word-break: break-all;
-    outline: none;
-    user-select: text;
-    -webkit-user-select: text;
+.id-display-box{
+    background:var(--input);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;
+    font-size:1.1rem;font-weight:bold;color:var(--accent);margin-bottom:15px;letter-spacing:1px;min-height:48px;
+    display:flex;align-items:center;justify-content:center;word-break:break-all;outline:none;user-select:text;-webkit-user-select:text;
 }
-.id-display-box:focus {
-    border-color: var(--accent);
-}
+.id-display-box:focus{border-color:var(--accent)}
 
-/* ============================================================
-   PAINEL DE COORDENADAS EM TEMPO REAL (TOPO DIREITO)
-   ============================================================ */
-#coordLivePanel{
-    position: fixed;
-    top: max(6px, env(safe-area-inset-top, 6px));
-    right: 8px;
-    z-index: 950;
-    background: rgba(0,0,0,.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,.15);
-    border-radius: 10px;
-    padding: 4px 8px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 9.5px;
-    line-height: 1.35;
-    color: #e2e8f0;
-    text-align: right;
-    cursor: pointer;
-    transition: background .2s, transform .1s;
-    user-select: none;
-    -webkit-user-select: none;
-    max-width: 145px;
-}
-#coordLivePanel:active{
-    transform: scale(.95);
-    background: rgba(0,0,0,.7);
-}
-#coordLivePanel .coord-line{
-    display: block;
-    white-space: nowrap;
-    letter-spacing: .2px;
-}
-#coordLivePanel .coord-label{
-    color: #38bdf8;
-    font-weight: 700;
-    font-size: 8.5px;
-    margin-right: 2px;
-}
-#coordLivePanel .coord-acc{
-    color: #94a3b8;
-    font-size: 8px;
-    display: block;
-    white-space: nowrap;
-}
-#coordLivePanel.copiado{
-    background: rgba(34,197,94,.55);
-    border-color: rgba(34,197,94,.8);
-}
-
-/* ============================================================
-   ADAPTAÇÃO AUTOMÁTICA PARA COMPUTADOR (TELAS MAIORES)
-   ============================================================ */
 @media(min-width: 768px) {
-    html, body {
-        position: static;
-        overflow: auto;
-    }
-    body {
-        padding: 24px;
-    }
-    .phone-container {
-        max-width: 850px;
-    }
-    .grid-apps {
-        grid-template-columns: repeat(6, 1fr);
-        gap: 20px 16px;
-    }
-    .header h1 {
-        font-size: 1.4rem;
-        letter-spacing: 2px;
-    }
-    .app-name {
-        font-size: 0.78rem;
-    }
-    .donation-footer {
-        padding: 12px 20px;
-    }
-    #coordLivePanel{
-        font-size: 11px;
-        max-width: 180px;
-        padding: 6px 10px;
-        top: 12px;
-        right: 16px;
-    }
-    #coordLivePanel .coord-label{ font-size: 10px; }
-    #coordLivePanel .coord-acc{ font-size: 9px; }
+    html, body{position:static;overflow:auto}
+    body{padding:24px}
+    .phone-container{max-width:850px}
+    .header{padding:36px 8px 24px;min-height:92px}
+    .grid-apps{grid-template-columns:repeat(6, 1fr);gap:20px 16px}
+    .app-name{font-size:0.78rem}
+    .donation-footer{padding:12px 20px}
+    #editPageBtn, #coordLivePanel{font-size:11px;padding:5px 11px;top:12px}
+    #editPageBtn{left:16px}
+    #coordLivePanel{right:16px;max-width:calc(100vw - 170px)}
+    #coordLivePanel .coord-label, #coordLivePanel .coord-acc{font-size:9.5px}
 }
 </style>
 </head>
 
 <body>
 
-<!-- PAINEL DE COORDENADAS EM TEMPO REAL (TOPO DIREITO) -->
+<button id="editPageBtn" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
+
 <div id="coordLivePanel" title="Toque para copiar coordenadas">
-    <span class="coord-line"><span class="coord-label">LAT</span><span id="liveLat">--</span></span>
-    <span class="coord-line"><span class="coord-label">LNG</span><span id="liveLng">--</span></span>
-    <span class="coord-acc" id="liveAcc">aguardando GPS...</span>
+    <span class="coord-label">LAT</span><span id="liveLat">--</span><span class="coord-sep">|</span><span class="coord-label">LNG</span><span id="liveLng">--</span><span class="coord-acc" id="liveAcc">GPS...</span>
 </div>
 
 <div class="phone-container">
@@ -301,12 +270,10 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <h1 id="portalTitle">PAINEL OPERACIONAL</h1>
     </div>
 
-    <!-- GRADE DE APPS -->
     <div class="grid-apps" id="appGrid">
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
 
-    <!-- SEÇÃO DE APOIO / RODAPÉ -->
     <div class="donation-footer">
         <div class="pix-actions-row">
             <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">💳 Doações (Pix)</button>
@@ -341,18 +308,15 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- PROMPT SEM TECLADO (COLAR ID DA ÁREA DE TRANSFERÊNCIA) -->
+<!-- PROMPT SEM TECLADO -->
 <div class="modal-overlay" id="promptModal">
     <div class="modal-card">
         <div class="modal-title" id="promptTitle" style="margin-bottom:12px;">ID da Escala</div>
-        
         <div class="id-display-box" id="idDisplayValue" contenteditable="true" placeholder="Toque em colar ou digite aqui">Toque em colar abaixo</div>
-
         <div style="display:flex; gap:8px; margin-bottom:12px;">
             <button class="btn btn-primary" style="flex:1;" onclick="colarIdClipboard()">📋 Colar ID</button>
             <button class="btn btn-danger" style="flex:1;" onclick="limparIdClipboard()">🗑️ Excluir</button>
         </div>
-
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharPromptModal(null)">Cancelar</button>
             <button class="btn btn-warning" id="btnConfirmarEscala" onclick="confirmarPromptModal()" disabled>🔍 Pesquisar Escala</button>
@@ -388,8 +352,10 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <div class="modal-title" id="adminFormTitle">Instalar Novo App</div>
 
         <div class="admin-menu">
+            <button class="btn btn-primary" onclick="abrirEditorTitulo()">🔤 Título / Fonte</button>
             <button class="btn btn-primary" onclick="abrirAparencia()">🎨 Aparência</button>
             <button class="btn btn-primary" onclick="abrirLogo()">🖼️ Logo / Ícone</button>
+            <button class="btn btn-secondary" onclick="limparFormularioAdmin()">✨ Novo App</button>
         </div>
 
         <hr class="sep">
@@ -441,14 +407,99 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <div class="modal-buttons" style="margin-bottom:15px">
-            <button class="btn btn-secondary" onclick="limparFormularioAdmin()">Cancelar</button>
+            <button class="btn btn-secondary" onclick="limparFormularioAdmin()">Limpar</button>
             <button class="btn btn-primary" id="btnSalvarApp" onclick="salvarNovoApp()">Instalar App</button>
         </div>
 
         <div style="font-size:.8rem;color:#ef4444;margin-bottom:6px;font-weight:bold">Apps no Banco de Dados:</div>
         <div class="sub-list" id="adminAppList" style="max-height:190px"></div>
 
-        <button class="btn btn-secondary" style="width:100%;margin-top:5px" onclick="fecharModais()">Sair</button>
+        <button class="btn btn-secondary" style="width:100%;margin-top:5px" onclick="fecharModais()">Fechar</button>
+    </div>
+</div>
+
+<!-- EDITOR DO TÍTULO / FONTE / TEXTURA -->
+<div class="modal-overlay" id="titleEditorModal">
+    <div class="modal-card">
+        <div class="modal-title">🔤 Personalizar Título</div>
+
+        <div class="title-preview-box">
+            <div id="titlePreviewSample" class="title-preview-sample">PAINEL OPERACIONAL</div>
+        </div>
+
+        <label>Texto do Título:</label>
+        <input type="text" id="editTitleText" placeholder="PAINEL OPERACIONAL">
+
+        <label>Fonte do Google:</label>
+        <select id="editTitleFont">
+            <option value="'Chakra Petch', sans-serif">Chakra Petch (Tático / Técnico)</option>
+            <option value="'Oswald', sans-serif">Oswald (Impacto Condensado)</option>
+            <option value="'Bebas Neue', sans-serif">Bebas Neue (Display Alto)</option>
+            <option value="'Rajdhani', sans-serif">Rajdhani (Moderno Angular)</option>
+            <option value="'Russo One', sans-serif">Russo One (Pesado / Marcante)</option>
+            <option value="'Montserrat', sans-serif">Montserrat (Geométrico Clean)</option>
+            <option value="'Poppins', sans-serif">Poppins (Moderno Arredondado)</option>
+            <option value="'Playfair Display', serif">Playfair Display (Clássico / Serifado)</option>
+            <option value="'Cinzel', serif">Cinzel (Solene / Brasão)</option>
+            <option value="'JetBrains Mono', monospace">JetBrains Mono (Monoespaçado)</option>
+        </select>
+
+        <div class="color-grid">
+            <div class="color-box">
+                <label>Espessura (Peso)</label>
+                <select id="editTitleWeight" style="margin-bottom:0">
+                    <option value="400">Normal (400)</option>
+                    <option value="600">Semi-negrito (600)</option>
+                    <option value="700">Negrito (700)</option>
+                    <option value="800">Extra-negrito (800)</option>
+                </select>
+            </div>
+            <div class="color-box">
+                <label>Estilo de Caixa</label>
+                <select id="editTitleTransform" style="margin-bottom:0">
+                    <option value="uppercase">MAIÚSCULAS</option>
+                    <option value="capitalize">Primeira Letra</option>
+                    <option value="none">Como Digitado</option>
+                </select>
+            </div>
+        </div>
+
+        <hr class="sep">
+
+        <label>Tamanho da Fonte:</label>
+        <div class="range-row">
+            <input type="range" id="rTitleSize" min="14" max="54" step="1">
+            <span class="range-value" id="vTitleSize"></span>
+        </div>
+
+        <label>Espaçamento entre Letras:</label>
+        <div class="range-row">
+            <input type="range" id="rTitleTracking" min="0" max="8" step="0.5">
+            <span class="range-value" id="vTitleTracking"></span>
+        </div>
+
+        <label>Preenchimento das Letras:</label>
+        <select id="editTitleFillMode">
+            <option value="color">Cor Sólida</option>
+            <option value="texture">Textura de Imagem nas Letras</option>
+        </select>
+
+        <div id="titleColorBox">
+            <label>Cor do Título:</label>
+            <input type="color" id="cTitleColor" value="#f8fafc">
+        </div>
+
+        <div id="titleTextureBox" style="display:none">
+            <label>Enviar Imagem de Textura (Galeria / Arquivo):</label>
+            <input type="file" id="titleTextureFile" accept="image/*">
+            <label>Ou URL da Imagem de Textura:</label>
+            <input type="text" id="editTitleTextureUrl" placeholder="https://exemplo.com/textura.jpg">
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="fecharEditorTitulo()">Voltar</button>
+            <button class="btn btn-primary" id="btnSalvarTitulo" onclick="salvarConfigTitulo()">💾 Salvar Título</button>
+        </div>
     </div>
 </div>
 
@@ -458,7 +509,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <div class="modal-title">🎨 Aparência do Portal</div>
 
         <label>Nome exibido no Portal:</label>
-        <input type="text" id="themePortalTitle" placeholder="SISTEMA OPERACIONAL PM">
+        <input type="text" id="themePortalTitle" placeholder="PAINEL OPERACIONAL">
 
         <label>Tema rápido:</label>
         <select id="themePreset" onchange="aplicarPresetVisual(this.value)">
@@ -563,8 +614,19 @@ const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
 const adminConfigRef = doc(db, "config", "admin");
 
+const CACHE_THEME_KEY = "painel_op_theme_v1";
+const CACHE_APPS_KEY = "painel_op_apps_v1";
+
 const DEFAULT_THEME = {
-    title: "SISTEMA OPERACIONAL PM",
+    title: "PAINEL OPERACIONAL",
+    titleFont: "'Chakra Petch', sans-serif",
+    titleSize: 20,
+    titleWeight: "700",
+    titleColor: "#f8fafc",
+    titleTracking: 1.5,
+    titleTransform: "uppercase",
+    titleFillMode: "color",
+    titleTextureUrl: "",
     bg1: "#0f172a",
     bg2: "#1e293b",
     primary: "#0284c7",
@@ -585,8 +647,64 @@ let promptCallback = null;
 let currentTheme = {...DEFAULT_THEME};
 let senhaModoAcao = "admin";
 let textoDicasAtual = "";
+let texturaPreviewTempUrl = "";
+let ultimaAssinaturaGrid = "";
 
 const $ = id => document.getElementById(id);
+
+function carregarFonteGoogleSobDemanda(fontCss) {
+    const match = String(fontCss || "").match(/'([^']+)'/);
+    const family = match ? match[1] : "Chakra Petch";
+    const encoded = encodeURIComponent(family).replace(/%20/g, "+");
+    const url = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;600;700;800&display=swap`;
+    const link = $("googleFontLink");
+    if (link.href !== url) link.href = url;
+}
+
+function comprimirImagem(file, maxSize = 256, quality = 0.82) {
+    return new Promise((resolve) => {
+        if (!file || !file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") {
+            resolve(file);
+            return;
+        }
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            let { width, height } = img;
+            if (width <= maxSize && height <= maxSize && file.size < 90 * 1024) {
+                resolve(file);
+                return;
+            }
+            if (width > height) {
+                if (width > maxSize) {
+                    height = Math.round((height * maxSize) / width);
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width = Math.round((width * maxSize) / height);
+                    height = maxSize;
+                }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+                if (!blob) { resolve(file); return; }
+                const novoNome = file.name.replace(/\.[^.]+$/, "") + ".webp";
+                resolve(new File([blob], novoNome, { type: "image/webp" }));
+            }, "image/webp", quality);
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(file);
+        };
+        img.src = objectUrl;
+    });
+}
 
 function escapeHtml(value) {
     return String(value ?? "")
@@ -598,32 +716,58 @@ function escapeHtml(value) {
 function formatarTextoComLinks(texto) {
     if (!texto) return "Nenhuma dica cadastrada. Clique no lápis acima para adicionar.";
     const textoEscapado = escapeHtml(texto);
-    const regexUrl = /(https?:\/\/[^\s]+)/g;
-    return textoEscapado.replace(regexUrl, url => {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-    });
+    return textoEscapado.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 }
 
 window.copiarPixCopiaECola = async function() {
     const pixPayload = "00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos Paulo Guidini Munh6009SAO PAULO621405104K4vk5ooU163047F49";
     const btn = $("btnCopyPix");
-
     try {
         await navigator.clipboard.writeText(pixPayload);
         btn.textContent = "✓ Pix Copiado!";
         btn.classList.add("copied");
-
         setTimeout(() => {
             btn.textContent = "💳 Doações (Pix)";
             btn.classList.remove("copied");
         }, 2000);
-    } catch (err) {
-        console.error("Erro ao copiar Pix:", err);
+    } catch {
         alert("Erro ao copiar automaticamente.");
     }
 };
 
-function aplicarTema(theme) {
+function aplicarEstiloTituloEmElemento(el, theme) {
+    const titleSize = Number(theme.titleSize) || 20;
+    const titleFont = theme.titleFont || "'Chakra Petch', sans-serif";
+    const titleWeight = String(theme.titleWeight || "700");
+    const titleColor = theme.titleColor || "#f8fafc";
+    const titleTracking = Number(theme.titleTracking ?? 1.5);
+    const titleTransform = theme.titleTransform || "uppercase";
+    const fillMode = theme.titleFillMode || "color";
+    const textureUrl = (theme.titleTextureUrl || "").trim();
+
+    carregarFonteGoogleSobDemanda(titleFont);
+
+    el.textContent = theme.title || DEFAULT_THEME.title;
+    el.style.fontSize = `${titleSize}px`;
+    el.style.fontFamily = titleFont;
+    el.style.fontWeight = titleWeight;
+    el.style.letterSpacing = `${titleTracking}px`;
+    el.style.textTransform = titleTransform;
+
+    if (fillMode === "texture" && textureUrl) {
+        el.classList.add("has-texture");
+        el.style.backgroundImage = `url("${textureUrl.replace(/"/g, '%22')}")`;
+        el.style.color = "transparent";
+        el.style.webkitTextFillColor = "transparent";
+    } else {
+        el.classList.remove("has-texture");
+        el.style.backgroundImage = "none";
+        el.style.color = titleColor;
+        el.style.webkitTextFillColor = titleColor;
+    }
+}
+
+function aplicarTema(theme, salvarCache = true) {
     currentTheme = {...DEFAULT_THEME, ...(theme || {})};
     const r = document.documentElement;
 
@@ -639,14 +783,23 @@ function aplicarTema(theme) {
     r.style.setProperty("--iconRadius", `${Number(currentTheme.radius) || 16}px`);
     r.style.setProperty("--appGap", `${Number(currentTheme.gap) || 16}px`);
 
-    $("portalTitle").textContent = currentTheme.title || DEFAULT_THEME.title;
+    r.style.setProperty("--titleSize", `${Number(currentTheme.titleSize) || 20}px`);
+    r.style.setProperty("--titleFont", currentTheme.titleFont || "'Chakra Petch', sans-serif");
+    r.style.setProperty("--titleWeight", String(currentTheme.titleWeight || "700"));
+    r.style.setProperty("--titleColor", currentTheme.titleColor || "#f8fafc");
+    r.style.setProperty("--titleTracking", `${Number(currentTheme.titleTracking ?? 1.5)}px`);
+    r.style.setProperty("--titleTransform", currentTheme.titleTransform || "uppercase");
+
+    aplicarEstiloTituloEmElemento($("portalTitle"), currentTheme);
     document.querySelector('meta[name="theme-color"]').setAttribute("content", currentTheme.bg1);
 
     const logo = currentTheme.logoUrl || DEFAULT_THEME.logoUrl;
     $("faviconLink").href = logo;
     $("appleIconLink").href = logo;
 
-    atualizarValoresTema();
+    if (salvarCache) {
+        try { localStorage.setItem(CACHE_THEME_KEY, JSON.stringify(currentTheme)); } catch {}
+    }
 }
 
 function preencherCamposTema() {
@@ -712,7 +865,133 @@ window.aplicarPresetVisual = function(preset) {
         if (id) $(id).value = v;
     });
     $("cIconBg").value = normalizarHex(p.iconBg, "#ffffff");
-    aplicarTema(lerCamposTema());
+    aplicarTema(lerCamposTema(), false);
+};
+
+function alternarCamposPreenchimentoTitulo() {
+    const mode = $("editTitleFillMode").value;
+    $("titleColorBox").style.display = mode === "color" ? "block" : "none";
+    $("titleTextureBox").style.display = mode === "texture" ? "block" : "none";
+    atualizarPreviewTitulo();
+}
+
+function lerRascunhoTitulo() {
+    const mode = $("editTitleFillMode").value;
+    const urlDigitada = $("editTitleTextureUrl").value.trim();
+    const texturaAtiva = texturaPreviewTempUrl || urlDigitada || currentTheme.titleTextureUrl || "";
+
+    return {
+        ...currentTheme,
+        title: $("editTitleText").value.trim() || DEFAULT_THEME.title,
+        titleFont: $("editTitleFont").value,
+        titleWeight: $("editTitleWeight").value,
+        titleTransform: $("editTitleTransform").value,
+        titleSize: Number($("rTitleSize").value) || 20,
+        titleTracking: Number($("rTitleTracking").value) ?? 1.5,
+        titleColor: $("cTitleColor").value,
+        titleFillMode: mode,
+        titleTextureUrl: texturaAtiva
+    };
+}
+
+function atualizarPreviewTitulo() {
+    const size = Number($("rTitleSize").value) || 20;
+    const tracking = Number($("rTitleTracking").value) ?? 1.5;
+    $("vTitleSize").textContent = `${size}px`;
+    $("vTitleTracking").textContent = `${tracking}px`;
+    const rascunho = lerRascunhoTitulo();
+    aplicarEstiloTituloEmElemento($("titlePreviewSample"), rascunho);
+    aplicarEstiloTituloEmElemento($("portalTitle"), rascunho);
+}
+
+window.abrirEditorTitulo = function() {
+    texturaPreviewTempUrl = "";
+    $("titleTextureFile").value = "";
+    $("editTitleText").value = currentTheme.title || DEFAULT_THEME.title;
+    $("editTitleFont").value = currentTheme.titleFont || "'Chakra Petch', sans-serif";
+    $("editTitleWeight").value = String(currentTheme.titleWeight || "700");
+    $("editTitleTransform").value = currentTheme.titleTransform || "uppercase";
+    $("rTitleSize").value = Number(currentTheme.titleSize) || 20;
+    $("rTitleTracking").value = Number(currentTheme.titleTracking ?? 1.5);
+    $("cTitleColor").value = normalizarHex(currentTheme.titleColor, "#f8fafc");
+    $("editTitleFillMode").value = currentTheme.titleFillMode === "texture" ? "texture" : "color";
+    $("editTitleTextureUrl").value = currentTheme.titleTextureUrl || "";
+
+    alternarCamposPreenchimentoTitulo();
+    $("titleEditorModal").style.display = "flex";
+};
+
+window.fecharEditorTitulo = function() {
+    aplicarTema(currentTheme, false);
+    $("titleEditorModal").style.display = "none";
+    $("adminModal").style.display = "flex";
+};
+
+[
+    "editTitleText", "editTitleFont", "editTitleWeight", "editTitleTransform",
+    "rTitleSize", "rTitleTracking", "cTitleColor", "editTitleTextureUrl"
+].forEach(id => {
+    $(id).addEventListener("input", atualizarPreviewTitulo);
+    $(id).addEventListener("change", atualizarPreviewTitulo);
+});
+
+$("editTitleFillMode").addEventListener("change", alternarCamposPreenchimentoTitulo);
+
+$("titleTextureFile").addEventListener("change", e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        texturaPreviewTempUrl = String(reader.result || "");
+        atualizarPreviewTitulo();
+    };
+    reader.readAsDataURL(file);
+});
+
+window.salvarConfigTitulo = async function() {
+    const btn = $("btnSalvarTitulo");
+    const file = $("titleTextureFile").files?.[0];
+    const mode = $("editTitleFillMode").value;
+
+    btn.disabled = true;
+    btn.textContent = "Salvando...";
+
+    try {
+        let textureUrl = $("editTitleTextureUrl").value.trim() || currentTheme.titleTextureUrl || "";
+
+        if (file) {
+            validarImagem(file, 10);
+            const otimizada = await comprimirImagem(file, 800, 0.85);
+            textureUrl = await uploadArquivo(otimizada, "texturas", pct => {
+                btn.textContent = `Textura ${pct}%...`;
+            });
+        }
+
+        const novoTema = {
+            ...currentTheme,
+            title: $("editTitleText").value.trim() || DEFAULT_THEME.title,
+            titleFont: $("editTitleFont").value,
+            titleWeight: $("editTitleWeight").value,
+            titleTransform: $("editTitleTransform").value,
+            titleSize: Number($("rTitleSize").value) || 20,
+            titleTracking: Number($("rTitleTracking").value) ?? 1.5,
+            titleColor: $("cTitleColor").value,
+            titleFillMode: mode,
+            titleTextureUrl: textureUrl
+        };
+
+        await setDoc(portalConfigRef, { theme: novoTema, updatedAt: Date.now() }, { merge: true });
+        aplicarTema(novoTema, true);
+        texturaPreviewTempUrl = "";
+        alert("Título salvo com sucesso!");
+        $("titleEditorModal").style.display = "none";
+        $("adminModal").style.display = "flex";
+    } catch (err) {
+        alert(err?.message || "Erro ao salvar o título.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "💾 Salvar Título";
+    }
 };
 
 window.abrirAparencia = function() {
@@ -729,11 +1008,10 @@ window.salvarAparencia = async function() {
 
     try {
         await setDoc(portalConfigRef, {theme, updatedAt: Date.now()}, {merge:true});
-        aplicarTema(theme);
+        aplicarTema(theme, true);
         alert("Tema salvo com sucesso.");
         $("appearanceModal").style.display = "none";
-    } catch (err) {
-        console.error(err);
+    } catch {
         alert("Erro ao salvar o tema.");
     } finally {
         btn.disabled = false;
@@ -761,7 +1039,10 @@ function uploadArquivo(file, pasta, onProgress) {
     return new Promise((resolve, reject) => {
         const path = `${pasta}/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${nomeSeguroArquivo(file.name)}`;
         const fileRef = ref(storage, path);
-        const task = uploadBytesResumable(fileRef, file, {contentType:file.type});
+        const task = uploadBytesResumable(fileRef, file, {
+            contentType: file.type,
+            cacheControl: "public,max-age=31536000"
+        });
 
         task.on("state_changed",
             snapshot => {
@@ -780,22 +1061,23 @@ window.salvarLogo = async function() {
     if (!file) { alert("Escolha uma imagem."); return; }
 
     try {
-        validarImagem(file, 8);
+        validarImagem(file, 10);
         btn.disabled = true;
-        btn.textContent = "Enviando 0%...";
+        btn.textContent = "Otimizando...";
+        const otimizada = await comprimirImagem(file, 384, 0.85);
 
-        const url = await uploadArquivo(file, "portal", pct => {
+        const url = await uploadArquivo(otimizada, "portal", pct => {
             btn.textContent = `Enviando ${pct}%...`;
         });
 
         const theme = {...currentTheme, logoUrl:url};
         await setDoc(portalConfigRef, {theme, updatedAt:Date.now()}, {merge:true});
-        aplicarTema(theme);
+        aplicarTema(theme, true);
         $("logoPreview").src = url;
 
         alert("Logo salva com sucesso.");
         $("logoModal").style.display = "none";
-    } catch (err) {
+    } catch {
         alert("Erro ao salvar logo.");
     } finally {
         btn.disabled = false;
@@ -812,22 +1094,25 @@ $("portalLogoFile").addEventListener("change", e => {
     }
 });
 
-async function carregarConfigPortal() {
+(function restaurarCacheInstantaneo() {
     try {
-        const snap = await getDoc(portalConfigRef);
-        if (snap.exists() && snap.data().theme) {
-            aplicarTema(snap.data().theme);
-        } else {
-            aplicarTema(DEFAULT_THEME);
+        const cachedTheme = localStorage.getItem(CACHE_THEME_KEY);
+        if (cachedTheme) aplicarTema(JSON.parse(cachedTheme), false);
+        else aplicarTema(DEFAULT_THEME, false);
+
+        const cachedApps = localStorage.getItem(CACHE_APPS_KEY);
+        if (cachedApps) {
+            globalApps = JSON.parse(cachedApps);
+            renderizarGrid();
         }
-    } catch (err) {
-        aplicarTema(DEFAULT_THEME);
+    } catch {
+        aplicarTema(DEFAULT_THEME, false);
     }
-}
+})();
 
 onSnapshot(portalConfigRef, snap => {
     if (snap.exists() && snap.data().theme) {
-        aplicarTema(snap.data().theme);
+        aplicarTema(snap.data().theme, true);
     }
 });
 
@@ -874,7 +1159,7 @@ window.salvarDicas = async function() {
         $("dicasConteudoText").innerHTML = formatarTextoComLinks(novoTexto);
         window.cancelarEdicaoDicas();
         alert("Dicas salvas com sucesso!");
-    } catch (err) {
+    } catch {
         alert("Erro ao salvar dicas.");
     } finally {
         btn.disabled = false;
@@ -883,16 +1168,24 @@ window.salvarDicas = async function() {
 };
 
 onSnapshot(appsCol, snapshot => {
-    globalApps = [];
-    snapshot.forEach(s => globalApps.push({ docId:s.id, ...s.data() }));
-    globalApps.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+    const lista = [];
+    snapshot.forEach(s => lista.push({ docId:s.id, ...s.data() }));
+    lista.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+    globalApps = lista;
+
+    try { localStorage.setItem(CACHE_APPS_KEY, JSON.stringify(lista)); } catch {}
+
     renderizarGrid();
     if ($("adminModal").style.display === "flex") atualizarListaAdmin();
 });
 
 function renderizarGrid() {
+    const assinatura = JSON.stringify(globalApps.map(a => [a.docId, a.name, a.iconType, a.icon, a.bgColor, a.symbol, a.type, a.url, a.subitems]));
+    if (assinatura === ultimaAssinaturaGrid) return;
+    ultimaAssinaturaGrid = assinatura;
+
     const grid = $("appGrid");
-    grid.innerHTML = "";
+    const frag = document.createDocumentFragment();
 
     globalApps.forEach(appItem => {
         const div = document.createElement("div");
@@ -904,25 +1197,26 @@ function renderizarGrid() {
             iconHtml = `<div class="app-icon" style="background:${escapeHtml(appItem.bgColor || "#0284c7")}">${escapeHtml(appItem.symbol || "📁")}</div>`;
         } else {
             const src = appItem.icon || "https://cdn-icons-png.flaticon.com/512/2838/2838912.png";
-            iconHtml = `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" onerror="this.style.display='none'"></div>`;
+            iconHtml = `<div class="app-icon"><img src="${escapeHtml(src)}" alt="${escapeHtml(appItem.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'"></div>`;
         }
 
         div.innerHTML = `${iconHtml}<div class="app-name">${escapeHtml(appItem.name)}</div>`;
-        grid.appendChild(div);
+        frag.appendChild(div);
     });
 
     const dicasItem = document.createElement("div");
     dicasItem.className = "app-item";
     dicasItem.onclick = window.abrirModalDicas;
     dicasItem.innerHTML = `<div class="app-icon" style="background:rgba(56, 189, 248, 0.15);"><span style="font-size:26px">💡</span></div><div class="app-name">Dicas Úteis</div>`;
-    grid.appendChild(dicasItem);
+    frag.appendChild(dicasItem);
 
-    const plus = document.createElement("div");
-    plus.className = "app-item";
-    plus.onclick = () => { senhaModoAcao = "admin"; window.abrirModalSenha(); };
-    plus.innerHTML = `<div class="app-icon"><span class="plus-symbol">+</span></div><div class="app-name">Adicionar</div>`;
-    grid.appendChild(plus);
+    grid.replaceChildren(frag);
 }
+
+window.abrirAcessoEdicaoPagina = function() {
+    senhaModoAcao = "admin";
+    window.abrirModalSenha();
+};
 
 function clicarApp(appItem) {
     if (appItem.type === "link") {
@@ -963,36 +1257,31 @@ function abrirPromptModal(titulo, callback) {
     $("promptTitle").textContent = titulo;
     const displayBox = $("idDisplayValue");
     displayBox.textContent = "";
-    displayBox.setAttribute("data-placeholder", "Toque em colar ou digite o ID");
     $("btnConfirmarEscala").disabled = true;
     promptCallback = callback;
     $("promptModal").style.display = "flex";
 }
 
-// Evento para monitorar edição manual no box do ID
 $("idDisplayValue").addEventListener("input", function() {
-    const texto = this.textContent.trim();
-    $("btnConfirmarEscala").disabled = texto.length === 0;
+    $("btnConfirmarEscala").disabled = this.textContent.trim().length === 0;
 });
 
 window.colarIdClipboard = async function() {
     try {
         const texto = await navigator.clipboard.readText();
         if (texto && texto.trim()) {
-            const displayBox = $("idDisplayValue");
-            displayBox.textContent = texto.trim();
+            $("idDisplayValue").textContent = texto.trim();
             $("btnConfirmarEscala").disabled = false;
         } else {
             alert("A área de transferência está vazia.");
         }
-    } catch (err) {
+    } catch {
         alert("Não foi possível ler a área de transferência. Cole manualmente clicando na caixa de texto.");
     }
 };
 
 window.limparIdClipboard = function() {
-    const displayBox = $("idDisplayValue");
-    displayBox.textContent = "";
+    $("idDisplayValue").textContent = "";
     $("btnConfirmarEscala").disabled = true;
 };
 
@@ -1057,7 +1346,7 @@ window.verificarSenha = async function() {
         } else {
             alert("Senha incorreta!");
         }
-    } catch (err) {
+    } catch {
         alert("Erro ao validar acesso.");
     } finally {
         btn.disabled = false;
@@ -1120,8 +1409,10 @@ window.salvarNovoApp = async function() {
         if (iconType === "file") {
             const file = $("newAppIconFile").files?.[0];
             if (file) {
-                validarImagem(file, 8);
-                iconData = await uploadArquivo(file, "icones", pct => { btn.textContent = `Enviando ${pct}%...`; });
+                validarImagem(file, 10);
+                btn.textContent = "Otimizando...";
+                const otimizado = await comprimirImagem(file, 256, 0.82);
+                iconData = await uploadArquivo(otimizado, "icones", pct => { btn.textContent = `Enviando ${pct}%...`; });
             } else if (docId) {
                 iconData = globalApps.find(a => a.docId === docId)?.icon || "";
             }
@@ -1151,7 +1442,7 @@ window.salvarNovoApp = async function() {
 
         limparFormularioAdmin();
         alert(docId ? "Atualizado com sucesso." : "Instalado com sucesso.");
-    } catch (err) {
+    } catch {
         alert("Erro ao salvar aplicativo.");
     } finally {
         btn.disabled = false;
@@ -1181,7 +1472,7 @@ window.editarApp = function(docId) {
 
 function atualizarListaAdmin() {
     const list = $("adminAppList");
-    list.innerHTML = "";
+    const frag = document.createDocumentFragment();
 
     globalApps.forEach(appItem => {
         const row = document.createElement("div");
@@ -1209,15 +1500,17 @@ function atualizarListaAdmin() {
 
         actions.append(sub, edit, del);
         row.append(span, actions);
-        list.appendChild(row);
+        frag.appendChild(row);
     });
+
+    list.replaceChildren(frag);
 }
 
 window.removerApp = async function(docId) {
     if (!confirm("Deseja realmente remover este aplicativo?")) return;
     try {
         await deleteDoc(doc(db, "apps", docId));
-    } catch (err) {
+    } catch {
         alert("Erro ao excluir.");
     }
 };
@@ -1232,7 +1525,7 @@ window.abrirConfigSubitems = async function(docId) {
             appEmEdicaoSub.type = "submenu";
             appEmEdicaoSub.url = "";
             appEmEdicaoSub.subitems = appEmEdicaoSub.subitems || [];
-        } catch (err) {
+        } catch {
             alert("Erro ao converter para submenu.");
             return;
         }
@@ -1304,7 +1597,7 @@ window.salvarSubitemAtual = async function() {
         await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), { subitems: appEmEdicaoSub.subitems });
         limparSubitemForm();
         renderizarSubitemsAdmin();
-    } catch (err) {
+    } catch {
         alert("Erro ao salvar subitem.");
     }
 };
@@ -1315,7 +1608,7 @@ window.removerSubitem = async function(idx) {
     try {
         await updateDoc(doc(db, "apps", appEmEdicaoSub.docId), { subitems: appEmEdicaoSub.subitems });
         renderizarSubitemsAdmin();
-    } catch (err) {
+    } catch {
         alert("Erro ao excluir.");
     }
 };
@@ -1329,62 +1622,65 @@ window.fecharModais = function() {
     document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
 };
 
-/* ============================================================
-   COORDENADAS EM TEMPO REAL NO TOPO DIREITO
-   ============================================================ */
+/* GPS EM LINHA HORIZONTAL OTIMIZADO + ATUALIZAÇÃO AO VOLTAR PARA A TELA */
 let ultimasCoords = null;
 let ultimaPrecisaoGps = 0;
 
+function aplicarPosicaoGPS(pos) {
+    const c = pos.coords;
+    ultimasCoords = `${c.latitude.toFixed(6)}, ${c.longitude.toFixed(6)}`;
+    ultimaPrecisaoGps = Math.round(c.accuracy);
+    $("liveLat").textContent = c.latitude.toFixed(5);
+    $("liveLng").textContent = c.longitude.toFixed(5);
+    $("liveAcc").textContent = `±${ultimaPrecisaoGps}m`;
+}
+
 (function iniciarGPSLive() {
     const panel = $("coordLivePanel");
-    const latEl = $("liveLat");
-    const lngEl = $("liveLng");
     const accEl = $("liveAcc");
 
     if (!navigator.geolocation) {
-        accEl.textContent = "GPS indisponível";
+        accEl.textContent = "off";
         return;
     }
 
     navigator.geolocation.watchPosition(
-        (pos) => {
-            const c = pos.coords;
-            const lat = c.latitude.toFixed(6);
-            const lng = c.longitude.toFixed(6);
-            ultimasCoords = `${lat}, ${lng}`;
-            ultimaPrecisaoGps = Math.round(c.accuracy);
-
-            latEl.textContent = lat;
-            lngEl.textContent = lng;
-            accEl.textContent = `±${ultimaPrecisaoGps}m`;
-        },
+        aplicarPosicaoGPS,
         (err) => {
-            if (err.code === 1) accEl.textContent = "GPS sem permissão";
-            else accEl.textContent = "aguardando GPS...";
+            accEl.textContent = err.code === 1 ? "sem GPS" : "GPS...";
         },
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
     );
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                aplicarPosicaoGPS,
+                () => {},
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            );
+        }
+    });
 
     panel.addEventListener("click", async () => {
         if (!ultimasCoords) {
-            accEl.textContent = "Sem sinal ainda...";
+            accEl.textContent = "sem sinal";
             return;
         }
         try {
             await navigator.clipboard.writeText(ultimasCoords);
             panel.classList.add("copiado");
-            accEl.textContent = "✓ copiado!";
+            accEl.textContent = "✓ copiado";
             setTimeout(() => {
                 panel.classList.remove("copiado");
                 if (ultimasCoords) accEl.textContent = `±${ultimaPrecisaoGps}m`;
             }, 1400);
         } catch {
-            accEl.textContent = "copie manualmente";
+            accEl.textContent = "manual";
         }
     });
 })();
 
-carregarConfigPortal();
 window.alternarCamposTipo();
 window.alternarTipoIcone();
 </script>
