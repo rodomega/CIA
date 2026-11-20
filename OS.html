@@ -330,9 +330,7 @@ const firebaseConfig = {
   measurementId: "G-5491XBMX00"
 };
 
-const SUPABASE_URL = "https://ktkfckrnosxtulhpxkxd.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_AfZnvDP7cMQ0h-PpngsFsA_sdWt7zPD";
-const SUPABASE_BUCKET = "s-servico";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJI-881ktSlsCffF_0th4AxYxPgaMdrrP3fY9wfeP97CLxVwASnm_Nec_uOWbhYOjq/exec";
 
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch (_) {}
@@ -559,42 +557,67 @@ function matchDateFilter(order, targetISO) {
   return targetISO >= start && targetISO <= end;
 }
 
-async function uploadFileToSupabase(file, storagePath) {
-  const encodedPath = storagePath.split("/").map(encodeURIComponent).join("/");
-  const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}/${encodedPath}`;
-  const res = await fetch(uploadUrl, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_PUBLISHABLE_KEY,
-      "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      "x-upsert": "true",
-      "Content-Type": file.type || "application/octet-stream"
-    },
-    body: file
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const commaIdx = result.indexOf(",");
+      resolve(commaIdx >= 0 ? result.slice(commaIdx + 1) : result);
+    };
+    reader.onerror = () => reject(new Error(`Falha ao ler o arquivo ${file.name}`));
+    reader.readAsDataURL(file);
   });
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    throw new Error(`Supabase (${file.name}): ${errText || res.status}`);
-  }
-  return `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${encodedPath}`;
 }
-async function removeFilesFromSupabase(files = []) {
-  const paths = (files || [])
-    .map((f) => f.storagePath)
-    .filter((p) => typeof p === "string" && p.length > 0);
-  if (!paths.length) return;
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}`, {
-    method: "DELETE",
-    headers: {
-      "apikey": SUPABASE_PUBLISHABLE_KEY,
-      "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ prefixes: paths })
+
+async function postToAppsScript(payload) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
   });
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    console.warn("Aviso ao remover arquivos no Supabase:", errText || res.status);
+  const text = await res.text();
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (_) {
+    throw new Error(`Resposta inesperada do Apps Script: ${text.slice(0, 180)}`);
+  }
+  if (!res.ok || !json.ok) {
+    throw new Error(json.error || `Erro HTTP ${res.status}`);
+  }
+  return json;
+}
+
+async function uploadFileToDrive(file) {
+  const base64 = await fileToBase64(file);
+  const data = await postToAppsScript({
+    action: "upload",
+    name: file.name,
+    mimeType: file.type || "application/octet-stream",
+    base64
+  });
+  return {
+    name: data.name || file.name,
+    type: data.mimeType || file.type || "application/octet-stream",
+    size: file.size,
+    fileId: data.fileId,
+    viewUrl: data.viewUrl,
+    downloadUrl: data.downloadUrl,
+    directUrl: data.directUrl,
+    url: data.downloadUrl || data.viewUrl,
+    storageProvider: "gdrive"
+  };
+}
+
+async function removeFilesFromDrive(files = []) {
+  const gdriveFiles = (files || []).filter((f) => f && f.fileId);
+  for (const f of gdriveFiles) {
+    try {
+      await postToAppsScript({ action: "delete", fileId: f.fileId });
+    } catch (err) {
+      console.warn("Aviso ao mover arquivo para lixeira no Drive:", f.name, err);
+    }
   }
 }
 
@@ -626,27 +649,17 @@ osForm.addEventListener("submit", async (e) => {
 
   btnSubmitOs.disabled = true;
   uploadProgress.style.width = "0%";
-  uploadStatus.textContent = "Enviando arquivos para o Supabase...";
+  uploadStatus.textContent = "Enviando arquivos para o Google Drive...";
 
   try {
-    const folderId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const uploaded = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const safeName = file.name.replace(/[^\w.\-()]+/g, "_");
-      const storagePath = `ordens_servico/${folderId}/${i}_${safeName}`;
       const pctStart = Math.round((i / files.length) * 85);
       uploadProgress.style.width = `${pctStart}%`;
       uploadStatus.textContent = `Enviando (${i + 1}/${files.length}): ${file.name}...`;
-      const url = await uploadFileToSupabase(file, storagePath);
-      uploaded.push({
-        name: file.name,
-        type: file.type || "application/octet-stream",
-        size: file.size,
-        url,
-        storagePath,
-        storageProvider: "supabase"
-      });
+      const item = await uploadFileToDrive(file);
+      uploaded.push(item);
       const pctDone = Math.round(((i + 1) / files.length) * 85);
       uploadProgress.style.width = `${pctDone}%`;
     }
@@ -688,10 +701,10 @@ osForm.addEventListener("submit", async (e) => {
 
 async function deleteOrder(order) {
   if (!checkPassword()) return;
-  const ok = confirm(`Excluir "${order.title}" e todos os arquivos vinculados?`);
+  const ok = confirm(`Excluir "${order.title}" e mover os arquivos vinculados para a lixeira do Drive?`);
   if (!ok) return;
   try {
-    await removeFilesFromSupabase(order.files || []);
+    await removeFilesFromDrive(order.files || []);
     await deleteDoc(doc(db, "ordens_servico", order.id));
   } catch (err) {
     console.error(err);
@@ -711,35 +724,50 @@ async function runThreeMonthCleanup(orders) {
   }
   cleanupInfo.textContent = `Removendo ${expired.length} O.S. vencidas há mais de 3 meses...`;
   for (const order of expired) {
-    await removeFilesFromSupabase(order.files || []);
+    await removeFilesFromDrive(order.files || []);
     try { await deleteDoc(doc(db, "ordens_servico", order.id)); } catch (_) {}
   }
   cleanupInfo.textContent = "Exclusão automática: 3 meses após término";
 }
 
+function getFileDownloadUrl(file) {
+  return file.downloadUrl || file.url || file.viewUrl || "#";
+}
+
+function getFilePreviewUrl(file) {
+  if (file.fileId) {
+    return `https://drive.google.com/file/d/${file.fileId}/preview`;
+  }
+  return file.viewUrl || file.url || "";
+}
+
 function openSingleViewer(file) {
+  const dlUrl = getFileDownloadUrl(file);
+  const previewUrl = getFilePreviewUrl(file);
   modalTitle.textContent = file.name;
-  modalDirectDownload.href = file.url;
+  modalDirectDownload.href = dlUrl;
   modalDirectDownload.download = file.name;
   modalDirectDownload.classList.remove("hidden");
   modalBody.innerHTML = "";
+
   const lower = (file.name || "").toLowerCase();
   const mime = (file.type || "").toLowerCase();
+
   if (mime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(lower)) {
     const img = document.createElement("img");
-    img.src = file.url; img.alt = file.name; img.className = "viewer-media";
+    img.src = file.directUrl || previewUrl || dlUrl;
+    img.alt = file.name;
+    img.className = "viewer-media";
     modalBody.appendChild(img);
   } else if (mime.startsWith("video/") || /\.(mp4|webm|ogg|mov)$/.test(lower)) {
     const video = document.createElement("video");
-    video.src = file.url; video.controls = true; video.className = "viewer-media";
+    video.src = previewUrl || dlUrl;
+    video.controls = true;
+    video.className = "viewer-media";
     modalBody.appendChild(video);
-  } else if (mime === "application/pdf" || lower.endsWith(".pdf")) {
+  } else if (mime === "application/pdf" || lower.endsWith(".pdf") || /\.(doc|docx|xls|xlsx|ppt|pptx)$/.test(lower)) {
     const iframe = document.createElement("iframe");
-    iframe.src = file.url; iframe.className = "viewer-frame";
-    modalBody.appendChild(iframe);
-  } else if (/\.(doc|docx|xls|xlsx|ppt|pptx)$/.test(lower)) {
-    const iframe = document.createElement("iframe");
-    iframe.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(file.url)}`;
+    iframe.src = previewUrl;
     iframe.className = "viewer-frame";
     modalBody.appendChild(iframe);
   } else {
@@ -772,7 +800,7 @@ function openFolderView(order) {
     btnVer.textContent = "Ver";
     btnVer.addEventListener("click", () => openSingleViewer(file));
     const btnDl = document.createElement("a");
-    btnDl.href = file.url;
+    btnDl.href = getFileDownloadUrl(file);
     btnDl.download = file.name;
     btnDl.target = "_blank";
     btnDl.rel = "noopener";
@@ -905,7 +933,7 @@ function renderList() {
 
     if (!isFolder && files[0]) {
       const btnDl = document.createElement("a");
-      btnDl.href = files[0].url;
+      btnDl.href = getFileDownloadUrl(files[0]);
       btnDl.download = files[0].name;
       btnDl.target = "_blank";
       btnDl.rel = "noopener";
