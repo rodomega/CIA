@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Painel Operacional</title>
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -42,29 +42,52 @@
     --titleTracking:1.5px;
     --titleWordSpacing:0px;
     --titleTransform:uppercase;
+    --stackWidth:146px;
+    --stackBottomSpace:195px;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-html, body{
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+}
+html{
     height:100%;
-    overflow:hidden;
-    position:fixed;
+    height:100dvh;
     width:100%;
+    overflow:hidden;
 }
 body{
+    height:100%;
+    height:100dvh;
+    width:100%;
+    overflow:hidden;
     background:linear-gradient(135deg,var(--bg1),var(--bg2));
-    color:var(--text);display:flex;flex-direction:column;align-items:center;
-    padding:10px 10px env(safe-area-inset-bottom, 10px);
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:max(10px, env(safe-area-inset-top, 10px)) 10px max(10px, env(safe-area-inset-bottom, 10px));
 }
 
 /* CONTAINER PADRÃO (CELULAR) */
 .phone-container{
-    width:100%;max-width:420px;display:flex;flex-direction:column;height:100%;position:relative;justify-content:space-between;
+    width:100%;
+    max-width:440px;
+    display:flex;
+    flex-direction:column;
+    height:100%;
+    min-height:0;
+    position:relative;
 }
 .header{
     text-align:center;
-    padding:14px 4px 16px;
+    padding:8px 6px 12px;
     flex-shrink:0;
-    min-height:64px;
+    min-height:54px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -91,24 +114,64 @@ body{
 }
 
 .grid-apps{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:var(--appGap) 10px;padding:6px 5px 5px;
-    align-content:start;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:0;
-    contain:content;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:var(--appGap) 8px;
+    padding:4px 4px calc(var(--stackBottomSpace) + env(safe-area-inset-bottom, 10px));
+    align-content:start;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    flex:1;
+    min-height:0;
+    scrollbar-width:none;
+}
+.grid-apps::-webkit-scrollbar{
+    display:none;
 }
 .app-item{
-    display:flex;flex-direction:column;align-items:center;cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:0;
+    cursor:pointer;
     transition:transform .1s;
 }
-.app-item:active{transform:scale(.9)}
+.app-item:active{transform:scale(.92)}
 .app-icon{
-    width:var(--iconSize);height:var(--iconSize);border-radius:var(--iconRadius);background:var(--iconBg);
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 3px 8px rgba(0,0,0,.3);overflow:hidden;border:1px solid rgba(255,255,255,.14);font-size:26px;
+    width:min(var(--iconSize), 100%);
+    aspect-ratio:1 / 1;
+    height:auto;
+    max-width:var(--iconSize);
+    max-height:var(--iconSize);
+    border-radius:var(--iconRadius);
+    background:var(--iconBg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 3px 8px rgba(0,0,0,.28);
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);
+    font-size:clamp(20px, 6.2vw, 28px);
 }
-.app-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.app-icon img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
 .app-name{
-    margin-top:4px;font-size:.68rem;text-align:center;color:var(--appName);text-shadow:0 1px 2px rgba(0,0,0,.85);
-    width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
+    margin-top:4px;
+    font-size:clamp(0.64rem, 2.8vw, 0.72rem);
+    line-height:1.15;
+    text-align:center;
+    color:var(--appName);
+    text-shadow:0 1px 3px rgba(0,0,0,.65), 0 0 1px rgba(0,0,0,.45);
+    width:100%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-weight:500;
 }
 
 /* PILHA INFERIOR DIREITA UNIFORMIZADA */
@@ -120,27 +183,29 @@ body{
     display:flex;
     flex-direction:column;
     align-items:stretch;
-    width:152px;
-    gap:6px;
+    width:var(--stackWidth);
+    gap:5px;
 }
 
 .stack-btn{
     width:100%;
-    background:rgba(15,23,42,.88);
-    border:1px solid rgba(255,255,255,.18);
+    background:rgba(15,23,42,.92);
+    border:1px solid rgba(255,255,255,.2);
     border-radius:10px;
-    padding:7px 10px;
-    font-size:0.78rem;
+    padding:6px 8px;
+    font-size:0.74rem;
     font-weight:600;
-    line-height:1.25;
+    line-height:1.2;
     cursor:pointer;
     color:#f8fafc;
     text-decoration:none;
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:5px;
-    box-shadow:0 4px 12px rgba(0,0,0,.35);
+    gap:4px;
+    box-shadow:0 4px 12px rgba(0,0,0,.38);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
     transition:transform .12s ease, border-color .15s ease, background .15s ease;
 }
 .stack-btn:active{transform:scale(.96)}
@@ -152,8 +217,8 @@ body{
     gap:2px;
     font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color:#e2e8f0;
-    font-size:0.72rem;
-    line-height:1.2;
+    font-size:0.68rem;
+    line-height:1.15;
 }
 .coord-line{
     display:flex;
@@ -165,14 +230,14 @@ body{
 #coordLivePanel .coord-label{
     color:var(--accent);
     font-weight:700;
-    font-size:0.68rem;
+    font-size:0.64rem;
 }
 #coordLivePanel .coord-acc{
     color:#94a3b8;
-    font-size:0.66rem;
+    font-size:0.62rem;
 }
 #coordLivePanel.copiado{
-    background:rgba(34,197,94,.88);
+    background:rgba(34,197,94,.92);
     border-color:rgba(34,197,94,.98);
     color:#fff;
 }
@@ -182,9 +247,31 @@ body{
 }
 
 #installAppBtn{
-    background:linear-gradient(135deg, rgba(2,132,199,.9), rgba(3,105,161,.92));
-    border-color:rgba(56,189,248,.45);
+    background:linear-gradient(135deg, rgba(2,132,199,.94), rgba(3,105,161,.96));
+    border-color:rgba(56,189,248,.5);
     color:#fff;
+}
+
+/* Telas pequenas (ex.: iPhone SE / Mini / 375px ou menores) */
+@media(max-width: 390px) {
+    :root{
+        --stackWidth:132px;
+        --stackBottomSpace:182px;
+    }
+    body{
+        padding:max(8px, env(safe-area-inset-top, 8px)) 8px max(8px, env(safe-area-inset-bottom, 8px));
+    }
+    .grid-apps{
+        gap:min(var(--appGap), 13px) 6px;
+    }
+    .stack-btn{
+        padding:5px 7px;
+        font-size:0.7rem;
+        border-radius:9px;
+    }
+    #coordLivePanel{
+        font-size:0.64rem;
+    }
 }
 
 .modal-overlay{
@@ -275,14 +362,29 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 }
 .id-display-box:focus{border-color:var(--accent)}
 
+/* Tablets / Desktop */
 @media(min-width: 768px) {
-    html, body{position:static;overflow:auto}
+    :root{
+        --stackWidth:168px;
+        --stackBottomSpace:36px;
+    }
+    html, body{height:auto;min-height:100%;overflow:auto}
     body{padding:24px}
-    .phone-container{max-width:850px}
+    .phone-container{max-width:850px;height:auto}
     .header{padding:20px 8px 22px;min-height:76px}
-    .grid-apps{grid-template-columns:repeat(6, 1fr);gap:20px 16px}
+    .grid-apps{
+        grid-template-columns:repeat(6, minmax(0, 1fr));
+        gap:20px 16px;
+        padding:6px 5px 24px;
+        overflow:visible;
+    }
+    .app-icon{
+        width:var(--iconSize);
+        height:var(--iconSize);
+        font-size:26px;
+    }
     .app-name{font-size:0.78rem}
-    .bottom-right-stack{right:18px;bottom:18px;width:168px;gap:7px}
+    .bottom-right-stack{right:18px;bottom:18px;gap:7px}
     .stack-btn{font-size:0.84rem;padding:8px 12px}
     #coordLivePanel{font-size:0.76rem}
     #coordLivePanel .coord-label{font-size:0.7rem}
@@ -303,7 +405,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<div class="bottom-right-stack">
+<div class="bottom-right-stack" id="bottomRightStack">
     <button id="editPageBtn" class="stack-btn" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
 
     <div id="coordLivePanel" class="stack-btn" title="Toque para copiar coordenadas">
@@ -778,6 +880,22 @@ let manifestBlobUrl = "";
 const $ = id => document.getElementById(id);
 
 /* =========================================================
+   AJUSTE DE ESPAÇO INFERIOR PARA A PILHA FIXA NÃO COBRIR APPS
+   ========================================================= */
+function sincronizarEspacoPilhaInferior() {
+    const stack = $("bottomRightStack");
+    if (!stack || window.innerWidth >= 768) {
+        document.documentElement.style.removeProperty("--stackBottomSpace");
+        return;
+    }
+    const rect = stack.getBoundingClientRect();
+    const alturaSegura = Math.max(150, Math.ceil(rect.height + 24));
+    document.documentElement.style.setProperty("--stackBottomSpace", `${alturaSegura}px`);
+}
+
+window.addEventListener("resize", sincronizarEspacoPilhaInferior, { passive: true });
+
+/* =========================================================
    UPLOAD PARA GOOGLE DRIVE VIA GOOGLE APPS SCRIPT
    ========================================================= */
 function blobToBase64(blobOrFile) {
@@ -839,6 +957,7 @@ function atualizarVisibilidadeBotaoInstalador() {
     const btn = $("installAppBtn");
     if (!btn) return;
     btn.style.display = appJaEstaInstalado() ? "none" : "flex";
+    sincronizarEspacoPilhaInferior();
 }
 
 function atualizarManifestDinamico(iconUrl, appTitle) {
@@ -1126,6 +1245,7 @@ function aplicarTema(theme, salvarCache = true) {
     $("faviconLink").href = logo;
     $("appleIconLink").href = logo;
     atualizarManifestDinamico(logo, currentTheme.title);
+    sincronizarEspacoPilhaInferior();
 
     if (salvarCache) {
         try { localStorage.setItem(CACHE_THEME_KEY, JSON.stringify(currentTheme)); } catch {}
@@ -1483,6 +1603,7 @@ window.salvarLogo = async function() {
         aplicarTema(DEFAULT_THEME, false);
     }
     atualizarVisibilidadeBotaoInstalador();
+    sincronizarEspacoPilhaInferior();
 })();
 
 onSnapshot(portalConfigRef, snap => {
@@ -1586,6 +1707,7 @@ function renderizarGrid() {
     frag.appendChild(dicasItem);
 
     grid.replaceChildren(frag);
+    sincronizarEspacoPilhaInferior();
 }
 
 window.abrirAcessoEdicaoPagina = function() {
