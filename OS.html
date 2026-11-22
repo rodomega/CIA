@@ -353,31 +353,35 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
 .actions-group { display: flex; gap: 6px; align-items: center; }
 .empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
 
-/* Botão Mostrar / Ocultar Expirados com seta animada */
+/* Linha divisória com botão Mostrar / Ocultar Expirados acima dos expirados */
+tr.expired-divider-row td {
+  padding: 10px 12px;
+  background: var(--bg-app);
+  border-bottom: none;
+}
 .expired-toggle-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 2px;
 }
 .btn-toggle-expired {
   background: var(--bg-card);
   color: var(--texto-principal);
   border: 1.5px solid var(--borda-destaque);
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 0.8rem;
+  padding: 7px 15px;
+  font-size: 0.78rem;
   font-weight: 800;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  gap: 7px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 .btn-toggle-expired:hover {
   background: var(--bg-elevado);
   border-color: var(--destaque);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
 }
 .btn-toggle-expired .arrow-icon {
   display: inline-flex;
@@ -396,7 +400,7 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
 .btn-toggle-expired .expired-pill-count {
   background: var(--expirado-badge);
   color: #ffffff;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 900;
   padding: 2px 7px;
   border-radius: 999px;
@@ -409,6 +413,21 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
   thead { display: none; }
   tbody { display: flex; flex-direction: column; gap: 8px; }
+
+  tr.expired-divider-row {
+    display: flex;
+    justify-content: center;
+    padding: 2px 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  tr.expired-divider-row td {
+    padding: 0;
+    background: transparent;
+    border: none;
+    width: auto;
+  }
 
   tr.os-vigente,
   tr.os-em-breve,
@@ -705,19 +724,6 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
     </div>
   </section>
 
-  <!-- Botão Mostrar / Ocultar Expirados (logo abaixo de Em breve / Vigente) -->
-  <div id="expiredToggleContainer" class="expired-toggle-wrap hidden">
-    <button type="button" id="btnToggleExpired" class="btn-toggle-expired" aria-expanded="false">
-      <span id="expiredToggleText">Mostrar expirados</span>
-      <span id="expiredToggleCount" class="expired-pill-count">0</span>
-      <span class="arrow-icon" aria-hidden="true">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </span>
-    </button>
-  </div>
-
 </main>
 
 <!-- Modal Visualizador -->
@@ -800,12 +806,7 @@ const filterDate = document.getElementById("filterDate");
 const filterStatus = document.getElementById("filterStatus");
 const btnClearFilters = document.getElementById("btnClearFilters");
 const statsBar = document.getElementById("statsBar");
-const listCard = document.getElementById("listCard");
 const osTableBody = document.getElementById("osTableBody");
-const expiredToggleContainer = document.getElementById("expiredToggleContainer");
-const btnToggleExpired = document.getElementById("btnToggleExpired");
-const expiredToggleText = document.getElementById("expiredToggleText");
-const expiredToggleCount = document.getElementById("expiredToggleCount");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
@@ -820,11 +821,6 @@ function setPdfZoomMode(enabled) {
 
 btnToggleFilters.addEventListener("click", () => {
   filtersDrawer.classList.toggle("hidden");
-});
-
-btnToggleExpired.addEventListener("click", () => {
-  showExpired = !showExpired;
-  renderList();
 });
 
 function updateFilterBadge() {
@@ -1342,13 +1338,107 @@ function createActionButtons(order, files, isFolder) {
   return group;
 }
 
+function createOrderRow(order) {
+  const status = getOrderStatus(order);
+  const meta = getStatusMeta(status);
+  const files = order.files || [];
+  const isFolder = files.length > 1;
+  const startBR = formatDateBR(order.startDate);
+  const endBR = formatDateBR(order.endDate);
+  const dateSummary = (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
+    ? order.specificDates.map(formatDateBR).join(", ")
+    : `${startBR} → ${endBR}`;
+  const subjectHtml = order.subject
+    ? `<div class="os-subject-text">${escapeHtml(order.subject)}</div>`
+    : "";
+
+  const tr = document.createElement("tr");
+  tr.className = meta.rowClass;
+
+  const tdInfo = document.createElement("td");
+  tdInfo.className = "col-info";
+  const pastaBadgeHtml = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
+  const statusBadgeHtml = `<span class="badge-status ${meta.badgeClass}">${meta.label}</span>`;
+
+  tdInfo.innerHTML = `
+    <div class="mobile-left-info">
+      <div class="os-title-line">
+        <span class="os-title-text">${escapeHtml(order.title)}</span>
+        <span class="desktop-status-row">${statusBadgeHtml}${pastaBadgeHtml}</span>
+      </div>
+      ${subjectHtml}
+      <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
+    </div>
+  `;
+
+  const mobileRight = document.createElement("div");
+  mobileRight.className = "mobile-right-stack";
+  const mobileStatusBar = document.createElement("div");
+  mobileStatusBar.className = "mobile-status-bar";
+  mobileStatusBar.innerHTML = `${pastaBadgeHtml}${statusBadgeHtml}`;
+  mobileRight.appendChild(mobileStatusBar);
+  mobileRight.appendChild(createActionButtons(order, files, isFolder));
+  tdInfo.appendChild(mobileRight);
+
+  const tdStart = document.createElement("td");
+  tdStart.className = "col-start";
+  tdStart.textContent = startBR;
+
+  const tdEnd = document.createElement("td");
+  tdEnd.className = "col-end";
+  tdEnd.textContent = endBR;
+
+  const tdActions = document.createElement("td");
+  tdActions.className = "col-actions";
+  tdActions.appendChild(createActionButtons(order, files, isFolder));
+
+  tr.appendChild(tdInfo);
+  tr.appendChild(tdStart);
+  tr.appendChild(tdEnd);
+  tr.appendChild(tdActions);
+  return tr;
+}
+
+function createExpiredDividerRow(expiredCount, isExpanded) {
+  const tr = document.createElement("tr");
+  tr.className = "expired-divider-row";
+
+  const td = document.createElement("td");
+  td.colSpan = 4;
+
+  const wrap = document.createElement("div");
+  wrap.className = "expired-toggle-wrap";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = `btn-toggle-expired${isExpanded ? " expanded" : ""}`;
+  btn.setAttribute("aria-expanded", String(isExpanded));
+  btn.innerHTML = `
+    <span>${isExpanded ? "Ocultar expirados" : "Mostrar expirados"}</span>
+    <span class="expired-pill-count">${expiredCount}</span>
+    <span class="arrow-icon" aria-hidden="true">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </span>
+  `;
+  btn.addEventListener("click", () => {
+    showExpired = !showExpired;
+    renderList();
+  });
+
+  wrap.appendChild(btn);
+  td.appendChild(wrap);
+  tr.appendChild(td);
+  return tr;
+}
+
 function renderList() {
   updateFilterBadge();
   const term = searchInput.value.trim().toLowerCase();
   const dateVal = filterDate.value;
   const statusVal = filterStatus.value;
 
-  // Filtra primeiro por busca, data e status selecionado
   const matchedBySearchAndDate = allOrders.filter((order) => {
     const status = getOrderStatus(order);
     if (statusVal !== "all" && status !== statusVal) return false;
@@ -1368,40 +1458,22 @@ function renderList() {
     return true;
   });
 
-  const expiredInMatched = matchedBySearchAndDate.filter((o) => getOrderStatus(o) === "expirado");
-  const activeInMatched = matchedBySearchAndDate.filter((o) => getOrderStatus(o) !== "expirado");
+  const statusPriority = { vigente: 0, em_breve: 1, expirado: 2 };
+  const byNewest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
 
-  // Se o filtro específico "Expirados" foi escolhido, exibe diretamente; caso contrário respeita showExpired
-  const shouldDisplayExpired = statusVal === "expirado" || showExpired;
+  const activeItems = matchedBySearchAndDate
+    .filter((o) => getOrderStatus(o) !== "expirado")
+    .sort((a, b) => {
+      const diff = (statusPriority[getOrderStatus(a)] ?? 9) - (statusPriority[getOrderStatus(b)] ?? 9);
+      return diff !== 0 ? diff : byNewest(a, b);
+    });
 
-  // Controla visibilidade e estado do botão Mostrar / Ocultar expirados
-  if (expiredInMatched.length > 0 && statusVal !== "expirado") {
-    expiredToggleContainer.classList.remove("hidden");
-    expiredToggleCount.textContent = String(expiredInMatched.length);
-    expiredToggleText.textContent = showExpired ? "Ocultar expirados" : "Mostrar expirados";
-    btnToggleExpired.classList.toggle("expanded", showExpired);
-    btnToggleExpired.setAttribute("aria-expanded", String(showExpired));
-  } else {
-    expiredToggleContainer.classList.add("hidden");
-  }
+  const expiredItems = matchedBySearchAndDate
+    .filter((o) => getOrderStatus(o) === "expirado")
+    .sort(byNewest);
 
-  const filtered = shouldDisplayExpired
-    ? [...activeInMatched, ...expiredInMatched]
-    : [...activeInMatched];
-
-  // Sempre ordena: Vigentes (Verde) -> Em breve (Azul) -> Expirados (Vermelho)
-  const statusPriority = {
-    vigente: 0,
-    em_breve: 1,
-    expirado: 2
-  };
-  filtered.sort((a, b) => {
-    const sa = getOrderStatus(a);
-    const sb = getOrderStatus(b);
-    const diffStatus = (statusPriority[sa] ?? 9) - (statusPriority[sb] ?? 9);
-    if (diffStatus !== 0) return diffStatus;
-    return (b.createdAt || 0) - (a.createdAt || 0);
-  });
+  const shouldShowExpired = statusVal === "expirado" || showExpired;
+  const displayedCount = activeItems.length + (shouldShowExpired ? expiredItems.length : 0);
 
   const vigentesCount = allOrders.filter((o) => getOrderStatus(o) === "vigente").length;
   const emBreveCount = allOrders.filter((o) => getOrderStatus(o) === "em_breve").length;
@@ -1412,82 +1484,40 @@ function renderList() {
     <span class="stat-pill vigente">Vigentes: <strong>${vigentesCount}</strong></span>
     <span class="stat-pill em-breve">Em breve: <strong>${emBreveCount}</strong></span>
     <span class="stat-pill expirado">Expirados: <strong>${expiradosCount}</strong></span>
-    <span class="stat-pill">Exibidos: <strong>${filtered.length}</strong></span>
+    <span class="stat-pill">Exibidos: <strong>${displayedCount}</strong></span>
   `;
 
   osTableBody.innerHTML = "";
-  if (!filtered.length) {
-    // Se há expirados ocultos e nenhum vigente/em breve, deixa o card da lista discreto e mantém o botão abaixo
-    const msg = expiredInMatched.length > 0 && !shouldDisplayExpired
-      ? "Nenhuma Ordem de Serviço vigente ou em breve."
-      : "Nenhuma Ordem de Serviço encontrada.";
+
+  if (!activeItems.length && !expiredItems.length) {
     osTableBody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty-state">${msg}</td>
+        <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço encontrada.</td>
       </tr>`;
     return;
   }
 
-  filtered.forEach((order) => {
-    const status = getOrderStatus(order);
-    const meta = getStatusMeta(status);
-    const files = order.files || [];
-    const isFolder = files.length > 1;
-    const startBR = formatDateBR(order.startDate);
-    const endBR = formatDateBR(order.endDate);
-    const dateSummary = (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
-      ? order.specificDates.map(formatDateBR).join(", ")
-      : `${startBR} → ${endBR}`;
-    const subjectHtml = order.subject
-      ? `<div class="os-subject-text">${escapeHtml(order.subject)}</div>`
-      : "";
+  if (activeItems.length) {
+    activeItems.forEach((order) => {
+      osTableBody.appendChild(createOrderRow(order));
+    });
+  } else if (statusVal !== "expirado" && expiredItems.length > 0 && !shouldShowExpired) {
+    osTableBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço vigente ou em breve.</td>
+      </tr>`;
+  }
 
-    const tr = document.createElement("tr");
-    tr.className = meta.rowClass;
+  // Botão sempre logo abaixo de Em breve / Vigente e ACIMA dos Expirados
+  if (expiredItems.length > 0 && statusVal !== "expirado") {
+    osTableBody.appendChild(createExpiredDividerRow(expiredItems.length, showExpired));
+  }
 
-    const tdInfo = document.createElement("td");
-    tdInfo.className = "col-info";
-    const pastaBadgeHtml = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
-    const statusBadgeHtml = `<span class="badge-status ${meta.badgeClass}">${meta.label}</span>`;
-
-    tdInfo.innerHTML = `
-      <div class="mobile-left-info">
-        <div class="os-title-line">
-          <span class="os-title-text">${escapeHtml(order.title)}</span>
-          <span class="desktop-status-row">${statusBadgeHtml}${pastaBadgeHtml}</span>
-        </div>
-        ${subjectHtml}
-        <div class="os-dates-line">${escapeHtml(dateSummary)}</div>
-      </div>
-    `;
-
-    const mobileRight = document.createElement("div");
-    mobileRight.className = "mobile-right-stack";
-    const mobileStatusBar = document.createElement("div");
-    mobileStatusBar.className = "mobile-status-bar";
-    mobileStatusBar.innerHTML = `${pastaBadgeHtml}${statusBadgeHtml}`;
-    mobileRight.appendChild(mobileStatusBar);
-    mobileRight.appendChild(createActionButtons(order, files, isFolder));
-    tdInfo.appendChild(mobileRight);
-
-    const tdStart = document.createElement("td");
-    tdStart.className = "col-start";
-    tdStart.textContent = startBR;
-
-    const tdEnd = document.createElement("td");
-    tdEnd.className = "col-end";
-    tdEnd.textContent = endBR;
-
-    const tdActions = document.createElement("td");
-    tdActions.className = "col-actions";
-    tdActions.appendChild(createActionButtons(order, files, isFolder));
-
-    tr.appendChild(tdInfo);
-    tr.appendChild(tdStart);
-    tr.appendChild(tdEnd);
-    tr.appendChild(tdActions);
-    osTableBody.appendChild(tr);
-  });
+  if (shouldShowExpired) {
+    expiredItems.forEach((order) => {
+      osTableBody.appendChild(createOrderRow(order));
+    });
+  }
 }
 
 searchInput.addEventListener("input", renderList);
