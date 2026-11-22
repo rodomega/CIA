@@ -3,118 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandar Atividade - Servidor e Download</title>
+    <title>Mandar Atividade</title>
     <style>
+        :root {
+            --bg-app: #ffffff;
+            --bg-card: #ffffff;
+            --bg-elevado: #f4f5f7;
+            --bg-input: #f9fafb;
+            --bg-header: #ffffff;
+            --destaque: #000000;
+            --destaque-suave: #eab308;
+            --texto-principal: #000000;
+            --texto-suave: #374151;
+            --borda: #d1d5db;
+            --borda-forte: #000000;
+        }
+
+        body.dark-theme {
+            --bg-app: #111111;
+            --bg-card: #1e1e1e;
+            --bg-elevado: #2a2a2a;
+            --bg-input: #2c2c2c;
+            --bg-header: #0a0a0a;
+            --destaque: #ffd700;
+            --destaque-suave: #ffd700;
+            --texto-principal: #ffd700;
+            --texto-suave: #bbbbbb;
+            --borda: #444444;
+            --borda-forte: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #111;
-            color: #ffd700;
+            background-color: var(--bg-app);
+            color: var(--texto-principal);
             margin: 0;
-            padding: 15px;
+            padding: 12px 15px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             touch-action: manipulation;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Indicador discreto no topo estilo status bar / bateria de celular */
+        .top-status-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .status-chip-btn {
+            background: transparent;
+            border: 1px solid var(--borda);
+            color: var(--texto-suave);
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.75;
+            transition: opacity 0.15s ease, border-color 0.15s ease;
+        }
+
+        .status-chip-btn:hover {
+            opacity: 1;
+            border-color: var(--borda-forte);
+            color: var(--texto-principal);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #16a34a;
         }
 
         h1 {
-            border-bottom: 2px solid #ffd700;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            border-bottom: 2.5px solid var(--borda-forte);
+            padding-bottom: 8px;
+            margin: 4px 0 14px;
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.45em;
             width: 100%;
             max-width: 600px;
-        }
-
-        .my-id-bar {
-            width: 100%;
-            max-width: 600px;
-            background-color: #1f1f1f;
-            border: 1px solid #ffd700;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            font-size: 0.95em;
-        }
-
-        .my-id-bar span {
-            color: #fff;
-        }
-
-        .my-id-bar strong {
-            color: #25d366;
-            font-size: 1.1em;
-        }
-
-        .btn-change-id {
-            background-color: #333;
-            color: #ffd700;
-            border: 1px solid #ffd700;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: bold;
+            color: var(--texto-principal);
         }
 
         .top-action-bar {
             width: 100%;
             max-width: 600px;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
-            justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .btn-top {
-            flex: 1;
-            min-width: 100px;
             padding: 10px 8px;
-            font-size: 0.85em;
+            font-size: 0.84em;
             font-weight: bold;
-            border: none;
+            border: 1px solid transparent;
             border-radius: 8px;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: opacity 0.2s, transform 0.1s;
             text-align: center;
             touch-action: manipulation;
         }
 
-        .btn-whatsapp { background-color: #25d366; color: #fff; }
-        .btn-copy { background-color: #ffd700; color: #000; }
-        .btn-server { background-color: #007bff; color: #fff; }
-        .btn-download { background-color: #6f42c1; color: #fff; }
-        .btn-import { background-color: #17a2b8; color: #fff; }
-        .btn-general { background-color: #ff851b; color: #fff; }
-        .btn-clear { background-color: #444; color: #ffd700; }
+        .btn-top:active { transform: scale(0.98); }
+        .btn-top:hover { opacity: 0.92; }
 
-        .btn-top:hover { opacity: 0.9; }
+        .btn-whatsapp { background-color: #16a34a; color: #ffffff; grid-column: 1 / -1; font-size: 0.92em; padding: 11px; }
+        .btn-copy { background-color: #eab308; color: #000000; }
+        .btn-import { background-color: #0284c7; color: #ffffff; }
+        .btn-add-accum { background-color: #0f766e; color: #ffffff; }
+        .btn-view-accum { background-color: #6d28d9; color: #ffffff; }
+        .btn-general { background-color: #ea580c; color: #ffffff; }
+        .btn-clear { background-color: var(--bg-elevado); color: var(--texto-principal); border-color: var(--borda); }
 
         .tabs-container {
             width: 100%;
             max-width: 600px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             overflow-x: auto;
             padding-bottom: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             scrollbar-width: thin;
-            scrollbar-color: #ffd700 #222;
         }
 
         .tab {
-            background-color: #222;
-            color: #ccc;
-            border: 1px solid #444;
-            padding: 10px 15px;
-            border-radius: 6px 6px 0 0;
+            background-color: var(--bg-elevado);
+            color: var(--texto-suave);
+            border: 1px solid var(--borda);
+            padding: 9px 14px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             white-space: nowrap;
@@ -125,108 +160,119 @@
         }
 
         .tab.active {
-            background-color: #333;
-            color: #ffd700;
-            border-color: #ffd700;
-            border-bottom: none;
+            background-color: var(--bg-card);
+            color: var(--texto-principal);
+            border-color: var(--borda-forte);
+            border-width: 2px;
         }
 
         .tab-close {
             background: none;
             border: none;
-            color: #ff4d4d;
+            color: #dc2626;
             font-weight: bold;
             cursor: pointer;
             font-size: 1.1em;
-            padding: 0 3px;
+            padding: 0 2px;
         }
 
         .btn-add-tab {
-            background-color: #ffd700;
-            color: #000;
+            background-color: var(--borda-forte);
+            color: var(--bg-app);
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             touch-action: manipulation;
         }
 
         .tab-config-section {
             width: 100%;
             max-width: 600px;
-            background-color: #1a1a1a;
-            border: 1px dashed #555;
-            padding: 12px;
+            background-color: var(--bg-card);
+            border: 1px dashed var(--borda);
+            padding: 10px 12px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-sizing: border-box;
         }
 
         .tab-config-section label {
             font-weight: bold;
-            color: #ccc;
-            font-size: 0.9em;
+            color: var(--texto-suave);
+            font-size: 0.88em;
             white-space: nowrap;
         }
 
         .tab-config-section input {
             flex: 1;
-            padding: 8px;
-            background-color: #333;
-            border: 1px solid #555;
-            color: #ffd700;
-            border-radius: 4px;
-            font-size: 1em;
+            padding: 8px 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--borda);
+            color: var(--texto-principal);
+            border-radius: 6px;
+            font-size: 0.95em;
         }
 
         .section {
             width: 100%;
             max-width: 600px;
-            background-color: #222;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
+            background-color: var(--bg-card);
+            border: 1px solid var(--borda);
+            border-top: 3px solid var(--borda-forte);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
         }
 
         .section-title {
             font-weight: bold;
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: #ffd700;
+            font-size: 1.08em;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        .input-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .input-grid-2 { grid-template-columns: 1fr; }
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 11px;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #ccc;
+            margin-bottom: 4px;
+            color: var(--texto-suave);
+            font-size: 0.86em;
+            font-weight: 600;
         }
 
-        .input-group input {
+        .input-group input,
+        .input-group select {
             width: 100%;
-            padding: 10px;
-            background-color: #333;
-            border: 1px solid #555;
-            color: #ffd700;
-            border-radius: 4px;
-            font-size: 1em;
-            box-sizing: border-box;
+            padding: 9px 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--borda);
+            color: var(--texto-principal);
+            border-radius: 6px;
+            font-size: 0.95em;
         }
 
         .item-list {
@@ -236,14 +282,14 @@
 
         .item-toggle {
             width: 100%;
-            background-color: #333;
-            color: #ffd700;
-            padding: 15px;
-            border: none;
+            background-color: var(--bg-elevado);
+            color: var(--texto-principal);
+            padding: 13px 14px;
+            border: 1px solid var(--borda);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: left;
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -253,20 +299,17 @@
         }
 
         .item-toggle:hover {
-            background-color: #444;
+            border-color: var(--borda-forte);
         }
 
         .item-content {
             display: none;
-            width: calc(100% - 30px);
-            margin: 0 auto;
-            margin-top: -10px;
-            margin-bottom: 20px;
-            background-color: #222;
-            padding: 15px;
+            width: calc(100% - 16px);
+            margin: -4px auto 12px;
+            background-color: var(--bg-card);
+            padding: 14px;
             border-radius: 0 0 8px 8px;
-            border: 1px solid #444;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--borda);
         }
 
         .active-content {
@@ -277,14 +320,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            color: #ccc;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        .counter-group:last-child {
+            margin-bottom: 0;
         }
 
         .person-label {
             font-weight: bold;
-            color: #fff;
-            width: 120px;
+            color: var(--texto-principal);
+            width: 115px;
+            font-size: 0.92em;
         }
 
         .counter-controls {
@@ -293,13 +341,14 @@
         }
 
         .btn-plus, .btn-minus {
-            background-color: #ffd700;
-            color: #000;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            font-size: 1.5em;
+            background-color: var(--destaque-suave);
+            color: #000000;
+            border: 1px solid rgba(0,0,0,0.15);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-size: 1.4em;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -309,38 +358,37 @@
             user-select: none;
         }
 
-        .btn-minus { margin-right: 10px; }
-        .btn-plus { margin-left: 10px; }
+        .btn-minus { margin-right: 8px; }
+        .btn-plus { margin-left: 8px; }
 
         .counter-value {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
-            color: #ffd700;
-            width: 40px;
+            color: var(--texto-principal);
+            width: 38px;
             text-align: center;
         }
 
         .radar-input-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            color: #ccc;
+            gap: 8px;
         }
 
         .radar-input-container label {
             font-weight: bold;
-            color: #fff;
+            color: var(--texto-principal);
+            font-size: 0.88em;
         }
 
         .radar-input-container input {
-            padding: 10px;
-            background-color: #333;
-            border: 1px solid #555;
-            color: #ffd700;
-            border-radius: 4px;
-            font-size: 1em;
+            padding: 9px 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--borda);
+            color: var(--texto-principal);
+            border-radius: 6px;
+            font-size: 0.95em;
             width: 100%;
-            box-sizing: border-box;
         }
 
         .modal {
@@ -351,75 +399,115 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.72);
             justify-content: center;
             align-items: center;
+            padding: 12px;
         }
 
         .modal-content {
-            background-color: #222;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-            border: 1px solid #ffd700;
-            box-sizing: border-box;
+            background-color: var(--bg-card);
+            color: var(--texto-principal);
+            padding: 18px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            border: 2px solid var(--borda-forte);
             text-align: center;
         }
 
         .modal-content h3 {
-            margin-top: 0;
-            color: #ffd700;
+            margin: 0 0 8px;
+            color: var(--texto-principal);
         }
 
-        .modal-content input, .modal-content textarea {
+        .modal-content textarea {
             width: 100%;
-            background-color: #333;
-            color: #ffd700;
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 12px;
-            box-sizing: border-box;
-            font-size: 1em;
-            margin-bottom: 15px;
+            min-height: 160px;
+            background-color: var(--bg-input);
+            color: var(--texto-principal);
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+            resize: vertical;
+        }
+
+        .accum-preview-box {
+            background-color: var(--bg-input);
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: left;
+            white-space: pre-wrap;
+            max-height: 240px;
+            overflow-y: auto;
+            font-size: 0.84em;
+            margin-bottom: 12px;
+            color: var(--texto-principal);
+        }
+
+        .accum-meta {
+            font-size: 0.8em;
+            color: var(--texto-suave);
+            margin-bottom: 10px;
         }
 
         .modal-buttons {
             display: flex;
+            flex-wrap: wrap;
             justify-content: flex-end;
-            gap: 10px;
+            gap: 8px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Mandar Atividade</h1>
-
-    <div class="my-id-bar">
-        <span>Meu ID: <strong id="displayMyId">...</strong></span>
-        <button class="btn-change-id" onclick="openMyIdModal()">Mudar Meu ID</button>
+    <div class="top-status-bar">
+        <button type="button" class="status-chip-btn" id="btnDiscreetTheme" title="Alternar tema">
+            <span class="status-dot"></span>
+            <span id="statusThemeLabel">100% · Claro</span>
+        </button>
     </div>
+
+    <h1>Mandar Atividade</h1>
 
     <div class="top-action-bar">
         <button class="btn-top btn-whatsapp" id="btnWhatsapp">WhatsApp</button>
         <button class="btn-top btn-copy" id="btnCopy">Copiar</button>
-        <button class="btn-top btn-server" id="btnServer">Enviar Servidor</button>
-        <button class="btn-top btn-download" id="btnDownload">Baixar Servidor</button>
-        <button class="btn-top btn-import" id="btnImport">Importar (Colar)</button>
+        <button class="btn-top btn-import" id="btnImport">Importar</button>
+        <button class="btn-top btn-add-accum" id="btnAddAccum">Adicionar ao Acumulado</button>
+        <button class="btn-top btn-view-accum" id="btnViewAccum">Ver Acumulado</button>
         <button class="btn-top btn-general" id="btnGeneral">Geral</button>
         <button class="btn-top btn-clear" id="btnClear">Apagar</button>
     </div>
 
     <div class="tabs-container" id="tabsContainer"></div>
-    
+
     <div class="tab-config-section">
         <label for="activityNameInput">Nome da Aba:</label>
         <input type="text" id="activityNameInput" placeholder="Ex: Atividade 1">
     </div>
 
     <div class="section">
-        <div class="section-title">Informações do Pessoal (Unidade de Serviço)</div>
+        <div class="section-title">Viatura / Regime e Pessoal</div>
+        <div class="input-grid-2">
+            <div class="input-group">
+                <label for="viatura">Viatura:</label>
+                <input type="text" id="viatura" placeholder="Ex: R-04201">
+            </div>
+            <div class="input-group">
+                <label for="regime">Módulo / Regime:</label>
+                <select id="regime">
+                    <option value="">Selecione...</option>
+                    <option value="Módulo I">Módulo I</option>
+                    <option value="Módulo II">Módulo II</option>
+                    <option value="Dejem">Dejem</option>
+                </select>
+            </div>
+        </div>
         <div class="input-group">
             <label for="encarregado">Encarregado (Obrigatório):</label>
             <input type="text" id="encarregado" placeholder="Digite o nome">
@@ -428,7 +516,7 @@
             <label for="motorista">Motorista (Opcional):</label>
             <input type="text" id="motorista" placeholder="Digite o nome (se houver)">
         </div>
-        <div class="input-group">
+        <div class="input-group" style="margin-bottom: 0;">
             <label for="auxiliar">Auxiliar (Opcional):</label>
             <input type="text" id="auxiliar" placeholder="Digite o nome">
         </div>
@@ -436,102 +524,38 @@
 
     <div class="item-list" id="itemList"></div>
 
-    <!-- Modal Mudar ID Próprio -->
-    <div class="modal" id="myIdModal">
-        <div class="modal-content">
-            <h3>Definir Meu ID</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">Informe o código permanente deste celular/viatura:</p>
-            <input type="text" id="inputMyIdModal" placeholder="Ex: VIATURA-01">
-            <div class="modal-buttons">
-                <button class="btn-top btn-clear" onclick="closeMyIdModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-whatsapp" onclick="saveMyId()" style="padding: 10px 15px; min-width: auto;">Salvar ID</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Enviar Servidor -->
-    <div class="modal" id="serverModal">
-        <div class="modal-content">
-            <h3>Enviar Relatório ao Servidor</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Informe o ID de destino:</p>
-            <input type="text" id="targetServerId" placeholder="Ex: VIATURA-02">
-            <div style="background:#111; padding:10px; border-radius:4px; margin-bottom:15px; text-align:left; max-height:100px; overflow-y:auto; font-size:0.85em; color:#aaa;" id="previewTextServer"></div>
-            <div class="modal-buttons">
-                <button class="btn-top btn-clear" onclick="closeServerModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-server" onclick="confirmSendToServer()" style="padding: 10px 15px; min-width: auto;">Enviar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Baixar do Servidor (Usando o ID próprio ou outro ID) -->
-    <div class="modal" id="downloadModal">
-        <div class="modal-content">
-            <h3>Baixar Relatório do Servidor</h3>
-            <p style="color: #ccc; font-size: 0.9em; margin-bottom: 10px;">Digite o ID para puxar o relatório:</p>
-            <input type="text" id="downloadServerId" placeholder="Ex: VIATURA-01">
-            <div class="modal-buttons">
-                <button class="btn-top btn-clear" onclick="closeDownloadModal()" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-download" onclick="confirmDownloadFromServer()" style="padding: 10px 15px; min-width: auto;">Baixar e Carregar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Importar Texto (Colar) -->
+    <!-- Modal Importar (Atividade avulsa ou Geral) -->
     <div class="modal" id="importModal">
         <div class="modal-content">
-            <h3>Importar Atividade (Colar)</h3>
-            <p style="color: #ccc; font-size: 0.9em;">Cole o relatório para carregar na <b>aba atual</b>:</p>
+            <h3>Importar Atividade</h3>
+            <p class="accum-meta">Cole uma atividade avulsa ou um relatório geral (com uma ou várias atividades):</p>
             <textarea id="importText" placeholder="Cole o texto aqui..."></textarea>
             <div class="modal-buttons">
-                <button class="btn-top btn-clear" id="btnCancelImport" style="padding: 10px 15px; min-width: auto;">Cancelar</button>
-                <button class="btn-top btn-import" id="btnConfirmImport" style="padding: 10px 15px; min-width: auto;">Processar</button>
+                <button class="btn-top btn-clear" id="btnCancelImport">Cancelar</button>
+                <button class="btn-top btn-import" id="btnConfirmImport">Importar</button>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Modal Acumulado de Todos os Dias -->
+    <div class="modal" id="accumModal">
+        <div class="modal-content">
+            <h3>Atividade Acumulada</h3>
+            <div class="accum-meta" id="accumMetaText">0 registros adicionados</div>
+            <div class="accum-preview-box" id="accumPreviewText">Nenhum dado acumulado ainda.</div>
+            <div class="modal-buttons">
+                <button class="btn-top btn-clear" id="btnClearAccum">Zerar Acumulado</button>
+                <button class="btn-top btn-copy" id="btnCopyAccum">Copiar</button>
+                <button class="btn-top btn-whatsapp" id="btnWhatsappAccum" style="grid-column: auto; padding: 10px 12px;">WhatsApp</button>
+                <button class="btn-top btn-clear" id="btnCloseAccum">Fechar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7u9yPMqkswESx3jJh4I4fCUS8tiu-MjM",
-            authDomain: "rodoviariolimeira.firebaseapp.com",
-            databaseURL: "https://rodoviariolimeira-default-rtdb.firebaseio.com",
-            projectId: "rodoviariolimeira",
-            storageBucket: "rodoviariolimeira.firebasestorage.app",
-            messagingSenderId: "131653476917",
-            appId: "1:131653476917:web:3758f0247b5be006c9077c",
-            measurementId: "G-0CJ7FD2MN2"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let myDeviceId = localStorage.getItem('pmrMyPermanentId') || ('PMR-' + Math.floor(1000 + Math.random() * 9000));
-        localStorage.setItem('pmrMyPermanentId', myDeviceId);
-        document.getElementById('displayMyId').textContent = myDeviceId;
-
-        function openMyIdModal() {
-            document.getElementById('inputMyIdModal').value = myDeviceId;
-            document.getElementById('myIdModal').style.display = 'flex';
-        }
-
-        function closeMyIdModal() {
-            document.getElementById('myIdModal').style.display = 'none';
-        }
-
-        function saveMyId() {
-            const val = document.getElementById('inputMyIdModal').value.trim().toUpperCase();
-            if (!val) {
-                alert('Digite um ID válido.');
-                return;
-            }
-            myDeviceId = val;
-            localStorage.setItem('pmrMyPermanentId', myDeviceId);
-            document.getElementById('displayMyId').textContent = myDeviceId;
-            closeMyIdModal();
-            alert('Seu ID foi alterado para: ' + myDeviceId);
-        }
+        const THEME_KEY = 'pmrAtividadeTheme';
+        const STATE_KEY = 'pmrMultiAtividadeStateV4';
+        const ACCUM_KEY = 'pmrAtividadeAcumuladaV1';
 
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
@@ -545,8 +569,35 @@
             'Procurado capturado', 'Flagrante', 'Presos', 'BOPM (exceto art. 306)'
         ];
 
-        let appState = JSON.parse(localStorage.getItem('pmrMultiAtividadeStateV3')) || {
-            personnel: { enc: '', mot: '', aux: '' },
+        // Tema claro padrão
+        const btnDiscreetTheme = document.getElementById('btnDiscreetTheme');
+        const statusThemeLabel = document.getElementById('statusThemeLabel');
+
+        function applyTheme(theme) {
+            const isDark = theme === 'dark';
+            document.body.classList.toggle('dark-theme', isDark);
+            statusThemeLabel.textContent = isDark ? '100% · Escuro' : '100% · Claro';
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        }
+
+        applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+
+        btnDiscreetTheme.addEventListener('click', () => {
+            const currentlyDark = document.body.classList.contains('dark-theme');
+            applyTheme(currentlyDark ? 'light' : 'dark');
+        });
+
+        // Entre 00:00 e 05:59, retorna a data do dia anterior
+        function getReportDateBR() {
+            const now = new Date();
+            if (now.getHours() < 6) {
+                now.setDate(now.getDate() - 1);
+            }
+            return now.toLocaleDateString('pt-BR');
+        }
+
+        let appState = JSON.parse(localStorage.getItem(STATE_KEY)) || {
+            personnel: { viatura: '', regime: '', enc: '', mot: '', aux: '' },
             activeTabId: 'tab_1',
             tabs: [
                 {
@@ -558,6 +609,65 @@
             ]
         };
 
+        let accumState = JSON.parse(localStorage.getItem(ACCUM_KEY)) || {
+            entriesCount: 0,
+            viatura: '',
+            regime: '',
+            enc: '',
+            mot: '',
+            aux: '',
+            items: {},
+            radar: { enc: 0, mot: 0, aux: 0 }
+        };
+
+        function createEmptyItems() {
+            const obj = {};
+            itemNames.forEach(name => {
+                if (name !== 'Imagens Radar') {
+                    obj[name] = { enc: 0, mot: 0, aux: 0 };
+                }
+            });
+            return obj;
+        }
+
+        function initTabItems(tab) {
+            if (!tab.items) tab.items = {};
+            if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
+            itemNames.forEach(name => {
+                if (name === 'Imagens Radar') {
+                    if (tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
+                } else if (!tab.items[name]) {
+                    tab.items[name] = { enc: 0, mot: 0, aux: 0 };
+                }
+            });
+        }
+
+        function initAccum() {
+            const base = createEmptyItems();
+            itemNames.forEach(name => {
+                if (name !== 'Imagens Radar') {
+                    accumState.items[name] = {
+                        enc: (accumState.items && accumState.items[name] && accumState.items[name].enc) || 0,
+                        mot: (accumState.items && accumState.items[name] && accumState.items[name].mot) || 0,
+                        aux: (accumState.items && accumState.items[name] && accumState.items[name].aux) || 0
+                    };
+                }
+            });
+            if (!accumState.radar) accumState.radar = { enc: 0, mot: 0, aux: 0 };
+            return base;
+        }
+
+        appState.tabs.forEach(initTabItems);
+        initAccum();
+
+        function saveLocalStorage() {
+            localStorage.setItem(STATE_KEY, JSON.stringify(appState));
+        }
+
+        function saveAccumStorage() {
+            localStorage.setItem(ACCUM_KEY, JSON.stringify(accumState));
+        }
+
         function getActiveTab() {
             let tab = appState.tabs.find(t => t.id === appState.activeTabId);
             if (!tab) {
@@ -567,22 +677,10 @@
             return tab;
         }
 
-        function initTabItems(tab) {
-            itemNames.forEach(name => {
-                if (name === 'Imagens Radar') {
-                    if (!tab.radar || tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
-                } else {
-                    if (!tab.items[name]) {
-                        tab.items[name] = { enc: 0, mot: 0, aux: 0 };
-                    }
-                }
-            });
-        }
-
-        appState.tabs.forEach(t => initTabItems(t));
-
-        function saveLocalStorage() {
-            localStorage.setItem('pmrMultiAtividadeStateV3', JSON.stringify(appState));
+        function getPersonnelLabel(type) {
+            if (type === 'enc') return 'Encarregado';
+            if (type === 'mot') return 'Motorista';
+            if (type === 'aux') return 'Auxiliar';
         }
 
         function renderTabs() {
@@ -592,7 +690,7 @@
             appState.tabs.forEach(tab => {
                 const tabEl = document.createElement('div');
                 tabEl.className = `tab ${tab.id === appState.activeTabId ? 'active' : ''}`;
-                
+
                 const spanName = document.createElement('span');
                 spanName.textContent = tab.name;
                 spanName.onclick = () => switchTab(tab.id);
@@ -645,7 +743,7 @@
 
         function deleteTab(tabId) {
             if (appState.tabs.length <= 1) return;
-            if (confirm('Tem certeza de que deseja excluir esta atividade?')) {
+            if (confirm('Deseja excluir esta atividade?')) {
                 appState.tabs = appState.tabs.filter(t => t.id !== tabId);
                 appState.activeTabId = appState.tabs[0].id;
                 saveLocalStorage();
@@ -657,6 +755,8 @@
         function loadActiveTabData() {
             const tab = getActiveTab();
             document.getElementById('activityNameInput').value = tab.name;
+            document.getElementById('viatura').value = appState.personnel.viatura || '';
+            document.getElementById('regime').value = appState.personnel.regime || '';
             document.getElementById('encarregado').value = appState.personnel.enc || '';
             document.getElementById('motorista').value = appState.personnel.mot || '';
             document.getElementById('auxiliar').value = appState.personnel.aux || '';
@@ -664,12 +764,13 @@
         }
 
         document.getElementById('activityNameInput').addEventListener('input', e => {
-            const tab = getActiveTab();
-            tab.name = e.target.value;
+            getActiveTab().name = e.target.value;
             saveLocalStorage();
             renderTabs();
         });
 
+        document.getElementById('viatura').addEventListener('input', e => { appState.personnel.viatura = e.target.value; saveLocalStorage(); });
+        document.getElementById('regime').addEventListener('change', e => { appState.personnel.regime = e.target.value; saveLocalStorage(); });
         document.getElementById('encarregado').addEventListener('input', e => { appState.personnel.enc = e.target.value; saveLocalStorage(); });
         document.getElementById('motorista').addEventListener('input', e => { appState.personnel.mot = e.target.value; saveLocalStorage(); });
         document.getElementById('auxiliar').addEventListener('input', e => { appState.personnel.aux = e.target.value; saveLocalStorage(); });
@@ -682,9 +783,9 @@
 
             itemNames.forEach(name => {
                 const itemContainer = document.createElement('div');
-                itemContainer.className = 'item-container';
 
                 const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
                 toggleBtn.className = 'item-toggle';
                 toggleBtn.textContent = name;
                 itemContainer.appendChild(toggleBtn);
@@ -700,11 +801,12 @@
                         const labelText = getPersonnelLabel(personType);
                         group.innerHTML = `<label for="radar_${personType}">Radar ${labelText}:</label> <input type="number" id="radar_${personType}" min="0" max="999" placeholder="0 até 999">`;
                         const input = group.querySelector('input');
-                        input.value = tab.radar[personType] || '';
+                        input.value = tab.radar[personType] ?? '';
                         input.addEventListener('input', e => {
                             let val = parseInt(e.target.value, 10);
                             if (isNaN(val)) val = '';
-                            if (val > 999) val = 999;
+                            else if (val > 999) val = 999;
+                            else if (val < 0) val = 0;
                             tab.radar[personType] = val;
                             saveLocalStorage();
                         });
@@ -724,6 +826,7 @@
                         controls.className = 'counter-controls';
 
                         const minusBtn = document.createElement('button');
+                        minusBtn.type = 'button';
                         minusBtn.className = 'btn-minus';
                         minusBtn.textContent = '−';
                         minusBtn.onclick = () => updateQuantity(name, personType, -1);
@@ -736,6 +839,7 @@
                         controls.appendChild(valSpan);
 
                         const plusBtn = document.createElement('button');
+                        plusBtn.type = 'button';
                         plusBtn.className = 'btn-plus';
                         plusBtn.textContent = '+';
                         plusBtn.onclick = () => updateQuantity(name, personType, 1);
@@ -758,32 +862,31 @@
             });
         }
 
-        function getPersonnelLabel(type) {
-            if (type === 'enc') return 'Encarregado';
-            if (type === 'mot') return 'Motorista';
-            if (type === 'aux') return 'Auxiliar';
-        }
-
         function updateQuantity(itemName, personType, change) {
             const tab = getActiveTab();
             if (!tab.items[itemName]) tab.items[itemName] = { enc: 0, mot: 0, aux: 0 };
-            const curr = tab.items[itemName][personType];
-            const newVal = Math.max(0, curr + change);
+            const newVal = Math.max(0, (tab.items[itemName][personType] || 0) + change);
             tab.items[itemName][personType] = newVal;
             document.getElementById(`q_${itemName}_${personType}`).textContent = newVal;
             saveLocalStorage();
         }
 
-        function generateTabText(tab) {
-            if (!appState.personnel.enc) return null;
+        function buildHeaderBlock(dataDateBR, personnelObj, headerTitle = null) {
+            let lines = [];
+            if (headerTitle) lines.push(`*${headerTitle}*`);
+            if (personnelObj.viatura) lines.push(`*Viatura:* ${personnelObj.viatura}`);
+            if (personnelObj.regime) lines.push(`*${personnelObj.regime}*`);
+            lines.push(`*Data:* ${dataDateBR}`);
+            lines.push(`*Encarregado:* ${personnelObj.enc}`);
+            if (personnelObj.mot) lines.push(`*Motorista:* ${personnelObj.mot}`);
+            if (personnelObj.aux) lines.push(`*Auxiliar:* ${personnelObj.aux}`);
+            return lines.join('\n') + '\n---\n';
+        }
 
-            let text = `*${tab.name} - Polícia Militar Rodoviária - ${new Date().toLocaleDateString('pt-BR')}*\n`;
-            text += `*Encarregado:* ${appState.personnel.enc}\n`;
-            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
-            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
-            text += `---\n`;
-
+        function buildItemsSection(itemsMap, radarMap) {
+            let sectionText = '';
             let hasContent = false;
+
             itemNames.forEach(name => {
                 if (name.startsWith('Total Autuados')) return;
 
@@ -792,15 +895,19 @@
 
                 if (name === 'Imagens Radar') {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = tab.radar[p];
-                        if (val && val !== '') {
+                        const raw = radarMap ? radarMap[p] : '';
+                        const num = parseInt(raw, 10);
+                        if (!isNaN(num) && num > 0) {
+                            itemTotal += num;
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${num}`);
+                        } else if (raw !== '' && raw !== undefined && raw !== null && String(raw).trim() !== '') {
                             itemTotal++;
-                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
+                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${raw}`);
                         }
                     });
                 } else {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = tab.items[name] ? tab.items[name][p] : 0;
+                        const val = itemsMap[name] ? (itemsMap[name][p] || 0) : 0;
                         if (val > 0) {
                             itemTotal += val;
                             personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
@@ -809,25 +916,28 @@
                 }
 
                 if (itemTotal > 0) {
-                    text += `\n*${name}:*\n`;
-                    text += personOutputs.join('\n') + '\n';
+                    sectionText += `\n*${name}:*\n${personOutputs.join('\n')}\n`;
                     hasContent = true;
                 }
             });
 
-            return hasContent ? text : null;
+            return { text: sectionText, hasContent };
         }
 
-        function generateGeneralText() {
-            let consolidatedItems = {};
-            let consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
-            let hasAnyData = false;
+        function generateTabText(tab) {
+            if (!appState.personnel.enc) return null;
+            const dateBR = getReportDateBR();
+            const body = buildItemsSection(tab.items, tab.radar);
+            if (!body.hasContent) return null;
+            return buildHeaderBlock(dateBR, appState.personnel, tab.name) + body.text;
+        }
 
-            itemNames.forEach(name => {
-                if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados')) {
-                    consolidatedItems[name] = { enc: 0, mot: 0, aux: 0 };
-                }
-            });
+        // Geral: sem frase de consolidado; traz viatura, módulo/regime, data e atividade
+        function generateGeneralText() {
+            if (!appState.personnel.enc) return null;
+
+            const consolidatedItems = createEmptyItems();
+            const consolidatedRadar = { enc: 0, mot: 0, aux: 0 };
 
             appState.tabs.forEach(tab => {
                 itemNames.forEach(name => {
@@ -840,59 +950,117 @@
 
                 if (tab.radar) {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        let val = parseInt(tab.radar[p], 10);
-                        if (!isNaN(val)) consolidatedRadar[p] += val;
+                        const val = parseInt(tab.radar[p], 10);
+                        if (!isNaN(val) && val > 0) consolidatedRadar[p] += val;
                     });
                 }
             });
 
-            let text = `*RELATÓRIO GERAL CONSOLIDADO - PMR - ${new Date().toLocaleDateString('pt-BR')}*\n`;
-            text += `*Encarregado:* ${appState.personnel.enc}\n`;
-            if (appState.personnel.mot) text += `*Motorista:* ${appState.personnel.mot}\n`;
-            if (appState.personnel.aux) text += `*Auxiliar:* ${appState.personnel.aux}\n`;
-            text += `---\n`;
+            const body = buildItemsSection(consolidatedItems, consolidatedRadar);
+            if (!body.hasContent) return null;
+
+            return buildHeaderBlock(getReportDateBR(), appState.personnel, null) + body.text;
+        }
+
+        function generateAccumText() {
+            if (accumState.entriesCount === 0) return null;
+            const p = {
+                viatura: accumState.viatura || appState.personnel.viatura || '',
+                regime: accumState.regime || appState.personnel.regime || '',
+                enc: accumState.enc || appState.personnel.enc || 'Não informado',
+                mot: accumState.mot || appState.personnel.mot || '',
+                aux: accumState.aux || appState.personnel.aux || ''
+            };
+            const body = buildItemsSection(accumState.items, accumState.radar);
+            if (!body.hasContent) return null;
+            return buildHeaderBlock(getReportDateBR(), p, `ACUMULADO (${accumState.entriesCount}x)`) + body.text;
+        }
+
+        document.getElementById('btnAddAccum').addEventListener('click', () => {
+            if (!appState.personnel.enc) {
+                alert('Preencha pelo menos o Encarregado obrigatório.');
+                return;
+            }
+            const tab = getActiveTab();
+            const body = buildItemsSection(tab.items, tab.radar);
+            if (!body.hasContent) {
+                alert('Preencha algum valor na aba atual para adicionar ao acumulado.');
+                return;
+            }
 
             itemNames.forEach(name => {
-                if (name.startsWith('Total Autuados')) return;
-
-                let itemTotal = 0;
-                let personOutputs = [];
-
-                if (name === 'Imagens Radar') {
+                if (name !== 'Imagens Radar' && !name.startsWith('Total Autuados') && tab.items[name]) {
                     ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = consolidatedRadar[p];
-                        if (val > 0) {
-                            itemTotal += val;
-                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
-                        }
+                        accumState.items[name][p] += (tab.items[name][p] || 0);
                     });
-                } else {
-                    ['enc', 'mot', 'aux'].forEach(p => {
-                        const val = consolidatedItems[name] ? consolidatedItems[name][p] : 0;
-                        if (val > 0) {
-                            itemTotal += val;
-                            personOutputs.push(`  - ${getPersonnelLabel(p)}: ${val}`);
-                        }
-                    });
-                }
-
-                if (itemTotal > 0) {
-                    text += `\n*${name}:*\n`;
-                    text += personOutputs.join('\n') + '\n';
-                    hasAnyData = true;
                 }
             });
 
-            return hasAnyData ? text : null;
-        }
+            ['enc', 'mot', 'aux'].forEach(p => {
+                const val = parseInt(tab.radar && tab.radar[p], 10);
+                if (!isNaN(val) && val > 0) {
+                    accumState.radar[p] = (accumState.radar[p] || 0) + val;
+                }
+            });
+
+            accumState.entriesCount += 1;
+            if (appState.personnel.viatura) accumState.viatura = appState.personnel.viatura;
+            if (appState.personnel.regime) accumState.regime = appState.personnel.regime;
+            if (appState.personnel.enc) accumState.enc = appState.personnel.enc;
+            if (appState.personnel.mot) accumState.mot = appState.personnel.mot;
+            if (appState.personnel.aux) accumState.aux = appState.personnel.aux;
+
+            saveAccumStorage();
+            alert(`"${tab.name}" adicionada ao acumulado! Total de lançamentos: ${accumState.entriesCount}`);
+        });
+
+        const accumModal = document.getElementById('accumModal');
+        document.getElementById('btnViewAccum').addEventListener('click', () => {
+            const text = generateAccumText();
+            document.getElementById('accumMetaText').textContent = `Lançamentos somados: ${accumState.entriesCount}`;
+            document.getElementById('accumPreviewText').textContent = text || 'Nenhum dado acumulado ainda.';
+            accumModal.style.display = 'flex';
+        });
+
+        document.getElementById('btnCloseAccum').addEventListener('click', () => {
+            accumModal.style.display = 'none';
+        });
+
+        document.getElementById('btnCopyAccum').addEventListener('click', () => {
+            const text = generateAccumText();
+            if (!text) return alert('Nenhum dado acumulado.');
+            copyToClipboard(text, 'Acumulado copiado!');
+        });
+
+        document.getElementById('btnWhatsappAccum').addEventListener('click', () => {
+            const text = generateAccumText();
+            if (!text) return alert('Nenhum dado acumulado.');
+            window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
+        });
+
+        document.getElementById('btnClearAccum').addEventListener('click', () => {
+            if (!confirm('Zerar todo o acumulado salvo?')) return;
+            accumState = {
+                entriesCount: 0,
+                viatura: '',
+                regime: '',
+                enc: '',
+                mot: '',
+                aux: '',
+                items: createEmptyItems(),
+                radar: { enc: 0, mot: 0, aux: 0 }
+            };
+            saveAccumStorage();
+            document.getElementById('accumMetaText').textContent = 'Lançamentos somados: 0';
+            document.getElementById('accumPreviewText').textContent = 'Nenhum dado acumulado ainda.';
+        });
 
         document.getElementById('btnWhatsapp').addEventListener('click', () => {
             if (!appState.personnel.enc) {
                 alert('Preencha pelo menos o Encarregado obrigatório.');
                 return;
             }
-            const tab = getActiveTab();
-            const text = generateTabText(tab);
+            const text = generateTabText(getActiveTab());
             if (!text) {
                 alert('Preencha algum valor na aba atual para enviar.');
                 return;
@@ -905,8 +1073,7 @@
                 alert('Preencha pelo menos o Encarregado obrigatório.');
                 return;
             }
-            const tab = getActiveTab();
-            const text = generateTabText(tab);
+            const text = generateTabText(getActiveTab());
             if (!text) {
                 alert('Preencha algum valor na aba atual para copiar.');
                 return;
@@ -924,88 +1091,10 @@
                 alert('Nenhum dado preenchido nas atividades.');
                 return;
             }
-            copyToClipboard(text, 'Relatório geral consolidado copiado com sucesso!');
+            copyToClipboard(text, 'Relatório geral copiado!');
         });
 
-        // Enviar p/ Servidor (Substitui o anterior do ID destino)
-        document.getElementById('btnServer').addEventListener('click', () => {
-            if (!appState.personnel.enc) {
-                alert('Preencha pelo menos o Encarregado obrigatório.');
-                return;
-            }
-            const tab = getActiveTab();
-            const text = generateTabText(tab);
-            if (!text) {
-                alert('Preencha algum valor na aba atual para enviar.');
-                return;
-            }
-            document.getElementById('previewTextServer').textContent = text;
-            document.getElementById('targetServerId').value = localStorage.getItem('pmrLastTargetId') || '';
-            document.getElementById('serverModal').style.display = 'flex';
-        });
-
-        function closeServerModal() {
-            document.getElementById('serverModal').style.display = 'none';
-        }
-
-        function confirmSendToServer() {
-            const targetId = document.getElementById('targetServerId').value.trim().toUpperCase();
-            if (!targetId) {
-                alert('Digite o ID de destino!');
-                return;
-            }
-            localStorage.setItem('pmrLastTargetId', targetId);
-
-            const tab = getActiveTab();
-            const textToUpload = generateTabText(tab);
-
-            // .set() substitui/sobrescreve o texto anterior que estava lá
-            db.ref('pmr_relatorios/' + targetId).set({
-                enviadoPor: myDeviceId,
-                timestamp: new Date().toISOString(),
-                conteudo: textToUpload
-            }).then(() => {
-                alert('Relatório enviado e atualizado com sucesso para o ID: ' + targetId + '!');
-                closeServerModal();
-            }).catch((err) => {
-                alert('Erro ao enviar: ' + err.message);
-            });
-        }
-
-        // Baixar do Servidor (O receptor usa o ID dele para puxar)
-        document.getElementById('btnDownload').addEventListener('click', () => {
-            document.getElementById('downloadServerId').value = myDeviceId; // Sugere o próprio ID
-            document.getElementById('downloadModal').style.display = 'flex';
-        });
-
-        function closeDownloadModal() {
-            document.getElementById('downloadModal').style.display = 'none';
-        }
-
-        function confirmDownloadFromServer() {
-            const sourceId = document.getElementById('downloadServerId').value.trim().toUpperCase();
-            if (!sourceId) {
-                alert('Digite o ID para baixar!');
-                return;
-            }
-
-            db.ref('pmr_relatorios/' + sourceId).once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (!data || !data.conteudo) {
-                    alert('Nenhum relatório encontrado no servidor para o ID: ' + sourceId);
-                    return;
-                }
-
-                // Processa e carrega o texto baixado na aba atual
-                parseAndLoadText(data.conteudo);
-                closeDownloadModal();
-                alert('Relatório baixado e carregado com sucesso!');
-            }).catch((err) => {
-                alert('Erro ao baixar: ' + err.message);
-            });
-        }
-
-        // Importar Texto (Colar manualmente)
+        // Importar atividade única ou relatório geral
         const importModal = document.getElementById('importModal');
         const importText = document.getElementById('importText');
 
@@ -1028,10 +1117,13 @@
             importModal.style.display = 'none';
         });
 
-        function parseAndLoadText(text) {
-            let tab = getActiveTab();
-            tab.radar = { enc: '', mot: '', aux: '' };
-            initTabItems(tab);
+        function parsePersonnelFromText(text) {
+            const vtrMatch = text.match(/\*Viatura:\*\s*(.+)/i);
+            if (vtrMatch) appState.personnel.viatura = vtrMatch[1].trim();
+
+            if (/\*Módulo I\*/i.test(text)) appState.personnel.regime = 'Módulo I';
+            else if (/\*Módulo II\*/i.test(text)) appState.personnel.regime = 'Módulo II';
+            else if (/\*Dejem\*/i.test(text)) appState.personnel.regime = 'Dejem';
 
             const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
             if (encMatch) appState.personnel.enc = encMatch[1].trim();
@@ -1041,29 +1133,69 @@
 
             const auxMatch = text.match(/\*Auxiliar:\*\s*(.+)/i);
             if (auxMatch) appState.personnel.aux = auxMatch[1].trim();
+        }
+
+        function parseSingleBlockIntoTab(blockText, targetTab) {
+            targetTab.radar = { enc: '', mot: '', aux: '' };
+            initTabItems(targetTab);
+
+            const titleMatch = blockText.match(/^\*(Atividade[^*\n:]+)\*/im);
+            if (titleMatch) {
+                targetTab.name = titleMatch[1].trim();
+            }
 
             let currentItem = null;
-            text.split('\n').forEach(line => {
-                let itemHeader = line.match(/^\*(.+?):\*$/);
-                if (itemHeader && itemHeader[1] !== 'Encarregado' && itemHeader[1] !== 'Motorista' && itemHeader[1] !== 'Auxiliar') {
+            blockText.split('\n').forEach(line => {
+                const itemHeader = line.match(/^\*(.+?):\*$/);
+                if (
+                    itemHeader &&
+                    !['Encarregado', 'Motorista', 'Auxiliar', 'Viatura', 'Data', 'Módulo I', 'Módulo II', 'Dejem'].includes(itemHeader[1].trim())
+                ) {
                     currentItem = itemHeader[1].trim();
+                    return;
                 }
-                let pMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
+                const pMatch = line.match(/^\s*-\s*(Encarregado|Motorista|Auxiliar):\s*(\d+)/i);
                 if (currentItem && pMatch) {
-                    let pName = pMatch[1].toLowerCase();
-                    let pKey = pName.includes('enc') ? 'enc' : pName.includes('mot') ? 'mot' : 'aux';
-                    let val = parseInt(pMatch[2], 10);
+                    const pName = pMatch[1].toLowerCase();
+                    const pKey = pName.includes('enc') ? 'enc' : pName.includes('mot') ? 'mot' : 'aux';
+                    const val = parseInt(pMatch[2], 10);
 
                     if (currentItem === 'Imagens Radar') {
-                        tab.radar[pKey] = val;
-                    } else if (tab.items[currentItem]) {
-                        tab.items[currentItem][pKey] = val;
+                        targetTab.radar[pKey] = val;
+                    } else if (targetTab.items[currentItem]) {
+                        targetTab.items[currentItem][pKey] = val;
                     }
                 }
             });
+        }
+
+        function parseAndLoadText(text) {
+            parsePersonnelFromText(text);
+
+            // Detecta se há múltiplos blocos iniciando com *Atividade ...*
+            const activityBlocks = text.split(/(?=^\*Atividade\b)/im).filter(b => /^\*Atividade\b/im.test(b.trim()));
+
+            if (activityBlocks.length > 1) {
+                appState.tabs = activityBlocks.map((block, idx) => {
+                    const t = {
+                        id: 'tab_' + (Date.now() + idx),
+                        name: `Atividade ${idx + 1}`,
+                        items: {},
+                        radar: { enc: '', mot: '', aux: '' }
+                    };
+                    parseSingleBlockIntoTab(block, t);
+                    return t;
+                });
+                appState.activeTabId = appState.tabs[0].id;
+            } else {
+                const tab = getActiveTab();
+                parseSingleBlockIntoTab(text, tab);
+            }
 
             saveLocalStorage();
+            renderTabs();
             loadActiveTabData();
+            alert('Importação concluída!');
         }
 
         function copyToClipboard(text, successMsg = 'Texto copiado com sucesso!') {
@@ -1092,7 +1224,7 @@
 
         document.getElementById('btnClear').addEventListener('click', () => {
             if (confirm('Tem certeza de que deseja apagar todos os dados de TODAS as abas?')) {
-                localStorage.removeItem('pmrMultiAtividadeStateV3');
+                localStorage.removeItem(STATE_KEY);
                 location.reload();
             }
         });
