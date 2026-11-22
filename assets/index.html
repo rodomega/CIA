@@ -374,6 +374,75 @@
             text-align: center;
         }
 
+        /* Grade compacta AP / OA / CA / MO para AI com Abordagem e AI Revelia */
+        .ai-sub-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .ai-sub-card {
+            background-color: var(--bg-elevado);
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            padding: 6px 7px;
+        }
+
+        .ai-sub-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--texto-principal);
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid var(--borda);
+            text-align: center;
+            letter-spacing: -0.2px;
+        }
+
+        .ai-sub-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            gap: 2px;
+        }
+
+        .ai-sub-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .ai-sub-role {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--texto-suave);
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ai-sub-controls {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ai-sub-controls .btn-minus,
+        .ai-sub-controls .btn-plus {
+            width: 22px;
+            height: 22px;
+            font-size: 0.92rem;
+            margin: 0;
+        }
+
+        .ai-sub-controls .btn-minus { margin-right: 3px; }
+        .ai-sub-controls .btn-plus { margin-left: 3px; }
+
+        .ai-sub-controls .counter-value {
+            width: 20px;
+            font-size: 0.78rem;
+        }
+
         .radar-input-container {
             display: flex;
             flex-direction: column;
@@ -564,6 +633,8 @@
         const STATE_KEY = 'pmrMultiAtividadeStateV4';
         const ACCUM_KEY = 'pmrAtividadeAcumuladaV1';
         const REGIME_OPTIONS = ['Módulo I', 'Módulo II', 'Dejem', 'CGP', 'TOR'];
+        const SPLIT_AI_ITEMS = ['AI com Abordagem', 'AI Revelia'];
+        const MODALIDADES = ['AP', 'OA', 'CA', 'MO'];
 
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
@@ -612,6 +683,7 @@
                     id: 'tab_1',
                     name: 'Atividade 1',
                     items: {},
+                    aiSplit: {},
                     radar: { enc: '', mot: '', aux: '' }
                 }
             ]
@@ -619,11 +691,6 @@
 
         let accumState = JSON.parse(localStorage.getItem(ACCUM_KEY)) || {
             entriesCount: 0,
-            viatura: '',
-            regime: '',
-            enc: '',
-            mot: '',
-            aux: '',
             items: {},
             radar: { enc: 0, mot: 0, aux: 0 }
         };
@@ -638,14 +705,65 @@
             return obj;
         }
 
+        function createEmptyAiSplit() {
+            const split = {};
+            SPLIT_AI_ITEMS.forEach(itemName => {
+                split[itemName] = {};
+                MODALIDADES.forEach(mod => {
+                    split[itemName][mod] = { enc: 0, mot: 0, aux: 0 };
+                });
+            });
+            return split;
+        }
+
+        function recalcSplitAiToItem(tab, itemName) {
+            if (!tab.aiSplit || !tab.aiSplit[itemName]) return;
+            const sum = { enc: 0, mot: 0, aux: 0 };
+            MODALIDADES.forEach(mod => {
+                const entry = tab.aiSplit[itemName][mod] || { enc: 0, mot: 0, aux: 0 };
+                sum.enc += (entry.enc || 0);
+                sum.mot += (entry.mot || 0);
+                sum.aux += (entry.aux || 0);
+            });
+            tab.items[itemName] = sum;
+        }
+
         function initTabItems(tab) {
             if (!tab.items) tab.items = {};
+            if (!tab.aiSplit) tab.aiSplit = createEmptyAiSplit();
             if (!tab.radar) tab.radar = { enc: '', mot: '', aux: '' };
+
             itemNames.forEach(name => {
                 if (name === 'Imagens Radar') {
                     if (tab.radar.enc === undefined) tab.radar = { enc: '', mot: '', aux: '' };
                 } else if (!tab.items[name]) {
                     tab.items[name] = { enc: 0, mot: 0, aux: 0 };
+                }
+            });
+
+            SPLIT_AI_ITEMS.forEach(itemName => {
+                if (!tab.aiSplit[itemName]) tab.aiSplit[itemName] = {};
+                let hasAnyMod = false;
+                MODALIDADES.forEach(mod => {
+                    if (!tab.aiSplit[itemName][mod]) {
+                        tab.aiSplit[itemName][mod] = { enc: 0, mot: 0, aux: 0 };
+                    } else {
+                        const m = tab.aiSplit[itemName][mod];
+                        m.enc = m.enc || 0;
+                        m.mot = m.mot || 0;
+                        m.aux = m.aux || 0;
+                        if (m.enc || m.mot || m.aux) hasAnyMod = true;
+                    }
+                });
+                const itemVal = tab.items[itemName] || { enc: 0, mot: 0, aux: 0 };
+                if (!hasAnyMod && (itemVal.enc || itemVal.mot || itemVal.aux)) {
+                    tab.aiSplit[itemName].AP = {
+                        enc: itemVal.enc || 0,
+                        mot: itemVal.mot || 0,
+                        aux: itemVal.aux || 0
+                    };
+                } else {
+                    recalcSplitAiToItem(tab, itemName);
                 }
             });
         }
@@ -689,6 +807,12 @@
             if (type === 'enc') return 'Encarregado';
             if (type === 'mot') return 'Motorista';
             if (type === 'aux') return 'Auxiliar';
+        }
+
+        function getShortPersonnelLabel(type) {
+            if (type === 'enc') return 'Enc.';
+            if (type === 'mot') return 'Mot.';
+            if (type === 'aux') return 'Aux.';
         }
 
         function renderTabs() {
@@ -739,6 +863,7 @@
                 id: newId,
                 name: newName,
                 items: {},
+                aiSplit: createEmptyAiSplit(),
                 radar: { enc: '', mot: '', aux: '' }
             };
             initTabItems(newTab);
@@ -801,7 +926,60 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'item-content';
 
-                if (name === 'Imagens Radar') {
+                if (SPLIT_AI_ITEMS.includes(name)) {
+                    const grid = document.createElement('div');
+                    grid.className = 'ai-sub-grid';
+
+                    MODALIDADES.forEach(mod => {
+                        const card = document.createElement('div');
+                        card.className = 'ai-sub-card';
+
+                        const title = document.createElement('div');
+                        title.className = 'ai-sub-title';
+                        title.textContent = `${name.toUpperCase()} ${mod}`;
+                        card.appendChild(title);
+
+                        ['enc', 'mot', 'aux'].forEach(personType => {
+                            const row = document.createElement('div');
+                            row.className = 'ai-sub-row';
+
+                            const roleSpan = document.createElement('span');
+                            roleSpan.className = 'ai-sub-role';
+                            roleSpan.textContent = getShortPersonnelLabel(personType);
+                            row.appendChild(roleSpan);
+
+                            const controls = document.createElement('div');
+                            controls.className = 'ai-sub-controls';
+
+                            const minusBtn = document.createElement('button');
+                            minusBtn.type = 'button';
+                            minusBtn.className = 'btn-minus';
+                            minusBtn.textContent = '−';
+                            minusBtn.onclick = () => updateAiSplitQuantity(name, mod, personType, -1);
+                            controls.appendChild(minusBtn);
+
+                            const valSpan = document.createElement('span');
+                            valSpan.className = 'counter-value';
+                            valSpan.id = `q_${name}_${mod}_${personType}`;
+                            valSpan.textContent = (tab.aiSplit[name] && tab.aiSplit[name][mod] && tab.aiSplit[name][mod][personType]) || 0;
+                            controls.appendChild(valSpan);
+
+                            const plusBtn = document.createElement('button');
+                            plusBtn.type = 'button';
+                            plusBtn.className = 'btn-plus';
+                            plusBtn.textContent = '+';
+                            plusBtn.onclick = () => updateAiSplitQuantity(name, mod, personType, 1);
+                            controls.appendChild(plusBtn);
+
+                            row.appendChild(controls);
+                            card.appendChild(row);
+                        });
+
+                        grid.appendChild(card);
+                    });
+
+                    contentDiv.appendChild(grid);
+                } else if (name === 'Imagens Radar') {
                     contentDiv.classList.add('radar-input-container');
                     ['enc', 'mot', 'aux'].forEach(personType => {
                         const group = document.createElement('div');
@@ -879,6 +1057,17 @@
             saveLocalStorage();
         }
 
+        function updateAiSplitQuantity(itemName, mod, personType, change) {
+            const tab = getActiveTab();
+            if (!tab.aiSplit[itemName]) tab.aiSplit[itemName] = {};
+            if (!tab.aiSplit[itemName][mod]) tab.aiSplit[itemName][mod] = { enc: 0, mot: 0, aux: 0 };
+            const newVal = Math.max(0, (tab.aiSplit[itemName][mod][personType] || 0) + change);
+            tab.aiSplit[itemName][mod][personType] = newVal;
+            recalcSplitAiToItem(tab, itemName);
+            document.getElementById(`q_${itemName}_${mod}_${personType}`).textContent = newVal;
+            saveLocalStorage();
+        }
+
         function buildHeaderBlock(dataDateBR, personnelObj, headerTitle = null) {
             let lines = [];
             if (headerTitle) lines.push(`*${headerTitle}*`);
@@ -929,7 +1118,7 @@
                 }
             });
 
-            return { text: sectionText, hasContent };
+            return { text: sectionText.trim(), hasContent };
         }
 
         function generateTabText(tab) {
@@ -937,7 +1126,7 @@
             const dateBR = getReportDateBR();
             const body = buildItemsSection(tab.items, tab.radar);
             if (!body.hasContent) return null;
-            return buildHeaderBlock(dateBR, appState.personnel, tab.name) + body.text;
+            return buildHeaderBlock(dateBR, appState.personnel, tab.name) + '\n' + body.text;
         }
 
         function generateGeneralText() {
@@ -966,28 +1155,17 @@
             const body = buildItemsSection(consolidatedItems, consolidatedRadar);
             if (!body.hasContent) return null;
 
-            return buildHeaderBlock(getReportDateBR(), appState.personnel, null) + body.text;
+            return buildHeaderBlock(getReportDateBR(), appState.personnel, null) + '\n' + body.text;
         }
 
         function generateAccumText() {
             if (accumState.entriesCount === 0) return null;
-            const p = {
-                viatura: accumState.viatura || appState.personnel.viatura || '',
-                regime: accumState.regime || appState.personnel.regime || '',
-                enc: accumState.enc || appState.personnel.enc || 'Não informado',
-                mot: accumState.mot || appState.personnel.mot || '',
-                aux: accumState.aux || appState.personnel.aux || ''
-            };
             const body = buildItemsSection(accumState.items, accumState.radar);
             if (!body.hasContent) return null;
-            return buildHeaderBlock(getReportDateBR(), p, `HISTÓRICO (${accumState.entriesCount}x)`) + body.text;
+            return body.text;
         }
 
         document.getElementById('btnAddAccum').addEventListener('click', () => {
-            if (!appState.personnel.enc) {
-                alert('Preencha pelo menos o Encarregado obrigatório.');
-                return;
-            }
             const tab = getActiveTab();
             const body = buildItemsSection(tab.items, tab.radar);
             if (!body.hasContent) {
@@ -1011,11 +1189,6 @@
             });
 
             accumState.entriesCount += 1;
-            if (appState.personnel.viatura) accumState.viatura = appState.personnel.viatura;
-            if (appState.personnel.regime) accumState.regime = appState.personnel.regime;
-            if (appState.personnel.enc) accumState.enc = appState.personnel.enc;
-            if (appState.personnel.mot) accumState.mot = appState.personnel.mot;
-            if (appState.personnel.aux) accumState.aux = appState.personnel.aux;
 
             saveAccumStorage();
             alert(`"${tab.name}" enviada ao histórico! Total: ${accumState.entriesCount}`);
@@ -1049,11 +1222,6 @@
             if (!confirm('Zerar todo o histórico acumulado?')) return;
             accumState = {
                 entriesCount: 0,
-                viatura: '',
-                regime: '',
-                enc: '',
-                mot: '',
-                aux: '',
                 items: createEmptyItems(),
                 radar: { enc: 0, mot: 0, aux: 0 }
             };
@@ -1147,6 +1315,7 @@
 
         function parseSingleBlockIntoTab(blockText, targetTab) {
             targetTab.radar = { enc: '', mot: '', aux: '' };
+            targetTab.aiSplit = createEmptyAiSplit();
             initTabItems(targetTab);
 
             const titleMatch = blockText.match(/^\*(Atividade[^*\n:]+)\*/im);
@@ -1172,6 +1341,9 @@
                         targetTab.radar[pKey] = val;
                     } else if (targetTab.items[currentItem]) {
                         targetTab.items[currentItem][pKey] = val;
+                        if (SPLIT_AI_ITEMS.includes(currentItem)) {
+                            targetTab.aiSplit[currentItem].AP[pKey] = val;
+                        }
                     }
                 }
             });
@@ -1188,6 +1360,7 @@
                         id: 'tab_' + (Date.now() + idx),
                         name: `Atividade ${idx + 1}`,
                         items: {},
+                        aiSplit: createEmptyAiSplit(),
                         radar: { enc: '', mot: '', aux: '' }
                     };
                     parseSingleBlockIntoTab(block, t);
