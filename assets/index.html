@@ -42,7 +42,7 @@
             background-color: var(--bg-app);
             color: var(--texto-principal);
             margin: 0;
-            padding: 12px 15px 40px;
+            padding: 10px 12px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -57,7 +57,7 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .status-chip-btn {
@@ -65,8 +65,8 @@
             border: 1px solid var(--borda);
             color: var(--texto-suave);
             border-radius: 999px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
+            padding: 2px 7px;
+            font-size: 0.68rem;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
@@ -90,47 +90,51 @@
         }
 
         h1 {
-            border-bottom: 2.5px solid var(--borda-forte);
-            padding-bottom: 8px;
-            margin: 4px 0 14px;
+            border-bottom: 2px solid var(--borda-forte);
+            padding-bottom: 6px;
+            margin: 2px 0 10px;
             text-align: center;
-            font-size: 1.45em;
+            font-size: 1.3em;
             width: 100%;
             max-width: 600px;
             color: var(--texto-principal);
         }
 
+        /* Barra de ações compacta e discreta */
         .top-action-bar {
             width: 100%;
             max-width: 600px;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-            margin-bottom: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 14px;
         }
 
         .btn-top {
-            padding: 10px 8px;
-            font-size: 0.84em;
-            font-weight: bold;
-            border: 1px solid transparent;
-            border-radius: 8px;
+            padding: 6px 9px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            border: 1px solid var(--borda);
+            border-radius: 6px;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
+            transition: opacity 0.18s, transform 0.1s, border-color 0.15s;
             text-align: center;
             touch-action: manipulation;
+            line-height: 1.15;
+            white-space: nowrap;
         }
 
-        .btn-top:active { transform: scale(0.98); }
-        .btn-top:hover { opacity: 0.92; }
+        .btn-top:active { transform: scale(0.97); }
+        .btn-top:hover { opacity: 0.9; border-color: var(--borda-forte); }
 
-        .btn-whatsapp { background-color: #16a34a; color: #ffffff; grid-column: 1 / -1; font-size: 0.92em; padding: 11px; }
-        .btn-copy { background-color: #eab308; color: #000000; }
-        .btn-import { background-color: #0284c7; color: #ffffff; }
-        .btn-add-accum { background-color: #0f766e; color: #ffffff; }
-        .btn-view-accum { background-color: #6d28d9; color: #ffffff; }
-        .btn-general { background-color: #ea580c; color: #ffffff; }
-        .btn-clear { background-color: var(--bg-elevado); color: var(--texto-principal); border-color: var(--borda); }
+        .btn-whatsapp { background-color: #16a34a; color: #ffffff; border-color: #15803d; }
+        .btn-copy { background-color: var(--destaque-suave); color: #000000; border-color: rgba(0,0,0,0.2); }
+        .btn-general { background-color: #ea580c; color: #ffffff; border-color: #c2410c; }
+        .btn-add-accum { background-color: #0f766e; color: #ffffff; border-color: #115e59; }
+        .btn-view-accum { background-color: #6d28d9; color: #ffffff; border-color: #5b21b6; }
+        .btn-import { background-color: #0284c7; color: #ffffff; border-color: #0369a1; }
+        .btn-clear { background-color: var(--bg-elevado); color: var(--texto-suave); border-color: var(--borda); }
 
         .tabs-container {
             width: 100%;
@@ -148,10 +152,11 @@
             background-color: var(--bg-elevado);
             color: var(--texto-suave);
             border: 1px solid var(--borda);
-            padding: 9px 14px;
+            padding: 8px 13px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.9rem;
             white-space: nowrap;
             display: flex;
             align-items: center;
@@ -180,10 +185,10 @@
             background-color: var(--borda-forte);
             color: var(--bg-app);
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            font-size: 1.4em;
+            font-size: 1.3em;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -475,12 +480,12 @@
     <h1>Mandar Atividade</h1>
 
     <div class="top-action-bar">
-        <button class="btn-top btn-whatsapp" id="btnWhatsapp">WhatsApp</button>
-        <button class="btn-top btn-copy" id="btnCopy">Copiar</button>
+        <button class="btn-top btn-whatsapp" id="btnWhatsapp">Enviar</button>
+        <button class="btn-top btn-copy" id="btnCopy">Copiar solo</button>
+        <button class="btn-top btn-general" id="btnGeneral">Copiar tudo</button>
+        <button class="btn-top btn-add-accum" id="btnAddAccum">Enviar para nuvem</button>
+        <button class="btn-top btn-view-accum" id="btnViewAccum">Histórico</button>
         <button class="btn-top btn-import" id="btnImport">Importar</button>
-        <button class="btn-top btn-add-accum" id="btnAddAccum">Adicionar ao Acumulado</button>
-        <button class="btn-top btn-view-accum" id="btnViewAccum">Ver Acumulado</button>
-        <button class="btn-top btn-general" id="btnGeneral">Geral</button>
         <button class="btn-top btn-clear" id="btnClear">Apagar</button>
     </div>
 
@@ -505,6 +510,8 @@
                     <option value="Módulo I">Módulo I</option>
                     <option value="Módulo II">Módulo II</option>
                     <option value="Dejem">Dejem</option>
+                    <option value="CGP">CGP</option>
+                    <option value="TOR">TOR</option>
                 </select>
             </div>
         </div>
@@ -537,16 +544,16 @@
         </div>
     </div>
 
-    <!-- Modal Acumulado de Todos os Dias -->
+    <!-- Modal Histórico / Acumulado -->
     <div class="modal" id="accumModal">
         <div class="modal-content">
-            <h3>Atividade Acumulada</h3>
+            <h3>Histórico Acumulado</h3>
             <div class="accum-meta" id="accumMetaText">0 registros adicionados</div>
             <div class="accum-preview-box" id="accumPreviewText">Nenhum dado acumulado ainda.</div>
             <div class="modal-buttons">
-                <button class="btn-top btn-clear" id="btnClearAccum">Zerar Acumulado</button>
-                <button class="btn-top btn-copy" id="btnCopyAccum">Copiar</button>
-                <button class="btn-top btn-whatsapp" id="btnWhatsappAccum" style="grid-column: auto; padding: 10px 12px;">WhatsApp</button>
+                <button class="btn-top btn-clear" id="btnClearAccum">Zerar</button>
+                <button class="btn-top btn-copy" id="btnCopyAccum">Copiar tudo</button>
+                <button class="btn-top btn-whatsapp" id="btnWhatsappAccum">Enviar</button>
                 <button class="btn-top btn-clear" id="btnCloseAccum">Fechar</button>
             </div>
         </div>
@@ -556,6 +563,7 @@
         const THEME_KEY = 'pmrAtividadeTheme';
         const STATE_KEY = 'pmrMultiAtividadeStateV4';
         const ACCUM_KEY = 'pmrAtividadeAcumuladaV1';
+        const REGIME_OPTIONS = ['Módulo I', 'Módulo II', 'Dejem', 'CGP', 'TOR'];
 
         const itemNames = [
             'Total Fiscalizado - AP', 'Total Fiscalizado - OA', 'Total Fiscalizado - CA', 'Total Fiscalizado - MO',
@@ -973,7 +981,7 @@
             };
             const body = buildItemsSection(accumState.items, accumState.radar);
             if (!body.hasContent) return null;
-            return buildHeaderBlock(getReportDateBR(), p, `ACUMULADO (${accumState.entriesCount}x)`) + body.text;
+            return buildHeaderBlock(getReportDateBR(), p, `HISTÓRICO (${accumState.entriesCount}x)`) + body.text;
         }
 
         document.getElementById('btnAddAccum').addEventListener('click', () => {
@@ -984,7 +992,7 @@
             const tab = getActiveTab();
             const body = buildItemsSection(tab.items, tab.radar);
             if (!body.hasContent) {
-                alert('Preencha algum valor na aba atual para adicionar ao acumulado.');
+                alert('Preencha algum valor na aba atual para enviar ao histórico.');
                 return;
             }
 
@@ -1011,7 +1019,7 @@
             if (appState.personnel.aux) accumState.aux = appState.personnel.aux;
 
             saveAccumStorage();
-            alert(`"${tab.name}" adicionada ao acumulado! Total de lançamentos: ${accumState.entriesCount}`);
+            alert(`"${tab.name}" enviada ao histórico! Total: ${accumState.entriesCount}`);
         });
 
         const accumModal = document.getElementById('accumModal');
@@ -1029,7 +1037,7 @@
         document.getElementById('btnCopyAccum').addEventListener('click', () => {
             const text = generateAccumText();
             if (!text) return alert('Nenhum dado acumulado.');
-            copyToClipboard(text, 'Acumulado copiado!');
+            copyToClipboard(text, 'Histórico copiado!');
         });
 
         document.getElementById('btnWhatsappAccum').addEventListener('click', () => {
@@ -1039,7 +1047,7 @@
         });
 
         document.getElementById('btnClearAccum').addEventListener('click', () => {
-            if (!confirm('Zerar todo o acumulado salvo?')) return;
+            if (!confirm('Zerar todo o histórico acumulado?')) return;
             accumState = {
                 entriesCount: 0,
                 viatura: '',
@@ -1078,7 +1086,7 @@
                 alert('Preencha algum valor na aba atual para copiar.');
                 return;
             }
-            copyToClipboard(text);
+            copyToClipboard(text, 'Atividade copiada!');
         });
 
         document.getElementById('btnGeneral').addEventListener('click', () => {
@@ -1091,7 +1099,7 @@
                 alert('Nenhum dado preenchido nas atividades.');
                 return;
             }
-            copyToClipboard(text, 'Relatório geral copiado!');
+            copyToClipboard(text, 'Tudo copiado!');
         });
 
         // Importar atividade única ou relatório geral
@@ -1121,9 +1129,13 @@
             const vtrMatch = text.match(/\*Viatura:\*\s*(.+)/i);
             if (vtrMatch) appState.personnel.viatura = vtrMatch[1].trim();
 
-            if (/\*Módulo I\*/i.test(text)) appState.personnel.regime = 'Módulo I';
-            else if (/\*Módulo II\*/i.test(text)) appState.personnel.regime = 'Módulo II';
-            else if (/\*Dejem\*/i.test(text)) appState.personnel.regime = 'Dejem';
+            for (const opt of REGIME_OPTIONS) {
+                const escaped = opt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                if (new RegExp(`\\*${escaped}\\*`, 'i').test(text)) {
+                    appState.personnel.regime = opt;
+                    break;
+                }
+            }
 
             const encMatch = text.match(/\*Encarregado:\*\s*(.+)/i);
             if (encMatch) appState.personnel.enc = encMatch[1].trim();
@@ -1144,13 +1156,11 @@
                 targetTab.name = titleMatch[1].trim();
             }
 
+            const ignoredHeaders = ['Encarregado', 'Motorista', 'Auxiliar', 'Viatura', 'Data', ...REGIME_OPTIONS];
             let currentItem = null;
             blockText.split('\n').forEach(line => {
                 const itemHeader = line.match(/^\*(.+?):\*$/);
-                if (
-                    itemHeader &&
-                    !['Encarregado', 'Motorista', 'Auxiliar', 'Viatura', 'Data', 'Módulo I', 'Módulo II', 'Dejem'].includes(itemHeader[1].trim())
-                ) {
+                if (itemHeader && !ignoredHeaders.includes(itemHeader[1].trim())) {
                     currentItem = itemHeader[1].trim();
                     return;
                 }
@@ -1172,7 +1182,6 @@
         function parseAndLoadText(text) {
             parsePersonnelFromText(text);
 
-            // Detecta se há múltiplos blocos iniciando com *Atividade ...*
             const activityBlocks = text.split(/(?=^\*Atividade\b)/im).filter(b => /^\*Atividade\b/im.test(b.trim()));
 
             if (activityBlocks.length > 1) {
