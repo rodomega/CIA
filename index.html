@@ -50,49 +50,15 @@ body{
     padding:10px 10px env(safe-area-inset-bottom, 10px);
 }
 
-/* CONTROLES SUPERIORES DISCRETOS */
-#editPageBtn, #coordLivePanel{
-    position:fixed;
-    top:max(6px, env(safe-area-inset-top, 6px));
-    z-index:950;
-    background:rgba(15,23,42,.78);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:999px;
-    padding:4px 9px;
-    font-size:9.5px;
-    line-height:1.2;
-    cursor:pointer;
-    white-space:nowrap;
-}
-#editPageBtn{
-    left:8px;
-    font-weight:600;
-    color:#cbd5e1;
-}
-#editPageBtn:active, #coordLivePanel:active{transform:scale(.95)}
-
-#coordLivePanel{
-    right:8px;
-    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color:#e2e8f0;
-    max-width:calc(100vw - 110px);
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-#coordLivePanel .coord-sep{color:#64748b;margin:0 4px}
-#coordLivePanel .coord-label{color:var(--accent);font-weight:700;font-size:8.5px;margin-right:2px}
-#coordLivePanel .coord-acc{color:#94a3b8;font-size:8.5px;margin-left:4px}
-#coordLivePanel.copiado{background:rgba(34,197,94,.75);border-color:rgba(34,197,94,.9);color:#fff}
-
 /* CONTAINER PADRÃO (CELULAR) */
 .phone-container{
     width:100%;max-width:420px;display:flex;flex-direction:column;height:100%;position:relative;justify-content:space-between;
 }
 .header{
     text-align:center;
-    padding:34px 4px 18px;
+    padding:14px 4px 16px;
     flex-shrink:0;
-    min-height:76px;
+    min-height:64px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -138,6 +104,68 @@ body{
     margin-top:4px;font-size:.68rem;text-align:center;color:var(--appName);text-shadow:0 1px 2px rgba(0,0,0,.85);
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
+
+/* PILHA INFERIOR DIREITA */
+.bottom-right-stack{
+    position:fixed;
+    right:10px;
+    bottom:max(10px, env(safe-area-inset-bottom, 10px));
+    z-index:950;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:6px;
+}
+
+.stack-pill{
+    background:rgba(15,23,42,.86);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;
+    padding:6px 11px;
+    font-size:0.78rem;
+    line-height:1.25;
+    cursor:pointer;
+    white-space:nowrap;
+    color:#e2e8f0;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+    transition:transform .12s ease, border-color .15s ease, background .15s ease;
+}
+.stack-pill:active{transform:scale(.96)}
+.stack-pill:hover{border-color:rgba(255,255,255,.35);color:#fff}
+
+#editPageBtn{
+    font-weight:600;
+    color:#f8fafc;
+}
+
+#coordLivePanel{
+    font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color:#e2e8f0;
+}
+#coordLivePanel .coord-sep{color:#64748b;margin:0 5px}
+#coordLivePanel .coord-label{color:var(--accent);font-weight:700;font-size:0.72rem;margin-right:3px}
+#coordLivePanel .coord-acc{color:#94a3b8;font-size:0.72rem;margin-left:5px}
+#coordLivePanel.copiado{background:rgba(34,197,94,.85);border-color:rgba(34,197,94,.95);color:#fff}
+
+.btn-sugestao{
+    color:#f8fafc;
+    background:rgba(15,23,42,.86);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;
+    padding:6px 11px;
+    font-size:0.78rem;
+    font-weight:600;
+    line-height:1.25;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+    transition:transform .12s ease, border-color .15s ease;
+}
+.btn-sugestao:active{transform:scale(.96)}
+.btn-sugestao:hover{border-color:rgba(255,255,255,.35);color:#fff}
 
 .modal-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;
@@ -213,34 +241,6 @@ body{
 }
 .dicas-box-text a{color:var(--accent);text-decoration:underline}
 
-.donation-footer{
-    flex-shrink:0;
-    margin-top:4px;
-    display:flex;
-    justify-content:flex-end;
-    width:100%;
-}
-.btn-sugestao{
-    color:#cbd5e1;
-    background:rgba(15,23,42,.65);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:999px;
-    padding:3px 8px;
-    font-size:0.68rem;
-    font-weight:500;
-    line-height:1.2;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-flex;
-    align-items:center;
-    width:auto;
-    white-space:nowrap;
-}
-.btn-sugestao:hover{
-    color:#fff;
-    border-color:rgba(255,255,255,.28);
-}
-
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
 .id-display-box{
@@ -254,25 +254,16 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     html, body{position:static;overflow:auto}
     body{padding:24px}
     .phone-container{max-width:850px}
-    .header{padding:36px 8px 24px;min-height:92px}
+    .header{padding:20px 8px 22px;min-height:76px}
     .grid-apps{grid-template-columns:repeat(6, 1fr);gap:20px 16px}
     .app-name{font-size:0.78rem}
-    .donation-footer{margin-top:8px}
-    #editPageBtn, #coordLivePanel{font-size:11px;padding:5px 11px;top:12px}
-    #editPageBtn{left:16px}
-    #coordLivePanel{right:16px;max-width:calc(100vw - 170px)}
-    #coordLivePanel .coord-label, #coordLivePanel .coord-acc{font-size:9.5px}
+    .bottom-right-stack{right:18px;bottom:18px;gap:7px}
+    .stack-pill, .btn-sugestao{font-size:0.84rem;padding:7px 13px}
 }
 </style>
 </head>
 
 <body>
-
-<button id="editPageBtn" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
-
-<div id="coordLivePanel" title="Toque para copiar coordenadas">
-    <span class="coord-label">LAT</span><span id="liveLat">--</span><span class="coord-sep">|</span><span class="coord-label">LNG</span><span id="liveLng">--</span><span class="coord-acc" id="liveAcc">GPS...</span>
-</div>
 
 <div class="phone-container">
     <div class="header">
@@ -282,10 +273,16 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     <div class="grid-apps" id="appGrid">
         <div class="loading-text">Carregando aplicativos...</div>
     </div>
+</div>
 
-    <div class="donation-footer">
-        <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
+<div class="bottom-right-stack">
+    <button id="editPageBtn" class="stack-pill" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
+
+    <div id="coordLivePanel" class="stack-pill" title="Toque para copiar coordenadas">
+        <span class="coord-label">LAT</span><span id="liveLat">--</span><span class="coord-sep">|</span><span class="coord-label">LNG</span><span id="liveLng">--</span><span class="coord-acc" id="liveAcc">GPS...</span>
     </div>
+
+    <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
 </div>
 
 <!-- DICAS ÚTEIS MODAL -->
