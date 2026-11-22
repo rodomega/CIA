@@ -28,10 +28,10 @@
   --breve-borda: #3b82f6;
   --breve-texto: #93c5fd;
   --breve-badge: #2563eb;
-  --vencida-bg: rgba(220, 38, 38, 0.18);
-  --vencida-borda: #ef4444;
-  --vencida-texto: #fca5a5;
-  --vencida-badge: #dc2626;
+  --expirado-bg: rgba(220, 38, 38, 0.18);
+  --expirado-borda: #ef4444;
+  --expirado-texto: #fca5a5;
+  --expirado-badge: #dc2626;
 }
 body.light-theme {
   --bg-app: #ffffff;
@@ -56,10 +56,10 @@ body.light-theme {
   --breve-borda: #1d4ed8;
   --breve-texto: #1e3a8a;
   --breve-badge: #1d4ed8;
-  --vencida-bg: #fee2e2;
-  --vencida-borda: #b91c1c;
-  --vencida-texto: #7f1d1d;
-  --vencida-badge: #b91c1c;
+  --expirado-bg: #fee2e2;
+  --expirado-borda: #b91c1c;
+  --expirado-texto: #7f1d1d;
+  --expirado-badge: #b91c1c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 body {
@@ -139,7 +139,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-ver:hover:not(:disabled) { background: var(--destaque-hover); }
 .btn-download { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
 .btn-download:hover:not(:disabled) { background: var(--destaque); color: var(--texto-botao-destaque); }
-.btn-excluir { background: rgba(239,68,68,0.14); color: var(--vencida-texto); border: 1px solid var(--vencida-borda); }
+.btn-excluir { background: rgba(239,68,68,0.14); color: var(--expirado-texto); border: 1px solid var(--expirado-borda); }
 .btn-excluir:hover:not(:disabled) { background: #dc2626; color: #ffffff; border-color: #ef4444; }
 
 .container {
@@ -270,7 +270,7 @@ input[type="file"] {
 }
 .stat-pill.vigente { border-color: var(--vigente-borda); color: var(--vigente-texto); background: var(--vigente-bg); }
 .stat-pill.em-breve { border-color: var(--breve-borda); color: var(--breve-texto); background: var(--breve-bg); }
-.stat-pill.vencida { border-color: var(--vencida-borda); color: var(--vencida-texto); background: var(--vencida-bg); }
+.stat-pill.expirado { border-color: var(--expirado-borda); color: var(--expirado-texto); background: var(--expirado-bg); }
 
 /* Tabela Desktop */
 .table-wrap { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid var(--borda); }
@@ -298,8 +298,13 @@ tr.os-vigente .os-title-text { color: var(--vigente-texto); font-weight: 800; }
 tr.os-em-breve { background: var(--breve-bg); box-shadow: inset 5px 0 0 var(--breve-borda); }
 tr.os-em-breve .os-title-text { color: var(--breve-texto); font-weight: 800; }
 
-tr.os-vencida { background: var(--vencida-bg); box-shadow: inset 5px 0 0 var(--vencida-borda); }
-tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
+tr.os-expirado { background: var(--expirado-bg); box-shadow: inset 5px 0 0 var(--expirado-borda); animation: fadeSlideIn 0.25s ease; }
+tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .os-subject-text {
   font-size: 0.76rem;
@@ -320,7 +325,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 }
 .badge-vigente { background: var(--vigente-badge); color: #ffffff; }
 .badge-em-breve { background: var(--breve-badge); color: #ffffff; }
-.badge-vencida { background: var(--vencida-badge); color: #ffffff; }
+.badge-expirado { background: var(--expirado-badge); color: #ffffff; }
 
 .badge-pasta {
   display: inline-flex;
@@ -348,6 +353,56 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 .actions-group { display: flex; gap: 6px; align-items: center; }
 .empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
 
+/* Botão Mostrar / Ocultar Expirados com seta animada */
+.expired-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2px;
+}
+.btn-toggle-expired {
+  background: var(--bg-card);
+  color: var(--texto-principal);
+  border: 1.5px solid var(--borda-destaque);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-toggle-expired:hover {
+  background: var(--bg-elevado);
+  border-color: var(--destaque);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+.btn-toggle-expired .arrow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--expirado-bg);
+  color: var(--expirado-badge);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-toggle-expired.expanded .arrow-icon {
+  transform: rotate(180deg);
+}
+.btn-toggle-expired .expired-pill-count {
+  background: var(--expirado-badge);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
 /* Layout organizado no celular: título em cima, assunto abaixo, datas na base; status acima dos 3 botões à direita */
 @media (max-width: 768px) {
   .table-wrap { border: none; overflow-x: visible; border-radius: 0; }
@@ -357,7 +412,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 
   tr.os-vigente,
   tr.os-em-breve,
-  tr.os-vencida {
+  tr.os-expirado {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -368,7 +423,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   }
   tr.os-vigente { border-left: 4px solid var(--vigente-borda); box-shadow: none; }
   tr.os-em-breve { border-left: 4px solid var(--breve-borda); box-shadow: none; }
-  tr.os-vencida { border-left: 4px solid var(--vencida-borda); box-shadow: none; }
+  tr.os-expirado { border-left: 4px solid var(--expirado-borda); box-shadow: none; }
 
   td { padding: 0; border: none; width: auto; }
   td.col-start, td.col-end, td.col-actions, .desktop-status-row { display: none; }
@@ -510,14 +565,14 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
 .folder-item-meta { font-size: 0.72rem; color: var(--texto-suave); margin-top: 2px; }
 </style>
 </head>
-<body>
+<body class="light-theme">
 
 <header>
   <div class="header-inner">
     <h1>ORDENS DE SERVIÇO</h1>
     <div class="header-actions">
       <button id="btnToggleInsert" class="btn-secundario btn-add-os" type="button">+ O.S</button>
-      <button id="btnToggleTheme" class="btn-secundario btn-theme-icon" type="button" aria-label="Alternar tema">☀️</button>
+      <button id="btnToggleTheme" class="btn-secundario btn-theme-icon" type="button" aria-label="Alternar tema">🌙</button>
     </div>
   </div>
 </header>
@@ -618,7 +673,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
             <option value="all">Todas</option>
             <option value="vigente">Vigentes (Verde)</option>
             <option value="em_breve">Em breve (Azul)</option>
-            <option value="vencida">Vencidas (Vermelha)</option>
+            <option value="expirado">Expirados (Vermelho)</option>
           </select>
         </div>
         <div class="field">
@@ -630,7 +685,7 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
   </section>
 
   <!-- Lista -->
-  <section class="card">
+  <section id="listCard" class="card">
     <div class="table-wrap">
       <table>
         <thead>
@@ -649,6 +704,19 @@ tr.os-vencida .os-title-text { color: var(--vencida-texto); font-weight: 800; }
       </table>
     </div>
   </section>
+
+  <!-- Botão Mostrar / Ocultar Expirados (logo abaixo de Em breve / Vigente) -->
+  <div id="expiredToggleContainer" class="expired-toggle-wrap hidden">
+    <button type="button" id="btnToggleExpired" class="btn-toggle-expired" aria-expanded="false">
+      <span id="expiredToggleText">Mostrar expirados</span>
+      <span id="expiredToggleCount" class="expired-pill-count">0</span>
+      <span class="arrow-icon" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </span>
+    </button>
+  </div>
 
 </main>
 
@@ -701,6 +769,7 @@ const osCollection = collection(db, "ordens_servico");
 let allOrders = [];
 let specificDates = [];
 let cleanupRunning = false;
+let showExpired = false;
 
 const viewportMeta = document.getElementById("viewportMeta");
 const btnToggleTheme = document.getElementById("btnToggleTheme");
@@ -731,7 +800,12 @@ const filterDate = document.getElementById("filterDate");
 const filterStatus = document.getElementById("filterStatus");
 const btnClearFilters = document.getElementById("btnClearFilters");
 const statsBar = document.getElementById("statsBar");
+const listCard = document.getElementById("listCard");
 const osTableBody = document.getElementById("osTableBody");
+const expiredToggleContainer = document.getElementById("expiredToggleContainer");
+const btnToggleExpired = document.getElementById("btnToggleExpired");
+const expiredToggleText = document.getElementById("expiredToggleText");
+const expiredToggleCount = document.getElementById("expiredToggleCount");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
@@ -746,6 +820,11 @@ function setPdfZoomMode(enabled) {
 
 btnToggleFilters.addEventListener("click", () => {
   filtersDrawer.classList.toggle("hidden");
+});
+
+btnToggleExpired.addEventListener("click", () => {
+  showExpired = !showExpired;
+  renderList();
 });
 
 function updateFilterBadge() {
@@ -766,7 +845,8 @@ function applyTheme(mode) {
   btnToggleTheme.textContent = isLight ? "🌙" : "☀️";
   localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
 }
-applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+// Tema claro como padrão
+applyTheme(localStorage.getItem(THEME_KEY) || "light");
 btnToggleTheme.addEventListener("click", () => {
   const currentlyLight = document.body.classList.contains("light-theme");
   applyTheme(currentlyLight ? "dark" : "light");
@@ -875,21 +955,21 @@ function getExpirationTimestamp(order) {
   return null;
 }
 
-// Retorna: "vigente" | "em_breve" | "vencida"
+// Retorna: "vigente" | "em_breve" | "expirado"
 function getOrderStatus(order) {
   const today = getTodayISO();
   if (order.dateMode === "specific") {
     const list = Array.isArray(order.specificDates) ? [...order.specificDates].sort() : [];
-    if (!list.length) return "vencida";
+    if (!list.length) return "expirado";
     if (list.includes(today)) return "vigente";
     if (today < list[list.length - 1]) return "em_breve";
-    return "vencida";
+    return "expirado";
   }
   const start = order.startDate || "";
   const end = order.endDate || start;
-  if (!start) return "vencida";
+  if (!start) return "expirado";
   if (today < start) return "em_breve";
-  if (today > end) return "vencida";
+  if (today > end) return "expirado";
   return "vigente";
 }
 
@@ -1209,7 +1289,7 @@ function getStatusMeta(status) {
   if (status === "em_breve") {
     return { rowClass: "os-em-breve", badgeClass: "badge-em-breve", label: "EM BREVE" };
   }
-  return { rowClass: "os-vencida", badgeClass: "badge-vencida", label: "VENCIDA" };
+  return { rowClass: "os-expirado", badgeClass: "badge-expirado", label: "EXPIRADO" };
 }
 
 function createActionButtons(order, files, isFolder) {
@@ -1268,7 +1348,8 @@ function renderList() {
   const dateVal = filterDate.value;
   const statusVal = filterStatus.value;
 
-  const filtered = allOrders.filter((order) => {
+  // Filtra primeiro por busca, data e status selecionado
+  const matchedBySearchAndDate = allOrders.filter((order) => {
     const status = getOrderStatus(order);
     if (statusVal !== "all" && status !== statusVal) return false;
     if (dateVal && !matchDateFilter(order, dateVal)) return false;
@@ -1287,11 +1368,32 @@ function renderList() {
     return true;
   });
 
-  // Sempre ordena: Vigentes (Verde) -> Em breve (Azul) -> Vencidas (Vermelha)
+  const expiredInMatched = matchedBySearchAndDate.filter((o) => getOrderStatus(o) === "expirado");
+  const activeInMatched = matchedBySearchAndDate.filter((o) => getOrderStatus(o) !== "expirado");
+
+  // Se o filtro específico "Expirados" foi escolhido, exibe diretamente; caso contrário respeita showExpired
+  const shouldDisplayExpired = statusVal === "expirado" || showExpired;
+
+  // Controla visibilidade e estado do botão Mostrar / Ocultar expirados
+  if (expiredInMatched.length > 0 && statusVal !== "expirado") {
+    expiredToggleContainer.classList.remove("hidden");
+    expiredToggleCount.textContent = String(expiredInMatched.length);
+    expiredToggleText.textContent = showExpired ? "Ocultar expirados" : "Mostrar expirados";
+    btnToggleExpired.classList.toggle("expanded", showExpired);
+    btnToggleExpired.setAttribute("aria-expanded", String(showExpired));
+  } else {
+    expiredToggleContainer.classList.add("hidden");
+  }
+
+  const filtered = shouldDisplayExpired
+    ? [...activeInMatched, ...expiredInMatched]
+    : [...activeInMatched];
+
+  // Sempre ordena: Vigentes (Verde) -> Em breve (Azul) -> Expirados (Vermelho)
   const statusPriority = {
     vigente: 0,
     em_breve: 1,
-    vencida: 2
+    expirado: 2
   };
   filtered.sort((a, b) => {
     const sa = getOrderStatus(a);
@@ -1303,21 +1405,25 @@ function renderList() {
 
   const vigentesCount = allOrders.filter((o) => getOrderStatus(o) === "vigente").length;
   const emBreveCount = allOrders.filter((o) => getOrderStatus(o) === "em_breve").length;
-  const vencidasCount = allOrders.filter((o) => getOrderStatus(o) === "vencida").length;
+  const expiradosCount = allOrders.filter((o) => getOrderStatus(o) === "expirado").length;
 
   statsBar.innerHTML = `
     <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
     <span class="stat-pill vigente">Vigentes: <strong>${vigentesCount}</strong></span>
     <span class="stat-pill em-breve">Em breve: <strong>${emBreveCount}</strong></span>
-    <span class="stat-pill vencida">Vencidas: <strong>${vencidasCount}</strong></span>
+    <span class="stat-pill expirado">Expirados: <strong>${expiradosCount}</strong></span>
     <span class="stat-pill">Exibidos: <strong>${filtered.length}</strong></span>
   `;
 
   osTableBody.innerHTML = "";
   if (!filtered.length) {
+    // Se há expirados ocultos e nenhum vigente/em breve, deixa o card da lista discreto e mantém o botão abaixo
+    const msg = expiredInMatched.length > 0 && !shouldDisplayExpired
+      ? "Nenhuma Ordem de Serviço vigente ou em breve."
+      : "Nenhuma Ordem de Serviço encontrada.";
     osTableBody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço encontrada.</td>
+        <td colspan="4" class="empty-state">${msg}</td>
       </tr>`;
     return;
   }
