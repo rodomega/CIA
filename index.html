@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Painel Operacional</title>
 <meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link id="manifestLink" rel="manifest" href="">
 <link id="faviconLink" rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link id="appleIconLink" rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,7 +111,7 @@ body{
     width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400
 }
 
-/* PILHA INFERIOR DIREITA */
+/* PILHA INFERIOR DIREITA UNIFORMIZADA */
 .bottom-right-stack{
     position:fixed;
     right:10px;
@@ -115,59 +119,73 @@ body{
     z-index:950;
     display:flex;
     flex-direction:column;
-    align-items:flex-end;
+    align-items:stretch;
+    width:152px;
     gap:6px;
 }
 
-.stack-pill{
-    background:rgba(15,23,42,.86);
+.stack-btn{
+    width:100%;
+    background:rgba(15,23,42,.88);
     border:1px solid rgba(255,255,255,.18);
     border-radius:10px;
-    padding:6px 11px;
+    padding:7px 10px;
     font-size:0.78rem;
+    font-weight:600;
     line-height:1.25;
     cursor:pointer;
-    white-space:nowrap;
-    color:#e2e8f0;
+    color:#f8fafc;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
     box-shadow:0 4px 12px rgba(0,0,0,.35);
     transition:transform .12s ease, border-color .15s ease, background .15s ease;
 }
-.stack-pill:active{transform:scale(.96)}
-.stack-pill:hover{border-color:rgba(255,255,255,.35);color:#fff}
-
-#editPageBtn{
-    font-weight:600;
-    color:#f8fafc;
-}
+.stack-btn:active{transform:scale(.96)}
+.stack-btn:hover{border-color:rgba(255,255,255,.35);color:#fff}
 
 #coordLivePanel{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:2px;
     font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color:#e2e8f0;
+    font-size:0.72rem;
+    line-height:1.2;
 }
-#coordLivePanel .coord-sep{color:#64748b;margin:0 5px}
-#coordLivePanel .coord-label{color:var(--accent);font-weight:700;font-size:0.72rem;margin-right:3px}
-#coordLivePanel .coord-acc{color:#94a3b8;font-size:0.72rem;margin-left:5px}
-#coordLivePanel.copiado{background:rgba(34,197,94,.85);border-color:rgba(34,197,94,.95);color:#fff}
-
-.btn-sugestao{
-    color:#f8fafc;
-    background:rgba(15,23,42,.86);
-    border:1px solid rgba(255,255,255,.18);
-    border-radius:10px;
-    padding:6px 11px;
-    font-size:0.78rem;
-    font-weight:600;
-    line-height:1.25;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-flex;
+.coord-line{
+    display:flex;
     align-items:center;
-    justify-content:center;
-    box-shadow:0 4px 12px rgba(0,0,0,.35);
-    transition:transform .12s ease, border-color .15s ease;
+    justify-content:space-between;
+    width:100%;
+    gap:4px;
 }
-.btn-sugestao:active{transform:scale(.96)}
-.btn-sugestao:hover{border-color:rgba(255,255,255,.35);color:#fff}
+#coordLivePanel .coord-label{
+    color:var(--accent);
+    font-weight:700;
+    font-size:0.68rem;
+}
+#coordLivePanel .coord-acc{
+    color:#94a3b8;
+    font-size:0.66rem;
+}
+#coordLivePanel.copiado{
+    background:rgba(34,197,94,.88);
+    border-color:rgba(34,197,94,.98);
+    color:#fff;
+}
+#coordLivePanel.copiado .coord-label,
+#coordLivePanel.copiado .coord-acc{
+    color:#fff;
+}
+
+#installAppBtn{
+    background:linear-gradient(135deg, rgba(2,132,199,.9), rgba(3,105,161,.92));
+    border-color:rgba(56,189,248,.45);
+    color:#fff;
+}
 
 .modal-overlay{
     position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;
@@ -215,8 +233,11 @@ body{
 .color-box{background:rgba(255,255,255,.04);padding:9px;border-radius:10px;border:1px solid var(--border)}
 .color-box label{margin-bottom:6px}
 .preview-logo{
-    width:86px;height:86px;border-radius:18px;object-fit:cover;display:block;margin:4px auto 12px;
-    background:rgba(255,255,255,.08);border:1px solid var(--border)
+    width:96px;height:96px;border-radius:22px;object-fit:cover;display:block;margin:6px auto 12px;
+    background:rgba(255,255,255,.08);border:2px solid rgba(56,189,248,.35);box-shadow:0 6px 16px rgba(0,0,0,.4)
+}
+.logo-meta{
+    text-align:center;font-size:.75rem;color:var(--muted);margin-bottom:12px;
 }
 .title-preview-box{
     background:rgba(0,0,0,.38);border:1px dashed var(--border);border-radius:12px;
@@ -261,8 +282,11 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     .header{padding:20px 8px 22px;min-height:76px}
     .grid-apps{grid-template-columns:repeat(6, 1fr);gap:20px 16px}
     .app-name{font-size:0.78rem}
-    .bottom-right-stack{right:18px;bottom:18px;gap:7px}
-    .stack-pill, .btn-sugestao{font-size:0.84rem;padding:7px 13px}
+    .bottom-right-stack{right:18px;bottom:18px;width:168px;gap:7px}
+    .stack-btn{font-size:0.84rem;padding:8px 12px}
+    #coordLivePanel{font-size:0.76rem}
+    #coordLivePanel .coord-label{font-size:0.7rem}
+    #coordLivePanel .coord-acc{font-size:0.7rem}
 }
 </style>
 </head>
@@ -280,13 +304,16 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <div class="bottom-right-stack">
-    <button id="editPageBtn" class="stack-pill" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
+    <button id="editPageBtn" class="stack-btn" type="button" onclick="abrirAcessoEdicaoPagina()">✏️ Editar página</button>
 
-    <div id="coordLivePanel" class="stack-pill" title="Toque para copiar coordenadas">
-        <span class="coord-label">LAT</span><span id="liveLat">--</span><span class="coord-sep">|</span><span class="coord-label">LNG</span><span id="liveLng">--</span><span class="coord-acc" id="liveAcc">GPS...</span>
+    <div id="coordLivePanel" class="stack-btn" title="Toque para copiar coordenadas">
+        <div class="coord-line"><span class="coord-label">LAT</span><span id="liveLat">--</span></div>
+        <div class="coord-line"><span class="coord-label">LNG</span><span id="liveLng">--</span><span class="coord-acc" id="liveAcc">GPS...</span></div>
     </div>
 
-    <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
+    <a class="stack-btn" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
+
+    <button id="installAppBtn" class="stack-btn" type="button" onclick="instalarAplicativo()">📲 Instalador</button>
 </div>
 
 <!-- DICAS ÚTEIS MODAL -->
@@ -632,16 +659,22 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- LOGO -->
+<!-- LOGO / ÍCONE DO APP -->
 <div class="modal-overlay" id="logoModal">
     <div class="modal-card">
-        <div class="modal-title">🖼️ Logo / Ícone do Portal</div>
+        <div class="modal-title">🖼️ Ícone do Aplicativo</div>
         <img id="logoPreview" class="preview-logo" src="./icons/icon-192.png" alt="Logo">
-        <label>Escolher nova imagem:</label>
+        <div class="logo-meta" id="logoStatusInfo">Formato quadrado proporcional (512×512)</div>
+
+        <label>Enviar imagem do dispositivo (Upload):</label>
         <input type="file" id="portalLogoFile" accept="image/*">
+
+        <label>Ou colar link da imagem (URL):</label>
+        <input type="text" id="portalLogoUrlInput" placeholder="https://exemplo.com/icone.png">
+
         <div class="modal-buttons">
             <button class="btn btn-secondary" onclick="fecharModais()">Cancelar</button>
-            <button class="btn btn-primary" id="btnSalvarLogo" onclick="salvarLogo()">💾 Salvar Logo</button>
+            <button class="btn btn-primary" id="btnSalvarLogo" onclick="salvarLogo()">💾 Salvar Ícone</button>
         </div>
     </div>
 </div>
@@ -689,8 +722,9 @@ const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
 const adminConfigRef = doc(db, "config", "admin");
 
-const CACHE_THEME_KEY = "painel_op_theme_v2";
+const CACHE_THEME_KEY = "painel_op_theme_v3";
 const CACHE_APPS_KEY = "painel_op_apps_v1";
+const INSTALLED_FLAG_KEY = "painel_op_installed_v1";
 
 const DEFAULT_THEME = {
     title: "PAINEL OPERACIONAL",
@@ -737,9 +771,154 @@ let senhaModoAcao = "admin";
 let textoDicasAtual = "";
 let texturaPreviewTempUrl = "";
 let ultimaAssinaturaGrid = "";
+let deferredInstallPrompt = null;
+let manifestBlobUrl = "";
 
 const $ = id => document.getElementById(id);
 
+/* =========================================================
+   PWA / INSTALADOR & ÍCONE TIPO APP ANDROID PROPORCIONAL
+   ========================================================= */
+function appJaEstaInstalado() {
+    const standaloneDisplay = window.matchMedia("(display-mode: standalone)").matches
+        || window.matchMedia("(display-mode: fullscreen)").matches
+        || window.navigator.standalone === true;
+    const flagSalva = localStorage.getItem(INSTALLED_FLAG_KEY) === "1";
+    if (standaloneDisplay) {
+        localStorage.setItem(INSTALLED_FLAG_KEY, "1");
+        return true;
+    }
+    return flagSalva;
+}
+
+function atualizarVisibilidadeBotaoInstalador() {
+    const btn = $("installAppBtn");
+    if (!btn) return;
+    btn.style.display = appJaEstaInstalado() ? "none" : "flex";
+}
+
+function atualizarManifestDinamico(iconUrl, appTitle) {
+    try {
+        const resolvedIcon = new URL(iconUrl || "./icons/icon-192.png", window.location.href).href;
+        const manifestObj = {
+            name: appTitle || "Painel Operacional",
+            short_name: (appTitle || "Painel").slice(0, 18),
+            start_url: window.location.href,
+            scope: "./",
+            display: "standalone",
+            background_color: currentTheme.bg1 || "#0f172a",
+            theme_color: currentTheme.bg1 || "#0f172a",
+            icons: [
+                {
+                    src: resolvedIcon,
+                    sizes: "192x192",
+                    type: "image/png",
+                    purpose: "any maskable"
+                },
+                {
+                    src: resolvedIcon,
+                    sizes: "512x512",
+                    type: "image/png",
+                    purpose: "any maskable"
+                }
+            ]
+        };
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: "application/manifest+json" });
+        const novoUrl = URL.createObjectURL(blob);
+        if (manifestBlobUrl) URL.revokeObjectURL(manifestBlobUrl);
+        manifestBlobUrl = novoUrl;
+        $("manifestLink").href = novoUrl;
+    } catch {}
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    atualizarVisibilidadeBotaoInstalador();
+});
+
+window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    localStorage.setItem(INSTALLED_FLAG_KEY, "1");
+    atualizarVisibilidadeBotaoInstalador();
+});
+
+window.instalarAplicativo = async function() {
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice?.outcome === "accepted") {
+            localStorage.setItem(INSTALLED_FLAG_KEY, "1");
+            atualizarVisibilidadeBotaoInstalador();
+        }
+        deferredInstallPrompt = null;
+        return;
+    }
+
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIos) {
+        alert("No Safari do iPhone/iPad: toque no botão Compartilhar e depois em 'Adicionar à Tela de Início'.");
+    } else {
+        alert("Abra o menu do navegador (⋮) e toque em 'Instalar aplicativo' ou 'Adicionar à tela inicial'.");
+    }
+};
+
+function carregarImagemElemento(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("Não foi possível carregar a imagem para ajustar o ícone."));
+        img.src = src;
+    });
+}
+
+async function transformarEmIconeQuadradoProporcional(source, size = 512, quality = 0.88) {
+    let img;
+    let tempObjectUrl = "";
+
+    if (source instanceof File) {
+        tempObjectUrl = URL.createObjectURL(source);
+        img = await carregarImagemElemento(tempObjectUrl);
+    } else {
+        img = await carregarImagemElemento(String(source));
+    }
+
+    try {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        // Recorte central proporcional (cover) para preencher 100% do ícone quadrado sem distorção
+        const srcW = img.naturalWidth || img.width;
+        const srcH = img.naturalHeight || img.height;
+        const side = Math.min(srcW, srcH);
+        const sx = Math.floor((srcW - side) / 2);
+        const sy = Math.floor((srcH - side) / 2);
+
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+
+        const blob = await new Promise((resolve) => {
+            canvas.toBlob((b) => resolve(b), "image/png", quality);
+        });
+
+        const dataUrl = canvas.toDataURL("image/png", quality);
+        const file = blob
+            ? new File([blob], `icone_app_${size}.png`, { type: "image/png" })
+            : null;
+
+        return { file, dataUrl, width: size, height: size };
+    } finally {
+        if (tempObjectUrl) URL.revokeObjectURL(tempObjectUrl);
+    }
+}
+
+/* =========================================================
+   FONTES, IMAGENS E TEMA
+   ========================================================= */
 function carregarFonteGoogleSobDemanda(fontCss) {
     const match = String(fontCss || "").match(/'([^']+)'/);
     const family = match ? match[1] : "Chakra Petch";
@@ -897,11 +1076,13 @@ function aplicarTema(theme, salvarCache = true) {
     r.style.setProperty("--titleTransform", currentTheme.titleTransform || "uppercase");
 
     aplicarEstiloTituloEmElemento($("portalTitle"), currentTheme);
+    document.title = currentTheme.title || "Painel Operacional";
     document.querySelector('meta[name="theme-color"]').setAttribute("content", currentTheme.bg1);
 
     const logo = currentTheme.logoUrl || DEFAULT_THEME.logoUrl;
     $("faviconLink").href = logo;
     $("appleIconLink").href = logo;
+    atualizarManifestDinamico(logo, currentTheme.title);
 
     if (salvarCache) {
         try { localStorage.setItem(CACHE_THEME_KEY, JSON.stringify(currentTheme)); } catch {}
@@ -1163,8 +1344,11 @@ window.salvarAparencia = async function() {
 };
 
 window.abrirLogo = function() {
+    const atual = currentTheme.logoUrl || DEFAULT_THEME.logoUrl;
     $("portalLogoFile").value = "";
-    $("logoPreview").src = currentTheme.logoUrl || DEFAULT_THEME.logoUrl;
+    $("portalLogoUrlInput").value = atual.startsWith("http") ? atual : "";
+    $("logoPreview").src = atual;
+    $("logoStatusInfo").textContent = "Formato quadrado proporcional (512×512)";
     $("logoModal").style.display = "flex";
 };
 
@@ -1198,45 +1382,75 @@ function uploadArquivo(file, pasta, onProgress) {
     });
 }
 
-window.salvarLogo = async function() {
-    const btn = $("btnSalvarLogo");
-    const file = $("portalLogoFile").files?.[0];
-    if (!file) { alert("Escolha uma imagem."); return; }
-
+$("portalLogoFile").addEventListener("change", async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     try {
         validarImagem(file, 10);
-        btn.disabled = true;
-        btn.textContent = "Otimizando...";
-        const otimizada = await comprimirImagem(file, 384, 0.85);
-
-        const url = await uploadArquivo(otimizada, "portal", pct => {
-            btn.textContent = `Enviando ${pct}%...`;
-        });
-
-        const theme = {...currentTheme, logoUrl:url};
-        await setDoc(portalConfigRef, {theme, updatedAt:Date.now()}, {merge:true});
-        aplicarTema(theme, true);
-        $("logoPreview").src = url;
-
-        alert("Logo salva com sucesso.");
-        $("logoModal").style.display = "none";
-    } catch {
-        alert("Erro ao salvar logo.");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "💾 Salvar Logo";
-    }
-};
-
-$("portalLogoFile").addEventListener("change", e => {
-    const file = e.target.files?.[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => $("logoPreview").src = reader.result;
-        reader.readAsDataURL(file);
+        const icone = await transformarEmIconeQuadradoProporcional(file, 512, 0.88);
+        $("logoPreview").src = icone.dataUrl;
+        $("logoStatusInfo").textContent = `Ajustado proporcionalmente (${icone.width}×${icone.height}px)`;
+    } catch (err) {
+        alert(err?.message || "Erro ao pré-visualizar ícone.");
     }
 });
 
+$("portalLogoUrlInput").addEventListener("change", async e => {
+    const url = e.target.value.trim();
+    if (!url) return;
+    try {
+        const icone = await transformarEmIconeQuadradoProporcional(url, 512, 0.88);
+        $("logoPreview").src = icone.dataUrl;
+        $("logoStatusInfo").textContent = `Ajustado da URL (${icone.width}×${icone.height}px)`;
+    } catch {
+        $("logoPreview").src = url;
+        $("logoStatusInfo").textContent = "Prévia da URL carregada (será ajustada ao salvar)";
+    }
+});
+
+window.salvarLogo = async function() {
+    const btn = $("btnSalvarLogo");
+    const file = $("portalLogoFile").files?.[0];
+    const urlDigitada = $("portalLogoUrlInput").value.trim();
+
+    if (!file && !urlDigitada) {
+        alert("Envie uma imagem ou informe um link da internet.");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Ajustando ícone...";
+
+    try {
+        const icone512 = await transformarEmIconeQuadradoProporcional(file || urlDigitada, 512, 0.88);
+        let finalUrl = "";
+
+        if (icone512.file) {
+            finalUrl = await uploadArquivo(icone512.file, "portal", pct => {
+                btn.textContent = `Enviando ${pct}%...`;
+            });
+        } else {
+            finalUrl = urlDigitada;
+        }
+
+        const theme = { ...currentTheme, logoUrl: finalUrl };
+        await setDoc(portalConfigRef, { theme, updatedAt: Date.now() }, { merge: true });
+        aplicarTema(theme, true);
+        $("logoPreview").src = icone512.dataUrl || finalUrl;
+
+        alert("Ícone do aplicativo salvo e ajustado com sucesso!");
+        $("logoModal").style.display = "none";
+    } catch (err) {
+        alert(err?.message || "Erro ao salvar ícone do aplicativo.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "💾 Salvar Ícone";
+    }
+};
+
+/* =========================================================
+   CACHE, FIRESTORE E UI
+   ========================================================= */
 (function restaurarCacheInstantaneo() {
     try {
         const cachedTheme = localStorage.getItem(CACHE_THEME_KEY);
@@ -1251,6 +1465,7 @@ $("portalLogoFile").addEventListener("change", e => {
     } catch {
         aplicarTema(DEFAULT_THEME, false);
     }
+    atualizarVisibilidadeBotaoInstalador();
 })();
 
 onSnapshot(portalConfigRef, snap => {
@@ -1765,7 +1980,7 @@ window.fecharModais = function() {
     document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
 };
 
-/* GPS EM LINHA HORIZONTAL OTIMIZADO + ATUALIZAÇÃO AO VOLTAR PARA A TELA */
+/* GPS EM DUAS LINHAS (LAT EM CIMA / LNG EM BAIXO) + ATUALIZAÇÃO AO VOLTAR PARA A TELA */
 let ultimasCoords = null;
 let ultimaPrecisaoGps = 0;
 
