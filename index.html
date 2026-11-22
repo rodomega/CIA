@@ -9,7 +9,7 @@
 <link id="appleIconLink" rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link id="googleFontLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap">
+<link id="googleFontLink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;800&display=swap">
 <meta name="google-site-verification" content="mwuop2gWQzgyrmQX0n_MnagevgrL2HqmZEjaIbZRQuA" />
 <style>
 :root{
@@ -33,8 +33,10 @@
     --titleSize:20px;
     --titleFont:'Chakra Petch', sans-serif;
     --titleWeight:700;
+    --titleStyle:normal;
     --titleColor:#f8fafc;
     --titleTracking:1.5px;
+    --titleWordSpacing:0px;
     --titleTransform:uppercase;
 }
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -67,19 +69,19 @@ body{
     font-size:var(--titleSize);
     font-family:var(--titleFont);
     font-weight:var(--titleWeight);
+    font-style:var(--titleStyle);
     color:var(--titleColor);
     letter-spacing:var(--titleTracking);
+    word-spacing:var(--titleWordSpacing);
     text-transform:var(--titleTransform);
     line-height:1.15;
     max-width:100%;
     word-break:break-word;
+    transition:all .15s ease;
 }
-#portalTitle.has-texture, .title-preview-sample.has-texture{
+#portalTitle.has-bg-fill, .title-preview-sample.has-bg-fill{
     color:transparent;
     -webkit-text-fill-color:transparent;
-    background-size:cover;
-    background-position:center;
-    background-repeat:repeat;
     -webkit-background-clip:text;
     background-clip:text;
 }
@@ -172,7 +174,7 @@ body{
     justify-content:center;align-items:center;z-index:1000;padding:15px
 }
 .modal-card{
-    background:var(--card);border:1px solid var(--border);width:100%;max-width:390px;border-radius:20px;padding:20px;
+    background:var(--card);border:1px solid var(--border);width:100%;max-width:410px;border-radius:20px;padding:20px;
     box-shadow:0 10px 25px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch
 }
 .modal-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -185,7 +187,7 @@ body{
 }
 .modal-card textarea{resize:vertical;min-height:120px;user-select:text;-webkit-user-select:text}
 .modal-card input:focus,.modal-card select:focus,.modal-card textarea:focus{border-color:var(--accent)}
-.modal-card input[type=color]{height:42px;padding:3px}
+.modal-card input[type=color]{height:40px;padding:3px;margin-bottom:0}
 .modal-card input[type=file]{padding:8px}
 .modal-buttons{display:flex;gap:8px;margin-top:10px}
 .btn{
@@ -209,7 +211,7 @@ body{
 .loading-text{grid-column:span 4;text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0}
 .admin-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px}
 .admin-menu .btn{min-height:42px;font-size:.8rem}
-.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .color-box{background:rgba(255,255,255,.04);padding:9px;border-radius:10px;border:1px solid var(--border)}
 .color-box label{margin-bottom:6px}
 .preview-logo{
@@ -217,23 +219,25 @@ body{
     background:rgba(255,255,255,.08);border:1px solid var(--border)
 }
 .title-preview-box{
-    background:rgba(0,0,0,.32);border:1px dashed var(--border);border-radius:12px;
-    padding:14px 10px;margin-bottom:12px;text-align:center;min-height:62px;
+    background:rgba(0,0,0,.38);border:1px dashed var(--border);border-radius:12px;
+    padding:16px 10px;margin-bottom:12px;text-align:center;min-height:70px;
     display:flex;align-items:center;justify-content:center;overflow:hidden
 }
 .title-preview-sample{
     font-size:var(--titleSize);
     font-family:var(--titleFont);
     font-weight:var(--titleWeight);
+    font-style:var(--titleStyle);
     color:var(--titleColor);
     letter-spacing:var(--titleTracking);
+    word-spacing:var(--titleWordSpacing);
     text-transform:var(--titleTransform);
     line-height:1.15;
     word-break:break-word;
 }
-.range-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.range-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .range-row input[type=range]{flex:1;margin:0}
-.range-value{width:54px;text-align:right;color:var(--accent);font-size:.8rem;font-weight:700}
+.range-value{width:56px;text-align:right;color:var(--accent);font-size:.8rem;font-weight:700}
 .dicas-box-text{
     font-size:.9rem;line-height:1.5;color:var(--text);white-space:pre-wrap;
     background:var(--input);padding:12px;border-radius:10px;border:1px solid var(--border);
@@ -421,7 +425,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 </div>
 
-<!-- EDITOR DO TÍTULO / FONTE / TEXTURA -->
+<!-- EDITOR DO TÍTULO / FONTE / GRADIENTE / TEXTURA -->
 <div class="modal-overlay" id="titleEditorModal">
     <div class="modal-card">
         <div class="modal-title">🔤 Personalizar Título</div>
@@ -436,38 +440,53 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
         <label>Fonte do Google:</label>
         <select id="editTitleFont">
             <option value="'Chakra Petch', sans-serif">Chakra Petch (Tático / Técnico)</option>
+            <option value="'Anton', sans-serif">Anton (Bem Grosso / Impacto)</option>
+            <option value="'Archivo Black', sans-serif">Archivo Black (Pesado / Bloco)</option>
+            <option value="'Alfa Slab One', serif">Alfa Slab One (Fonte Grosso Clássico)</option>
+            <option value="'Black Ops One', system-ui">Black Ops One (Militar / Estêncil)</option>
             <option value="'Oswald', sans-serif">Oswald (Impacto Condensado)</option>
+            <option value="'Teko', sans-serif">Teko (Alto / Tático)</option>
             <option value="'Bebas Neue', sans-serif">Bebas Neue (Display Alto)</option>
             <option value="'Rajdhani', sans-serif">Rajdhani (Moderno Angular)</option>
             <option value="'Russo One', sans-serif">Russo One (Pesado / Marcante)</option>
             <option value="'Montserrat', sans-serif">Montserrat (Geométrico Clean)</option>
             <option value="'Poppins', sans-serif">Poppins (Moderno Arredondado)</option>
+            <option value="'Syne', sans-serif">Syne (Editorial / Moderno)</option>
+            <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Clean)</option>
             <option value="'Playfair Display', serif">Playfair Display (Clássico / Serifado)</option>
             <option value="'Cinzel', serif">Cinzel (Solene / Brasão)</option>
+            <option value="'Abril Fatface', serif">Abril Fatface (Serifado Grosso)</option>
+            <option value="'Pacifico', cursive">Pacifico (Manuscrito)</option>
+            <option value="'Permanent Marker', cursive">Permanent Marker (Marcador)</option>
             <option value="'JetBrains Mono', monospace">JetBrains Mono (Monoespaçado)</option>
         </select>
 
         <div class="color-grid">
             <div class="color-box">
-                <label>Espessura (Peso)</label>
+                <label>Espessura da Fonte</label>
                 <select id="editTitleWeight" style="margin-bottom:0">
                     <option value="400">Normal (400)</option>
                     <option value="600">Semi-negrito (600)</option>
                     <option value="700">Negrito (700)</option>
                     <option value="800">Extra-negrito (800)</option>
+                    <option value="900">Ultra Grosso (900)</option>
                 </select>
             </div>
             <div class="color-box">
-                <label>Estilo de Caixa</label>
-                <select id="editTitleTransform" style="margin-bottom:0">
-                    <option value="uppercase">MAIÚSCULAS</option>
-                    <option value="capitalize">Primeira Letra</option>
-                    <option value="none">Como Digitado</option>
-                </select>
+                <label>Estilo / Caixa</label>
+                <div style="display:flex;gap:6px">
+                    <select id="editTitleTransform" style="margin-bottom:0;flex:1">
+                        <option value="uppercase">MAIÚSCULAS</option>
+                        <option value="capitalize">Primeira Letra</option>
+                        <option value="none">Como Digitado</option>
+                    </select>
+                    <select id="editTitleStyle" style="margin-bottom:0;width:82px">
+                        <option value="normal">Normal</option>
+                        <option value="italic">Itálico</option>
+                    </select>
+                </div>
             </div>
         </div>
-
-        <hr class="sep">
 
         <label>Tamanho da Fonte:</label>
         <div class="range-row">
@@ -477,13 +496,22 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
         <label>Espaçamento entre Letras:</label>
         <div class="range-row">
-            <input type="range" id="rTitleTracking" min="0" max="8" step="0.5">
+            <input type="range" id="rTitleTracking" min="-1" max="10" step="0.5">
             <span class="range-value" id="vTitleTracking"></span>
         </div>
+
+        <label>Espaçamento entre Palavras:</label>
+        <div class="range-row">
+            <input type="range" id="rTitleWordSpacing" min="0" max="24" step="1">
+            <span class="range-value" id="vTitleWordSpacing"></span>
+        </div>
+
+        <hr class="sep">
 
         <label>Preenchimento das Letras:</label>
         <select id="editTitleFillMode">
             <option value="color">Cor Sólida</option>
+            <option value="gradient">Gradiente de Cores</option>
             <option value="texture">Textura de Imagem nas Letras</option>
         </select>
 
@@ -492,11 +520,53 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
             <input type="color" id="cTitleColor" value="#f8fafc">
         </div>
 
+        <div id="titleGradientBox" style="display:none">
+            <div class="color-grid">
+                <div class="color-box">
+                    <label>Cor Inicial</label>
+                    <input type="color" id="cGradStart" value="#38bdf8">
+                </div>
+                <div class="color-box">
+                    <label>Cor Final</label>
+                    <input type="color" id="cGradEnd" value="#facc15">
+                </div>
+            </div>
+            <label>Ângulo do Gradiente:</label>
+            <div class="range-row">
+                <input type="range" id="rGradAngle" min="0" max="360" step="5">
+                <span class="range-value" id="vGradAngle"></span>
+            </div>
+        </div>
+
         <div id="titleTextureBox" style="display:none">
             <label>Enviar Imagem de Textura (Galeria / Arquivo):</label>
             <input type="file" id="titleTextureFile" accept="image/*">
             <label>Ou URL da Imagem de Textura:</label>
             <input type="text" id="editTitleTextureUrl" placeholder="https://exemplo.com/textura.jpg">
+        </div>
+
+        <hr class="sep">
+
+        <label>Grossura Extra / Contorno (px):</label>
+        <div class="range-row">
+            <input type="range" id="rStrokeWidth" min="0" max="3" step="0.25">
+            <span class="range-value" id="vStrokeWidth"></span>
+        </div>
+
+        <div class="color-grid">
+            <div class="color-box">
+                <label>Cor do Contorno</label>
+                <input type="color" id="cStrokeColor" value="#000000">
+            </div>
+            <div class="color-box">
+                <label>Efeito Sombra / Brilho</label>
+                <select id="editTitleEffect" style="margin-bottom:0">
+                    <option value="none">Sem efeito</option>
+                    <option value="shadow">Sombra forte</option>
+                    <option value="glow">Brilho neon</option>
+                    <option value="3d">Efeito 3D</option>
+                </select>
+            </div>
         </div>
 
         <div class="modal-buttons">
@@ -609,6 +679,8 @@ const firebaseConfig = {
     measurementId: "G-0CRSPHCMNX"
 };
 
+const ADMIN_PASS_DEFAULT = "1337";
+
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
@@ -617,7 +689,7 @@ const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
 const adminConfigRef = doc(db, "config", "admin");
 
-const CACHE_THEME_KEY = "painel_op_theme_v1";
+const CACHE_THEME_KEY = "painel_op_theme_v2";
 const CACHE_APPS_KEY = "painel_op_apps_v1";
 
 const DEFAULT_THEME = {
@@ -625,11 +697,19 @@ const DEFAULT_THEME = {
     titleFont: "'Chakra Petch', sans-serif",
     titleSize: 20,
     titleWeight: "700",
+    titleStyle: "normal",
     titleColor: "#f8fafc",
     titleTracking: 1.5,
+    titleWordSpacing: 0,
     titleTransform: "uppercase",
     titleFillMode: "color",
+    titleGradStart: "#38bdf8",
+    titleGradEnd: "#facc15",
+    titleGradAngle: 90,
     titleTextureUrl: "",
+    titleStrokeWidth: 0,
+    titleStrokeColor: "#000000",
+    titleEffect: "none",
     bg1: "#0f172a",
     bg2: "#1e293b",
     primary: "#0284c7",
@@ -643,6 +723,11 @@ const DEFAULT_THEME = {
     gap: 16,
     logoUrl: "./icons/icon-192.png"
 };
+
+const FONTES_SEM_PESO_VARIAVEL = new Set([
+    "Anton", "Archivo Black", "Alfa Slab One", "Black Ops One",
+    "Bebas Neue", "Russo One", "Abril Fatface", "Pacifico", "Permanent Marker"
+]);
 
 let globalApps = [];
 let appEmEdicaoSub = null;
@@ -659,7 +744,9 @@ function carregarFonteGoogleSobDemanda(fontCss) {
     const match = String(fontCss || "").match(/'([^']+)'/);
     const family = match ? match[1] : "Chakra Petch";
     const encoded = encodeURIComponent(family).replace(/%20/g, "+");
-    const url = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;600;700;800&display=swap`;
+    const url = FONTES_SEM_PESO_VARIAVEL.has(family)
+        ? `https://fonts.googleapis.com/css2?family=${encoded}&display=swap`
+        : `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;600;700;800;900&display=swap`;
     const link = $("googleFontLink");
     if (link.href !== url) link.href = url;
 }
@@ -722,15 +809,31 @@ function formatarTextoComLinks(texto) {
     return textoEscapado.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 }
 
+function montarSombraTitulo(theme) {
+    const effect = theme.titleEffect || "none";
+    const accent = theme.accent || "#38bdf8";
+    if (effect === "shadow") return "0 3px 8px rgba(0,0,0,.75)";
+    if (effect === "glow") return `0 0 10px ${accent}, 0 0 22px ${accent}`;
+    if (effect === "3d") return "1px 1px 0 #000, 2px 2px 0 #000, 3px 3px 0 rgba(0,0,0,.65)";
+    return "none";
+}
+
 function aplicarEstiloTituloEmElemento(el, theme) {
     const titleSize = Number(theme.titleSize) || 20;
     const titleFont = theme.titleFont || "'Chakra Petch', sans-serif";
     const titleWeight = String(theme.titleWeight || "700");
+    const titleStyle = theme.titleStyle === "italic" ? "italic" : "normal";
     const titleColor = theme.titleColor || "#f8fafc";
     const titleTracking = Number(theme.titleTracking ?? 1.5);
+    const titleWordSpacing = Number(theme.titleWordSpacing ?? 0);
     const titleTransform = theme.titleTransform || "uppercase";
     const fillMode = theme.titleFillMode || "color";
+    const gradStart = theme.titleGradStart || "#38bdf8";
+    const gradEnd = theme.titleGradEnd || "#facc15";
+    const gradAngle = Number(theme.titleGradAngle ?? 90);
     const textureUrl = (theme.titleTextureUrl || "").trim();
+    const strokeWidth = Number(theme.titleStrokeWidth ?? 0);
+    const strokeColor = theme.titleStrokeColor || "#000000";
 
     carregarFonteGoogleSobDemanda(titleFont);
 
@@ -738,16 +841,30 @@ function aplicarEstiloTituloEmElemento(el, theme) {
     el.style.fontSize = `${titleSize}px`;
     el.style.fontFamily = titleFont;
     el.style.fontWeight = titleWeight;
+    el.style.fontStyle = titleStyle;
     el.style.letterSpacing = `${titleTracking}px`;
+    el.style.wordSpacing = `${titleWordSpacing}px`;
     el.style.textTransform = titleTransform;
+    el.style.textShadow = montarSombraTitulo(theme);
 
-    if (fillMode === "texture" && textureUrl) {
-        el.classList.add("has-texture");
+    if (strokeWidth > 0) {
+        el.style.webkitTextStroke = `${strokeWidth}px ${strokeColor}`;
+    } else {
+        el.style.webkitTextStroke = "0px transparent";
+    }
+
+    if (fillMode === "gradient") {
+        el.classList.add("has-bg-fill");
+        el.style.backgroundImage = `linear-gradient(${gradAngle}deg, ${gradStart}, ${gradEnd})`;
+        el.style.color = "transparent";
+        el.style.webkitTextFillColor = "transparent";
+    } else if (fillMode === "texture" && textureUrl) {
+        el.classList.add("has-bg-fill");
         el.style.backgroundImage = `url("${textureUrl.replace(/"/g, '%22')}")`;
         el.style.color = "transparent";
         el.style.webkitTextFillColor = "transparent";
     } else {
-        el.classList.remove("has-texture");
+        el.classList.remove("has-bg-fill");
         el.style.backgroundImage = "none";
         el.style.color = titleColor;
         el.style.webkitTextFillColor = titleColor;
@@ -773,8 +890,10 @@ function aplicarTema(theme, salvarCache = true) {
     r.style.setProperty("--titleSize", `${Number(currentTheme.titleSize) || 20}px`);
     r.style.setProperty("--titleFont", currentTheme.titleFont || "'Chakra Petch', sans-serif");
     r.style.setProperty("--titleWeight", String(currentTheme.titleWeight || "700"));
+    r.style.setProperty("--titleStyle", currentTheme.titleStyle === "italic" ? "italic" : "normal");
     r.style.setProperty("--titleColor", currentTheme.titleColor || "#f8fafc");
     r.style.setProperty("--titleTracking", `${Number(currentTheme.titleTracking ?? 1.5)}px`);
+    r.style.setProperty("--titleWordSpacing", `${Number(currentTheme.titleWordSpacing ?? 0)}px`);
     r.style.setProperty("--titleTransform", currentTheme.titleTransform || "uppercase");
 
     aplicarEstiloTituloEmElemento($("portalTitle"), currentTheme);
@@ -858,6 +977,7 @@ window.aplicarPresetVisual = function(preset) {
 function alternarCamposPreenchimentoTitulo() {
     const mode = $("editTitleFillMode").value;
     $("titleColorBox").style.display = mode === "color" ? "block" : "none";
+    $("titleGradientBox").style.display = mode === "gradient" ? "block" : "none";
     $("titleTextureBox").style.display = mode === "texture" ? "block" : "none";
     atualizarPreviewTitulo();
 }
@@ -872,20 +992,36 @@ function lerRascunhoTitulo() {
         title: $("editTitleText").value.trim() || DEFAULT_THEME.title,
         titleFont: $("editTitleFont").value,
         titleWeight: $("editTitleWeight").value,
+        titleStyle: $("editTitleStyle").value,
         titleTransform: $("editTitleTransform").value,
         titleSize: Number($("rTitleSize").value) || 20,
         titleTracking: Number($("rTitleTracking").value) ?? 1.5,
+        titleWordSpacing: Number($("rTitleWordSpacing").value) ?? 0,
         titleColor: $("cTitleColor").value,
         titleFillMode: mode,
-        titleTextureUrl: texturaAtiva
+        titleGradStart: $("cGradStart").value,
+        titleGradEnd: $("cGradEnd").value,
+        titleGradAngle: Number($("rGradAngle").value) ?? 90,
+        titleTextureUrl: texturaAtiva,
+        titleStrokeWidth: Number($("rStrokeWidth").value) ?? 0,
+        titleStrokeColor: $("cStrokeColor").value,
+        titleEffect: $("editTitleEffect").value
     };
 }
 
 function atualizarPreviewTitulo() {
     const size = Number($("rTitleSize").value) || 20;
     const tracking = Number($("rTitleTracking").value) ?? 1.5;
+    const wordSpacing = Number($("rTitleWordSpacing").value) ?? 0;
+    const gradAngle = Number($("rGradAngle").value) ?? 90;
+    const strokeWidth = Number($("rStrokeWidth").value) ?? 0;
+
     $("vTitleSize").textContent = `${size}px`;
     $("vTitleTracking").textContent = `${tracking}px`;
+    $("vTitleWordSpacing").textContent = `${wordSpacing}px`;
+    $("vGradAngle").textContent = `${gradAngle}°`;
+    $("vStrokeWidth").textContent = `${strokeWidth}px`;
+
     const rascunho = lerRascunhoTitulo();
     aplicarEstiloTituloEmElemento($("titlePreviewSample"), rascunho);
     aplicarEstiloTituloEmElemento($("portalTitle"), rascunho);
@@ -897,12 +1033,22 @@ window.abrirEditorTitulo = function() {
     $("editTitleText").value = currentTheme.title || DEFAULT_THEME.title;
     $("editTitleFont").value = currentTheme.titleFont || "'Chakra Petch', sans-serif";
     $("editTitleWeight").value = String(currentTheme.titleWeight || "700");
+    $("editTitleStyle").value = currentTheme.titleStyle === "italic" ? "italic" : "normal";
     $("editTitleTransform").value = currentTheme.titleTransform || "uppercase";
     $("rTitleSize").value = Number(currentTheme.titleSize) || 20;
     $("rTitleTracking").value = Number(currentTheme.titleTracking ?? 1.5);
+    $("rTitleWordSpacing").value = Number(currentTheme.titleWordSpacing ?? 0);
     $("cTitleColor").value = normalizarHex(currentTheme.titleColor, "#f8fafc");
-    $("editTitleFillMode").value = currentTheme.titleFillMode === "texture" ? "texture" : "color";
+    $("editTitleFillMode").value = ["color", "gradient", "texture"].includes(currentTheme.titleFillMode)
+        ? currentTheme.titleFillMode
+        : "color";
+    $("cGradStart").value = normalizarHex(currentTheme.titleGradStart, "#38bdf8");
+    $("cGradEnd").value = normalizarHex(currentTheme.titleGradEnd, "#facc15");
+    $("rGradAngle").value = Number(currentTheme.titleGradAngle ?? 90);
     $("editTitleTextureUrl").value = currentTheme.titleTextureUrl || "";
+    $("rStrokeWidth").value = Number(currentTheme.titleStrokeWidth ?? 0);
+    $("cStrokeColor").value = normalizarHex(currentTheme.titleStrokeColor, "#000000");
+    $("editTitleEffect").value = currentTheme.titleEffect || "none";
 
     alternarCamposPreenchimentoTitulo();
     $("titleEditorModal").style.display = "flex";
@@ -915,8 +1061,10 @@ window.fecharEditorTitulo = function() {
 };
 
 [
-    "editTitleText", "editTitleFont", "editTitleWeight", "editTitleTransform",
-    "rTitleSize", "rTitleTracking", "cTitleColor", "editTitleTextureUrl"
+    "editTitleText", "editTitleFont", "editTitleWeight", "editTitleStyle", "editTitleTransform",
+    "rTitleSize", "rTitleTracking", "rTitleWordSpacing", "cTitleColor",
+    "cGradStart", "cGradEnd", "rGradAngle", "editTitleTextureUrl",
+    "rStrokeWidth", "cStrokeColor", "editTitleEffect"
 ].forEach(id => {
     $(id).addEventListener("input", atualizarPreviewTitulo);
     $(id).addEventListener("change", atualizarPreviewTitulo);
@@ -959,12 +1107,20 @@ window.salvarConfigTitulo = async function() {
             title: $("editTitleText").value.trim() || DEFAULT_THEME.title,
             titleFont: $("editTitleFont").value,
             titleWeight: $("editTitleWeight").value,
+            titleStyle: $("editTitleStyle").value,
             titleTransform: $("editTitleTransform").value,
             titleSize: Number($("rTitleSize").value) || 20,
             titleTracking: Number($("rTitleTracking").value) ?? 1.5,
+            titleWordSpacing: Number($("rTitleWordSpacing").value) ?? 0,
             titleColor: $("cTitleColor").value,
             titleFillMode: mode,
-            titleTextureUrl: textureUrl
+            titleGradStart: $("cGradStart").value,
+            titleGradEnd: $("cGradEnd").value,
+            titleGradAngle: Number($("rGradAngle").value) ?? 90,
+            titleTextureUrl: textureUrl,
+            titleStrokeWidth: Number($("rStrokeWidth").value) ?? 0,
+            titleStrokeColor: $("cStrokeColor").value,
+            titleEffect: $("editTitleEffect").value
         };
 
         await setDoc(portalConfigRef, { theme: novoTema, updatedAt: Date.now() }, { merge: true });
@@ -1319,11 +1475,11 @@ window.verificarSenha = async function() {
 
     try {
         const snap = await getDoc(adminConfigRef);
-        let senhaCorreta = "3303";
+        let senhaCorreta = ADMIN_PASS_DEFAULT;
         if (snap.exists() && snap.data().pass) {
             senhaCorreta = snap.data().pass;
         } else {
-            await setDoc(adminConfigRef, { pass: "3303", updatedAt: Date.now() }, { merge: true });
+            await setDoc(adminConfigRef, { pass: ADMIN_PASS_DEFAULT, updatedAt: Date.now() }, { merge: true });
         }
 
         if (inputSenha === senhaCorreta) {
