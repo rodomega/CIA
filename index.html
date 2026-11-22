@@ -215,22 +215,31 @@ body{
 
 .donation-footer{
     flex-shrink:0;
-    margin-top:6px;
-    padding:8px 10px;
-    background:rgba(255, 255, 255, 0.05);
-    border:1px solid var(--border);
-    border-radius:12px;
-    text-align:center;
+    margin-top:4px;
+    display:flex;
+    justify-content:flex-end;
     width:100%;
 }
-.pix-actions-row{display:flex;gap:8px;width:100%}
-.btn-copy-pix,.btn-sugestao{
-    flex:1;color:#fff;border:0;border-radius:8px;padding:8px;font-size:0.75rem;font-weight:600;
-    cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
+.btn-sugestao{
+    color:#cbd5e1;
+    background:rgba(15,23,42,.65);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:999px;
+    padding:3px 8px;
+    font-size:0.68rem;
+    font-weight:500;
+    line-height:1.2;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    width:auto;
+    white-space:nowrap;
 }
-.btn-copy-pix{background:var(--primary)}
-.btn-copy-pix.copied{background:#22c55e}
-.btn-sugestao{background:#475569}
+.btn-sugestao:hover{
+    color:#fff;
+    border-color:rgba(255,255,255,.28);
+}
 
 hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
 
@@ -248,7 +257,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     .header{padding:36px 8px 24px;min-height:92px}
     .grid-apps{grid-template-columns:repeat(6, 1fr);gap:20px 16px}
     .app-name{font-size:0.78rem}
-    .donation-footer{padding:12px 20px}
+    .donation-footer{margin-top:8px}
     #editPageBtn, #coordLivePanel{font-size:11px;padding:5px 11px;top:12px}
     #editPageBtn{left:16px}
     #coordLivePanel{right:16px;max-width:calc(100vw - 170px)}
@@ -275,10 +284,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div class="donation-footer">
-        <div class="pix-actions-row">
-            <button class="btn-copy-pix" id="btnCopyPix" onclick="copiarPixCopiaECola()">💳 Doações (Pix)</button>
-            <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
-        </div>
+        <a class="btn-sugestao" href="mailto:marcos.munhoz07@gmail.com?subject=Sugest%C3%A3o%20para%20o%20Painel%20Operacional">✉️ Sugestões</a>
     </div>
 </div>
 
@@ -718,22 +724,6 @@ function formatarTextoComLinks(texto) {
     const textoEscapado = escapeHtml(texto);
     return textoEscapado.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 }
-
-window.copiarPixCopiaECola = async function() {
-    const pixPayload = "00020126580014BR.GOV.BCB.PIX013685f27eeb-a80a-42b1-98b1-4e6dfc8904ff5204000053039865802BR5925Marcos Paulo Guidini Munh6009SAO PAULO621405104K4vk5ooU163047F49";
-    const btn = $("btnCopyPix");
-    try {
-        await navigator.clipboard.writeText(pixPayload);
-        btn.textContent = "✓ Pix Copiado!";
-        btn.classList.add("copied");
-        setTimeout(() => {
-            btn.textContent = "💳 Doações (Pix)";
-            btn.classList.remove("copied");
-        }, 2000);
-    } catch {
-        alert("Erro ao copiar automaticamente.");
-    }
-};
 
 function aplicarEstiloTituloEmElemento(el, theme) {
     const titleSize = Number(theme.titleSize) || 20;
