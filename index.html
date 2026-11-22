@@ -790,7 +790,7 @@ function blobToBase64(blobOrFile) {
 }
 
 async function uploadImagemParaDrive(fileOrBlob, pasta, fileName) {
-    if (!GAS_UPLOAD_URL || GAS_UPLOAD_URL.includes("COLE_AQUI")) {
+    if (!GAS_UPLOAD_URL || !GAS_UPLOAD_URL.startsWith("http")) {
         throw new Error("Configure a URL do seu Google Apps Script em GAS_UPLOAD_URL.");
     }
     const base64 = await blobToBase64(fileOrBlob);
