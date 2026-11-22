@@ -664,7 +664,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:12px 0}
     <div class="modal-card">
         <div class="modal-title">🖼️ Ícone do Aplicativo</div>
         <img id="logoPreview" class="preview-logo" src="./icons/icon-192.png" alt="Logo">
-        <div class="logo-meta" id="logoStatusInfo">Formato quadrado proporcional (512×512)</div>
+        <div class="logo-meta" id="logoStatusInfo">Formato quadrado proporcional (512×512) • Salva no Google Drive</div>
 
         <label>Enviar imagem do dispositivo (Upload):</label>
         <input type="file" id="portalLogoFile" accept="image/*">
@@ -698,10 +698,10 @@ import {
     getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc,
     setDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import {
-    getStorage, ref, uploadBytesResumable, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+/* =========================================================
+   CONFIGURAÇÃO FIREBASE + GOOGLE APPS SCRIPT (GOOGLE DRIVE)
+   ========================================================= */
 const firebaseConfig = {
     apiKey: "AIzaSyA1bivqVsA28xQwPEubNB4dyj1YBx2WONo",
     authDomain: "portalpm-8bc1a.firebaseapp.com",
@@ -712,11 +712,13 @@ const firebaseConfig = {
     measurementId: "G-0CRSPHCMNX"
 };
 
+// COLE AQUI A URL DO SEU WEB APP (/exec) DO GOOGLE APPS SCRIPT:
+const GAS_UPLOAD_URL = "COLE_AQUI_A_URL_DO_SEU_GOOGLE_APPS_SCRIPT_EXEC";
+
 const ADMIN_PASS_DEFAULT = "1337";
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-const storage = getStorage(firebaseApp);
 const appsCol = collection(db, "apps");
 const portalConfigRef = doc(db, "config", "portal");
 const dicasConfigRef = doc(db, "config", "dicas");
@@ -775,6 +777,49 @@ let deferredInstallPrompt = null;
 let manifestBlobUrl = "";
 
 const $ = id => document.getElementById(id);
+
+/* =========================================================
+   UPLOAD PARA GOOGLE DRIVE VIA GOOGLE APPS SCRIPT
+   ========================================================= */
+function blobToBase64(blobOrFile) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Falha ao converter imagem para envio."));
+        reader.readAsDataURL(blobOrFile);
+    });
+}
+
+async function uploadImagemParaDrive(fileOrBlob, pasta, fileName) {
+    if (!GAS_UPLOAD_URL || GAS_UPLOAD_URL.includes("COLE_AQUI")) {
+        throw new Error("Configure a URL do seu Google Apps Script em GAS_UPLOAD_URL.");
+    }
+    const base64 = await blobToBase64(fileOrBlob);
+    const resp = await fetch(GAS_UPLOAD_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+            action: "uploadIcon",
+            folderType: pasta || "icones",
+            fileName: fileName || `imagem_${Date.now()}.png`,
+            mimeType: fileOrBlob.type || "image/png",
+            base64
+        })
+    });
+
+    const textoResposta = await resp.text();
+    let json;
+    try {
+        json = JSON.parse(textoResposta);
+    } catch {
+        throw new Error("Resposta inválida do Google Apps Script. Verifique a implantação do Web App.");
+    }
+
+    if (!json.ok || !json.url) {
+        throw new Error(json.error || "Falha ao salvar imagem no Google Drive.");
+    }
+    return json.url;
+}
 
 /* =========================================================
    PWA / INSTALADOR & ÍCONE TIPO APP ANDROID PROPORCIONAL
@@ -892,7 +937,6 @@ async function transformarEmIconeQuadradoProporcional(source, size = 512, qualit
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
-        // Recorte central proporcional (cover) para preencher 100% do ícone quadrado sem distorção
         const srcW = img.naturalWidth || img.width;
         const srcH = img.naturalHeight || img.height;
         const side = Math.min(srcW, srcH);
@@ -1277,10 +1321,9 @@ window.salvarConfigTitulo = async function() {
 
         if (file) {
             validarImagem(file, 10);
+            btn.textContent = "Enviando textura...";
             const otimizada = await comprimirImagem(file, 800, 0.85);
-            textureUrl = await uploadArquivo(otimizada, "texturas", pct => {
-                btn.textContent = `Textura ${pct}%...`;
-            });
+            textureUrl = await uploadImagemParaDrive(otimizada, "texturas", `textura_${Date.now()}.webp`);
         }
 
         const novoTema = {
@@ -1348,38 +1391,14 @@ window.abrirLogo = function() {
     $("portalLogoFile").value = "";
     $("portalLogoUrlInput").value = atual.startsWith("http") ? atual : "";
     $("logoPreview").src = atual;
-    $("logoStatusInfo").textContent = "Formato quadrado proporcional (512×512)";
+    $("logoStatusInfo").textContent = "Formato quadrado proporcional (512×512) • Salva no Google Drive";
     $("logoModal").style.display = "flex";
 };
-
-function nomeSeguroArquivo(name) {
-    return String(name || "arquivo").replace(/[^a-zA-Z0-9._-]/g, "_");
-}
 
 function validarImagem(file, maxMB) {
     if (!file) throw new Error("Nenhuma imagem selecionada.");
     if (!file.type.startsWith("image/")) throw new Error("O arquivo não é uma imagem.");
     if (file.size > maxMB * 1024 * 1024) throw new Error(`Imagem maior que ${maxMB} MB.`);
-}
-
-function uploadArquivo(file, pasta, onProgress) {
-    return new Promise((resolve, reject) => {
-        const path = `${pasta}/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${nomeSeguroArquivo(file.name)}`;
-        const fileRef = ref(storage, path);
-        const task = uploadBytesResumable(fileRef, file, {
-            contentType: file.type,
-            cacheControl: "public,max-age=31536000"
-        });
-
-        task.on("state_changed",
-            snapshot => {
-                const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                if (onProgress) onProgress(pct);
-            },
-            error => reject(error),
-            async () => resolve(await getDownloadURL(task.snapshot.ref))
-        );
-    });
 }
 
 $("portalLogoFile").addEventListener("change", async e => {
@@ -1389,7 +1408,7 @@ $("portalLogoFile").addEventListener("change", async e => {
         validarImagem(file, 10);
         const icone = await transformarEmIconeQuadradoProporcional(file, 512, 0.88);
         $("logoPreview").src = icone.dataUrl;
-        $("logoStatusInfo").textContent = `Ajustado proporcionalmente (${icone.width}×${icone.height}px)`;
+        $("logoStatusInfo").textContent = `Ajustado (${icone.width}×${icone.height}px) • Pronto p/ Google Drive`;
     } catch (err) {
         alert(err?.message || "Erro ao pré-visualizar ícone.");
     }
@@ -1401,7 +1420,7 @@ $("portalLogoUrlInput").addEventListener("change", async e => {
     try {
         const icone = await transformarEmIconeQuadradoProporcional(url, 512, 0.88);
         $("logoPreview").src = icone.dataUrl;
-        $("logoStatusInfo").textContent = `Ajustado da URL (${icone.width}×${icone.height}px)`;
+        $("logoStatusInfo").textContent = `Ajustado da URL (${icone.width}×${icone.height}px) • Pronto p/ Google Drive`;
     } catch {
         $("logoPreview").src = url;
         $("logoStatusInfo").textContent = "Prévia da URL carregada (será ajustada ao salvar)";
@@ -1426,9 +1445,8 @@ window.salvarLogo = async function() {
         let finalUrl = "";
 
         if (icone512.file) {
-            finalUrl = await uploadArquivo(icone512.file, "portal", pct => {
-                btn.textContent = `Enviando ${pct}%...`;
-            });
+            btn.textContent = "Enviando ao Drive...";
+            finalUrl = await uploadImagemParaDrive(icone512.file, "portal", `icone_portal_${Date.now()}.png`);
         } else {
             finalUrl = urlDigitada;
         }
@@ -1438,7 +1456,7 @@ window.salvarLogo = async function() {
         aplicarTema(theme, true);
         $("logoPreview").src = icone512.dataUrl || finalUrl;
 
-        alert("Ícone do aplicativo salvo e ajustado com sucesso!");
+        alert("Ícone salvo no Google Drive e atualizado com sucesso!");
         $("logoModal").style.display = "none";
     } catch (err) {
         alert(err?.message || "Erro ao salvar ícone do aplicativo.");
@@ -1768,9 +1786,9 @@ window.salvarNovoApp = async function() {
             const file = $("newAppIconFile").files?.[0];
             if (file) {
                 validarImagem(file, 10);
-                btn.textContent = "Otimizando...";
+                btn.textContent = "Enviando ao Drive...";
                 const otimizado = await comprimirImagem(file, 256, 0.82);
-                iconData = await uploadArquivo(otimizado, "icones", pct => { btn.textContent = `Enviando ${pct}%...`; });
+                iconData = await uploadImagemParaDrive(otimizado, "icones", `app_${Date.now()}.webp`);
             } else if (docId) {
                 iconData = globalApps.find(a => a.docId === docId)?.icon || "";
             }
@@ -1800,8 +1818,8 @@ window.salvarNovoApp = async function() {
 
         limparFormularioAdmin();
         alert(docId ? "Atualizado com sucesso." : "Instalado com sucesso.");
-    } catch {
-        alert("Erro ao salvar aplicativo.");
+    } catch (err) {
+        alert(err?.message || "Erro ao salvar aplicativo.");
     } finally {
         btn.disabled = false;
         btn.textContent = $("editAppDocId").value ? "Atualizar App" : "Instalar App";
