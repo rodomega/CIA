@@ -16,7 +16,6 @@ header h1{margin:0;font-size:clamp(23px,4vw,32px);letter-spacing:2px}
 main{width:min(100% - 24px,1050px);margin:22px auto}
 .painel{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 2px 8px #0000000a}
 h2{font-size:20px;margin:0 0 14px;border-bottom:2px solid var(--amarelo);padding-bottom:9px}
-h3{font-size:16px;margin:15px 0 8px}
 .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}
@@ -93,7 +92,6 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 </main>
 <footer>BONÉ PMRv — Coleta de Pedidos</footer>
 <script>
-/* ENDEREÇO DO GOOGLE APPS SCRIPT */
 const APPS_SCRIPT_ID = "AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein/exec";
 const SENHA_VISUALIZACAO = "rodomega";
@@ -104,33 +102,118 @@ let pedidos = [], listaDesbloqueada = false, carregando = false, fotoDriveUrl = 
 function formatarMoeda(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
 function status(id,msg){$(id).textContent=msg||"";}
 function validarUrl(){if(!APPS_SCRIPT_URL.startsWith("https://script.google.com/macros/s/"))throw new Error("Configure a URL do Google Apps Script no início do código HTML.");}
-async function api(payload){
+
+function jsonp(action){
+  return new Promise((resolve,reject)=>{
+    validarUrl();
+    const cbName = "cbBonePmrv_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+    const script = document.createElement("script");
+    const timer = setTimeout(()=>{
+      limpar();
+      reject(new Error("Tempo esgotado ao consultar o Google Apps Script."));
+    }, 15000);
+
+    function limpar(){
+      clearTimeout(timer);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (dados)=>{
+      limpar();
+      if(!dados || !dados.ok){
+        reject(new Error((dados && dados.error) || "Erro retornado pelo Google Apps Script."));
+      }else{
+        resolve(dados);
+      }
+    };
+
+    script.onerror = ()=>{
+      limpar();
+      reject(new Error("Falha ao carregar o script do Google Apps Script. Verifique se a implantação está acessível para 'Qualquer pessoa'."));
+    };
+
+    const sep = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
+    script.src = `${APPS_SCRIPT_URL}${sep}action=${encodeURIComponent(action)}&callback=${encodeURIComponent(cbName)}&_t=${Date.now()}`;
+    document.body.appendChild(script);
+  });
+}
+
+async function apiPost(payload){
   validarUrl();
-  const resposta=await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"});
-  if(!resposta.ok)throw new Error("Falha de comunicação com o Google Apps Script ("+resposta.status+").");
-  const dados=await resposta.json();
-  if(!dados.ok)throw new Error(dados.error||"O Google Apps Script retornou um erro.");
+  const resposta = await fetch(APPS_SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(payload),
+    redirect:"follow"
+  });
+  if(!resposta.ok) throw new Error("Falha de comunicação com o Google Apps Script ("+resposta.status+").");
+  const dados = await resposta.json();
+  if(!dados.ok) throw new Error(dados.error || "O Google Apps Script retornou um erro.");
   return dados;
 }
+
 function atualizarValor(){const q=Math.max(0,parseInt($("quantidade").value,10)||0);$("valorPrevisto").textContent=formatarMoeda(q*VALOR_UNITARIO);}
 $("quantidade").addEventListener("input",atualizarValor);atualizarValor();
 $("btnLimparForm").addEventListener("click",()=>{$("formPedido").reset();$("quantidade").value=1;atualizarValor();status("statusForm","");});
+
 $("formPedido").addEventListener("submit",async e=>{
  e.preventDefault();if(carregando)return;
  const p={graduacao:$("graduacao").value.trim(),re:$("re").value.trim(),nomeGuerra:$("nomeGuerra").value.trim(),nomeCompleto:$("nomeCompleto").value.trim(),opm:$("opm").value.trim(),subunidade:$("subunidade").value.trim(),quantidade:parseInt($("quantidade").value,10)};
  if(!p.graduacao||!p.re||!p.nomeGuerra||!p.nomeCompleto||!p.opm||!p.subunidade||!Number.isInteger(p.quantidade)||p.quantidade<1){status("statusForm","Preencha todos os campos corretamente.");return;}
  p.valorTotal=p.quantidade*VALOR_UNITARIO;p.createdAt=new Date().toISOString();
  carregando=true;$("btnEnviar").disabled=true;status("statusForm","Enviando pedido para o Google Sheets...");
- try{await api({action:"add",pedido:p});status("statusForm","Pedido adicionado com sucesso!");$("formPedido").reset();$("quantidade").value=1;atualizarValor();if(listaDesbloqueada)await carregarPedidos();}
- catch(err){console.error(err);status("statusForm","Não foi possível salvar: "+err.message);}
- finally{carregando=false;$("btnEnviar").disabled=false;}
+ try{
+   await apiPost({action:"add",pedido:p});
+   status("statusForm","Pedido adicionado com sucesso!");
+   $("formPedido").reset();$("quantidade").value=1;atualizarValor();
+   if(listaDesbloqueada) await carregarPedidos();
+ }catch(err){
+   console.error(err);
+   status("statusForm","Não foi possível salvar: "+err.message);
+ }finally{
+   carregando=false;$("btnEnviar").disabled=false;
+ }
 });
+
 $("btnMostrarSenha").addEventListener("click",()=>{const c=$("senhaLista");c.type=c.type==="password"?"text":"password";$("btnMostrarSenha").textContent=c.type==="password"?"MOSTRAR SENHA":"OCULTAR SENHA";});
-function tentarDesbloquear(){if($("senhaLista").value.trim()!==SENHA_VISUALIZACAO){status("statusSenha","Senha incorreta. Tente novamente.");$("senhaLista").focus();return;}listaDesbloqueada=true;$("bloqueioLista").classList.add("oculto");$("areaListaCompleta").classList.remove("oculto");status("statusSenha","");carregarPedidos();}
-$("btnDesbloquear").addEventListener("click",tentarDesbloquear);$("senhaLista").addEventListener("keydown",e=>{if(e.key==="Enter")tentarDesbloquear();});
+
+function tentarDesbloquear(){
+  const digitada = ($("senhaLista").value || "").trim();
+  if(digitada !== SENHA_VISUALIZACAO){
+    status("statusSenha","Senha incorreta. Tente novamente.");
+    $("senhaLista").focus();
+    return;
+  }
+  listaDesbloqueada = true;
+  $("bloqueioLista").classList.add("oculto");
+  $("areaListaCompleta").classList.remove("oculto");
+  status("statusSenha","");
+  renderizarLista();
+  carregarPedidos();
+}
+
+$("btnDesbloquear").addEventListener("click",tentarDesbloquear);
+$("senhaLista").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tentarDesbloquear();}});
 $("btnBloquear").addEventListener("click",()=>{listaDesbloqueada=false;$("senhaLista").value="";$("senhaLista").type="password";$("areaListaCompleta").classList.add("oculto");$("bloqueioLista").classList.remove("oculto");});
-async function carregarPedidos(){if(!listaDesbloqueada)return;status("statusAcoes","Atualizando dados...");try{const r=await api({action:"list"});pedidos=Array.isArray(r.pedidos)?r.pedidos:[];renderizarLista();status("statusAcoes","Lista atualizada.");}catch(err){status("statusAcoes","Erro ao carregar lista: "+err.message);}}
+
+async function carregarPedidos(){
+  if(!listaDesbloqueada)return;
+  status("statusAcoes","Carregando lista do Google Sheets...");
+  try{
+    const r = await jsonp("list");
+    pedidos = Array.isArray(r.pedidos) ? r.pedidos : [];
+    renderizarLista();
+    status("statusAcoes", pedidos.length ? `Lista atualizada (${pedidos.length} registro(s)).` : "Lista carregada (nenhum pedido registrado ainda).");
+  }catch(err){
+    console.error(err);
+    renderizarLista();
+    status("statusAcoes","Erro ao carregar lista: "+err.message);
+  }
+}
+
 $("btnAtualizar").addEventListener("click",carregarPedidos);
+
 function calcularValorItem(p){
  const qtd=Number(p.quantidade)||0;
  const val=Number(p.valorTotal);
@@ -138,6 +221,7 @@ function calcularValorItem(p){
 }
 function agrupar(lista){const m=new Map();for(const p of lista){const o=p.opm||"SEM OPM",c=p.subunidade||"SEM CIA";if(!m.has(o))m.set(o,new Map());if(!m.get(o).has(c))m.get(o).set(c,[]);m.get(o).get(c).push(p);}return [...m.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true})).map(opm=>({opm,cias:[...m.get(opm).keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true})).map(cia=>({cia,itens:m.get(opm).get(cia)}))}));}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+
 function renderizarLista(){
  const pessoas=pedidos.length,bones=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),valor=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);
  $("resumoGeral").innerHTML=`<div><span>Total de pessoas</span><strong>${pessoas}</strong></div><div><span>Total de bonés</span><strong>${bones}</strong></div><div><span>Valor total previsto</span><strong>${formatarMoeda(valor)}</strong></div>`;
@@ -151,6 +235,7 @@ function renderizarLista(){
  html+="</tbody></table></div>";}html+="</div>";}
  $("listaAgrupada").innerHTML=html;
 }
+
 function montarTexto(){if(!pedidos.length)return "LISTA BONÉ PMRv - Sem registros.";const linhas=["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)","=============================================="];for(const go of agrupar(pedidos)){linhas.push("
 OPM: "+go.opm);for(const gc of go.cias){linhas.push("  ["+gc.cia+"]");gc.itens.forEach((p,i)=>linhas.push(`    ${i+1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}`));}}const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);linhas.push(`
 TOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);return linhas.join("
@@ -160,8 +245,8 @@ $("btnGerarPdf").addEventListener("click",()=>{if(!pedidos.length){status("statu
 for(const go of agrupar(pedidos)){if(y>175){doc.addPage();y=14;}doc.setFontSize(12);doc.text("OPM: "+go.opm,14,y);y+=6;for(const gc of go.cias){doc.setFontSize(10);doc.text("CIA: "+gc.cia,16,y);doc.autoTable({startY:y+2,head:[["Graduação","RE","Nome de Guerra","Nome completo","Qtd","Valor a pagar"]],body:gc.itens.map(p=>[p.graduacao,p.re,p.nomeGuerra,p.nomeCompleto,String(p.quantidade),formatarMoeda(calcularValorItem(p))]),styles:{fontSize:8,cellPadding:2},headStyles:{fillColor:[40,40,40],textColor:[255,212,0]},margin:{left:14,right:14}});y=doc.lastAutoTable.finalY+8;}}
 doc.save("Lista_Bone_PMRv.pdf");status("statusAcoes","PDF gerado com sucesso.");});
 $("btnGerarExcel").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar Excel.");return;}if(!window.XLSX){status("statusAcoes","Biblioteca Excel não carregada.");return;}const rows=[];for(const go of agrupar(pedidos))for(const gc of go.cias)for(const p of gc.itens)rows.push({"OPM":go.opm,"CIA":gc.cia,"Graduação":p.graduacao,"RE com dígito":p.re,"Nome de Guerra":p.nomeGuerra,"Nome completo":p.nomeCompleto,"Quantidade":Number(p.quantidade)||0,"Valor unitário (R$)":VALOR_UNITARIO,"Valor a pagar (R$)":calcularValorItem(p)});const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:14},{wch:17},{wch:16},{wch:22},{wch:32},{wch:12},{wch:18},{wch:18}];XLSX.utils.book_append_sheet(wb,ws,"Pedidos Bone PMRv");XLSX.writeFile(wb,"Lista_Bone_PMRv.xlsx");status("statusAcoes","Arquivo Excel gerado com sucesso.");});
-$("btnLimparLista").addEventListener("click",async()=>{if(!confirm("ATENÇÃO: deseja apagar TODOS os pedidos? Esta ação não poderá ser desfeita."))return;const senha=prompt("Confirme a senha de administrador:");if(senha!==SENHA_VISUALIZACAO){status("statusAcoes","Senha incorreta. A lista não foi apagada.");return;}status("statusAcoes","Apagando registros...");try{await api({action:"clear",password:senha});pedidos=[];renderizarLista();status("statusAcoes","Lista limpa com sucesso.");}catch(err){status("statusAcoes","Erro ao limpar: "+err.message);}});
-$("uploadFoto").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){alert("Selecione uma imagem válida.");return;}if(f.size>5*1024*1024){alert("A imagem deve ter no máximo 5 MB.");return;}status("statusFoto","Enviando imagem para o Google Drive...");const reader=new FileReader();reader.onload=async()=>{try{const base64=String(reader.result).split(",")[1];const r=await api({action:"uploadPhoto",name:f.name,mimeType:f.type,base64});$("fotoBone").src=r.url;fotoDriveUrl=r.url;status("statusFoto","Foto atualizada e salva no Google Drive.");}catch(err){status("statusFoto","Falha ao enviar foto: "+err.message);}};reader.readAsDataURL(f);});
+$("btnLimparLista").addEventListener("click",async()=>{if(!confirm("ATENÇÃO: deseja apagar TODOS os pedidos? Esta ação não poderá ser desfeita."))return;const senha=prompt("Confirme a senha de administrador:");if(senha!==SENHA_VISUALIZACAO){status("statusAcoes","Senha incorreta. A lista não foi apagada.");return;}status("statusAcoes","Apagando registros...");try{await apiPost({action:"clear",password:senha});pedidos=[];renderizarLista();status("statusAcoes","Lista limpa com sucesso.");}catch(err){status("statusAcoes","Erro ao limpar: "+err.message);}});
+$("uploadFoto").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){alert("Selecione uma imagem válida.");return;}if(f.size>5*1024*1024){alert("A imagem deve ter no máximo 5 MB.");return;}status("statusFoto","Enviando imagem para o Google Drive...");const reader=new FileReader();reader.onload=async()=>{try{const base64=String(reader.result).split(",")[1];const r=await apiPost({action:"uploadPhoto",name:f.name,mimeType:f.type,base64});$("fotoBone").src=r.url;fotoDriveUrl=r.url;status("statusFoto","Foto atualizada e salva no Google Drive.");}catch(err){status("statusFoto","Falha ao enviar foto: "+err.message);}};reader.readAsDataURL(f);});
 </script>
 </body>
 </html>
