@@ -28,6 +28,10 @@
   --breve-borda: #3b82f6;
   --breve-texto: #93c5fd;
   --breve-badge: #2563eb;
+  --permanente-bg: rgba(217, 119, 6, 0.2);
+  --permanente-borda: #f59e0b;
+  --permanente-texto: #fcd34d;
+  --permanente-badge: #d97706;
   --expirado-bg: rgba(220, 38, 38, 0.18);
   --expirado-borda: #ef4444;
   --expirado-texto: #fca5a5;
@@ -56,6 +60,10 @@ body.light-theme {
   --breve-borda: #1d4ed8;
   --breve-texto: #1e3a8a;
   --breve-badge: #1d4ed8;
+  --permanente-bg: #fef3c7;
+  --permanente-borda: #b45309;
+  --permanente-texto: #78350f;
+  --permanente-badge: #b45309;
   --expirado-bg: #fee2e2;
   --expirado-borda: #b91c1c;
   --expirado-texto: #7f1d1d;
@@ -86,23 +94,81 @@ header {
 .header-inner {
   max-width: 1280px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.header-left {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+}
+.logo-avatar-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--bg-elevado);
+  border: 2px solid var(--destaque);
+  color: var(--texto-destaque);
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.logo-avatar-btn:hover {
+  transform: scale(1.04);
+}
+.logo-avatar-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.logo-placeholder {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.logo-edit-badge {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--destaque);
+  color: var(--texto-botao-destaque);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--bg-header);
+  pointer-events: none;
+}
+.logo-avatar-btn.uploading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 h1 {
-  font-size: clamp(0.98rem, 2vw, 1.22rem);
+  font-size: clamp(0.92rem, 2vw, 1.22rem);
   font-weight: 900;
   color: var(--texto-destaque);
   letter-spacing: 0.4px;
   white-space: nowrap;
+  text-align: center;
+  justify-self: center;
 }
 .header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 7px;
-  margin-left: auto;
 }
 button, a.btn-link {
   cursor: pointer;
@@ -131,14 +197,19 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   width: 32px;
   height: 32px;
   padding: 0;
-  font-size: 0.9rem;
   border-radius: 8px;
   flex: 0 0 32px;
 }
+.btn-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+}
 .btn-ver { background: var(--destaque); color: var(--texto-botao-destaque); }
 .btn-ver:hover:not(:disabled) { background: var(--destaque-hover); }
-.btn-download { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
-.btn-download:hover:not(:disabled) { background: var(--destaque); color: var(--texto-botao-destaque); }
+.btn-download, .btn-print { background: var(--bg-elevado); color: var(--texto-destaque); border: 1px solid var(--borda-destaque); }
+.btn-download:hover:not(:disabled), .btn-print:hover:not(:disabled) { background: var(--destaque); color: var(--texto-botao-destaque); }
 .btn-excluir { background: rgba(239,68,68,0.14); color: var(--expirado-texto); border: 1px solid var(--expirado-borda); }
 .btn-excluir:hover:not(:disabled) { background: #dc2626; color: #ffffff; border-color: #ef4444; }
 
@@ -200,8 +271,8 @@ input[type="file"] {
   width: 100%;
   font-size: 0.84rem;
 }
-.mode-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-@media (max-width: 640px) { .mode-switch { grid-template-columns: 1fr; } }
+.mode-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 720px) { .mode-switch { grid-template-columns: 1fr; } }
 .mode-option {
   display: flex;
   align-items: center;
@@ -270,6 +341,7 @@ input[type="file"] {
 }
 .stat-pill.vigente { border-color: var(--vigente-borda); color: var(--vigente-texto); background: var(--vigente-bg); }
 .stat-pill.em-breve { border-color: var(--breve-borda); color: var(--breve-texto); background: var(--breve-bg); }
+.stat-pill.permanente { border-color: var(--permanente-borda); color: var(--permanente-texto); background: var(--permanente-bg); }
 .stat-pill.expirado { border-color: var(--expirado-borda); color: var(--expirado-texto); background: var(--expirado-bg); }
 
 /* Tabela Desktop */
@@ -298,6 +370,9 @@ tr.os-vigente .os-title-text { color: var(--vigente-texto); font-weight: 800; }
 tr.os-em-breve { background: var(--breve-bg); box-shadow: inset 5px 0 0 var(--breve-borda); }
 tr.os-em-breve .os-title-text { color: var(--breve-texto); font-weight: 800; }
 
+tr.os-permanente { background: var(--permanente-bg); box-shadow: inset 5px 0 0 var(--permanente-borda); animation: fadeSlideIn 0.25s ease; }
+tr.os-permanente .os-title-text { color: var(--permanente-texto); font-weight: 800; }
+
 tr.os-expirado { background: var(--expirado-bg); box-shadow: inset 5px 0 0 var(--expirado-borda); animation: fadeSlideIn 0.25s ease; }
 tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; }
 
@@ -325,6 +400,7 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
 }
 .badge-vigente { background: var(--vigente-badge); color: #ffffff; }
 .badge-em-breve { background: var(--breve-badge); color: #ffffff; }
+.badge-permanente { background: var(--permanente-badge); color: #ffffff; }
 .badge-expirado { background: var(--expirado-badge); color: #ffffff; }
 
 .badge-pasta {
@@ -340,6 +416,11 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
   font-weight: 800;
   line-height: 1.25;
 }
+.badge-pasta svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
 
 .desktop-status-row {
   display: inline-flex;
@@ -353,18 +434,18 @@ tr.os-expirado .os-title-text { color: var(--expirado-texto); font-weight: 800; 
 .actions-group { display: flex; gap: 6px; align-items: center; }
 .empty-state { text-align: center; padding: 26px 14px; color: var(--texto-suave); font-size: 0.88rem; background: var(--bg-card); }
 
-/* Linha divisória com botão Mostrar / Ocultar Expirados acima dos expirados */
-tr.expired-divider-row td {
+/* Linhas divisórias com botões Mostrar / Ocultar Permanentes e Expirados */
+tr.section-divider-row td {
   padding: 10px 12px;
   background: var(--bg-app);
   border-bottom: none;
 }
-.expired-toggle-wrap {
+.section-toggle-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.btn-toggle-expired {
+.btn-toggle-section {
   background: var(--bg-card);
   color: var(--texto-principal);
   border: 1.5px solid var(--borda-destaque);
@@ -378,27 +459,32 @@ tr.expired-divider-row td {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
-.btn-toggle-expired:hover {
+.btn-toggle-section:hover {
   background: var(--bg-elevado);
   border-color: var(--destaque);
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
 }
-.btn-toggle-expired .arrow-icon {
+.btn-toggle-section .arrow-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--expirado-bg);
-  color: var(--expirado-badge);
   transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.btn-toggle-expired.expanded .arrow-icon {
+.btn-toggle-section.permanente-toggle .arrow-icon {
+  background: var(--permanente-bg);
+  color: var(--permanente-badge);
+}
+.btn-toggle-section.expired-toggle .arrow-icon {
+  background: var(--expirado-bg);
+  color: var(--expirado-badge);
+}
+.btn-toggle-section.expanded .arrow-icon {
   transform: rotate(180deg);
 }
-.btn-toggle-expired .expired-pill-count {
-  background: var(--expirado-badge);
+.btn-toggle-section .section-pill-count {
   color: #ffffff;
   font-size: 0.68rem;
   font-weight: 900;
@@ -406,15 +492,21 @@ tr.expired-divider-row td {
   border-radius: 999px;
   line-height: 1.2;
 }
+.btn-toggle-section.permanente-toggle .section-pill-count {
+  background: var(--permanente-badge);
+}
+.btn-toggle-section.expired-toggle .section-pill-count {
+  background: var(--expirado-badge);
+}
 
-/* Layout organizado no celular: título em cima, assunto abaixo, datas na base; status acima dos 3 botões à direita */
+/* Layout organizado no celular */
 @media (max-width: 768px) {
   .table-wrap { border: none; overflow-x: visible; border-radius: 0; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
   thead { display: none; }
   tbody { display: flex; flex-direction: column; gap: 8px; }
 
-  tr.expired-divider-row {
+  tr.section-divider-row {
     display: flex;
     justify-content: center;
     padding: 2px 0;
@@ -422,7 +514,7 @@ tr.expired-divider-row td {
     border: none;
     box-shadow: none;
   }
-  tr.expired-divider-row td {
+  tr.section-divider-row td {
     padding: 0;
     background: transparent;
     border: none;
@@ -431,6 +523,7 @@ tr.expired-divider-row td {
 
   tr.os-vigente,
   tr.os-em-breve,
+  tr.os-permanente,
   tr.os-expirado {
     display: flex;
     align-items: center;
@@ -442,6 +535,7 @@ tr.expired-divider-row td {
   }
   tr.os-vigente { border-left: 4px solid var(--vigente-borda); box-shadow: none; }
   tr.os-em-breve { border-left: 4px solid var(--breve-borda); box-shadow: none; }
+  tr.os-permanente { border-left: 4px solid var(--permanente-borda); box-shadow: none; }
   tr.os-expirado { border-left: 4px solid var(--expirado-borda); box-shadow: none; }
 
   td { padding: 0; border: none; width: auto; }
@@ -507,7 +601,10 @@ tr.expired-divider-row td {
     width: 30px;
     height: 30px;
     flex: 0 0 30px;
-    font-size: 0.84rem;
+  }
+  .btn-icon svg {
+    width: 15px;
+    height: 15px;
   }
 }
 
@@ -588,10 +685,27 @@ tr.expired-divider-row td {
 
 <header>
   <div class="header-inner">
+    <div class="header-left">
+      <button id="btnEditLogo" class="logo-avatar-btn" type="button" title="Alterar logo" aria-label="Alterar logo">
+        <img id="headerLogoImg" class="hidden" alt="Logo" />
+        <span id="headerLogoPlaceholder" class="logo-placeholder">LOGO</span>
+        <span class="logo-edit-badge" aria-hidden="true">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+        </span>
+      </button>
+      <input type="file" id="logoFileInput" accept="image/*" class="hidden" />
+    </div>
+
     <h1>ORDENS DE SERVIÇO</h1>
+
     <div class="header-actions">
       <button id="btnToggleInsert" class="btn-secundario btn-add-os" type="button">+ O.S</button>
-      <button id="btnToggleTheme" class="btn-secundario btn-theme-icon" type="button" aria-label="Alternar tema">🌙</button>
+      <button id="btnToggleTheme" class="btn-secundario btn-theme-icon" type="button" aria-label="Alternar tema">
+        <svg id="themeIconSvg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      </button>
     </div>
   </div>
 </header>
@@ -629,6 +743,10 @@ tr.expired-divider-row td {
             <label class="mode-option">
               <input type="radio" name="dateMode" value="specific" />
               Dias específicos / alternados
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="dateMode" value="permanent" />
+              Ordem de serviço permanente
             </label>
           </div>
         </div>
@@ -672,7 +790,7 @@ tr.expired-divider-row td {
   </section>
 
   <!-- Busca + Filtros -->
-  <section class="card">
+  <section id="searchCard" class="card">
     <div class="search-bar-row">
       <input type="text" id="searchInput" aria-label="Buscar por título, assunto ou arquivo" placeholder="Buscar por título, assunto ou arquivo..." />
       <button id="btnToggleFilters" class="btn-secundario" type="button">
@@ -692,6 +810,7 @@ tr.expired-divider-row td {
             <option value="all">Todas</option>
             <option value="vigente">Vigentes (Verde)</option>
             <option value="em_breve">Em breve (Azul)</option>
+            <option value="permanente">Permanentes (Âmbar)</option>
             <option value="expirado">Expirados (Vermelho)</option>
           </select>
         </div>
@@ -732,9 +851,10 @@ tr.expired-divider-row td {
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">Visualizador</div>
       <div class="actions-group">
+        <button id="modalPrintBtn" class="btn-print btn-icon hidden" type="button" title="Imprimir" aria-label="Imprimir"></button>
         <a id="modalOpenTab" class="btn-link btn-secundario hidden" href="#" target="_blank" rel="noopener noreferrer">Nova guia</a>
-        <a id="modalDirectDownload" class="btn-link btn-download btn-icon hidden" href="#" target="_blank" rel="noopener" title="Download" aria-label="Download">⬇️</a>
-        <button id="btnCloseModal" class="btn-secundario btn-icon" type="button" title="Fechar" aria-label="Fechar">✕</button>
+        <a id="modalDirectDownload" class="btn-link btn-download btn-icon hidden" href="#" target="_blank" rel="noopener" title="Download" aria-label="Download"></a>
+        <button id="btnCloseModal" class="btn-secundario btn-icon" type="button" title="Fechar" aria-label="Fechar"></button>
       </div>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -744,7 +864,7 @@ tr.expired-divider-row td {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
@@ -771,17 +891,40 @@ const SOFT_FILE_WARN_BYTES = 15 * 1024 * 1024;
 const LOCKED_VIEWPORT = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
 const ZOOM_VIEWPORT = "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes";
 
+const ICONS = {
+  eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+  folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+  print: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
+  trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>`,
+  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+  moon: `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`,
+  sun: `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`
+};
+
 const osCollection = collection(db, "ordens_servico");
+const logoConfigDoc = doc(db, "configuracoes", "logo_header");
+
 let allOrders = [];
 let specificDates = [];
 let cleanupRunning = false;
+let showPermanent = false;
 let showExpired = false;
+let currentLogoData = null;
+let activeModalFile = null;
 
 const viewportMeta = document.getElementById("viewportMeta");
+const btnEditLogo = document.getElementById("btnEditLogo");
+const logoFileInput = document.getElementById("logoFileInput");
+const headerLogoImg = document.getElementById("headerLogoImg");
+const headerLogoPlaceholder = document.getElementById("headerLogoPlaceholder");
 const btnToggleTheme = document.getElementById("btnToggleTheme");
+const themeIconSvg = document.getElementById("themeIconSvg");
 const btnToggleInsert = document.getElementById("btnToggleInsert");
 const btnCloseInsert = document.getElementById("btnCloseInsert");
 const insertCard = document.getElementById("insertCard");
+const searchCard = document.getElementById("searchCard");
+const listCard = document.getElementById("listCard");
 const osForm = document.getElementById("osForm");
 const osTitle = document.getElementById("osTitle");
 const osSubject = document.getElementById("osSubject");
@@ -810,13 +953,32 @@ const osTableBody = document.getElementById("osTableBody");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
+const modalPrintBtn = document.getElementById("modalPrintBtn");
 const modalOpenTab = document.getElementById("modalOpenTab");
 const modalDirectDownload = document.getElementById("modalDirectDownload");
 const btnCloseModal = document.getElementById("btnCloseModal");
 
+modalPrintBtn.innerHTML = ICONS.print;
+modalDirectDownload.innerHTML = ICONS.download;
+btnCloseModal.innerHTML = ICONS.close;
+
 function setPdfZoomMode(enabled) {
   viewportMeta.setAttribute("content", enabled ? ZOOM_VIEWPORT : LOCKED_VIEWPORT);
   document.body.classList.toggle("pdf-zoom-active", enabled);
+}
+
+function setInsertMode(active) {
+  insertCard.classList.toggle("hidden", !active);
+  searchCard.classList.toggle("hidden", active);
+  listCard.classList.toggle("hidden", active);
+}
+
+function updateDateModeFields(mode) {
+  const isRange = mode === "range";
+  const isSpecific = mode === "specific";
+  rangeStartBox.classList.toggle("hidden", !isRange);
+  rangeEndBox.classList.toggle("hidden", !isRange);
+  specificBox.classList.toggle("hidden", !isSpecific);
 }
 
 btnToggleFilters.addEventListener("click", () => {
@@ -838,10 +1000,9 @@ function updateFilterBadge() {
 function applyTheme(mode) {
   const isLight = mode === "light";
   document.body.classList.toggle("light-theme", isLight);
-  btnToggleTheme.textContent = isLight ? "🌙" : "☀️";
+  themeIconSvg.innerHTML = isLight ? ICONS.moon : ICONS.sun;
   localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
 }
-// Tema claro como padrão
 applyTheme(localStorage.getItem(THEME_KEY) || "light");
 btnToggleTheme.addEventListener("click", () => {
   const currentlyLight = document.body.classList.contains("light-theme");
@@ -863,21 +1024,81 @@ function checkPassword() {
   return false;
 }
 
+function renderHeaderLogo(data) {
+  currentLogoData = data || null;
+  if (data && (data.fileId || data.directUrl || data.viewUrl)) {
+    const imgSrc = data.fileId
+      ? `https://drive.google.com/thumbnail?id=${data.fileId}&sz=w256`
+      : (data.directUrl || data.viewUrl);
+    headerLogoImg.src = imgSrc;
+    headerLogoImg.onerror = () => {
+      if (data.directUrl && headerLogoImg.src !== data.directUrl) {
+        headerLogoImg.src = data.directUrl;
+      } else {
+        headerLogoImg.classList.add("hidden");
+        headerLogoPlaceholder.classList.remove("hidden");
+      }
+    };
+    headerLogoImg.classList.remove("hidden");
+    headerLogoPlaceholder.classList.add("hidden");
+  } else {
+    headerLogoImg.removeAttribute("src");
+    headerLogoImg.classList.add("hidden");
+    headerLogoPlaceholder.classList.remove("hidden");
+  }
+}
+
+onSnapshot(logoConfigDoc, (snap) => {
+  renderHeaderLogo(snap.exists() ? snap.data() : null);
+});
+
+btnEditLogo.addEventListener("click", () => {
+  if (!checkPassword()) return;
+  logoFileInput.value = "";
+  logoFileInput.click();
+});
+
+logoFileInput.addEventListener("change", async () => {
+  const file = logoFileInput.files && logoFileInput.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Selecione um arquivo de imagem válido.");
+    return;
+  }
+
+  btnEditLogo.classList.add("uploading");
+  const previousFileId = currentLogoData && currentLogoData.fileId ? currentLogoData.fileId : null;
+
+  try {
+    const uploadedLogo = await uploadFileToDrive(file);
+    await setDoc(logoConfigDoc, {
+      ...uploadedLogo,
+      updatedAt: Date.now()
+    });
+    if (previousFileId && previousFileId !== uploadedLogo.fileId) {
+      await removeFilesFromDrive([{ fileId: previousFileId, name: "logo_anterior" }]);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao atualizar logo: " + (err.message || err));
+  } finally {
+    btnEditLogo.classList.remove("uploading");
+    logoFileInput.value = "";
+  }
+});
+
 btnToggleInsert.addEventListener("click", () => {
   if (!checkPassword()) return;
-  insertCard.classList.remove("hidden");
-  insertCard.scrollIntoView({ behavior: "smooth" });
+  setInsertMode(true);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 btnCloseInsert.addEventListener("click", () => {
-  insertCard.classList.add("hidden");
+  setInsertMode(false);
 });
 
 document.querySelectorAll('input[name="dateMode"]').forEach((radio) => {
   radio.addEventListener("change", (e) => {
-    const isRange = e.target.value === "range";
-    rangeStartBox.classList.toggle("hidden", !isRange);
-    rangeEndBox.classList.toggle("hidden", !isRange);
-    specificBox.classList.toggle("hidden", isRange);
+    updateDateModeFields(e.target.value);
   });
 });
 
@@ -938,6 +1159,7 @@ function formatBytes(bytes = 0) {
 }
 
 function getExpirationTimestamp(order) {
+  if (order.dateMode === "permanent" || order.isPermanent) return null;
   const refDateStr = order.endDate || order.startDate;
   if (refDateStr) {
     const [y, m, d] = refDateStr.split("-").map(Number);
@@ -951,8 +1173,10 @@ function getExpirationTimestamp(order) {
   return null;
 }
 
-// Retorna: "vigente" | "em_breve" | "expirado"
 function getOrderStatus(order) {
+  if (order.dateMode === "permanent" || order.isPermanent) {
+    return "permanente";
+  }
   const today = getTodayISO();
   if (order.dateMode === "specific") {
     const list = Array.isArray(order.specificDates) ? [...order.specificDates].sort() : [];
@@ -971,6 +1195,7 @@ function getOrderStatus(order) {
 
 function matchDateFilter(order, targetISO) {
   if (!targetISO) return true;
+  if (order.dateMode === "permanent" || order.isPermanent) return true;
   if (order.dateMode === "specific") {
     return (order.specificDates || []).includes(targetISO);
   }
@@ -1063,7 +1288,7 @@ osForm.addEventListener("submit", async (e) => {
     endDate = endDateInput.value || startDate;
     if (!startDate) return alert("Informe a Data Início.");
     if (endDate < startDate) return alert("Data Término menor que Data Início.");
-  } else {
+  } else if (mode === "specific") {
     if (!specificDates.length) return alert("Adicione pelo menos um dia específico.");
     sortedSpecific = [...specificDates].sort();
     startDate = sortedSpecific[0];
@@ -1093,6 +1318,7 @@ osForm.addEventListener("submit", async (e) => {
       title,
       subject,
       dateMode: mode,
+      isPermanent: mode === "permanent",
       startDate,
       endDate,
       specificDates: sortedSpecific,
@@ -1105,14 +1331,15 @@ osForm.addEventListener("submit", async (e) => {
     uploadProgress.style.width = "100%";
     uploadStatus.textContent = "Salvo!";
     osForm.reset();
+    updateDateModeFields("range");
     specificDates = [];
     renderSpecificChips();
     selectedFilesPreview.innerHTML = "";
     setTimeout(() => {
       uploadProgress.style.width = "0%";
       uploadStatus.textContent = "";
-      insertCard.classList.add("hidden");
-    }, 900);
+      setInsertMode(false);
+    }, 800);
   } catch (err) {
     console.error(err);
     uploadStatus.textContent = "Erro: " + (err.message || err);
@@ -1138,6 +1365,7 @@ async function runThreeMonthCleanup(orders) {
   if (cleanupRunning) return;
   const now = Date.now();
   const expired = orders.filter((o) => {
+    if (o.dateMode === "permanent" || o.isPermanent) return false;
     const exp = getExpirationTimestamp(o);
     return exp !== null && now >= exp;
   });
@@ -1164,10 +1392,72 @@ function getFilePreviewUrl(file) {
   return file.viewUrl || file.url || "";
 }
 
+function triggerFilePrint(file) {
+  if (!file) return;
+  const lower = (file.name || "").toLowerCase();
+  const mime = (file.type || "").toLowerCase();
+  const previewUrl = getFilePreviewUrl(file);
+  const dlUrl = getFileDownloadUrl(file);
+
+  const iframe = modalBody.querySelector("iframe");
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      return;
+    } catch (_) {
+      // Cross-origin do Google Drive bloqueia chamada direta; segue para janela dedicada
+    }
+  }
+
+  if (mime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(lower)) {
+    const imgSrc = file.directUrl || previewUrl || dlUrl;
+    const printWin = window.open("", "_blank", "noopener,noreferrer");
+    if (printWin) {
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${escapeHtml(file.name)}</title>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fff; }
+            img { max-width: 100%; height: auto; display: block; }
+            @media print { img { max-width: 100%; max-height: 100vh; page-break-inside: avoid; } }
+          </style>
+        </head>
+        <body>
+          <img id="pImg" src="${escapeHtml(imgSrc)}" alt="${escapeHtml(file.name)}" />
+          <script>
+            const img = document.getElementById("pImg");
+            img.onload = () => setTimeout(() => { window.print(); }, 150);
+            img.onerror = () => window.print();
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+      return;
+    }
+  }
+
+  const targetUrl = previewUrl || dlUrl;
+  if (targetUrl && targetUrl !== "#") {
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
+  }
+}
+
+modalPrintBtn.addEventListener("click", () => {
+  if (activeModalFile) triggerFilePrint(activeModalFile);
+});
+
 function openSingleViewer(file) {
+  activeModalFile = file;
   const dlUrl = getFileDownloadUrl(file);
   const previewUrl = getFilePreviewUrl(file);
   modalTitle.textContent = file.name;
+
+  modalPrintBtn.classList.remove("hidden");
 
   modalOpenTab.href = previewUrl || dlUrl;
   modalOpenTab.classList.remove("hidden");
@@ -1212,8 +1502,10 @@ function openSingleViewer(file) {
 }
 
 function openFolderView(order) {
+  activeModalFile = null;
   setPdfZoomMode(false);
   modalTitle.textContent = `${order.title} (${order.files.length})`;
+  modalPrintBtn.classList.add("hidden");
   modalOpenTab.classList.add("hidden");
   modalOpenTab.href = "#";
   modalDirectDownload.classList.add("hidden");
@@ -1234,8 +1526,16 @@ function openFolderView(order) {
     btnVer.className = "btn-ver btn-icon";
     btnVer.title = "Visualizar";
     btnVer.setAttribute("aria-label", "Visualizar");
-    btnVer.textContent = "👁️";
+    btnVer.innerHTML = ICONS.eye;
     btnVer.addEventListener("click", () => openSingleViewer(file));
+
+    const btnImp = document.createElement("button");
+    btnImp.type = "button";
+    btnImp.className = "btn-print btn-icon";
+    btnImp.title = "Imprimir";
+    btnImp.setAttribute("aria-label", "Imprimir");
+    btnImp.innerHTML = ICONS.print;
+    btnImp.addEventListener("click", () => triggerFilePrint(file));
 
     const btnDl = document.createElement("a");
     btnDl.href = getFileDownloadUrl(file);
@@ -1245,9 +1545,10 @@ function openFolderView(order) {
     btnDl.className = "btn-link btn-download btn-icon";
     btnDl.title = "Download";
     btnDl.setAttribute("aria-label", "Download");
-    btnDl.textContent = "⬇️";
+    btnDl.innerHTML = ICONS.download;
 
     btns.appendChild(btnVer);
+    btns.appendChild(btnImp);
     btns.appendChild(btnDl);
     row.appendChild(info);
     row.appendChild(btns);
@@ -1257,9 +1558,11 @@ function openFolderView(order) {
 }
 
 function closeModal() {
+  activeModalFile = null;
   setPdfZoomMode(false);
   modalBackdrop.classList.add("hidden");
   modalBody.innerHTML = "";
+  modalPrintBtn.classList.add("hidden");
   modalOpenTab.classList.add("hidden");
   modalOpenTab.href = "#";
   modalDirectDownload.classList.add("hidden");
@@ -1285,6 +1588,9 @@ function getStatusMeta(status) {
   if (status === "em_breve") {
     return { rowClass: "os-em-breve", badgeClass: "badge-em-breve", label: "EM BREVE" };
   }
+  if (status === "permanente") {
+    return { rowClass: "os-permanente", badgeClass: "badge-permanente", label: "PERMANENTE" };
+  }
   return { rowClass: "os-expirado", badgeClass: "badge-expirado", label: "EXPIRADO" };
 }
 
@@ -1297,7 +1603,7 @@ function createActionButtons(order, files, isFolder) {
   btnVer.className = "btn-ver btn-icon";
   btnVer.title = isFolder ? "Abrir pasta" : "Visualizar";
   btnVer.setAttribute("aria-label", isFolder ? "Abrir pasta" : "Visualizar");
-  btnVer.textContent = isFolder ? "📂" : "👁️";
+  btnVer.innerHTML = isFolder ? ICONS.folder : ICONS.eye;
   btnVer.addEventListener("click", () => {
     if (isFolder) openFolderView(order);
     else if (files[0]) openSingleViewer(files[0]);
@@ -1305,6 +1611,15 @@ function createActionButtons(order, files, isFolder) {
   group.appendChild(btnVer);
 
   if (!isFolder && files[0]) {
+    const btnImp = document.createElement("button");
+    btnImp.type = "button";
+    btnImp.className = "btn-print btn-icon";
+    btnImp.title = "Imprimir";
+    btnImp.setAttribute("aria-label", "Imprimir");
+    btnImp.innerHTML = ICONS.print;
+    btnImp.addEventListener("click", () => triggerFilePrint(files[0]));
+    group.appendChild(btnImp);
+
     const btnDl = document.createElement("a");
     btnDl.href = getFileDownloadUrl(files[0]);
     btnDl.download = files[0].name;
@@ -1313,7 +1628,7 @@ function createActionButtons(order, files, isFolder) {
     btnDl.className = "btn-link btn-download btn-icon";
     btnDl.title = "Download";
     btnDl.setAttribute("aria-label", "Download");
-    btnDl.textContent = "⬇️";
+    btnDl.innerHTML = ICONS.download;
     group.appendChild(btnDl);
   } else if (isFolder) {
     const btnPastaDl = document.createElement("button");
@@ -1321,7 +1636,7 @@ function createActionButtons(order, files, isFolder) {
     btnPastaDl.className = "btn-download btn-icon";
     btnPastaDl.title = "Arquivos para download";
     btnPastaDl.setAttribute("aria-label", "Arquivos para download");
-    btnPastaDl.textContent = "⬇️";
+    btnPastaDl.innerHTML = ICONS.download;
     btnPastaDl.addEventListener("click", () => openFolderView(order));
     group.appendChild(btnPastaDl);
   }
@@ -1331,7 +1646,7 @@ function createActionButtons(order, files, isFolder) {
   btnDel.className = "btn-excluir btn-icon";
   btnDel.title = "Excluir";
   btnDel.setAttribute("aria-label", "Excluir");
-  btnDel.textContent = "🗑️";
+  btnDel.innerHTML = ICONS.trash;
   btnDel.addEventListener("click", () => deleteOrder(order));
   group.appendChild(btnDel);
 
@@ -1343,11 +1658,16 @@ function createOrderRow(order) {
   const meta = getStatusMeta(status);
   const files = order.files || [];
   const isFolder = files.length > 1;
-  const startBR = formatDateBR(order.startDate);
-  const endBR = formatDateBR(order.endDate);
-  const dateSummary = (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
-    ? order.specificDates.map(formatDateBR).join(", ")
-    : `${startBR} → ${endBR}`;
+  const isPermanent = status === "permanente";
+
+  const startBR = isPermanent ? "Permanente" : formatDateBR(order.startDate);
+  const endBR = isPermanent ? "-" : formatDateBR(order.endDate);
+  const dateSummary = isPermanent
+    ? "Vigência permanente"
+    : (order.dateMode === "specific" && Array.isArray(order.specificDates) && order.specificDates.length)
+      ? order.specificDates.map(formatDateBR).join(", ")
+      : `${startBR} → ${endBR}`;
+
   const subjectHtml = order.subject
     ? `<div class="os-subject-text">${escapeHtml(order.subject)}</div>`
     : "";
@@ -1357,7 +1677,9 @@ function createOrderRow(order) {
 
   const tdInfo = document.createElement("td");
   tdInfo.className = "col-info";
-  const pastaBadgeHtml = isFolder ? `<span class="badge-pasta">📁 ${files.length}</span>` : "";
+  const pastaBadgeHtml = isFolder
+    ? `<span class="badge-pasta">${ICONS.folder} ${files.length}</span>`
+    : "";
   const statusBadgeHtml = `<span class="badge-status ${meta.badgeClass}">${meta.label}</span>`;
 
   tdInfo.innerHTML = `
@@ -1399,33 +1721,30 @@ function createOrderRow(order) {
   return tr;
 }
 
-function createExpiredDividerRow(expiredCount, isExpanded) {
+function createSectionDividerRow({ count, isExpanded, showLabel, hideLabel, variantClass, onToggle }) {
   const tr = document.createElement("tr");
-  tr.className = "expired-divider-row";
+  tr.className = "section-divider-row";
 
   const td = document.createElement("td");
   td.colSpan = 4;
 
   const wrap = document.createElement("div");
-  wrap.className = "expired-toggle-wrap";
+  wrap.className = "section-toggle-wrap";
 
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = `btn-toggle-expired${isExpanded ? " expanded" : ""}`;
+  btn.className = `btn-toggle-section ${variantClass}${isExpanded ? " expanded" : ""}`;
   btn.setAttribute("aria-expanded", String(isExpanded));
   btn.innerHTML = `
-    <span>${isExpanded ? "Ocultar expirados" : "Mostrar expirados"}</span>
-    <span class="expired-pill-count">${expiredCount}</span>
+    <span>${isExpanded ? hideLabel : showLabel}</span>
+    <span class="section-pill-count">${count}</span>
     <span class="arrow-icon" aria-hidden="true">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="6 9 12 15 18 9"></polyline>
       </svg>
     </span>
   `;
-  btn.addEventListener("click", () => {
-    showExpired = !showExpired;
-    renderList();
-  });
+  btn.addEventListener("click", onToggle);
 
   wrap.appendChild(btn);
   td.appendChild(wrap);
@@ -1458,38 +1777,52 @@ function renderList() {
     return true;
   });
 
-  const statusPriority = { vigente: 0, em_breve: 1, expirado: 2 };
+  const statusPriority = { vigente: 0, em_breve: 1 };
   const byNewest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
 
   const activeItems = matchedBySearchAndDate
-    .filter((o) => getOrderStatus(o) !== "expirado")
+    .filter((o) => {
+      const s = getOrderStatus(o);
+      return s === "vigente" || s === "em_breve";
+    })
     .sort((a, b) => {
       const diff = (statusPriority[getOrderStatus(a)] ?? 9) - (statusPriority[getOrderStatus(b)] ?? 9);
       return diff !== 0 ? diff : byNewest(a, b);
     });
 
+  const permanentItems = matchedBySearchAndDate
+    .filter((o) => getOrderStatus(o) === "permanente")
+    .sort(byNewest);
+
   const expiredItems = matchedBySearchAndDate
     .filter((o) => getOrderStatus(o) === "expirado")
     .sort(byNewest);
 
+  const shouldShowPermanent = statusVal === "permanente" || showPermanent;
   const shouldShowExpired = statusVal === "expirado" || showExpired;
-  const displayedCount = activeItems.length + (shouldShowExpired ? expiredItems.length : 0);
+
+  const displayedCount =
+    activeItems.length +
+    (shouldShowPermanent ? permanentItems.length : 0) +
+    (shouldShowExpired ? expiredItems.length : 0);
 
   const vigentesCount = allOrders.filter((o) => getOrderStatus(o) === "vigente").length;
   const emBreveCount = allOrders.filter((o) => getOrderStatus(o) === "em_breve").length;
+  const permanentesCount = allOrders.filter((o) => getOrderStatus(o) === "permanente").length;
   const expiradosCount = allOrders.filter((o) => getOrderStatus(o) === "expirado").length;
 
   statsBar.innerHTML = `
     <span class="stat-pill">Total: <strong>${allOrders.length}</strong></span>
     <span class="stat-pill vigente">Vigentes: <strong>${vigentesCount}</strong></span>
     <span class="stat-pill em-breve">Em breve: <strong>${emBreveCount}</strong></span>
+    <span class="stat-pill permanente">Permanentes: <strong>${permanentesCount}</strong></span>
     <span class="stat-pill expirado">Expirados: <strong>${expiradosCount}</strong></span>
     <span class="stat-pill">Exibidos: <strong>${displayedCount}</strong></span>
   `;
 
   osTableBody.innerHTML = "";
 
-  if (!activeItems.length && !expiredItems.length) {
+  if (!activeItems.length && !permanentItems.length && !expiredItems.length) {
     osTableBody.innerHTML = `
       <tr>
         <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço encontrada.</td>
@@ -1501,16 +1834,49 @@ function renderList() {
     activeItems.forEach((order) => {
       osTableBody.appendChild(createOrderRow(order));
     });
-  } else if (statusVal !== "expirado" && expiredItems.length > 0 && !shouldShowExpired) {
+  } else if (statusVal === "all" && !shouldShowPermanent && !shouldShowExpired) {
     osTableBody.innerHTML = `
       <tr>
         <td colspan="4" class="empty-state">Nenhuma Ordem de Serviço vigente ou em breve.</td>
       </tr>`;
   }
 
-  // Botão sempre logo abaixo de Em breve / Vigente e ACIMA dos Expirados
+  if (permanentItems.length > 0 && statusVal !== "permanente") {
+    osTableBody.appendChild(
+      createSectionDividerRow({
+        count: permanentItems.length,
+        isExpanded: showPermanent,
+        showLabel: "Mostrar permanentes",
+        hideLabel: "Ocultar permanentes",
+        variantClass: "permanente-toggle",
+        onToggle: () => {
+          showPermanent = !showPermanent;
+          renderList();
+        }
+      })
+    );
+  }
+
+  if (shouldShowPermanent) {
+    permanentItems.forEach((order) => {
+      osTableBody.appendChild(createOrderRow(order));
+    });
+  }
+
   if (expiredItems.length > 0 && statusVal !== "expirado") {
-    osTableBody.appendChild(createExpiredDividerRow(expiredItems.length, showExpired));
+    osTableBody.appendChild(
+      createSectionDividerRow({
+        count: expiredItems.length,
+        isExpanded: showExpired,
+        showLabel: "Mostrar expirados",
+        hideLabel: "Ocultar expirados",
+        variantClass: "expired-toggle",
+        onToggle: () => {
+          showExpired = !showExpired;
+          renderList();
+        }
+      })
+    );
   }
 
   if (shouldShowExpired) {
