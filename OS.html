@@ -864,7 +864,7 @@ tr.section-divider-row td {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
@@ -903,14 +903,13 @@ const ICONS = {
 };
 
 const osCollection = collection(db, "ordens_servico");
-const logoConfigDoc = doc(db, "configuracoes", "logo_header");
 
 let allOrders = [];
 let specificDates = [];
 let cleanupRunning = false;
 let showPermanent = false;
 let showExpired = false;
-let currentLogoData = null;
+let currentLogoDoc = null;
 let activeModalFile = null;
 
 const viewportMeta = document.getElementById("viewportMeta");
@@ -1024,8 +1023,10 @@ function checkPassword() {
   return false;
 }
 
-function renderHeaderLogo(data) {
-  currentLogoData = data || null;
+/* Logo usando o mesmo Google Apps Script / Google Drive e a coleção ordens_servico */
+function renderHeaderLogo(docData) {
+  currentLogoDoc = docData || null;
+  const data = docData && docData.logoData ? docData.logoData : docData;
   if (data && (data.fileId || data.directUrl || data.viewUrl)) {
     const imgSrc = data.fileId
       ? `https://drive.google.com/thumbnail?id=${data.fileId}&sz=w256`
@@ -1048,10 +1049,6 @@ function renderHeaderLogo(data) {
   }
 }
 
-onSnapshot(logoConfigDoc, (snap) => {
-  renderHeaderLogo(snap.exists() ? snap.data() : null);
-});
-
 btnEditLogo.addEventListener("click", () => {
   if (!checkPassword()) return;
   logoFileInput.value = "";
@@ -1067,16 +1064,22 @@ logoFileInput.addEventListener("change", async () => {
   }
 
   btnEditLogo.classList.add("uploading");
-  const previousFileId = currentLogoData && currentLogoData.fileId ? currentLogoData.fileId : null;
+  const prevDoc = currentLogoDoc;
+  const prevFileId = prevDoc && prevDoc.logoData ? prevDoc.logoData.fileId : null;
 
   try {
     const uploadedLogo = await uploadFileToDrive(file);
-    await setDoc(logoConfigDoc, {
-      ...uploadedLogo,
-      updatedAt: Date.now()
+    await addDoc(osCollection, {
+      isLogo: true,
+      title: "_LOGO_HEADER_",
+      logoData: uploadedLogo,
+      createdAt: Date.now()
     });
-    if (previousFileId && previousFileId !== uploadedLogo.fileId) {
-      await removeFilesFromDrive([{ fileId: previousFileId, name: "logo_anterior" }]);
+    if (prevDoc && prevDoc.id) {
+      try { await deleteDoc(doc(db, "ordens_servico", prevDoc.id)); } catch (_) {}
+    }
+    if (prevFileId && prevFileId !== uploadedLogo.fileId) {
+      await removeFilesFromDrive([{ fileId: prevFileId, name: "logo_anterior" }]);
     }
   } catch (err) {
     console.error(err);
@@ -1159,7 +1162,7 @@ function formatBytes(bytes = 0) {
 }
 
 function getExpirationTimestamp(order) {
-  if (order.dateMode === "permanent" || order.isPermanent) return null;
+  if (order.isLogo || order.dateMode === "permanent" || order.isPermanent) return null;
   const refDateStr = order.endDate || order.startDate;
   if (refDateStr) {
     const [y, m, d] = refDateStr.split("-").map(Number);
@@ -1365,7 +1368,7 @@ async function runThreeMonthCleanup(orders) {
   if (cleanupRunning) return;
   const now = Date.now();
   const expired = orders.filter((o) => {
-    if (o.dateMode === "permanent" || o.isPermanent) return false;
+    if (o.isLogo || o.dateMode === "permanent" || o.isPermanent) return false;
     const exp = getExpirationTimestamp(o);
     return exp !== null && now >= exp;
   });
@@ -1405,9 +1408,7 @@ function triggerFilePrint(file) {
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
       return;
-    } catch (_) {
-      // Cross-origin do Google Drive bloqueia chamada direta; segue para janela dedicada
-    }
+    } catch (_) {}
   }
 
   if (mime.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(lower)) {
@@ -1900,7 +1901,11 @@ const q = query(osCollection, orderBy("createdAt", "desc"));
 onSnapshot(
   q,
   (snap) => {
-    allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const rawDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const logoDoc = rawDocs.find((d) => d.isLogo) || null;
+    renderHeaderLogo(logoDoc);
+
+    allOrders = rawDocs.filter((d) => !d.isLogo);
     renderList();
     runThreeMonthCleanup(allOrders);
   },
