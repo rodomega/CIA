@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -55,7 +54,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <div><label for="nomeCompleto">Nome completo *</label><input id="nomeCompleto" required></div>
 </div>
 <div class="grid-3" style="margin-top:10px">
-<div><label for="opm">OPM *</label><input id="opm" required placeholder="Ex.: 4º BPRv"></div>
+<div><label for="opm">OPM *</label><input id="opm" required placeholder="Ex.: 620044100"></div>
 <div><label for="subunidade">Subunidade / CIA *</label><select id="subunidade" required><option value="">Selecione...</option><option>1° Cia</option><option>2° Cia</option><option>3° Cia</option><option>4° Cia</option><option>5° Cia</option><option>6° Cia</option></select></div>
 <div><label for="quantidade">Quantidade *</label><input id="quantidade" type="number" min="1" step="1" value="1" required></div>
 </div>
@@ -94,8 +93,9 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 </main>
 <footer>BONÉ PMRv — Coleta de Pedidos</footer>
 <script>
-/* ENDEREÇO DO GOOGLE APPS SCRIPT UTILIZADO NA OS.HTML */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJI-881ktSlsCffF_0th4AxYxPgaMdrrP3fY9wfeP97CLxVwASnm_Nec_uOWbhYOjq/exec";
+/* NOVO ENDEREÇO DO GOOGLE APPS SCRIPT */
+const APPS_SCRIPT_ID = "AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein/exec";
 const SENHA_VISUALIZACAO = "rodomega";
 const VALOR_UNITARIO = 30;
 const $ = id => document.getElementById(id);
@@ -131,27 +131,32 @@ $("btnDesbloquear").addEventListener("click",tentarDesbloquear);$("senhaLista").
 $("btnBloquear").addEventListener("click",()=>{listaDesbloqueada=false;$("senhaLista").value="";$("senhaLista").type="password";$("areaListaCompleta").classList.add("oculto");$("bloqueioLista").classList.remove("oculto");});
 async function carregarPedidos(){if(!listaDesbloqueada)return;status("statusAcoes","Atualizando dados...");try{const r=await api({action:"list"});pedidos=Array.isArray(r.pedidos)?r.pedidos:[];renderizarLista();status("statusAcoes","Lista atualizada.");}catch(err){status("statusAcoes","Erro ao carregar lista: "+err.message);}}
 $("btnAtualizar").addEventListener("click",carregarPedidos);
+function calcularValorItem(p){
+ const qtd=Number(p.quantidade)||0;
+ const val=Number(p.valorTotal);
+ return val>0?val:(qtd*VALOR_UNITARIO);
+}
 function agrupar(lista){const m=new Map();for(const p of lista){const o=p.opm||"SEM OPM",c=p.subunidade||"SEM CIA";if(!m.has(o))m.set(o,new Map());if(!m.get(o).has(c))m.get(o).set(c,[]);m.get(o).get(c).push(p);}return [...m.keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true})).map(opm=>({opm,cias:[...m.get(opm).keys()].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true})).map(cia=>({cia,itens:m.get(opm).get(cia)}))}));}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
 function renderizarLista(){
- const pessoas=pedidos.length,bones=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),valor=pedidos.reduce((a,p)=>a+(Number(p.valorTotal)||0),0);
+ const pessoas=pedidos.length,bones=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),valor=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);
  $("resumoGeral").innerHTML=`<div><span>Total de pessoas</span><strong>${pessoas}</strong></div><div><span>Total de bonés</span><strong>${bones}</strong></div><div><span>Valor total previsto</span><strong>${formatarMoeda(valor)}</strong></div>`;
  if(!pedidos.length){$("listaAgrupada").innerHTML='<p class="status">Nenhum pedido registrado até o momento.</p>';return;}
  let html="";
- for(const go of agrupar(pedidos)){let qo=0,vo=0;go.cias.forEach(c=>c.itens.forEach(p=>{qo+=Number(p.quantidade)||0;vo+=Number(p.valorTotal)||0;}));
+ for(const go of agrupar(pedidos)){let qo=0,vo=0;go.cias.forEach(c=>c.itens.forEach(p=>{qo+=Number(p.quantidade)||0;vo+=calcularValorItem(p);}));
  html+=`<div class="grupo-opm"><div class="grupo-opm-titulo">OPM: ${esc(go.opm)} — ${qo} boné(s) (${formatarMoeda(vo)})</div>`;
- for(const gc of go.cias){let qc=0,vc=0;gc.itens.forEach(p=>{qc+=Number(p.quantidade)||0;vc+=Number(p.valorTotal)||0;});
- html+=`<div class="grupo-cia-titulo">${esc(gc.cia)} — ${qc} boné(s) (${formatarMoeda(vc)})</div><div class="table-wrap"><table><thead><tr><th>Graduação</th><th>RE</th><th>Nome de Guerra</th><th>Nome completo</th><th>Quantidade</th><th>Valor</th></tr></thead><tbody>`;
- for(const p of gc.itens)html+=`<tr><td>${esc(p.graduacao)}</td><td>${esc(p.re)}</td><td>${esc(p.nomeGuerra)}</td><td>${esc(p.nomeCompleto)}</td><td>${Number(p.quantidade)||0}</td><td>${formatarMoeda(p.valorTotal)}</td></tr>`;
+ for(const gc of go.cias){let qc=0,vc=0;gc.itens.forEach(p=>{qc+=Number(p.quantidade)||0;vc+=calcularValorItem(p);});
+ html+=`<div class="grupo-cia-titulo">${esc(gc.cia)} — ${qc} boné(s) (${formatarMoeda(vc)})</div><div class="table-wrap"><table><thead><tr><th>Graduação</th><th>RE</th><th>Nome de Guerra</th><th>Nome completo</th><th>Quantidade</th><th>Valor a pagar</th></tr></thead><tbody>`;
+ for(const p of gc.itens)html+=`<tr><td>${esc(p.graduacao)}</td><td>${esc(p.re)}</td><td>${esc(p.nomeGuerra)}</td><td>${esc(p.nomeCompleto)}</td><td>${Number(p.quantidade)||0}</td><td>${formatarMoeda(calcularValorItem(p))}</td></tr>`;
  html+="</tbody></table></div>";}html+="</div>";}
  $("listaAgrupada").innerHTML=html;
 }
-function montarTexto(){if(!pedidos.length)return "LISTA BONÉ PMRv - Sem registros.";const linhas=["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)","=============================================="];for(const go of agrupar(pedidos)){linhas.push("\nOPM: "+go.opm);for(const gc of go.cias){linhas.push("  ["+gc.cia+"]");gc.itens.forEach((p,i)=>linhas.push(`    ${i+1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(p.valorTotal)}`));}}const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+(Number(p.valorTotal)||0),0);linhas.push(`\nTOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);return linhas.join("\n");}
+function montarTexto(){if(!pedidos.length)return "LISTA BONÉ PMRv - Sem registros.";const linhas=["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)","=============================================="];for(const go of agrupar(pedidos)){linhas.push("\nOPM: "+go.opm);for(const gc of go.cias){linhas.push("  ["+gc.cia+"]");gc.itens.forEach((p,i)=>linhas.push(`    ${i+1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}`));}}const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);linhas.push(`\nTOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);return linhas.join("\n");}
 $("btnCopiarLista").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(montarTexto());status("statusAcoes","Lista inteira copiada!");}catch(e){const t=document.createElement("textarea");t.value=montarTexto();document.body.appendChild(t);t.select();const ok=document.execCommand("copy");t.remove();status("statusAcoes",ok?"Lista inteira copiada!":"Não foi possível copiar.");}});
-$("btnGerarPdf").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar PDF.");return;}if(!window.jspdf?.jsPDF){status("statusAcoes","Biblioteca PDF não carregada.");return;}const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});let y=14;doc.setFontSize(15);doc.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA",14,y);y+=8;const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+(Number(p.valorTotal)||0),0);doc.setFontSize(10);doc.text(`Pessoas: ${pedidos.length} | Bonés: ${qtd} | Total: ${formatarMoeda(total)}`,14,y);y+=8;
-for(const go of agrupar(pedidos)){if(y>175){doc.addPage();y=14;}doc.setFontSize(12);doc.text("OPM: "+go.opm,14,y);y+=6;for(const gc of go.cias){doc.setFontSize(10);doc.text("CIA: "+gc.cia,16,y);doc.autoTable({startY:y+2,head:[["Graduação","RE","Nome de Guerra","Nome completo","Qtd","Valor"]],body:gc.itens.map(p=>[p.graduacao,p.re,p.nomeGuerra,p.nomeCompleto,String(p.quantidade),formatarMoeda(p.valorTotal)]),styles:{fontSize:8,cellPadding:2},headStyles:{fillColor:[40,40,40],textColor:[255,212,0]},margin:{left:14,right:14}});y=doc.lastAutoTable.finalY+8;}}
+$("btnGerarPdf").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar PDF.");return;}if(!window.jspdf?.jsPDF){status("statusAcoes","Biblioteca PDF não carregada.");return;}const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});let y=14;doc.setFontSize(15);doc.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA",14,y);y+=8;const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);doc.setFontSize(10);doc.text(`Pessoas: ${pedidos.length} | Bonés: ${qtd} | Total: ${formatarMoeda(total)}`,14,y);y+=8;
+for(const go of agrupar(pedidos)){if(y>175){doc.addPage();y=14;}doc.setFontSize(12);doc.text("OPM: "+go.opm,14,y);y+=6;for(const gc of go.cias){doc.setFontSize(10);doc.text("CIA: "+gc.cia,16,y);doc.autoTable({startY:y+2,head:[["Graduação","RE","Nome de Guerra","Nome completo","Qtd","Valor a pagar"]],body:gc.itens.map(p=>[p.graduacao,p.re,p.nomeGuerra,p.nomeCompleto,String(p.quantidade),formatarMoeda(calcularValorItem(p))]),styles:{fontSize:8,cellPadding:2},headStyles:{fillColor:[40,40,40],textColor:[255,212,0]},margin:{left:14,right:14}});y=doc.lastAutoTable.finalY+8;}}
 doc.save("Lista_Bone_PMRv.pdf");status("statusAcoes","PDF gerado com sucesso.");});
-$("btnGerarExcel").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar Excel.");return;}if(!window.XLSX){status("statusAcoes","Biblioteca Excel não carregada.");return;}const rows=[];for(const go of agrupar(pedidos))for(const gc of go.cias)for(const p of gc.itens)rows.push({"OPM":go.opm,"CIA":gc.cia,"Graduação":p.graduacao,"RE com dígito":p.re,"Nome de Guerra":p.nomeGuerra,"Nome completo":p.nomeCompleto,"Quantidade":Number(p.quantidade)||0,"Valor unitário (R$)":VALOR_UNITARIO,"Valor a pagar (R$)":Number(p.valorTotal)||0});const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:14},{wch:17},{wch:16},{wch:22},{wch:32},{wch:12},{wch:18},{wch:18}];XLSX.utils.book_append_sheet(wb,ws,"Pedidos Bone PMRv");XLSX.writeFile(wb,"Lista_Bone_PMRv.xlsx");status("statusAcoes","Arquivo Excel gerado com sucesso.");});
+$("btnGerarExcel").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar Excel.");return;}if(!window.XLSX){status("statusAcoes","Biblioteca Excel não carregada.");return;}const rows=[];for(const go of agrupar(pedidos))for(const gc of go.cias)for(const p of gc.itens)rows.push({"OPM":go.opm,"CIA":gc.cia,"Graduação":p.graduacao,"RE com dígito":p.re,"Nome de Guerra":p.nomeGuerra,"Nome completo":p.nomeCompleto,"Quantidade":Number(p.quantidade)||0,"Valor unitário (R$)":VALOR_UNITARIO,"Valor a pagar (R$)":calcularValorItem(p)});const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:14},{wch:17},{wch:16},{wch:22},{wch:32},{wch:12},{wch:18},{wch:18}];XLSX.utils.book_append_sheet(wb,ws,"Pedidos Bone PMRv");XLSX.writeFile(wb,"Lista_Bone_PMRv.xlsx");status("statusAcoes","Arquivo Excel gerado com sucesso.");});
 $("btnLimparLista").addEventListener("click",async()=>{if(!confirm("ATENÇÃO: deseja apagar TODOS os pedidos? Esta ação não poderá ser desfeita."))return;const senha=prompt("Confirme a senha de administrador:");if(senha!==SENHA_VISUALIZACAO){status("statusAcoes","Senha incorreta. A lista não foi apagada.");return;}status("statusAcoes","Apagando registros...");try{await api({action:"clear",password:senha});pedidos=[];renderizarLista();status("statusAcoes","Lista limpa com sucesso.");}catch(err){status("statusAcoes","Erro ao limpar: "+err.message);}});
 $("uploadFoto").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){alert("Selecione uma imagem válida.");return;}if(f.size>5*1024*1024){alert("A imagem deve ter no máximo 5 MB.");return;}status("statusFoto","Enviando imagem para o Google Drive...");const reader=new FileReader();reader.onload=async()=>{try{const base64=String(reader.result).split(",")[1];const r=await api({action:"uploadPhoto",name:f.name,mimeType:f.type,base64});$("fotoBone").src=r.url;fotoDriveUrl=r.url;status("statusFoto","Foto atualizada e salva no Google Drive.");}catch(err){status("statusFoto","Falha ao enviar foto: "+err.message);}};reader.readAsDataURL(f);});
 </script>
