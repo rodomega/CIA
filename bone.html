@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#ffffff">
 <title>BONÉ PMRv | Lista de Coleta</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,446 +13,478 @@
 
 <style>
 :root {
-  --amarelo: #ffd400;
-  --preto: #111111;
-  --cinza: #242424;
-  --cinza-escuro: #181818;
-  --branco: #f5f5f5;
-  --verde: #20a464;
-  --vermelho: #d93636;
-  --borda: #444444;
+  --amarelo:#ffd400;
+  --preto:#202020;
+  --cinza:#ffffff;
+  --cinza-escuro:#f5f5f5;
+  --branco:#222222;
+  --verde:#16864e;
+  --vermelho:#cf3333;
+  --borda:#dedede;
+  --fundo:#f3f4f6;
 }
 
-* { box-sizing: border-box; }
+* {box-sizing:border-box}
 
 body {
-  margin: 0;
-  background: var(--preto);
-  color: var(--branco);
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.45;
+  margin:0;
+  background:var(--fundo);
+  color:var(--branco);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.45;
 }
 
 header {
-  background: #080808;
-  border-bottom: 3px solid var(--amarelo);
-  padding: 20px 15px;
-  text-align: center;
+  background:#fff;
+  border-bottom:4px solid var(--amarelo);
+  padding:23px 15px;
+  text-align:center;
+  box-shadow:0 2px 8px #0000000d;
 }
 
 header h1 {
-  margin: 0;
-  color: var(--amarelo);
-  font-size: 32px;
-  letter-spacing: 3px;
-}
-
-header p {
-  margin: 6px 0 0;
-  color: #ddd;
-  font-size: 13px;
-  letter-spacing: 1.5px;
+  margin:0;
+  color:#222;
+  font-size:32px;
+  letter-spacing:3px;
 }
 
 main {
-  width: min(100% - 24px, 1000px);
-  margin: 22px auto;
+  width:min(100% - 24px,1000px);
+  margin:22px auto;
 }
 
 .painel {
-  background: var(--cinza);
-  border: 1px solid var(--borda);
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 18px;
+  background:#fff;
+  border:1px solid var(--borda);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 2px 8px #00000008;
 }
 
 h2 {
-  color: var(--amarelo);
-  margin: 0 0 14px;
-  font-size: 20px;
+  color:#252525;
+  margin:0 0 14px;
+  font-size:20px;
+  border-bottom:2px solid var(--amarelo);
+  padding-bottom:9px;
 }
 
 h3 {
-  color: var(--amarelo);
-  margin: 18px 0 10px;
-  font-size: 16px;
+  color:#333;
+  margin:18px 0 10px;
+  font-size:16px;
 }
 
 .grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
 }
 
 .grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
 }
 
 label {
-  display: block;
-  font-size: 13px;
-  color: #ddd;
-  margin-bottom: 4px;
-  font-weight: bold;
+  display:block;
+  font-size:13px;
+  color:#444;
+  margin-bottom:5px;
+  font-weight:bold;
 }
 
-input, select {
-  width: 100%;
-  padding: 11px 12px;
-  background: #151515;
-  color: #fff;
-  border: 1px solid #555;
-  border-radius: 7px;
-  font-size: 15px;
+input,select {
+  width:100%;
+  padding:11px 12px;
+  background:#fff;
+  color:#222;
+  border:1px solid #ccc;
+  border-radius:7px;
+  font-size:15px;
 }
 
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--amarelo);
+input:focus,select:focus {
+  outline:none;
+  border-color:#d6ae00;
+  box-shadow:0 0 0 2px #ffd40033;
 }
 
 .foto-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background: var(--cinza-escuro);
-  border: 1px solid #444;
-  border-left: 4px solid var(--amarelo);
-  border-radius: 10px;
-  padding: 14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  background:#f8f8f8;
+  border:1px solid #ddd;
+  border-left:4px solid var(--amarelo);
+  border-radius:10px;
+  padding:14px;
 }
 
 .foto-box img {
-  max-width: 240px;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 2px solid var(--amarelo);
-  margin-bottom: 10px;
+  max-width:240px;
+  width:100%;
+  height:auto;
+  border-radius:8px;
+  border:2px solid var(--amarelo);
+  margin-bottom:10px;
 }
 
 .preco-destaque {
-  background: #151515;
-  border: 1px solid #555;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 6px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  background:#fffbea;
+  border:1px solid #e6d47a;
+  border-radius:8px;
+  padding:12px;
+  margin:12px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
 }
 
 .preco-destaque strong {
-  color: var(--amarelo);
-  font-size: 18px;
+  color:#9b7900;
+  font-size:19px;
 }
 
 button {
-  border: 0;
-  border-radius: 7px;
-  padding: 11px 15px;
-  margin: 4px 4px 4px 0;
-  font-weight: bold;
-  cursor: pointer;
-  background: var(--amarelo);
-  color: #111;
-  font-size: 14px;
+  border:0;
+  border-radius:7px;
+  padding:11px 15px;
+  margin:4px 4px 4px 0;
+  font-weight:bold;
+  cursor:pointer;
+  background:var(--amarelo);
+  color:#222;
+  font-size:13px;
 }
 
-button:hover {
-  filter: brightness(0.92);
-}
+button:hover {filter:brightness(.94)}
 
 button.secundario {
-  background: #444;
-  color: #fff;
+  background:#555;
+  color:#fff;
 }
 
 button.sucesso {
-  background: var(--verde);
-  color: #fff;
+  background:var(--verde);
+  color:#fff;
 }
 
 button.perigo {
-  background: var(--vermelho);
-  color: #fff;
+  background:var(--vermelho);
+  color:#fff;
 }
 
-.oculto {
-  display: none !important;
-}
+.oculto {display:none!important}
 
 .status {
-  color: #ccc;
-  font-size: 13px;
-  margin-top: 8px;
+  color:#555;
+  font-size:13px;
+  margin-top:8px;
 }
 
 .aviso {
-  color: var(--amarelo);
-  font-size: 13px;
-  margin-top: 8px;
+  color:#8a6900;
+  font-size:13px;
+  margin-top:8px;
+  font-weight:bold;
 }
 
 .grupo-opm {
-  background: var(--cinza-escuro);
-  border: 1px solid #444;
-  border-left: 4px solid var(--amarelo);
-  border-radius: 10px;
-  padding: 14px;
-  margin-bottom: 16px;
+  background:#fff;
+  border:1px solid #ddd;
+  border-left:4px solid var(--amarelo);
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:16px;
 }
 
 .grupo-opm-titulo {
-  color: var(--amarelo);
-  font-size: 17px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #333;
+  color:#333;
+  font-size:17px;
+  font-weight:bold;
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid #ddd;
 }
 
 .grupo-cia-titulo {
-  color: #fff;
-  background: #2b2b2b;
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-  margin: 10px 0 8px;
+  color:#222;
+  background:#eeeeee;
+  padding:9px 10px;
+  border-radius:6px;
+  font-size:14px;
+  font-weight:bold;
+  margin:10px 0 8px;
 }
 
 .table-wrap {
-  width: 100%;
-  overflow-x: auto;
+  width:100%;
+  overflow-x:auto;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  background: #141414;
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  background:#fff;
 }
 
-th, td {
-  border: 1px solid #383838;
-  padding: 8px 9px;
-  text-align: left;
-  white-space: nowrap;
+th,td {
+  border:1px solid #ddd;
+  padding:8px 9px;
+  text-align:left;
+  white-space:nowrap;
 }
 
 th {
-  background: #222;
-  color: var(--amarelo);
+  background:#eeeeee;
+  color:#333;
 }
 
 .resumo-geral {
-  background: #151515;
-  border: 1px solid var(--amarelo);
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: space-between;
+  background:#fffbea;
+  border:1px solid #e4d47b;
+  border-radius:8px;
+  padding:12px 14px;
+  margin-bottom:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  justify-content:space-between;
 }
 
 .resumo-geral div strong {
-  color: var(--amarelo);
-  display: block;
-  font-size: 16px;
+  color:#8b6b00;
+  display:block;
+  font-size:18px;
 }
 
 .resumo-geral div span {
-  color: #bbb;
-  font-size: 12px;
+  color:#555;
+  font-size:12px;
 }
 
 .acoes-lista {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.area-foto-admin {
+  background:#f7f7f7;
+  border:1px dashed #bbb;
+  border-radius:8px;
+  padding:12px;
+  margin-bottom:16px;
 }
 
 footer {
-  text-align: center;
-  color: #888;
-  font-size: 11px;
-  padding: 20px;
-  border-top: 1px solid #333;
-  margin-top: 32px;
+  text-align:center;
+  color:#777;
+  font-size:11px;
+  padding:20px;
+  border-top:1px solid #ddd;
+  margin-top:32px;
 }
 
-@media (max-width: 720px) {
-  .grid-2, .grid-3 {
-    grid-template-columns: 1fr;
+@media(max-width:720px) {
+  .grid-2,.grid-3 {
+    grid-template-columns:1fr;
   }
-  header h1 {
-    font-size: 26px;
-  }
+  header h1 {font-size:26px}
+  .painel {padding:14px}
+  button {max-width:100%}
 }
 </style>
 </head>
+
 <body>
 
 <header>
   <h1>BONÉ PMRv</h1>
-  <p>COLETA DE PEDIDOS E LISTA ORGANIZADA POR OPM E CIA</p>
 </header>
 
 <main>
 
-  <!-- FOTO DO BONÉ -->
-  <section class="painel">
-    <h2>Modelo para visualização</h2>
-    <div class="foto-box">
-      <img id="fotoBone" src="33045.jpg" alt="Foto do Boné PMRv">
-      <div style="font-size:14px; color:#eee;">
-        <strong>Valor unitário:</strong> R$ 30,00 por boné
+<!-- FORMULÁRIO DE PEDIDOS -->
+<section class="painel">
+  <h2>Preencher pedido</h2>
+
+  <form id="formPedido">
+
+    <div class="grid-2">
+      <div>
+        <label for="graduacao">Graduação *</label>
+        <select id="graduacao" required>
+          <option value="">Selecione a graduação...</option>
+          <option>Soldado</option>
+          <option>Cabo</option>
+          <option>3° Sargento</option>
+          <option>2° Sargento</option>
+          <option>1° Sargento</option>
+          <option>Sub Tenente</option>
+          <option>Aspirante</option>
+          <option>2° Tenente</option>
+          <option>1° Tenente</option>
+          <option>Capitão</option>
+          <option>Major</option>
+          <option>Tenente Coronel</option>
+          <option>Coronel</option>
+        </select>
       </div>
-      <div style="font-size:12px; color:#bbb; margin-top:4px;">
-        Dica: caso abra o arquivo HTML em outro local sem a imagem na mesma pasta, você pode carregar a foto abaixo apenas para conferência visual.
-      </div>
-      <div style="margin-top:10px; width:100%; max-width:320px;">
-        <input type="file" id="uploadFoto" accept="image/*" style="padding:7px; font-size:12px;">
+
+      <div>
+        <label for="re">RE com dígito *</label>
+        <input id="re" type="text" placeholder="Ex.: 194528-9" required>
       </div>
     </div>
-  </section>
 
-  <!-- FORMULÁRIO DE COLETA -->
-  <section class="painel">
-    <h2>Preencher pedido</h2>
-    <form id="formPedido">
-      <div class="grid-2">
-        <div>
-          <label for="graduacao">Graduação *</label>
-          <select id="graduacao" required>
-            <option value="">Selecione a graduação...</option>
-            <option value="Soldado">Soldado</option>
-            <option value="Cabo">Cabo</option>
-            <option value="3° Sargento">3° Sargento</option>
-            <option value="2° Sargento">2° Sargento</option>
-            <option value="1° Sargento">1° Sargento</option>
-            <option value="Sub Tenente">Sub Tenente</option>
-            <option value="Aspirante">Aspirante</option>
-            <option value="2° Tenente">2° Tenente</option>
-            <option value="1° Tenente">1° Tenente</option>
-            <option value="Capitão">Capitão</option>
-            <option value="Major">Major</option>
-            <option value="Tenente Coronel">Tenente Coronel</option>
-            <option value="Coronel">Coronel</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="re">RE com dígito *</label>
-          <input id="re" type="text" placeholder="Ex.: 194528-9" required>
-        </div>
+    <div class="grid-2" style="margin-top:10px">
+      <div>
+        <label for="nomeGuerra">Nome de Guerra *</label>
+        <input id="nomeGuerra" type="text" required>
       </div>
 
-      <div class="grid-2" style="margin-top:10px;">
-        <div>
-          <label for="nomeGuerra">Nome de Guerra *</label>
-          <input id="nomeGuerra" type="text" placeholder="Ex.: Munhoz" required>
-        </div>
-
-        <div>
-          <label for="nomeCompleto">Nome completo *</label>
-          <input id="nomeCompleto" type="text" placeholder="Digite o nome completo" required>
-        </div>
+      <div>
+        <label for="nomeCompleto">Nome completo *</label>
+        <input id="nomeCompleto" type="text" required>
       </div>
-
-      <div class="grid-3" style="margin-top:10px;">
-        <div>
-          <label for="opm">OPM *</label>
-          <input id="opm" type="text" placeholder="Ex.: 620044100" required>
-        </div>
-
-        <div>
-          <label for="subunidade">Subunidade *</label>
-          <select id="subunidade" required>
-            <option value="">Selecione a Cia...</option>
-            <option value="1° Cia">1° Cia</option>
-            <option value="2° Cia">2° Cia</option>
-            <option value="3° Cia">3° Cia</option>
-            <option value="4° Cia">4° Cia</option>
-            <option value="5° Cia">5° Cia</option>
-            <option value="6° Cia">6° Cia</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="quantidade">Quantidade *</label>
-          <input id="quantidade" type="number" min="1" step="1" value="1" required>
-        </div>
-      </div>
-
-      <div class="preco-destaque">
-        <span>Valor a pagar calculado (R$ 30,00 cada):</span>
-        <strong id="valorPrevisto">R$ 30,00</strong>
-      </div>
-
-      <button type="submit" class="sucesso">ADICIONAR À LISTA</button>
-      <button type="button" class="secundario" id="btnLimparForm">LIMPAR CAMPOS</button>
-      <p id="statusForm" class="status"></p>
-    </form>
-  </section>
-
-  <!-- VISUALIZAÇÃO PROTEGIDA POR SENHA -->
-  <section class="painel">
-    <h2>Ver lista</h2>
-
-    <div id="bloqueioLista">
-      <label for="senhaLista">Digite a senha para visualizar a lista em tempo real:</label>
-      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-        <input id="senhaLista" type="password" placeholder="Digite a senha" style="max-width:260px;">
-        <button type="button" id="btnDesbloquear">DESBLOQUEAR LISTA</button>
-      </div>
-      <p id="statusSenha" class="status"></p>
     </div>
 
-    <div id="areaListaCompleta" class="oculto">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-        <span class="aviso" style="margin:0;">Lista desbloqueada — atualização em tempo real ativa.</span>
-        <button type="button" class="secundario" id="btnBloquear">OCULTAR LISTA</button>
+    <div class="grid-3" style="margin-top:10px">
+      <div>
+        <label for="opm">OPM *</label>
+        <input id="opm" type="text" required>
       </div>
 
-      <div id="resumoGeral" class="resumo-geral"></div>
-
-      <div class="acoes-lista">
-        <button type="button" id="btnCopiarLista">COPIAR LISTA INTEIRA</button>
-        <button type="button" class="sucesso" id="btnGerarPdf">GERAR PDF</button>
-        <button type="button" class="sucesso" id="btnGerarExcel">GERAR EXCEL (.XLSX)</button>
-        <button type="button" class="perigo" id="btnLimparLista">LIMPAR LISTA</button>
+      <div>
+        <label for="subunidade">Subunidade *</label>
+        <select id="subunidade" required>
+          <option value="">Selecione a Cia...</option>
+          <option>1° Cia</option>
+          <option>2° Cia</option>
+          <option>3° Cia</option>
+          <option>4° Cia</option>
+          <option>5° Cia</option>
+          <option>6° Cia</option>
+        </select>
       </div>
-      <p id="statusAcoes" class="status"></p>
 
-      <div id="listaAgrupada"></div>
+      <div>
+        <label for="quantidade">Quantidade *</label>
+        <input id="quantidade" type="number" min="1" step="1" value="1" required>
+      </div>
     </div>
-  </section>
+
+    <div class="preco-destaque">
+      <span>Valor a pagar (R$ 30,00 cada):</span>
+      <strong id="valorPrevisto">R$ 30,00</strong>
+    </div>
+
+    <button type="submit" class="sucesso">ADICIONAR À LISTA</button>
+    <button type="button" class="secundario" id="btnLimparForm">LIMPAR CAMPOS</button>
+
+    <p id="statusForm" class="status"></p>
+  </form>
+</section>
+
+<!-- LISTA PROTEGIDA -->
+<section class="painel">
+  <h2>Ver lista</h2>
+
+  <div id="bloqueioLista">
+    <label for="senhaLista">Digite a senha para visualizar a lista:</label>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <input
+        id="senhaLista"
+        type="password"
+        placeholder="Digite a senha"
+        style="max-width:260px"
+      >
+
+      <button type="button" id="btnMostrarSenha" class="secundario">
+        MOSTRAR SENHA
+      </button>
+
+      <button type="button" id="btnDesbloquear">
+        DESBLOQUEAR LISTA
+      </button>
+    </div>
+
+    <p id="statusSenha" class="status"></p>
+  </div>
+
+  <div id="areaListaCompleta" class="oculto">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <span class="aviso">Lista desbloqueada — atualização em tempo real ativa.</span>
+      <button type="button" class="secundario" id="btnBloquear">OCULTAR LISTA</button>
+    </div>
+
+    <!-- TROCA DE FOTO SOMENTE APÓS SENHA -->
+    <div class="area-foto-admin">
+      <strong style="display:block;margin-bottom:8px">Fotografia do boné</strong>
+
+      <div class="foto-box">
+        <img id="fotoBone" src="33045.jpg" alt="Foto do Boné PMRv">
+
+        <strong>Valor unitário: R$ 30,00 por boné</strong>
+
+        <label for="uploadFoto" style="margin-top:12px">
+          Alterar fotografia para visualização:
+        </label>
+
+        <input type="file" id="uploadFoto" accept="image/*" style="max-width:320px">
+      </div>
+    </div>
+
+    <div id="resumoGeral" class="resumo-geral"></div>
+
+    <div class="acoes-lista">
+      <button type="button" id="btnCopiarLista">COPIAR LISTA INTEIRA</button>
+      <button type="button" class="sucesso" id="btnGerarPdf">GERAR PDF</button>
+      <button type="button" class="sucesso" id="btnGerarExcel">GERAR EXCEL (.XLSX)</button>
+      <button type="button" class="perigo" id="btnLimparLista">LIMPAR LISTA</button>
+    </div>
+
+    <p id="statusAcoes" class="status"></p>
+
+    <div id="listaAgrupada"></div>
+
+  </div>
+</section>
 
 </main>
 
-<footer>BONÉ PMRv — Coleta Temporária de Pedidos</footer>
+<footer>BONÉ PMRv — Coleta de Pedidos</footer>
 
 <script type="module">
+
 import { initializeApp }
-  from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
 import {
-  getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, deleteDoc, doc
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  getDocs,
+  deleteDoc,
+  doc
+}
+from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-// MESMO PROJETO FIREBASE DO SEU CÓDIGO ORIGINAL, EM COLEÇÃO SEPARADA
 const firebaseConfig = {
   apiKey: "AIzaSyCejUSVl5rZ3K3x1FI4Qoj9T0EBjQUBsPI",
   authDomain: "relatoriobo-a246a.firebaseapp.com",
@@ -475,32 +508,24 @@ let pedidos = [];
 let listaDesbloqueada = false;
 let fallbackLocal = [];
 
-// Upload local opcional da imagem caso abra fora da pasta
-$("uploadFoto").addEventListener("change", (e) => {
-  const arquivo = e.target.files?.[0];
-  if (!arquivo) return;
-  const leitor = new FileReader();
-  leitor.onload = () => {
-    $("fotoBone").src = leitor.result;
-  };
-  leitor.readAsDataURL(arquivo);
-});
-
+/* MOEDA */
 function formatarMoeda(valor) {
-  return valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    style:"currency",
+    currency:"BRL"
   });
 }
 
+/* VALOR AUTOMÁTICO */
 function atualizarValorPrevisto() {
-  const qtd = Math.max(0, parseInt($("quantidade").value, 10) || 0);
+  const qtd = Math.max(0, parseInt($("quantidade").value,10) || 0);
   $("valorPrevisto").textContent = formatarMoeda(qtd * VALOR_UNITARIO);
 }
 
 $("quantidade").addEventListener("input", atualizarValorPrevisto);
 atualizarValorPrevisto();
 
+/* LIMPAR FORMULÁRIO */
 $("btnLimparForm").addEventListener("click", () => {
   $("formPedido").reset();
   $("quantidade").value = 1;
@@ -508,8 +533,27 @@ $("btnLimparForm").addEventListener("click", () => {
   $("statusForm").textContent = "";
 });
 
-// Envio do pedido
-$("formPedido").addEventListener("submit", async (e) => {
+/* FOTO: DISPONÍVEL SOMENTE NA ÁREA PROTEGIDA */
+$("uploadFoto").addEventListener("change", e => {
+  const arquivo = e.target.files?.[0];
+  if (!arquivo) return;
+
+  if (!arquivo.type.startsWith("image/")) {
+    alert("Selecione um arquivo de imagem válido.");
+    return;
+  }
+
+  const leitor = new FileReader();
+
+  leitor.onload = () => {
+    $("fotoBone").src = leitor.result;
+  };
+
+  leitor.readAsDataURL(arquivo);
+});
+
+/* CADASTRAR PEDIDO */
+$("formPedido").addEventListener("submit", async e => {
   e.preventDefault();
 
   const graduacao = $("graduacao").value.trim();
@@ -518,10 +562,14 @@ $("formPedido").addEventListener("submit", async (e) => {
   const nomeCompleto = $("nomeCompleto").value.trim();
   const opm = $("opm").value.trim();
   const subunidade = $("subunidade").value.trim();
-  const quantidade = parseInt($("quantidade").value, 10);
+  const quantidade = parseInt($("quantidade").value,10);
 
-  if (!graduacao || !re || !nomeGuerra || !nomeCompleto || !opm || !subunidade || !quantidade || quantidade < 1) {
-    $("statusForm").textContent = "Preencha todos os campos obrigatórios corretamente.";
+  if (
+    !graduacao || !re || !nomeGuerra ||
+    !nomeCompleto || !opm || !subunidade ||
+    !Number.isInteger(quantidade) || quantidade < 1
+  ) {
+    $("statusForm").textContent = "Preencha todos os campos corretamente.";
     return;
   }
 
@@ -537,380 +585,616 @@ $("formPedido").addEventListener("submit", async (e) => {
     createdAt: new Date().toISOString()
   };
 
+  $("statusForm").textContent = "Enviando pedido...";
+
   try {
     await addDoc(collection(db, COLECAO_BONES), novoPedido);
+
     $("statusForm").textContent = "Pedido adicionado com sucesso!";
+
     $("formPedido").reset();
     $("quantidade").value = 1;
     atualizarValorPrevisto();
+
   } catch (erro) {
-    console.error("Erro ao salvar no Firestore:", erro);
-    // Fallback em memória caso as regras do Firestore exijam autenticação
-    fallbackLocal.push({ id: String(Date.now()), ...novoPedido });
-    pedidos = [...fallbackLocal];
-    $("statusForm").textContent = "Registrado na sessão local (verifique as regras do Firestore para sincronização online).";
-    $("formPedido").reset();
-    $("quantidade").value = 1;
-    atualizarValorPrevisto();
-    if (listaDesbloqueada) renderizarListaAgrupada();
+    console.error("Erro Firebase:", erro);
+
+    $("statusForm").textContent =
+      "Não foi possível salvar online. Verifique a conexão e as regras do Firebase.";
+
   }
 });
 
-// Desbloqueio por senha
+/* MOSTRAR OU OCULTAR SENHA */
+$("btnMostrarSenha").addEventListener("click", () => {
+  const campo = $("senhaLista");
+
+  if (campo.type === "password") {
+    campo.type = "text";
+    $("btnMostrarSenha").textContent = "OCULTAR SENHA";
+  } else {
+    campo.type = "password";
+    $("btnMostrarSenha").textContent = "MOSTRAR SENHA";
+  }
+});
+
+/* DESBLOQUEAR LISTA */
 function tentarDesbloquear() {
-  const digitada = $("senhaLista").value;
+
+  const digitada = $("senhaLista").value.trim();
+
   if (digitada === SENHA_VISUALIZACAO) {
+
     listaDesbloqueada = true;
+
     $("statusSenha").textContent = "";
     $("bloqueioLista").classList.add("oculto");
     $("areaListaCompleta").classList.remove("oculto");
+
     renderizarListaAgrupada();
+
   } else {
-    $("statusSenha").textContent = "Senha incorreta.";
+
+    $("statusSenha").textContent = "Senha incorreta. Tente novamente.";
+
+    $("senhaLista").focus();
+    $("senhaLista").select();
+
   }
 }
 
 $("btnDesbloquear").addEventListener("click", tentarDesbloquear);
-$("senhaLista").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") tentarDesbloquear();
+
+$("senhaLista").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    tentarDesbloquear();
+  }
 });
 
+/* BLOQUEAR NOVAMENTE */
 $("btnBloquear").addEventListener("click", () => {
+
   listaDesbloqueada = false;
+
   $("senhaLista").value = "";
+  $("senhaLista").type = "password";
+  $("btnMostrarSenha").textContent = "MOSTRAR SENHA";
+
   $("areaListaCompleta").classList.add("oculto");
   $("bloqueioLista").classList.remove("oculto");
+
 });
 
-// Escuta em tempo real
+/* TEMPO REAL FIREBASE */
 function iniciarTempoReal() {
-  try {
-    const q = query(collection(db, COLECAO_BONES), orderBy("createdAt", "asc"));
-    onSnapshot(q, (snapshot) => {
-      const listaFirestore = [];
-      snapshot.forEach((docSnap) => {
-        const dados = docSnap.data();
-        const qtd = Number(dados.quantidade) || 0;
-        listaFirestore.push({
-          id: docSnap.id,
-          graduacao: dados.graduacao || "",
-          re: dados.re || "",
-          nomeGuerra: dados.nomeGuerra || "",
-          nomeCompleto: dados.nomeCompleto || "",
-          opm: dados.opm || "",
-          subunidade: dados.subunidade || "",
-          quantidade: qtd,
-          valorTotal: Number(dados.valorTotal) || (qtd * VALOR_UNITARIO),
-          createdAt: dados.createdAt || ""
-        });
+
+  const q = query(
+    collection(db, COLECAO_BONES),
+    orderBy("createdAt","asc")
+  );
+
+  onSnapshot(q, snapshot => {
+
+    pedidos = [];
+
+    snapshot.forEach(docSnap => {
+
+      const dados = docSnap.data();
+      const qtd = Number(dados.quantidade) || 0;
+
+      pedidos.push({
+        id:docSnap.id,
+        graduacao:dados.graduacao || "",
+        re:dados.re || "",
+        nomeGuerra:dados.nomeGuerra || "",
+        nomeCompleto:dados.nomeCompleto || "",
+        opm:dados.opm || "",
+        subunidade:dados.subunidade || "",
+        quantidade:qtd,
+        valorTotal:Number(dados.valorTotal) || qtd * VALOR_UNITARIO,
+        createdAt:dados.createdAt || ""
       });
-      pedidos = listaFirestore;
-      if (listaDesbloqueada) {
-        renderizarListaAgrupada();
-      }
-    }, (erro) => {
-      console.warn("Snapshot indisponível sem autenticação:", erro.message);
+
     });
-  } catch (erro) {
-    console.warn(erro);
-  }
+
+    if (listaDesbloqueada) {
+      renderizarListaAgrupada();
+    }
+
+  }, erro => {
+
+    console.error("Erro na sincronização:", erro);
+
+    $("statusForm").textContent =
+      "Erro de sincronização com Firebase: " + erro.message;
+
+  });
+
 }
 
+/* AGRUPAMENTO POR OPM E CIA */
 function agruparPorOpmECia(lista) {
+
   const mapaOpm = new Map();
 
   for (const item of lista) {
+
     const opmKey = item.opm || "SEM OPM";
     const ciaKey = item.subunidade || "SEM SUBUNIDADE";
 
     if (!mapaOpm.has(opmKey)) {
-      mapaOpm.set(opmKey, new Map());
+      mapaOpm.set(opmKey,new Map());
     }
+
     const mapaCia = mapaOpm.get(opmKey);
 
     if (!mapaCia.has(ciaKey)) {
-      mapaCia.set(ciaKey, []);
+      mapaCia.set(ciaKey,[]);
     }
+
     mapaCia.get(ciaKey).push(item);
+
   }
 
-  // Ordena OPMs e Cias
-  const opmsOrdenadas = Array.from(mapaOpm.keys()).sort((a, b) =>
-    a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
+  const opmsOrdenadas = Array.from(mapaOpm.keys()).sort(
+    (a,b) => a.localeCompare(b,"pt-BR",{numeric:true})
   );
 
-  return opmsOrdenadas.map((opm) => {
+  return opmsOrdenadas.map(opm => {
+
     const mapaCia = mapaOpm.get(opm);
-    const ciasOrdenadas = Array.from(mapaCia.keys()).sort((a, b) =>
-      a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
+
+    const ciasOrdenadas = Array.from(mapaCia.keys()).sort(
+      (a,b) => a.localeCompare(b,"pt-BR",{numeric:true})
     );
 
-    const cias = ciasOrdenadas.map((cia) => ({
-      cia,
-      itens: mapaCia.get(cia)
-    }));
+    return {
+      opm,
+      cias:ciasOrdenadas.map(cia => ({
+        cia,
+        itens:mapaCia.get(cia)
+      }))
+    };
 
-    return { opm, cias };
   });
+
 }
 
+/* PROTEÇÃO CONTRA HTML INJETADO */
+function escapeHtml(texto) {
+
+  return String(texto ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+/* RENDERIZAR LISTA */
 function renderizarListaAgrupada() {
+
   const totalPessoas = pedidos.length;
-  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
-  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
+
+  const totalBones = pedidos.reduce(
+    (acc,p) => acc + (Number(p.quantidade) || 0),0
+  );
+
+  const totalValor = pedidos.reduce(
+    (acc,p) => acc + (Number(p.valorTotal) || 0),0
+  );
 
   $("resumoGeral").innerHTML = `
-    <div><span>Total de pessoas</span><strong>${totalPessoas}</strong></div>
-    <div><span>Total de bonés</span><strong>${totalBones}</strong></div>
-    <div><span>Valor total previsto</span><strong>${formatarMoeda(totalValor)}</strong></div>
+    <div>
+      <span>Total de pessoas</span>
+      <strong>${totalPessoas}</strong>
+    </div>
+    <div>
+      <span>Total de bonés</span>
+      <strong>${totalBones}</strong>
+    </div>
+    <div>
+      <span>Valor total previsto</span>
+      <strong>${formatarMoeda(totalValor)}</strong>
+    </div>
   `;
 
   if (!pedidos.length) {
-    $("listaAgrupada").innerHTML = `<p class="status">Nenhum pedido registrado até o momento.</p>`;
+    $("listaAgrupada").innerHTML =
+      '<p class="status">Nenhum pedido registrado até o momento.</p>';
     return;
   }
 
   const grupos = agruparPorOpmECia(pedidos);
+
   let html = "";
 
   for (const grupoOpm of grupos) {
+
     let qtdOpm = 0;
     let valorOpm = 0;
+
     grupoOpm.cias.forEach(c => c.itens.forEach(i => {
       qtdOpm += Number(i.quantidade) || 0;
-      valorOpm += Number(i.valorTotal) || ((Number(i.quantidade) || 0) * VALOR_UNITARIO);
+      valorOpm += Number(i.valorTotal) || 0;
     }));
 
     html += `<div class="grupo-opm">`;
-    html += `<div class="grupo-opm-titulo">OPM: ${escapeHtml(grupoOpm.opm)} — ${qtdOpm} boné(s) (${formatarMoeda(valorOpm)})</div>`;
+
+    html += `
+      <div class="grupo-opm-titulo">
+        OPM: ${escapeHtml(grupoOpm.opm)}
+        — ${qtdOpm} boné(s)
+        (${formatarMoeda(valorOpm)})
+      </div>
+    `;
 
     for (const grupoCia of grupoOpm.cias) {
+
       let qtdCia = 0;
       let valorCia = 0;
+
       grupoCia.itens.forEach(i => {
         qtdCia += Number(i.quantidade) || 0;
-        valorCia += Number(i.valorTotal) || ((Number(i.quantidade) || 0) * VALOR_UNITARIO);
+        valorCia += Number(i.valorTotal) || 0;
       });
 
-      html += `<div class="grupo-cia-titulo">${escapeHtml(grupoCia.cia)} — ${qtdCia} boné(s) (${formatarMoeda(valorCia)})</div>`;
-      html += `<div class="table-wrap"><table>
-        <thead>
-          <tr>
-            <th>Graduação</th>
-            <th>RE</th>
-            <th>Nome de Guerra</th>
-            <th>Nome completo</th>
-            <th>OPM</th>
-            <th>Subunidade</th>
-            <th>Qtd</th>
-            <th>Valor a pagar</th>
-          </tr>
-        </thead>
-        <tbody>`;
+      html += `
+        <div class="grupo-cia-titulo">
+          ${escapeHtml(grupoCia.cia)}
+          — ${qtdCia} boné(s)
+          (${formatarMoeda(valorCia)})
+        </div>
+      `;
+
+      html += `
+        <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Graduação</th>
+              <th>RE</th>
+              <th>Nome de Guerra</th>
+              <th>Nome completo</th>
+              <th>OPM</th>
+              <th>Subunidade</th>
+              <th>Qtd</th>
+              <th>Valor a pagar</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
 
       for (const item of grupoCia.itens) {
-        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
-        html += `<tr>
-          <td>${escapeHtml(item.graduacao)}</td>
-          <td>${escapeHtml(item.re)}</td>
-          <td>${escapeHtml(item.nomeGuerra)}</td>
-          <td>${escapeHtml(item.nomeCompleto)}</td>
-          <td>${escapeHtml(item.opm)}</td>
-          <td>${escapeHtml(item.subunidade)}</td>
-          <td>${Number(item.quantidade) || 0}</td>
-          <td>${formatarMoeda(valorItem)}</td>
-        </tr>`;
+
+        html += `
+          <tr>
+            <td>${escapeHtml(item.graduacao)}</td>
+            <td>${escapeHtml(item.re)}</td>
+            <td>${escapeHtml(item.nomeGuerra)}</td>
+            <td>${escapeHtml(item.nomeCompleto)}</td>
+            <td>${escapeHtml(item.opm)}</td>
+            <td>${escapeHtml(item.subunidade)}</td>
+            <td>${Number(item.quantidade) || 0}</td>
+            <td>${formatarMoeda(item.valorTotal)}</td>
+          </tr>
+        `;
+
       }
 
-      html += `</tbody></table></div>`;
+      html += `
+          </tbody>
+        </table>
+        </div>
+      `;
+
     }
 
     html += `</div>`;
+
   }
 
   $("listaAgrupada").innerHTML = html;
+
 }
 
-function escapeHtml(texto) {
-  return String(texto ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
+/* TEXTO PARA COPIAR */
 function montarTextoCopia() {
-  if (!pedidos.length) return "LISTA BONÉ PMRv - Sem registros.";
 
-  const grupos = agruparPorOpmECia(pedidos);
-  const linhas = ["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)", "=============================================="];
-
-  for (const grupoOpm of grupos) {
-    linhas.push(`
-OPM: ${grupoOpm.opm}`);
-    for (const grupoCia of grupoOpm.cias) {
-      linhas.push(`  [${grupoCia.cia}]`);
-      grupoCia.itens.forEach((item, idx) => {
-        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
-        linhas.push(
-          `    ${idx + 1}. ${item.graduacao} | RE: ${item.re} | ${item.nomeGuerra} | ${item.nomeCompleto} | OPM: ${item.opm} | ${item.subunidade} | Qtd: ${item.quantidade} | Valor: ${formatarMoeda(valorItem)}`
-        );
-      });
-    }
+  if (!pedidos.length) {
+    return "LISTA BONÉ PMRv - Sem registros.";
   }
 
-  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
-  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
-  linhas.push(`
-TOTAL GERAL: ${pedidos.length} pessoa(s) | ${totalBones} boné(s) | ${formatarMoeda(totalValor)}`);
+  const grupos = agruparPorOpmECia(pedidos);
 
-  return linhas.join("
-");
+  const linhas = [
+    "BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)",
+    "=============================================="
+  ];
+
+  for (const grupoOpm of grupos) {
+
+    linhas.push(`\nOPM: ${grupoOpm.opm}`);
+
+    for (const grupoCia of grupoOpm.cias) {
+
+      linhas.push(`  [${grupoCia.cia}]`);
+
+      grupoCia.itens.forEach((item,idx) => {
+
+        linhas.push(
+          `    ${idx+1}. ${item.graduacao} | RE: ${item.re} | ${item.nomeGuerra} | ${item.nomeCompleto} | OPM: ${item.opm} | ${item.subunidade} | Qtd: ${item.quantidade} | Valor: ${formatarMoeda(item.valorTotal)}`
+        );
+
+      });
+
+    }
+
+  }
+
+  const totalBones = pedidos.reduce(
+    (acc,p) => acc + (Number(p.quantidade) || 0),0
+  );
+
+  const totalValor = pedidos.reduce(
+    (acc,p) => acc + (Number(p.valorTotal) || 0),0
+  );
+
+  linhas.push(
+    `\nTOTAL GERAL: ${pedidos.length} pessoa(s) | ${totalBones} boné(s) | ${formatarMoeda(totalValor)}`
+  );
+
+  return linhas.join("\n");
+
 }
 
-$("btnCopiarLista").addEventListener("click", async () => {
+/* COPIAR LISTA */
+$("btnCopiarLista").addEventListener("click",async () => {
+
   const texto = montarTextoCopia();
+
   try {
+
     await navigator.clipboard.writeText(texto);
-    $("statusAcoes").textContent = "Lista inteira copiada para a área de transferência!";
+
+    $("statusAcoes").textContent =
+      "Lista inteira copiada para a área de transferência!";
+
   } catch {
+
     const temp = document.createElement("textarea");
+
     temp.value = texto;
     document.body.appendChild(temp);
     temp.select();
-    document.execCommand("copy");
+
+    const sucesso = document.execCommand("copy");
+
     temp.remove();
-    $("statusAcoes").textContent = "Lista inteira copiada!";
+
+    $("statusAcoes").textContent = sucesso
+      ? "Lista inteira copiada!"
+      : "Não foi possível copiar a lista.";
+
   }
+
 });
 
-$("btnGerarPdf").addEventListener("click", () => {
+/* GERAR PDF */
+$("btnGerarPdf").addEventListener("click",() => {
+
   if (!pedidos.length) {
     $("statusAcoes").textContent = "Não há dados para gerar PDF.";
     return;
   }
 
-  const { jsPDF } = window.jspdf;
-  const docPdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    $("statusAcoes").textContent = "Biblioteca PDF não carregada.";
+    return;
+  }
+
+  const {jsPDF} = window.jspdf;
+
+  const docPdf = new jsPDF({
+    orientation:"landscape",
+    unit:"mm",
+    format:"a4"
+  });
+
   let y = 14;
 
   docPdf.setFontSize(15);
-  docPdf.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA", 14, y);
+  docPdf.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA",14,y);
+
   y += 7;
 
-  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
-  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
+  const totalBones = pedidos.reduce(
+    (acc,p) => acc + (Number(p.quantidade) || 0),0
+  );
+
+  const totalValor = pedidos.reduce(
+    (acc,p) => acc + (Number(p.valorTotal) || 0),0
+  );
+
   docPdf.setFontSize(10);
-  docPdf.text(`Total de pessoas: ${pedidos.length}   |   Total de bonés: ${totalBones}   |   Valor total: ${formatarMoeda(totalValor)}`, 14, y);
-  y += 8;
+
+  docPdf.text(
+    `Total de pessoas: ${pedidos.length} | Total de bonés: ${totalBones} | Valor total: ${formatarMoeda(totalValor)}`,
+    14,y
+  );
+
+  y += 9;
 
   const grupos = agruparPorOpmECia(pedidos);
 
   for (const grupoOpm of grupos) {
+
     if (y > 180) {
       docPdf.addPage();
       y = 14;
     }
+
     docPdf.setFontSize(12);
-    docPdf.text(`OPM: ${grupoOpm.opm}`, 14, y);
-    y += 5;
+    docPdf.text(`OPM: ${grupoOpm.opm}`,14,y);
+
+    y += 6;
 
     for (const grupoCia of grupoOpm.cias) {
-      if (y > 182) {
+
+      if (y > 175) {
         docPdf.addPage();
         y = 14;
       }
-      docPdf.setFontSize(10);
-      docPdf.text(`Subunidade: ${grupoCia.cia}`, 16, y);
-      y += 2;
 
-      const rows = grupoCia.itens.map(item => {
-        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
-        return [
-          item.graduacao,
-          item.re,
-          item.nomeGuerra,
-          item.nomeCompleto,
-          item.opm,
-          item.subunidade,
-          String(item.quantidade),
-          formatarMoeda(valorItem)
-        ];
-      });
+      docPdf.setFontSize(10);
+      docPdf.text(`Subunidade: ${grupoCia.cia}`,16,y);
+
+      const rows = grupoCia.itens.map(item => [
+        item.graduacao,
+        item.re,
+        item.nomeGuerra,
+        item.nomeCompleto,
+        item.opm,
+        item.subunidade,
+        String(item.quantidade),
+        formatarMoeda(item.valorTotal)
+      ]);
 
       docPdf.autoTable({
-        startY: y + 1,
-        head: [["Graduação", "RE", "Nome de Guerra", "Nome completo", "OPM", "Subunidade", "Qtd", "Valor a pagar"]],
-        body: rows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [30, 30, 30], textColor: [255, 212, 0] },
-        margin: { left: 14, right: 14 }
+        startY:y+3,
+        head:[[
+          "Graduação","RE","Nome de Guerra","Nome completo",
+          "OPM","Subunidade","Qtd","Valor a pagar"
+        ]],
+        body:rows,
+        styles:{
+          fontSize:8,
+          cellPadding:2
+        },
+        headStyles:{
+          fillColor:[40,40,40],
+          textColor:[255,212,0]
+        },
+        margin:{left:14,right:14}
       });
 
       y = docPdf.lastAutoTable.finalY + 8;
+
     }
+
   }
 
   docPdf.save("Lista_Bone_PMRv.pdf");
+
   $("statusAcoes").textContent = "PDF gerado com sucesso!";
+
 });
 
-$("btnGerarExcel").addEventListener("click", () => {
+/* GERAR EXCEL */
+$("btnGerarExcel").addEventListener("click",() => {
+
   if (!pedidos.length) {
     $("statusAcoes").textContent = "Não há dados para gerar Excel.";
     return;
   }
 
-  const grupos = agruparPorOpmECia(pedidos);
+  if (!window.XLSX) {
+    $("statusAcoes").textContent = "Biblioteca Excel não carregada.";
+    return;
+  }
+
   const linhasExcel = [];
 
+  const grupos = agruparPorOpmECia(pedidos);
+
   for (const grupoOpm of grupos) {
+
     for (const grupoCia of grupoOpm.cias) {
+
       for (const item of grupoCia.itens) {
-        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
+
         linhasExcel.push({
-          "OPM": item.opm,
-          "Subunidade": item.subunidade,
-          "Graduação": item.graduacao,
-          "RE com dígito": item.re,
-          "Nome de Guerra": item.nomeGuerra,
-          "Nome completo": item.nomeCompleto,
-          "Quantidade": Number(item.quantidade) || 0,
-          "Valor unitário (R$)": VALOR_UNITARIO,
-          "Valor a pagar (R$)": valorItem
+          "OPM":item.opm,
+          "Subunidade":item.subunidade,
+          "Graduação":item.graduacao,
+          "RE com dígito":item.re,
+          "Nome de Guerra":item.nomeGuerra,
+          "Nome completo":item.nomeCompleto,
+          "Quantidade":Number(item.quantidade) || 0,
+          "Valor unitário (R$)":VALOR_UNITARIO,
+          "Valor a pagar (R$)":Number(item.valorTotal) || 0
         });
+
       }
+
     }
+
   }
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(linhasExcel);
-  XLSX.utils.book_append_sheet(wb, ws, "Pedidos Bone PMRv");
-  XLSX.writeFile(wb, "Lista_Bone_PMRv.xlsx");
-  $("statusAcoes").textContent = "Arquivo Excel (.xlsx) gerado com sucesso!";
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    "Pedidos Bone PMRv"
+  );
+
+  XLSX.writeFile(wb,"Lista_Bone_PMRv.xlsx");
+
+  $("statusAcoes").textContent =
+    "Arquivo Excel gerado com sucesso!";
+
 });
 
-$("btnLimparLista").addEventListener("click", async () => {
-  if (!confirm("Deseja realmente apagar todos os registros desta lista temporária?")) return;
+/* LIMPAR LISTA */
+$("btnLimparLista").addEventListener("click",async () => {
+
+  if (!confirm(
+    "Deseja realmente apagar todos os registros desta lista?"
+  )) return;
+
+  $("statusAcoes").textContent = "Apagando registros...";
+
   try {
-    const snap = await getDocs(collection(db, COLECAO_BONES));
+
+    const snap = await getDocs(
+      collection(db,COLECAO_BONES)
+    );
+
     const promessas = [];
-    snap.forEach((d) => promessas.push(deleteDoc(doc(db, COLECAO_BONES, d.id))));
+
+    snap.forEach(d => {
+      promessas.push(
+        deleteDoc(doc(db,COLECAO_BONES,d.id))
+      );
+    });
+
     await Promise.all(promessas);
+
     fallbackLocal = [];
     pedidos = [];
+
     renderizarListaAgrupada();
-    $("statusAcoes").textContent = "Lista limpa com sucesso.";
-  } catch (erro) {
+
+    $("statusAcoes").textContent =
+      "Lista limpa com sucesso!";
+
+  } catch(erro) {
+
     console.error(erro);
-    fallbackLocal = [];
-    pedidos = [];
-    renderizarListaAgrupada();
-    $("statusAcoes").textContent = "Lista limpa na sessão atual.";
+
+    $("statusAcoes").textContent =
+      "Erro ao limpar a lista no Firebase: " + erro.message;
+
   }
+
 });
 
+/* INICIAR APLICAÇÃO */
 iniciarTempoReal();
+
 </script>
 
 </body>
