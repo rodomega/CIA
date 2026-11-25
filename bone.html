@@ -54,7 +54,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <div><label for="nomeCompleto">Nome completo *</label><input id="nomeCompleto" required></div>
 </div>
 <div class="grid-3" style="margin-top:10px">
-<div><label for="opm">OPM *</label><input id="opm" required placeholder="Ex.: 620044100"></div>
+<div><label for="opm">OPM *</label><input id="opm" required placeholder="Ex.: 4°BPRv"></div>
 <div><label for="subunidade">Subunidade / CIA *</label><select id="subunidade" required><option value="">Selecione...</option><option>1° Cia</option><option>2° Cia</option><option>3° Cia</option><option>4° Cia</option><option>5° Cia</option><option>6° Cia</option></select></div>
 <div><label for="quantidade">Quantidade *</label><input id="quantidade" type="number" min="1" step="1" value="1" required></div>
 </div>
@@ -93,7 +93,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 </main>
 <footer>BONÉ PMRv — Coleta de Pedidos</footer>
 <script>
-/* NOVO ENDEREÇO DO GOOGLE APPS SCRIPT */
+/* ENDEREÇO DO GOOGLE APPS SCRIPT */
 const APPS_SCRIPT_ID = "AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoV8N1SvGEojAlFUQkm0fHvDIvPQmo23RMh7NLV0iixxPpJ2LANUaBupS68UuVvein/exec";
 const SENHA_VISUALIZACAO = "rodomega";
@@ -151,7 +151,10 @@ function renderizarLista(){
  html+="</tbody></table></div>";}html+="</div>";}
  $("listaAgrupada").innerHTML=html;
 }
-function montarTexto(){if(!pedidos.length)return "LISTA BONÉ PMRv - Sem registros.";const linhas=["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)","=============================================="];for(const go of agrupar(pedidos)){linhas.push("\nOPM: "+go.opm);for(const gc of go.cias){linhas.push("  ["+gc.cia+"]");gc.itens.forEach((p,i)=>linhas.push(`    ${i+1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}`));}}const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);linhas.push(`\nTOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);return linhas.join("\n");}
+function montarTexto(){if(!pedidos.length)return "LISTA BONÉ PMRv - Sem registros.";const linhas=["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)","=============================================="];for(const go of agrupar(pedidos)){linhas.push("
+OPM: "+go.opm);for(const gc of go.cias){linhas.push("  ["+gc.cia+"]");gc.itens.forEach((p,i)=>linhas.push(`    ${i+1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}`));}}const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);linhas.push(`
+TOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);return linhas.join("
+");}
 $("btnCopiarLista").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(montarTexto());status("statusAcoes","Lista inteira copiada!");}catch(e){const t=document.createElement("textarea");t.value=montarTexto();document.body.appendChild(t);t.select();const ok=document.execCommand("copy");t.remove();status("statusAcoes",ok?"Lista inteira copiada!":"Não foi possível copiar.");}});
 $("btnGerarPdf").addEventListener("click",()=>{if(!pedidos.length){status("statusAcoes","Não há dados para gerar PDF.");return;}if(!window.jspdf?.jsPDF){status("statusAcoes","Biblioteca PDF não carregada.");return;}const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});let y=14;doc.setFontSize(15);doc.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA",14,y);y+=8;const qtd=pedidos.reduce((a,p)=>a+(Number(p.quantidade)||0),0),total=pedidos.reduce((a,p)=>a+calcularValorItem(p),0);doc.setFontSize(10);doc.text(`Pessoas: ${pedidos.length} | Bonés: ${qtd} | Total: ${formatarMoeda(total)}`,14,y);y+=8;
 for(const go of agrupar(pedidos)){if(y>175){doc.addPage();y=14;}doc.setFontSize(12);doc.text("OPM: "+go.opm,14,y);y+=6;for(const gc of go.cias){doc.setFontSize(10);doc.text("CIA: "+gc.cia,16,y);doc.autoTable({startY:y+2,head:[["Graduação","RE","Nome de Guerra","Nome completo","Qtd","Valor a pagar"]],body:gc.itens.map(p=>[p.graduacao,p.re,p.nomeGuerra,p.nomeCompleto,String(p.quantidade),formatarMoeda(calcularValorItem(p))]),styles:{fontSize:8,cellPadding:2},headStyles:{fillColor:[40,40,40],textColor:[255,212,0]},margin:{left:14,right:14}});y=doc.lastAutoTable.finalY+8;}}
