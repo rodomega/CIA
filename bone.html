@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>BONÉ PMRv | Lista de Coleta</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+<style>
+:root {
+  --amarelo: #ffd400;
+  --preto: #111111;
+  --cinza: #242424;
+  --cinza-escuro: #181818;
+  --branco: #f5f5f5;
+  --verde: #20a464;
+  --vermelho: #d93636;
+  --borda: #444444;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--preto);
+  color: var(--branco);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.45;
+}
+
+header {
+  background: #080808;
+  border-bottom: 3px solid var(--amarelo);
+  padding: 20px 15px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--amarelo);
+  font-size: 32px;
+  letter-spacing: 3px;
+}
+
+header p {
+  margin: 6px 0 0;
+  color: #ddd;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+}
+
+main {
+  width: min(100% - 24px, 1000px);
+  margin: 22px auto;
+}
+
+.painel {
+  background: var(--cinza);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+h2 {
+  color: var(--amarelo);
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
+h3 {
+  color: var(--amarelo);
+  margin: 18px 0 10px;
+  font-size: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: #ddd;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 11px 12px;
+  background: #151515;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 7px;
+  font-size: 15px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--amarelo);
+}
+
+.foto-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: var(--cinza-escuro);
+  border: 1px solid #444;
+  border-left: 4px solid var(--amarelo);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.foto-box img {
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid var(--amarelo);
+  margin-bottom: 10px;
+}
+
+.preco-destaque {
+  background: #151515;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preco-destaque strong {
+  color: var(--amarelo);
+  font-size: 18px;
+}
+
+button {
+  border: 0;
+  border-radius: 7px;
+  padding: 11px 15px;
+  margin: 4px 4px 4px 0;
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--amarelo);
+  color: #111;
+  font-size: 14px;
+}
+
+button:hover {
+  filter: brightness(0.92);
+}
+
+button.secundario {
+  background: #444;
+  color: #fff;
+}
+
+button.sucesso {
+  background: var(--verde);
+  color: #fff;
+}
+
+button.perigo {
+  background: var(--vermelho);
+  color: #fff;
+}
+
+.oculto {
+  display: none !important;
+}
+
+.status {
+  color: #ccc;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.aviso {
+  color: var(--amarelo);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.grupo-opm {
+  background: var(--cinza-escuro);
+  border: 1px solid #444;
+  border-left: 4px solid var(--amarelo);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.grupo-opm-titulo {
+  color: var(--amarelo);
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #333;
+}
+
+.grupo-cia-titulo {
+  color: #fff;
+  background: #2b2b2b;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 10px 0 8px;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #141414;
+}
+
+th, td {
+  border: 1px solid #383838;
+  padding: 8px 9px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #222;
+  color: var(--amarelo);
+}
+
+.resumo-geral {
+  background: #151515;
+  border: 1px solid var(--amarelo);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.resumo-geral div strong {
+  color: var(--amarelo);
+  display: block;
+  font-size: 16px;
+}
+
+.resumo-geral div span {
+  color: #bbb;
+  font-size: 12px;
+}
+
+.acoes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+footer {
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  padding: 20px;
+  border-top: 1px solid #333;
+  margin-top: 32px;
+}
+
+@media (max-width: 720px) {
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+  }
+  header h1 {
+    font-size: 26px;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BONÉ PMRv</h1>
+  <p>COLETA DE PEDIDOS E LISTA ORGANIZADA POR OPM E CIA</p>
+</header>
+
+<main>
+
+  <!-- FOTO DO BONÉ -->
+  <section class="painel">
+    <h2>Modelo para visualização</h2>
+    <div class="foto-box">
+      <img id="fotoBone" src="33045.jpg" alt="Foto do Boné PMRv">
+      <div style="font-size:14px; color:#eee;">
+        <strong>Valor unitário:</strong> R$ 30,00 por boné
+      </div>
+      <div style="font-size:12px; color:#bbb; margin-top:4px;">
+        Dica: caso abra o arquivo HTML em outro local sem a imagem na mesma pasta, você pode carregar a foto abaixo apenas para conferência visual.
+      </div>
+      <div style="margin-top:10px; width:100%; max-width:320px;">
+        <input type="file" id="uploadFoto" accept="image/*" style="padding:7px; font-size:12px;">
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO DE COLETA -->
+  <section class="painel">
+    <h2>Preencher pedido</h2>
+    <form id="formPedido">
+      <div class="grid-2">
+        <div>
+          <label for="graduacao">Graduação *</label>
+          <select id="graduacao" required>
+            <option value="">Selecione a graduação...</option>
+            <option value="Soldado">Soldado</option>
+            <option value="Cabo">Cabo</option>
+            <option value="3° Sargento">3° Sargento</option>
+            <option value="2° Sargento">2° Sargento</option>
+            <option value="1° Sargento">1° Sargento</option>
+            <option value="Sub Tenente">Sub Tenente</option>
+            <option value="Aspirante">Aspirante</option>
+            <option value="2° Tenente">2° Tenente</option>
+            <option value="1° Tenente">1° Tenente</option>
+            <option value="Capitão">Capitão</option>
+            <option value="Major">Major</option>
+            <option value="Tenente Coronel">Tenente Coronel</option>
+            <option value="Coronel">Coronel</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="re">RE com dígito *</label>
+          <input id="re" type="text" placeholder="Ex.: 194528-9" required>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:10px;">
+        <div>
+          <label for="nomeGuerra">Nome de Guerra *</label>
+          <input id="nomeGuerra" type="text" placeholder="Ex.: Munhoz" required>
+        </div>
+
+        <div>
+          <label for="nomeCompleto">Nome completo *</label>
+          <input id="nomeCompleto" type="text" placeholder="Digite o nome completo" required>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:10px;">
+        <div>
+          <label for="opm">OPM *</label>
+          <input id="opm" type="text" placeholder="Ex.: 620044100" required>
+        </div>
+
+        <div>
+          <label for="subunidade">Subunidade *</label>
+          <select id="subunidade" required>
+            <option value="">Selecione a Cia...</option>
+            <option value="1° Cia">1° Cia</option>
+            <option value="2° Cia">2° Cia</option>
+            <option value="3° Cia">3° Cia</option>
+            <option value="4° Cia">4° Cia</option>
+            <option value="5° Cia">5° Cia</option>
+            <option value="6° Cia">6° Cia</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="quantidade">Quantidade *</label>
+          <input id="quantidade" type="number" min="1" step="1" value="1" required>
+        </div>
+      </div>
+
+      <div class="preco-destaque">
+        <span>Valor a pagar calculado (R$ 30,00 cada):</span>
+        <strong id="valorPrevisto">R$ 30,00</strong>
+      </div>
+
+      <button type="submit" class="sucesso">ADICIONAR À LISTA</button>
+      <button type="button" class="secundario" id="btnLimparForm">LIMPAR CAMPOS</button>
+      <p id="statusForm" class="status"></p>
+    </form>
+  </section>
+
+  <!-- VISUALIZAÇÃO PROTEGIDA POR SENHA -->
+  <section class="painel">
+    <h2>Ver lista</h2>
+
+    <div id="bloqueioLista">
+      <label for="senhaLista">Digite a senha para visualizar a lista em tempo real:</label>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+        <input id="senhaLista" type="password" placeholder="Digite a senha" style="max-width:260px;">
+        <button type="button" id="btnDesbloquear">DESBLOQUEAR LISTA</button>
+      </div>
+      <p id="statusSenha" class="status"></p>
+    </div>
+
+    <div id="areaListaCompleta" class="oculto">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+        <span class="aviso" style="margin:0;">Lista desbloqueada — atualização em tempo real ativa.</span>
+        <button type="button" class="secundario" id="btnBloquear">OCULTAR LISTA</button>
+      </div>
+
+      <div id="resumoGeral" class="resumo-geral"></div>
+
+      <div class="acoes-lista">
+        <button type="button" id="btnCopiarLista">COPIAR LISTA INTEIRA</button>
+        <button type="button" class="sucesso" id="btnGerarPdf">GERAR PDF</button>
+        <button type="button" class="sucesso" id="btnGerarExcel">GERAR EXCEL (.XLSX)</button>
+        <button type="button" class="perigo" id="btnLimparLista">LIMPAR LISTA</button>
+      </div>
+      <p id="statusAcoes" class="status"></p>
+
+      <div id="listaAgrupada"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>BONÉ PMRv — Coleta Temporária de Pedidos</footer>
+
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+import {
+  getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, deleteDoc, doc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+// MESMO PROJETO FIREBASE DO SEU CÓDIGO ORIGINAL, EM COLEÇÃO SEPARADA
+const firebaseConfig = {
+  apiKey: "AIzaSyCejUSVl5rZ3K3x1FI4Qoj9T0EBjQUBsPI",
+  authDomain: "relatoriobo-a246a.firebaseapp.com",
+  projectId: "relatoriobo-a246a",
+  storageBucket: "relatoriobo-a246a.firebasestorage.app",
+  messagingSenderId: "261461444124",
+  appId: "1:261461444124:web:532cf2176002e0d93b41d9",
+  measurementId: "G-H2XDWWQ5S7"
+};
+
+const COLECAO_BONES = "bone_pmrv_pedidos";
+const SENHA_VISUALIZACAO = "rodomega";
+const VALOR_UNITARIO = 30;
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+
+let pedidos = [];
+let listaDesbloqueada = false;
+let fallbackLocal = [];
+
+// Upload local opcional da imagem caso abra fora da pasta
+$("uploadFoto").addEventListener("change", (e) => {
+  const arquivo = e.target.files?.[0];
+  if (!arquivo) return;
+  const leitor = new FileReader();
+  leitor.onload = () => {
+    $("fotoBone").src = leitor.result;
+  };
+  leitor.readAsDataURL(arquivo);
+});
+
+function formatarMoeda(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function atualizarValorPrevisto() {
+  const qtd = Math.max(0, parseInt($("quantidade").value, 10) || 0);
+  $("valorPrevisto").textContent = formatarMoeda(qtd * VALOR_UNITARIO);
+}
+
+$("quantidade").addEventListener("input", atualizarValorPrevisto);
+atualizarValorPrevisto();
+
+$("btnLimparForm").addEventListener("click", () => {
+  $("formPedido").reset();
+  $("quantidade").value = 1;
+  atualizarValorPrevisto();
+  $("statusForm").textContent = "";
+});
+
+// Envio do pedido
+$("formPedido").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const graduacao = $("graduacao").value.trim();
+  const re = $("re").value.trim();
+  const nomeGuerra = $("nomeGuerra").value.trim();
+  const nomeCompleto = $("nomeCompleto").value.trim();
+  const opm = $("opm").value.trim();
+  const subunidade = $("subunidade").value.trim();
+  const quantidade = parseInt($("quantidade").value, 10);
+
+  if (!graduacao || !re || !nomeGuerra || !nomeCompleto || !opm || !subunidade || !quantidade || quantidade < 1) {
+    $("statusForm").textContent = "Preencha todos os campos obrigatórios corretamente.";
+    return;
+  }
+
+  const novoPedido = {
+    graduacao,
+    re,
+    nomeGuerra,
+    nomeCompleto,
+    opm,
+    subunidade,
+    quantidade,
+    valorTotal: quantidade * VALOR_UNITARIO,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    await addDoc(collection(db, COLECAO_BONES), novoPedido);
+    $("statusForm").textContent = "Pedido adicionado com sucesso!";
+    $("formPedido").reset();
+    $("quantidade").value = 1;
+    atualizarValorPrevisto();
+  } catch (erro) {
+    console.error("Erro ao salvar no Firestore:", erro);
+    // Fallback em memória caso as regras do Firestore exijam autenticação
+    fallbackLocal.push({ id: String(Date.now()), ...novoPedido });
+    pedidos = [...fallbackLocal];
+    $("statusForm").textContent = "Registrado na sessão local (verifique as regras do Firestore para sincronização online).";
+    $("formPedido").reset();
+    $("quantidade").value = 1;
+    atualizarValorPrevisto();
+    if (listaDesbloqueada) renderizarListaAgrupada();
+  }
+});
+
+// Desbloqueio por senha
+function tentarDesbloquear() {
+  const digitada = $("senhaLista").value;
+  if (digitada === SENHA_VISUALIZACAO) {
+    listaDesbloqueada = true;
+    $("statusSenha").textContent = "";
+    $("bloqueioLista").classList.add("oculto");
+    $("areaListaCompleta").classList.remove("oculto");
+    renderizarListaAgrupada();
+  } else {
+    $("statusSenha").textContent = "Senha incorreta.";
+  }
+}
+
+$("btnDesbloquear").addEventListener("click", tentarDesbloquear);
+$("senhaLista").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") tentarDesbloquear();
+});
+
+$("btnBloquear").addEventListener("click", () => {
+  listaDesbloqueada = false;
+  $("senhaLista").value = "";
+  $("areaListaCompleta").classList.add("oculto");
+  $("bloqueioLista").classList.remove("oculto");
+});
+
+// Escuta em tempo real
+function iniciarTempoReal() {
+  try {
+    const q = query(collection(db, COLECAO_BONES), orderBy("createdAt", "asc"));
+    onSnapshot(q, (snapshot) => {
+      const listaFirestore = [];
+      snapshot.forEach((docSnap) => {
+        const dados = docSnap.data();
+        const qtd = Number(dados.quantidade) || 0;
+        listaFirestore.push({
+          id: docSnap.id,
+          graduacao: dados.graduacao || "",
+          re: dados.re || "",
+          nomeGuerra: dados.nomeGuerra || "",
+          nomeCompleto: dados.nomeCompleto || "",
+          opm: dados.opm || "",
+          subunidade: dados.subunidade || "",
+          quantidade: qtd,
+          valorTotal: Number(dados.valorTotal) || (qtd * VALOR_UNITARIO),
+          createdAt: dados.createdAt || ""
+        });
+      });
+      pedidos = listaFirestore;
+      if (listaDesbloqueada) {
+        renderizarListaAgrupada();
+      }
+    }, (erro) => {
+      console.warn("Snapshot indisponível sem autenticação:", erro.message);
+    });
+  } catch (erro) {
+    console.warn(erro);
+  }
+}
+
+function agruparPorOpmECia(lista) {
+  const mapaOpm = new Map();
+
+  for (const item of lista) {
+    const opmKey = item.opm || "SEM OPM";
+    const ciaKey = item.subunidade || "SEM SUBUNIDADE";
+
+    if (!mapaOpm.has(opmKey)) {
+      mapaOpm.set(opmKey, new Map());
+    }
+    const mapaCia = mapaOpm.get(opmKey);
+
+    if (!mapaCia.has(ciaKey)) {
+      mapaCia.set(ciaKey, []);
+    }
+    mapaCia.get(ciaKey).push(item);
+  }
+
+  // Ordena OPMs e Cias
+  const opmsOrdenadas = Array.from(mapaOpm.keys()).sort((a, b) =>
+    a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
+  );
+
+  return opmsOrdenadas.map((opm) => {
+    const mapaCia = mapaOpm.get(opm);
+    const ciasOrdenadas = Array.from(mapaCia.keys()).sort((a, b) =>
+      a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" })
+    );
+
+    const cias = ciasOrdenadas.map((cia) => ({
+      cia,
+      itens: mapaCia.get(cia)
+    }));
+
+    return { opm, cias };
+  });
+}
+
+function renderizarListaAgrupada() {
+  const totalPessoas = pedidos.length;
+  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
+  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
+
+  $("resumoGeral").innerHTML = `
+    <div><span>Total de pessoas</span><strong>${totalPessoas}</strong></div>
+    <div><span>Total de bonés</span><strong>${totalBones}</strong></div>
+    <div><span>Valor total previsto</span><strong>${formatarMoeda(totalValor)}</strong></div>
+  `;
+
+  if (!pedidos.length) {
+    $("listaAgrupada").innerHTML = `<p class="status">Nenhum pedido registrado até o momento.</p>`;
+    return;
+  }
+
+  const grupos = agruparPorOpmECia(pedidos);
+  let html = "";
+
+  for (const grupoOpm of grupos) {
+    let qtdOpm = 0;
+    let valorOpm = 0;
+    grupoOpm.cias.forEach(c => c.itens.forEach(i => {
+      qtdOpm += Number(i.quantidade) || 0;
+      valorOpm += Number(i.valorTotal) || ((Number(i.quantidade) || 0) * VALOR_UNITARIO);
+    }));
+
+    html += `<div class="grupo-opm">`;
+    html += `<div class="grupo-opm-titulo">OPM: ${escapeHtml(grupoOpm.opm)} — ${qtdOpm} boné(s) (${formatarMoeda(valorOpm)})</div>`;
+
+    for (const grupoCia of grupoOpm.cias) {
+      let qtdCia = 0;
+      let valorCia = 0;
+      grupoCia.itens.forEach(i => {
+        qtdCia += Number(i.quantidade) || 0;
+        valorCia += Number(i.valorTotal) || ((Number(i.quantidade) || 0) * VALOR_UNITARIO);
+      });
+
+      html += `<div class="grupo-cia-titulo">${escapeHtml(grupoCia.cia)} — ${qtdCia} boné(s) (${formatarMoeda(valorCia)})</div>`;
+      html += `<div class="table-wrap"><table>
+        <thead>
+          <tr>
+            <th>Graduação</th>
+            <th>RE</th>
+            <th>Nome de Guerra</th>
+            <th>Nome completo</th>
+            <th>OPM</th>
+            <th>Subunidade</th>
+            <th>Qtd</th>
+            <th>Valor a pagar</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      for (const item of grupoCia.itens) {
+        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
+        html += `<tr>
+          <td>${escapeHtml(item.graduacao)}</td>
+          <td>${escapeHtml(item.re)}</td>
+          <td>${escapeHtml(item.nomeGuerra)}</td>
+          <td>${escapeHtml(item.nomeCompleto)}</td>
+          <td>${escapeHtml(item.opm)}</td>
+          <td>${escapeHtml(item.subunidade)}</td>
+          <td>${Number(item.quantidade) || 0}</td>
+          <td>${formatarMoeda(valorItem)}</td>
+        </tr>`;
+      }
+
+      html += `</tbody></table></div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  $("listaAgrupada").innerHTML = html;
+}
+
+function escapeHtml(texto) {
+  return String(texto ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function montarTextoCopia() {
+  if (!pedidos.length) return "LISTA BONÉ PMRv - Sem registros.";
+
+  const grupos = agruparPorOpmECia(pedidos);
+  const linhas = ["BONÉ PMRv - LISTA DE PEDIDOS (R$ 30,00 / UNIDADE)", "=============================================="];
+
+  for (const grupoOpm of grupos) {
+    linhas.push(`
+OPM: ${grupoOpm.opm}`);
+    for (const grupoCia of grupoOpm.cias) {
+      linhas.push(`  [${grupoCia.cia}]`);
+      grupoCia.itens.forEach((item, idx) => {
+        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
+        linhas.push(
+          `    ${idx + 1}. ${item.graduacao} | RE: ${item.re} | ${item.nomeGuerra} | ${item.nomeCompleto} | OPM: ${item.opm} | ${item.subunidade} | Qtd: ${item.quantidade} | Valor: ${formatarMoeda(valorItem)}`
+        );
+      });
+    }
+  }
+
+  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
+  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
+  linhas.push(`
+TOTAL GERAL: ${pedidos.length} pessoa(s) | ${totalBones} boné(s) | ${formatarMoeda(totalValor)}`);
+
+  return linhas.join("
+");
+}
+
+$("btnCopiarLista").addEventListener("click", async () => {
+  const texto = montarTextoCopia();
+  try {
+    await navigator.clipboard.writeText(texto);
+    $("statusAcoes").textContent = "Lista inteira copiada para a área de transferência!";
+  } catch {
+    const temp = document.createElement("textarea");
+    temp.value = texto;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
+    $("statusAcoes").textContent = "Lista inteira copiada!";
+  }
+});
+
+$("btnGerarPdf").addEventListener("click", () => {
+  if (!pedidos.length) {
+    $("statusAcoes").textContent = "Não há dados para gerar PDF.";
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const docPdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  let y = 14;
+
+  docPdf.setFontSize(15);
+  docPdf.text("BONÉ PMRv - LISTA ORGANIZADA POR OPM E CIA", 14, y);
+  y += 7;
+
+  const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
+  const totalValor = pedidos.reduce((acc, p) => acc + (Number(p.valorTotal) || ((Number(p.quantidade) || 0) * VALOR_UNITARIO)), 0);
+  docPdf.setFontSize(10);
+  docPdf.text(`Total de pessoas: ${pedidos.length}   |   Total de bonés: ${totalBones}   |   Valor total: ${formatarMoeda(totalValor)}`, 14, y);
+  y += 8;
+
+  const grupos = agruparPorOpmECia(pedidos);
+
+  for (const grupoOpm of grupos) {
+    if (y > 180) {
+      docPdf.addPage();
+      y = 14;
+    }
+    docPdf.setFontSize(12);
+    docPdf.text(`OPM: ${grupoOpm.opm}`, 14, y);
+    y += 5;
+
+    for (const grupoCia of grupoOpm.cias) {
+      if (y > 182) {
+        docPdf.addPage();
+        y = 14;
+      }
+      docPdf.setFontSize(10);
+      docPdf.text(`Subunidade: ${grupoCia.cia}`, 16, y);
+      y += 2;
+
+      const rows = grupoCia.itens.map(item => {
+        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
+        return [
+          item.graduacao,
+          item.re,
+          item.nomeGuerra,
+          item.nomeCompleto,
+          item.opm,
+          item.subunidade,
+          String(item.quantidade),
+          formatarMoeda(valorItem)
+        ];
+      });
+
+      docPdf.autoTable({
+        startY: y + 1,
+        head: [["Graduação", "RE", "Nome de Guerra", "Nome completo", "OPM", "Subunidade", "Qtd", "Valor a pagar"]],
+        body: rows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [30, 30, 30], textColor: [255, 212, 0] },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = docPdf.lastAutoTable.finalY + 8;
+    }
+  }
+
+  docPdf.save("Lista_Bone_PMRv.pdf");
+  $("statusAcoes").textContent = "PDF gerado com sucesso!";
+});
+
+$("btnGerarExcel").addEventListener("click", () => {
+  if (!pedidos.length) {
+    $("statusAcoes").textContent = "Não há dados para gerar Excel.";
+    return;
+  }
+
+  const grupos = agruparPorOpmECia(pedidos);
+  const linhasExcel = [];
+
+  for (const grupoOpm of grupos) {
+    for (const grupoCia of grupoOpm.cias) {
+      for (const item of grupoCia.itens) {
+        const valorItem = Number(item.valorTotal) || ((Number(item.quantidade) || 0) * VALOR_UNITARIO);
+        linhasExcel.push({
+          "OPM": item.opm,
+          "Subunidade": item.subunidade,
+          "Graduação": item.graduacao,
+          "RE com dígito": item.re,
+          "Nome de Guerra": item.nomeGuerra,
+          "Nome completo": item.nomeCompleto,
+          "Quantidade": Number(item.quantidade) || 0,
+          "Valor unitário (R$)": VALOR_UNITARIO,
+          "Valor a pagar (R$)": valorItem
+        });
+      }
+    }
+  }
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(linhasExcel);
+  XLSX.utils.book_append_sheet(wb, ws, "Pedidos Bone PMRv");
+  XLSX.writeFile(wb, "Lista_Bone_PMRv.xlsx");
+  $("statusAcoes").textContent = "Arquivo Excel (.xlsx) gerado com sucesso!";
+});
+
+$("btnLimparLista").addEventListener("click", async () => {
+  if (!confirm("Deseja realmente apagar todos os registros desta lista temporária?")) return;
+  try {
+    const snap = await getDocs(collection(db, COLECAO_BONES));
+    const promessas = [];
+    snap.forEach((d) => promessas.push(deleteDoc(doc(db, COLECAO_BONES, d.id))));
+    await Promise.all(promessas);
+    fallbackLocal = [];
+    pedidos = [];
+    renderizarListaAgrupada();
+    $("statusAcoes").textContent = "Lista limpa com sucesso.";
+  } catch (erro) {
+    console.error(erro);
+    fallbackLocal = [];
+    pedidos = [];
+    renderizarListaAgrupada();
+    $("statusAcoes").textContent = "Lista limpa na sessão atual.";
+  }
+});
+
+iniciarTempoReal();
+</script>
+
+</body>
+</html>
