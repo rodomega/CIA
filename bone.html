@@ -25,6 +25,7 @@ button{border:0;border-radius:7px;padding:11px 15px;margin:4px 4px 4px 0;font-we
 button.secundario{background:#555;color:#fff}
 button.sucesso{background:var(--verde);color:#fff}
 button.perigo{background:var(--vermelho);color:#fff}
+button.btn-mini{padding:6px 11px;margin:0;font-size:12px}
 button:disabled{opacity:.55;cursor:wait}
 .oculto{display:none!important}
 .status{font-size:13px;color:#444;margin-top:8px;white-space:pre-wrap}
@@ -47,12 +48,21 @@ button:disabled{opacity:.55;cursor:wait}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{border:1px solid #ddd;padding:8px;text-align:left;white-space:nowrap}
 th{background:#eee}
-.link-comp{color:var(--verde);font-weight:bold;text-decoration:none}
-.link-comp:hover{text-decoration:underline}
 .acoes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px}
 .foto-box img{max-width:240px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
+
+/* Modal de visualização do comprovante */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
+.modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,760px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.modal-head{background:#202020;color:#ffd400;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal-head strong{font-size:15px}
+.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px}
+.modal-body img{max-width:100%;max-height:68vh;border-radius:8px;border:1px solid #ccc}
+.modal-body iframe{width:100%;height:68vh;border:1px solid #ccc;border-radius:8px;background:#fff}
+.modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+
 @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}.painel{padding:14px}button{max-width:100%}}
 </style>
 </head>
@@ -166,14 +176,14 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 
 <div id="areaListaCompleta" class="oculto">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-    <span class="aviso">Lista protegida — dados do Google Sheets.</span>
+    <span class="aviso">Lista protegida — sincronizada com Firebase.</span>
     <button type="button" class="secundario" id="btnBloquear">OCULTAR LISTA</button>
   </div>
 
   <div class="foto-box" style="margin:14px 0">
     <img id="fotoBone" src="33045.jpg" alt="Foto do Boné PMRv">
     <strong>Valor unitário: R$ 30,00 por boné</strong>
-    <label for="uploadFoto" style="margin-top:12px">Alterar fotografia (salva no Google Drive):</label>
+    <label for="uploadFoto" style="margin-top:12px">Alterar fotografia (pré-visualização):</label>
     <input type="file" id="uploadFoto" accept="image/*" style="max-width:320px">
     <p id="statusFoto" class="status"></p>
   </div>
@@ -193,14 +203,67 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 </div>
 </section>
 </main>
+
+<!-- Modal para visualizar comprovante -->
+<div id="modalComprovante" class="modal-overlay oculto">
+  <div class="modal-card">
+    <div class="modal-head">
+      <strong id="modalTitulo">Comprovante de Pagamento</strong>
+      <button type="button" id="btnFecharModalTopo" class="perigo btn-mini">FECHAR</button>
+    </div>
+    <div id="modalConteudo" class="modal-body"></div>
+    <div class="modal-foot">
+      <a id="linkAbrirNovaAba" href="#" target="_blank" rel="noopener" style="text-decoration:none">
+        <button type="button" class="sucesso btn-mini">ABRIR EM NOVA ABA</button>
+      </a>
+      <button type="button" id="btnFecharModalBase" class="secundario btn-mini">FECHAR</button>
+    </div>
+  </div>
+</div>
+
 <footer>BONÉ PMRv — Coleta de Pedidos</footer>
 
-<script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNxv2gxROgWHzDFVNfqGU9B9z7I8gQlGU-wuL7kwk5D0f2TnKq8cmgigeVPUqH1H-kZg/exec";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
+  authDomain: "ordemservico-dc112.firebaseapp.com",
+  projectId: "ordemservico-dc112",
+  storageBucket: "ordemservico-dc112.firebasestorage.app",
+  messagingSenderId: "1062507814991",
+  appId: "1:1062507814991:web:4bd85ddd56d3d6086dca3a",
+  measurementId: "G-5491XBMX00"
+};
+
+const app = initializeApp(firebaseConfig);
+try { getAnalytics(app); } catch (e) {}
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const COLECAO_PEDIDOS = "pedidos_bone_pmrv";
 const SENHA_VISUALIZACAO = "rodomega";
 const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
-const STORAGE_KEY = "bone_pmrv_cache_v1";
 
 const $ = id => document.getElementById(id);
 let pedidos = [];
@@ -216,89 +279,10 @@ function setStatus(id, msg) {
   if (el) el.textContent = msg || "";
 }
 
-function salvarCacheLocal() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
-  } catch (e) {}
-}
-
-function lerCacheLocal() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function lerArquivoBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      const base64 = result.includes(",") ? result.split(",")[1] : result;
-      resolve({
-        base64,
-        mimeType: file.type || "application/octet-stream",
-        name: file.name || "comprovante"
-      });
-    };
-    reader.onerror = () => reject(new Error("Falha ao ler o arquivo do comprovante."));
-    reader.readAsDataURL(file);
-  });
-}
-
-function jsonpRequest(paramsObj) {
-  return new Promise((resolve, reject) => {
-    const cbName = "boneCb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-    const script = document.createElement("script");
-    let concluido = false;
-
-    const timer = setTimeout(() => {
-      if (concluido) return;
-      concluido = true;
-      limpar();
-      reject(new Error("Tempo esgotado na resposta do Google Apps Script."));
-    }, 15000);
-
-    function limpar() {
-      clearTimeout(timer);
-      try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-      if (script && script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window[cbName] = (resposta) => {
-      if (concluido) return;
-      concluido = true;
-      limpar();
-      if (!resposta) {
-        reject(new Error("Resposta vazia do Google Apps Script."));
-        return;
-      }
-      if (resposta.ok === false || resposta.success === false) {
-        reject(new Error(resposta.error || resposta.message || "Erro retornado pelo script."));
-        return;
-      }
-      resolve(resposta);
-    };
-
-    script.onerror = () => {
-      if (concluido) return;
-      concluido = true;
-      limpar();
-      reject(new Error("Falha ao conectar no Web App. Verifique se está implantado como 'Qualquer pessoa'."));
-    };
-
-    const query = new URLSearchParams({
-      ...paramsObj,
-      callback: cbName,
-      _ts: String(Date.now())
-    });
-
-    script.src = APPS_SCRIPT_URL + "?" + query.toString();
-    document.body.appendChild(script);
-  });
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
 }
 
 function atualizarValorPrevisto() {
@@ -351,19 +335,18 @@ $("formPedido").addEventListener("submit", async (e) => {
   const qtd = parseInt($("quantidade").value, 10);
   const arquivo = $("comprovantePix").files?.[0];
 
-  const p = {
+  const dados = {
     graduacao: $("graduacao").value.trim(),
     re: $("re").value.trim(),
     nomeGuerra: $("nomeGuerra").value.trim(),
     nomeCompleto: $("nomeCompleto").value.trim(),
-    opm: $("opm").value.trim(),
+    opm: $("opm").value.trim().toUpperCase(),
     subunidade: $("subunidade").value.trim(),
     quantidade: qtd,
-    valorTotal: qtd * VALOR_UNITARIO,
-    createdAt: new Date().toISOString()
+    valorTotal: qtd * VALOR_UNITARIO
   };
 
-  if (!p.graduacao || !p.re || !p.nomeGuerra || !p.nomeCompleto || !p.opm || !p.subunidade || !Number.isInteger(qtd) || qtd < 1) {
+  if (!dados.graduacao || !dados.re || !dados.nomeGuerra || !dados.nomeCompleto || !dados.opm || !dados.subunidade || !Number.isInteger(qtd) || qtd < 1) {
     setStatus("statusForm", "Preencha todos os campos obrigatórios corretamente.");
     return;
   }
@@ -374,49 +357,50 @@ $("formPedido").addEventListener("submit", async (e) => {
   }
 
   if (arquivo.size > 6 * 1024 * 1024) {
-    setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem mais leve ou print da tela.");
+    setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem ou PDF mais leve.");
     return;
   }
 
   carregando = true;
   $("btnEnviar").disabled = true;
-  setStatus("statusForm", "Enviando pedido e comprovante para o Google Drive/Sheets...");
+  setStatus("statusForm", "Enviando comprovante e registrando pedido...");
 
   try {
-    const arqData = await lerArquivoBase64(arquivo);
+    const ext = (arquivo.name && arquivo.name.includes("."))
+      ? arquivo.name.split(".").pop().toLowerCase()
+      : (arquivo.type === "application/pdf" ? "pdf" : "jpg");
 
-    await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "add",
-        ...p,
-        comprovanteBase64: arqData.base64,
-        comprovanteMime: arqData.mimeType,
-        comprovanteNome: arqData.name
-      })
+    const baseNome = `PIX_${dados.opm}_${dados.subunidade}_${dados.graduacao}_${dados.nomeGuerra}_${dados.re}`
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
+    const storagePath = `comprovantes_bone/${Date.now()}_${baseNome}.${ext}`;
+    const storageRef = ref(storage, storagePath);
+
+    await uploadBytes(storageRef, arquivo, {
+      contentType: arquivo.type || "application/octet-stream"
+    });
+    const comprovanteUrl = await getDownloadURL(storageRef);
+
+    await addDoc(collection(db, COLECAO_PEDIDOS), {
+      ...dados,
+      comprovanteUrl,
+      comprovantePath: storagePath,
+      comprovanteNome: arquivo.name || `${baseNome}.${ext}`,
+      comprovanteTipo: arquivo.type || "",
+      criadoEm: serverTimestamp()
     });
 
-    pedidos.push({ ...p, comprovanteUrl: "" });
-    salvarCacheLocal();
-    setStatus("statusForm", "Pedido e comprovante enviados com sucesso!");
+    setStatus("statusForm", "Pedido e comprovante salvos com sucesso!");
     $("formPedido").reset();
     $("quantidade").value = 1;
     atualizarValorPrevisto();
     setStatus("infoArquivo", "Tamanho máximo recomendado: 5 MB.");
 
     if (listaDesbloqueada) {
-      setTimeout(carregarPedidos, 2000);
+      await carregarPedidos();
     }
   } catch (err) {
     console.error(err);
-    pedidos.push(p);
-    salvarCacheLocal();
-    setStatus("statusForm", "Salvo localmente; aviso do servidor: " + err.message);
-    if (listaDesbloqueada) {
-      renderizarLista();
-    }
+    setStatus("statusForm", "Erro ao salvar no Firebase: " + (err.message || err));
   } finally {
     carregando = false;
     $("btnEnviar").disabled = false;
@@ -438,7 +422,7 @@ function alternarSenha() {
 
 $("btnMostrarSenha").addEventListener("click", alternarSenha);
 
-function desbloquearLista() {
+async function desbloquearLista() {
   const digitada = ($("senhaLista").value || "").trim();
   if (digitada !== SENHA_VISUALIZACAO) {
     setStatus("statusSenha", "Senha incorreta.");
@@ -450,13 +434,7 @@ function desbloquearLista() {
   setStatus("statusSenha", "");
   $("bloqueioLista").classList.add("oculto");
   $("areaListaCompleta").classList.remove("oculto");
-
-  const cache = lerCacheLocal();
-  if (cache.length && !pedidos.length) {
-    pedidos = cache;
-  }
-  renderizarLista();
-  carregarPedidos();
+  await carregarPedidos();
 }
 
 $("btnDesbloquear").addEventListener("click", desbloquearLista);
@@ -476,41 +454,37 @@ $("btnBloquear").addEventListener("click", () => {
   $("bloqueioLista").classList.remove("oculto");
 });
 
-function normalizarLista(dados) {
-  const lista = Array.isArray(dados)
-    ? dados
-    : (Array.isArray(dados?.pedidos) ? dados.pedidos : (Array.isArray(dados?.data) ? dados.data : []));
-
-  return lista.map((item) => {
-    const qtd = Number(item.quantidade ?? item.qtd ?? 0) || 0;
-    const valRaw = Number(item.valorTotal ?? item.valor ?? 0);
-    return {
-      graduacao: String(item.graduacao || "").trim(),
-      re: String(item.re || "").trim(),
-      nomeGuerra: String(item.nomeGuerra || item.nome_guerra || "").trim(),
-      nomeCompleto: String(item.nomeCompleto || item.nome_completo || item.nome || "").trim(),
-      opm: String(item.opm || "").trim(),
-      subunidade: String(item.subunidade || item.cia || "").trim(),
-      quantidade: qtd,
-      valorTotal: valRaw > 0 ? valRaw : qtd * VALOR_UNITARIO,
-      comprovanteUrl: String(item.comprovanteUrl || item.comprovante || "").trim()
-    };
-  });
-}
-
 async function carregarPedidos() {
   if (!listaDesbloqueada) return;
-  setStatus("statusAcoes", "Consultando lista...");
+  setStatus("statusAcoes", "Carregando pedidos do Firebase...");
   try {
-    const resp = await jsonpRequest({ action: "list" });
-    pedidos = normalizarLista(resp);
-    salvarCacheLocal();
+    const q = query(collection(db, COLECAO_PEDIDOS), orderBy("criadoEm", "asc"));
+    const snap = await getDocs(q);
+    pedidos = snap.docs.map((docSnap) => {
+      const d = docSnap.data() || {};
+      const qtd = Number(d.quantidade) || 0;
+      const val = Number(d.valorTotal);
+      return {
+        id: docSnap.id,
+        graduacao: String(d.graduacao || "").trim(),
+        re: String(d.re || "").trim(),
+        nomeGuerra: String(d.nomeGuerra || "").trim(),
+        nomeCompleto: String(d.nomeCompleto || "").trim(),
+        opm: String(d.opm || "").trim(),
+        subunidade: String(d.subunidade || "").trim(),
+        quantidade: qtd,
+        valorTotal: val > 0 ? val : qtd * VALOR_UNITARIO,
+        comprovanteUrl: String(d.comprovanteUrl || "").trim(),
+        comprovantePath: String(d.comprovantePath || "").trim(),
+        comprovanteTipo: String(d.comprovanteTipo || "").trim()
+      };
+    });
+
     renderizarLista();
-    setStatus("statusAcoes", `Lista atualizada (${pedidos.length} registro(s)).`);
+    setStatus("statusAcoes", `Lista sincronizada (${pedidos.length} registro(s)).`);
   } catch (err) {
     console.error(err);
-    renderizarLista();
-    setStatus("statusAcoes", "Não foi possível atualizar do servidor: " + err.message);
+    setStatus("statusAcoes", "Erro ao carregar lista do Firebase: " + (err.message || err));
   }
 }
 
@@ -545,10 +519,52 @@ function agruparPorOpmECia(lista) {
     }));
 }
 
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-  }[c]));
+function abrirModalComprovante(pedido) {
+  if (!pedido || !pedido.comprovanteUrl) return;
+
+  $("modalTitulo").textContent = `Comprovante — ${pedido.graduacao} ${pedido.nomeGuerra} (${pedido.opm} / ${pedido.subunidade})`;
+  $("linkAbrirNovaAba").href = pedido.comprovanteUrl;
+
+  const url = pedido.comprovanteUrl;
+  const isPdf = pedido.comprovanteTipo === "application/pdf" || /\.pdf(\?|$)/i.test(url);
+
+  if (isPdf) {
+    $("modalConteudo").innerHTML = `<iframe src="${esc(url)}" title="Comprovante PDF"></iframe>`;
+  } else {
+    $("modalConteudo").innerHTML = `<img src="${esc(url)}" alt="Comprovante Pix">`;
+  }
+
+  $("modalComprovante").classList.remove("oculto");
+}
+
+function fecharModalComprovante() {
+  $("modalComprovante").classList.add("oculto");
+  $("modalConteudo").innerHTML = "";
+}
+
+$("btnFecharModalTopo").addEventListener("click", fecharModalComprovante);
+$("btnFecharModalBase").addEventListener("click", fecharModalComprovante);
+$("modalComprovante").addEventListener("click", (e) => {
+  if (e.target === $("modalComprovante")) fecharModalComprovante();
+});
+
+async function excluirPedido(pedido) {
+  if (!pedido || !pedido.id) return;
+  if (!confirm(`Excluir o pedido de ${pedido.graduacao} ${pedido.nomeGuerra}?`)) return;
+
+  setStatus("statusAcoes", "Excluindo registro...");
+  try {
+    await deleteDoc(doc(db, COLECAO_PEDIDOS, pedido.id));
+    if (pedido.comprovantePath) {
+      try {
+        await deleteObject(ref(storage, pedido.comprovantePath));
+      } catch (e) {}
+    }
+    await carregarPedidos();
+  } catch (err) {
+    console.error(err);
+    setStatus("statusAcoes", "Erro ao excluir: " + (err.message || err));
+  }
 }
 
 function renderizarLista() {
@@ -596,12 +612,13 @@ function renderizarLista() {
             <th>Quantidade</th>
             <th>Valor a pagar</th>
             <th>Comprovante</th>
+            <th>Ação</th>
           </tr>
         </thead><tbody>`;
 
       for (const p of gc.itens) {
         const compHtml = p.comprovanteUrl
-          ? `<a class="link-comp" href="${esc(p.comprovanteUrl)}" target="_blank" rel="noopener">Ver comprovante</a>`
+          ? `<button type="button" class="sucesso btn-mini btn-ver-comp" data-id="${esc(p.id)}">VER</button>`
           : `<span style="color:#888">Sem anexo</span>`;
 
         html += `<tr>
@@ -612,6 +629,7 @@ function renderizarLista() {
           <td>${Number(p.quantidade) || 0}</td>
           <td>${formatarMoeda(calcularValorItem(p))}</td>
           <td>${compHtml}</td>
+          <td><button type="button" class="perigo btn-mini btn-excluir-item" data-id="${esc(p.id)}">EXCLUIR</button></td>
         </tr>`;
       }
       html += `</tbody></table></div>`;
@@ -620,6 +638,22 @@ function renderizarLista() {
   }
 
   $("listaAgrupada").innerHTML = html;
+
+  document.querySelectorAll(".btn-ver-comp").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const item = pedidos.find((x) => x.id === id);
+      if (item) abrirModalComprovante(item);
+    });
+  });
+
+  document.querySelectorAll(".btn-excluir-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const item = pedidos.find((x) => x.id === id);
+      if (item) excluirPedido(item);
+    });
+  });
 }
 
 function montarTextoCopia() {
@@ -742,24 +776,28 @@ $("btnGerarExcel").addEventListener("click", () => {
 });
 
 $("btnLimparLista").addEventListener("click", async () => {
-  if (!confirm("ATENÇÃO: deseja apagar TODOS os pedidos?")) return;
+  if (!confirm("ATENÇÃO: deseja apagar TODOS os pedidos do banco?")) return;
   const senha = prompt("Confirme a senha de administrador:");
   if (senha !== SENHA_VISUALIZACAO) {
     setStatus("statusAcoes", "Senha incorreta.");
     return;
   }
-  setStatus("statusAcoes", "Apagando registros...");
+  setStatus("statusAcoes", "Apagando todos os registros...");
   try {
-    await jsonpRequest({ action: "clear", password: senha });
+    for (const p of pedidos) {
+      await deleteDoc(doc(db, COLECAO_PEDIDOS, p.id));
+      if (p.comprovantePath) {
+        try {
+          await deleteObject(ref(storage, p.comprovantePath));
+        } catch (e) {}
+      }
+    }
     pedidos = [];
-    salvarCacheLocal();
     renderizarLista();
     setStatus("statusAcoes", "Lista limpa com sucesso.");
   } catch (err) {
-    pedidos = [];
-    salvarCacheLocal();
-    renderizarLista();
-    setStatus("statusAcoes", "Lista local limpa; aviso do servidor: " + err.message);
+    console.error(err);
+    setStatus("statusAcoes", "Erro ao limpar lista: " + (err.message || err));
   }
 });
 
