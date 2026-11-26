@@ -50,14 +50,14 @@ th,td{border:1px solid #ddd;padding:8px;text-align:left;white-space:nowrap}
 th{background:#eee}
 .acoes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px}
-.foto-box img{max-width:240px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px}
+.foto-box img{max-width:260px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px;cursor:pointer}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
-.modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,760px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,820px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .modal-head{background:#202020;color:#ffd400;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .modal-head strong{font-size:15px}
-.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px}
+.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:10px}
 .modal-body img{max-width:100%;max-height:68vh;border-radius:8px;border:1px solid #ccc}
 .modal-body iframe{width:100%;height:68vh;border:1px solid #ccc;border-radius:8px;background:#fff}
 .modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
@@ -68,6 +68,15 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <body>
 <header><h1>BONÉ PMRv</h1></header>
 <main>
+<section class="painel">
+<h2>Modelo de demonstração</h2>
+<div class="foto-box">
+  <img id="fotoBonePublica" src="33045.jpg" alt="Foto do Boné PMRv">
+  <strong>Boné PMRv — Valor unitário: R$ 30,00</strong>
+  <span class="status" style="margin-top:4px">Clique na imagem para ampliar na própria página.</span>
+</div>
+</section>
+
 <section class="painel">
 <h2>Preencher pedido</h2>
 <form id="formPedido">
@@ -180,10 +189,9 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
   </div>
 
   <div class="foto-box" style="margin:14px 0">
-    <img id="fotoBone" src="33045.jpg" alt="Foto do Boné PMRv">
-    <strong>Valor unitário: R$ 30,00 por boné</strong>
-    <label for="uploadFoto" style="margin-top:12px">Alterar fotografia (pré-visualização):</label>
+    <label for="uploadFoto">Atualizar foto de demonstração do boné (salva no Google Drive):</label>
     <input type="file" id="uploadFoto" accept="image/*" style="max-width:320px">
+    <button type="button" id="btnSalvarFotoDrive" class="sucesso" style="margin-top:8px">SALVAR FOTO NO DRIVE</button>
     <p id="statusFoto" class="status"></p>
   </div>
 
@@ -206,7 +214,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <div id="modalComprovante" class="modal-overlay oculto">
   <div class="modal-card">
     <div class="modal-head">
-      <strong id="modalTitulo">Comprovante de Pagamento</strong>
+      <strong id="modalTitulo">Visualização</strong>
       <button type="button" id="btnFecharModalTopo" class="perigo btn-mini">FECHAR</button>
     </div>
     <div id="modalConteudo" class="modal-body"></div>
@@ -229,6 +237,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  setDoc,
   deleteDoc,
   doc,
   query,
@@ -251,6 +261,7 @@ try { getAnalytics(app); } catch (e) {}
 const db = getFirestore(app);
 
 const COLECAO_PEDIDOS = "pedidos_bone_pmrv";
+const DOC_FOTO_DEMO = doc(db, "config_bone_pmrv", "demonstracao");
 const SENHA_VISUALIZACAO = "rodomega";
 const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
@@ -260,6 +271,7 @@ const $ = id => document.getElementById(id);
 let pedidos = [];
 let listaDesbloqueada = false;
 let carregando = false;
+let fotoDemoUrlAtual = "33045.jpg";
 
 function formatarMoeda(v) {
   return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -275,6 +287,126 @@ function esc(s) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   }[c]));
 }
+
+function extrairDriveId(url) {
+  if (!url) return "";
+  const m1 = String(url).match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1) return m1[1];
+  const m2 = String(url).match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m2 ? m2[1] : "";
+}
+
+function resolverUrlImagem(url) {
+  const driveId = extrairDriveId(url);
+  if (driveId) return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1400`;
+  return url;
+}
+
+function resolverUrlPreviewPdf(url) {
+  const driveId = extrairDriveId(url);
+  if (driveId) return `https://drive.google.com/file/d/${driveId}/preview`;
+  return url;
+}
+
+function arquivoParaBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => resolve(ev.target.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function enviarArquivoDrive(file) {
+  const fileBase64 = await arquivoParaBase64(file);
+  const gasResponse = await fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      fileName: file.name || "arquivo",
+      mimeType: file.type || "application/octet-stream",
+      fileContent: fileBase64
+    })
+  });
+  const gasResult = await gasResponse.json();
+  if (!gasResult.success || !gasResult.fileUrl) {
+    throw new Error("Apps Script: " + (gasResult.error || "erro desconhecido"));
+  }
+  return gasResult.fileUrl;
+}
+
+async function carregarFotoDemonstracao() {
+  try {
+    const snap = await getDoc(DOC_FOTO_DEMO);
+    if (snap.exists() && snap.data()?.fotoUrl) {
+      fotoDemoUrlAtual = String(snap.data().fotoUrl).trim();
+      $("fotoBonePublica").src = resolverUrlImagem(fotoDemoUrlAtual);
+    }
+  } catch (err) {
+    console.warn("Não foi possível carregar foto de demonstração:", err);
+  }
+}
+
+$("fotoBonePublica").addEventListener("error", () => {
+  $("fotoBonePublica").src = "33045.jpg";
+});
+
+$("fotoBonePublica").addEventListener("click", () => {
+  const imgSrc = $("fotoBonePublica").currentSrc || $("fotoBonePublica").src;
+  $("modalTitulo").textContent = "Modelo de Demonstração — Boné PMRv";
+  $("linkAbrirNovaAba").href = fotoDemoUrlAtual || imgSrc;
+  $("modalConteudo").innerHTML = `<img src="${esc(imgSrc)}" alt="Modelo do Boné PMRv">`;
+  $("modalComprovante").classList.remove("oculto");
+});
+
+$("uploadFoto").addEventListener("change", (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  if (!f.type.startsWith("image/")) {
+    alert("Selecione uma imagem válida.");
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    $("fotoBonePublica").src = reader.result;
+    setStatus("statusFoto", "Pré-visualização carregada. Clique em SALVAR FOTO NO DRIVE para publicar.");
+  };
+  reader.readAsDataURL(f);
+});
+
+$("btnSalvarFotoDrive").addEventListener("click", async () => {
+  const arquivo = $("uploadFoto").files?.[0];
+  if (!arquivo) {
+    setStatus("statusFoto", "Selecione uma imagem primeiro.");
+    return;
+  }
+  if (arquivo.size > 6 * 1024 * 1024) {
+    setStatus("statusFoto", "A imagem ultrapassa 6 MB.");
+    return;
+  }
+
+  $("btnSalvarFotoDrive").disabled = true;
+  setStatus("statusFoto", "Enviando foto do boné ao Google Drive...");
+  try {
+    const urlDrive = await enviarArquivoDrive(arquivo);
+    await setDoc(DOC_FOTO_DEMO, {
+      fotoUrl: urlDrive,
+      atualizadoEm: serverTimestamp()
+    }, { merge: true });
+
+    fotoDemoUrlAtual = urlDrive;
+    $("fotoBonePublica").src = resolverUrlImagem(urlDrive);
+    $("uploadFoto").value = "";
+    setStatus("statusFoto", "Foto publicada com sucesso para todos!");
+  } catch (err) {
+    console.error(err);
+    setStatus("statusFoto", "Erro ao salvar foto: " + (err.message || err));
+  } finally {
+    $("btnSalvarFotoDrive").disabled = false;
+  }
+});
+
+carregarFotoDemonstracao();
 
 function atualizarValorPrevisto() {
   const q = Math.max(0, parseInt($("quantidade").value, 10) || 0);
@@ -354,33 +486,10 @@ $("formPedido").addEventListener("submit", async (e) => {
 
   carregando = true;
   $("btnEnviar").disabled = true;
-  setStatus("statusForm", "Enviando comprovante ao Google Drive...");
+  setStatus("statusForm", "Salvando comprovante no Google Drive...");
 
   try {
-    const fileBase64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => resolve(ev.target.result.split(",")[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(arquivo);
-    });
-
-    setStatus("statusForm", "Salvando no Google Drive...");
-    const gasResponse = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        fileName: arquivo.name || "comprovante",
-        mimeType: arquivo.type || "application/octet-stream",
-        fileContent: fileBase64
-      })
-    });
-
-    const gasResult = await gasResponse.json();
-
-    if (!gasResult.success) {
-      throw new Error("Apps Script: " + (gasResult.error || "erro desconhecido"));
-    }
-
-    const comprovanteUrl = gasResult.fileUrl;
+    const comprovanteUrl = await enviarArquivoDrive(arquivo);
 
     setStatus("statusForm", "Salvando pedido no Firestore...");
     await addDoc(collection(db, COLECAO_PEDIDOS), {
@@ -530,9 +639,24 @@ function abrirModalComprovante(pedido) {
   const isPdf = pedido.comprovanteTipo === "application/pdf" || /\.pdf(\?|$)/i.test(url);
 
   if (isPdf) {
-    $("modalConteudo").innerHTML = `<iframe src="${esc(url)}" title="Comprovante PDF"></iframe>`;
+    const previewUrl = resolverUrlPreviewPdf(url);
+    $("modalConteudo").innerHTML = `
+      <iframe src="${esc(previewUrl)}" title="Comprovante PDF"></iframe>
+      <span class="status">Se o PDF não aparecer dentro da caixa, use "ABRIR EM NOVA ABA".</span>
+    `;
   } else {
-    $("modalConteudo").innerHTML = `<img src="${esc(url)}" alt="Comprovante Pix">`;
+    const imgUrl = resolverUrlImagem(url);
+    $("modalConteudo").innerHTML = `
+      <img id="imgComprovanteModal" src="${esc(imgUrl)}" alt="Comprovante Pix">
+      <span id="avisoImgModal" class="status"></span>
+    `;
+    const imgEl = $("imgComprovanteModal");
+    if (imgEl && imgUrl !== url) {
+      imgEl.addEventListener("error", () => {
+        imgEl.src = url;
+        setStatus("avisoImgModal", "Caso a imagem não carregue aqui, clique em ABRIR EM NOVA ABA.");
+      }, { once: true });
+    }
   }
 
   $("modalComprovante").classList.remove("oculto");
@@ -790,21 +914,6 @@ $("btnLimparLista").addEventListener("click", async () => {
     console.error(err);
     setStatus("statusAcoes", "Erro ao limpar lista: " + (err.message || err));
   }
-});
-
-$("uploadFoto").addEventListener("change", (e) => {
-  const f = e.target.files?.[0];
-  if (!f) return;
-  if (!f.type.startsWith("image/")) {
-    alert("Selecione uma imagem válida.");
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = () => {
-    $("fotoBone").src = reader.result;
-    setStatus("statusFoto", "Foto carregada para visualização.");
-  };
-  reader.readAsDataURL(f);
 });
 </script>
 </body>
