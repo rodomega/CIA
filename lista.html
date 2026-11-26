@@ -151,6 +151,20 @@ function esc(s) {
   }[c]));
 }
 
+function normalizarOpm(valor) {
+  const limpo = String(valor || "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ");
+
+  const matchBprv = limpo.match(/^([1-6])\s*[°ºª]?\s*BPRV$/i);
+  if (matchBprv) {
+    return `${matchBprv[1]}° BPRV`;
+  }
+
+  return limpo || "SEM OPM";
+}
+
 function extrairDriveId(url) {
   if (!url) return "";
   const m1 = String(url).match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -274,8 +288,8 @@ function calcularValorItem(p) {
 function agruparPorOpmECia(lista) {
   const mapaOpm = new Map();
   for (const p of lista) {
-    const opm = p.opm || "SEM OPM";
-    const cia = p.subunidade || "SEM CIA";
+    const opm = normalizarOpm(p.opm);
+    const cia = String(p.subunidade || "").trim() || "SEM CIA";
     if (!mapaOpm.has(opm)) mapaOpm.set(opm, new Map());
     if (!mapaOpm.get(opm).has(cia)) mapaOpm.get(opm).set(cia, []);
     mapaOpm.get(opm).get(cia).push(p);
@@ -297,7 +311,7 @@ function agruparPorOpmECia(lista) {
 function abrirModalComprovante(pedido) {
   if (!pedido || !pedido.comprovanteUrl) return;
 
-  $("modalTitulo").textContent = `Comprovante — ${pedido.graduacao} ${pedido.nomeGuerra} (${pedido.opm} / ${pedido.subunidade})`;
+  $("modalTitulo").textContent = `Comprovante — ${pedido.graduacao} ${pedido.nomeGuerra} (${normalizarOpm(pedido.opm)} / ${pedido.subunidade})`;
   $("linkAbrirNovaAba").href = pedido.comprovanteUrl;
 
   const url = pedido.comprovanteUrl;
