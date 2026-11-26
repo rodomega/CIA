@@ -192,6 +192,7 @@ import {
   collection,
   addDoc,
   getDoc,
+  getDocs,
   doc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -233,6 +234,24 @@ function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   }[c]));
+}
+
+function normalizarRe(valor) {
+  return String(valor || "").replace(/[^0-9a-zA-Z]/g, "").toUpperCase();
+}
+
+async function buscarPedidosPorRe(reDigitado) {
+  const alvo = normalizarRe(reDigitado);
+  if (!alvo) return [];
+  const snap = await getDocs(collection(db, COLECAO_PEDIDOS));
+  const encontrados = [];
+  snap.forEach((d) => {
+    const data = d.data() || {};
+    if (normalizarRe(data.re) === alvo) {
+      encontrados.push(data);
+    }
+  });
+  return encontrados;
 }
 
 function extrairDriveId(url) {
@@ -363,6 +382,22 @@ $("formPedido").addEventListener("submit", async (e) => {
     if (arquivo.size > 6 * 1024 * 1024) {
       setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem ou PDF mais leve.");
       return;
+    }
+
+    setStatus("statusForm", "Verificando se já existe pedido com este RE...");
+    const repetidos = await buscarPedidosPorRe(dados.re);
+    if (repetidos.length > 0) {
+      const ultimo = repetidos[repetidos.length - 1];
+      const desc = `${ultimo.graduacao || ""} ${ultimo.nomeGuerra || ""}`.trim();
+      const confirmar = confirm(
+        `Atenção: já existe(m) ${repetidos.length} pedido(s) com o RE ${dados.re}` +
+        (desc ? ` (${desc})` : "") +
+        `.\n\nDeseja adicionar mais um pedido mesmo assim?`
+      );
+      if (!confirmar) {
+        setStatus("statusForm", "Envio cancelado: RE já consta na lista.");
+        return;
+      }
     }
 
     setStatus("statusForm", "Enviando comprovante ao Google Drive...");
