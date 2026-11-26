@@ -137,6 +137,22 @@ const DOC_FOTO_DEMO = doc(db, "config_bone_pmrv", "demonstracao");
 const VALOR_UNITARIO = 30;
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc5G8pFH1L_T0aL-QLwEvKHWrJK9cI5fMkzbfsc_BKGgj3Eyr1rJyjz3d8xt01PArb/exec";
 
+const PESO_GRADUACAO = {
+  "Coronel": 1,
+  "Tenente Coronel": 2,
+  "Major": 3,
+  "Capitão": 4,
+  "1° Tenente": 5,
+  "2° Tenente": 6,
+  "Aspirante": 7,
+  "Sub Tenente": 8,
+  "1° Sargento": 9,
+  "2° Sargento": 10,
+  "3° Sargento": 11,
+  "Cabo": 12,
+  "Soldado": 13
+};
+
 const $ = id => document.getElementById(id);
 let pedidos = [];
 
@@ -153,6 +169,10 @@ function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   }[c]));
+}
+
+function pesoGraduacao(grad) {
+  return PESO_GRADUACAO[String(grad || "").trim()] ?? 99;
 }
 
 function normalizarOpm(valor) {
@@ -312,10 +332,17 @@ function agruparPorOpmECia(lista) {
       opm,
       cias: [...mapaOpm.get(opm).keys()]
         .sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }))
-        .map((cia) => ({
-          cia,
-          itens: mapaOpm.get(opm).get(cia)
-        }))
+        .map((cia) => {
+          const itensOrdenados = [...mapaOpm.get(opm).get(cia)].sort((a, b) => {
+            const diffGrad = pesoGraduacao(a.graduacao) - pesoGraduacao(b.graduacao);
+            if (diffGrad !== 0) return diffGrad;
+            return String(a.nomeGuerra || "").localeCompare(String(b.nomeGuerra || ""), "pt-BR");
+          });
+          return {
+            cia,
+            itens: itensOrdenados
+          };
+        })
     }));
 }
 
