@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#202020">
 <title>BONÉ PMRv | Preencher Pedido</title>
 <style>
 :root{--amarelo:#ffd400;--preto:#202020;--fundo:#f3f4f6;--borda:#dedede;--verde:#16864e;--vermelho:#c83232}
 *{box-sizing:border-box}
-body{margin:0;background:var(--fundo);color:#222;font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+html,body{margin:0;background:var(--fundo);color:#222;font-family:Arial,Helvetica,sans-serif;line-height:1.45;touch-action:pan-y}
 header{background:#202020;color:#ffd400;border-bottom:4px solid var(--amarelo);padding:20px 12px;text-align:center}
 header h1{margin:0;font-size:clamp(23px,4vw,32px);letter-spacing:2px}
 main{width:min(100% - 24px,1050px);margin:22px auto}
@@ -34,19 +34,35 @@ button:disabled{opacity:.55;cursor:wait}
 .pix-chave-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;background:#2e2e2e;padding:8px 10px;border-radius:7px}
 .pix-chave-row code{font-size:16px;font-weight:bold;color:var(--amarelo);letter-spacing:.5px}
 .comprovante-box{background:#f8fafc;border:1px dashed #999;border-radius:8px;padding:12px;margin:12px 0}
-.demo-limpo{display:flex;flex-direction:column;align-items:center;text-align:center;margin:4px auto 18px;max-width:300px}
-.demo-limpo img{max-width:260px;width:100%;height:auto;border-radius:8px;cursor:pointer;display:block}
+
+.demo-limpo{display:flex;flex-direction:column;align-items:center;text-align:center;margin:4px auto 18px;max-width:340px}
+.carrossel-wrap{position:relative;width:100%;display:flex;align-items:center;justify-content:center}
+.carrossel-trilha{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;width:100%;border-radius:8px;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x}
+.carrossel-trilha::-webkit-scrollbar{display:none}
+.carrossel-slide{flex:0 0 100%;scroll-snap-align:center;display:flex;justify-content:center;align-items:center;padding:4px}
+.carrossel-slide img{max-width:260px;width:100%;height:auto;border-radius:8px;cursor:pointer;display:block;user-select:none;-webkit-user-drag:none}
+.seta-carrossel{position:absolute;top:50%;transform:translateY(-50%);background:rgba(32,32,32,.78);color:#ffd400;border:0;border-radius:50%;width:32px;height:32px;padding:0;margin:0;font-size:18px;line-height:32px;text-align:center;cursor:pointer;z-index:2}
+.seta-carrossel.prev{left:4px}
+.seta-carrossel.next{right:4px}
+.bolinhas{display:flex;gap:7px;justify-content:center;margin-top:8px}
+.bolinha{width:9px;height:9px;border-radius:50%;background:#bbb;border:0;padding:0;margin:0;cursor:pointer}
+.bolinha.ativa{background:#202020;transform:scale(1.2)}
 .demo-legenda{font-size:12px;color:#666;margin-top:6px}
+
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 .credito-dev{margin-top:6px;font-weight:bold;color:#555}
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999;touch-action:none}
 .modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,820px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .modal-head{background:#202020;color:#ffd400;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .modal-head strong{font-size:15px}
-.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:10px}
-.modal-body img{max-width:100%;max-height:68vh;border-radius:8px;border:1px solid #ccc}
-.modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:280px;max-height:70vh;gap:10px;touch-action:pan-x pan-y}
+.img-zoom-wrapper{overflow:auto;max-width:100%;max-height:62vh;display:flex;align-items:center;justify-content:center;padding:8px}
+.img-zoom-wrapper img{max-width:100%;max-height:60vh;border-radius:8px;border:1px solid #ccc;transition:transform .2s ease;transform-origin:center center;cursor:zoom-in}
+.img-zoom-wrapper img.zoom-2x{transform:scale(1.8);margin:35% 0;cursor:zoom-out}
+.img-zoom-wrapper img.zoom-3x{transform:scale(2.6);margin:65% 0;cursor:zoom-out}
+.modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.zoom-controles{display:flex;gap:6px;flex-wrap:wrap}
 
 @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}.painel{padding:14px}button{max-width:100%}}
 </style>
@@ -55,8 +71,13 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <header><h1>BONÉ PMRv</h1></header>
 <main>
 <div class="demo-limpo">
-  <img id="fotoBonePublica" src="33045.jpg" alt="Foto do Boné PMRv">
-  <span class="demo-legenda">toque para ampliar</span>
+  <div class="carrossel-wrap">
+    <button type="button" class="seta-carrossel prev" id="btnFotoPrev" aria-label="Foto anterior">&#8249;</button>
+    <div class="carrossel-trilha" id="carrosselTrilha"></div>
+    <button type="button" class="seta-carrossel next" id="btnFotoNext" aria-label="Próxima foto">&#8250;</button>
+  </div>
+  <div class="bolinhas" id="bolinhasCarrossel"></div>
+  <span class="demo-legenda">arraste para o lado • toque para ampliar</span>
 </div>
 
 <section class="painel">
@@ -166,14 +187,16 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <div id="modalFoto" class="modal-overlay oculto">
   <div class="modal-card">
     <div class="modal-head">
-      <strong>Boné PMRv</strong>
+      <strong id="modalFotoTitulo">Boné PMRv</strong>
       <button type="button" id="btnFecharModalTopo" class="perigo btn-mini">FECHAR</button>
     </div>
     <div id="modalConteudo" class="modal-body"></div>
     <div class="modal-foot">
-      <a id="linkAbrirNovaAba" href="#" target="_blank" rel="noopener" style="text-decoration:none">
-        <button type="button" class="sucesso btn-mini">ABRIR EM NOVA ABA</button>
-      </a>
+      <div class="zoom-controles">
+        <button type="button" id="btnZoom1x" class="secundario btn-mini">1x</button>
+        <button type="button" id="btnZoom2x" class="btn-mini">AMPLIAR (2x)</button>
+        <button type="button" id="btnZoom3x" class="btn-mini">ZOOM MÁX (3x)</button>
+      </div>
       <button type="button" id="btnFecharModalBase" class="secundario btn-mini">FECHAR</button>
     </div>
   </div>
@@ -217,9 +240,22 @@ const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc5G8pFH1L_T0aL-QLwEvKHWrJK9cI5fMkzbfsc_BKGgj3Eyr1rJyjz3d8xt01PArb/exec";
 
+// Substitua foto2.jpg e foto3.jpg pelas outras 2 imagens do boné
+const FOTOS_BONE = [
+  "33045.jpg",
+  "foto2.jpg",
+  "foto3.jpg"
+];
+
 const $ = id => document.getElementById(id);
 let carregando = false;
-let fotoDemoUrlAtual = "33045.jpg";
+let fotosLista = [...FOTOS_BONE];
+let slideAtual = 0;
+let nivelZoom = 1;
+
+document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
 
 function formatarMoeda(v) {
   return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -268,39 +304,132 @@ function resolverUrlImagem(url) {
   return url;
 }
 
-async function carregarFotoDemonstracao() {
-  try {
-    const snap = await getDoc(DOC_FOTO_DEMO);
-    if (snap.exists() && snap.data()?.fotoUrl) {
-      fotoDemoUrlAtual = String(snap.data().fotoUrl).trim();
-      $("fotoBonePublica").src = resolverUrlImagem(fotoDemoUrlAtual);
-    }
-  } catch (err) {
-    console.warn("Não foi possível carregar foto de demonstração:", err);
-  }
+function aplicarZoomModal(nivel) {
+  nivelZoom = nivel;
+  const img = $("imgZoomModal");
+  if (!img) return;
+  img.classList.remove("zoom-2x", "zoom-3x");
+  if (nivel === 2) img.classList.add("zoom-2x");
+  if (nivel === 3) img.classList.add("zoom-3x");
 }
 
-$("fotoBonePublica").addEventListener("error", () => {
-  $("fotoBonePublica").src = "33045.jpg";
-});
-
-$("fotoBonePublica").addEventListener("click", () => {
-  const imgSrc = $("fotoBonePublica").currentSrc || $("fotoBonePublica").src;
-  $("linkAbrirNovaAba").href = fotoDemoUrlAtual || imgSrc;
-  $("modalConteudo").innerHTML = `<img src="${esc(imgSrc)}" alt="Foto do Boné PMRv">`;
+function abrirModalZoom(srcUrl, indice) {
+  nivelZoom = 1;
+  $("modalFotoTitulo").textContent = `Boné PMRv (${indice + 1}/${fotosLista.length}) — Toque na imagem para ampliar`;
+  $("modalConteudo").innerHTML = `
+    <div class="img-zoom-wrapper">
+      <img id="imgZoomModal" src="${esc(srcUrl)}" alt="Foto do Boné PMRv">
+    </div>
+  `;
+  const img = $("imgZoomModal");
+  if (img) {
+    img.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const proximo = nivelZoom === 1 ? 2 : nivelZoom === 2 ? 3 : 1;
+      aplicarZoomModal(proximo);
+    });
+  }
   $("modalFoto").classList.remove("oculto");
-});
+}
 
 function fecharModalFoto() {
+  nivelZoom = 1;
   $("modalFoto").classList.add("oculto");
   $("modalConteudo").innerHTML = "";
 }
 
+$("btnZoom1x").addEventListener("click", () => aplicarZoomModal(1));
+$("btnZoom2x").addEventListener("click", () => aplicarZoomModal(2));
+$("btnZoom3x").addEventListener("click", () => aplicarZoomModal(3));
 $("btnFecharModalTopo").addEventListener("click", fecharModalFoto);
 $("btnFecharModalBase").addEventListener("click", fecharModalFoto);
 $("modalFoto").addEventListener("click", (e) => {
   if (e.target === $("modalFoto")) fecharModalFoto();
 });
+
+function atualizarBolinhas() {
+  const bolinhas = document.querySelectorAll("#bolinhasCarrossel .bolinha");
+  bolinhas.forEach((b, idx) => {
+    b.classList.toggle("ativa", idx === slideAtual);
+  });
+}
+
+function irParaSlide(idx) {
+  const total = fotosLista.length;
+  if (!total) return;
+  slideAtual = ((idx % total) + total) % total;
+  const trilha = $("carrosselTrilha");
+  trilha.scrollTo({ left: slideAtual * trilha.clientWidth, behavior: "smooth" });
+  atualizarBolinhas();
+}
+
+function renderizarCarrossel() {
+  const trilha = $("carrosselTrilha");
+  const bolinhasWrap = $("bolinhasCarrossel");
+  trilha.innerHTML = "";
+  bolinhasWrap.innerHTML = "";
+
+  fotosLista.forEach((url, idx) => {
+    const slide = document.createElement("div");
+    slide.className = "carrossel-slide";
+
+    const img = document.createElement("img");
+    img.src = resolverUrlImagem(url);
+    img.alt = `Foto ${idx + 1} do Boné PMRv`;
+    img.addEventListener("error", () => {
+      if (img.src !== "33045.jpg") {
+        img.src = "33045.jpg";
+      }
+    });
+    img.addEventListener("click", () => {
+      abrirModalZoom(img.currentSrc || img.src, idx);
+    });
+
+    slide.appendChild(img);
+    trilha.appendChild(slide);
+
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "bolinha" + (idx === slideAtual ? " ativa" : "");
+    dot.setAttribute("aria-label", `Foto ${idx + 1}`);
+    dot.addEventListener("click", () => irParaSlide(idx));
+    bolinhasWrap.appendChild(dot);
+  });
+
+  atualizarBolinhas();
+}
+
+$("carrosselTrilha").addEventListener("scroll", () => {
+  const trilha = $("carrosselTrilha");
+  if (!trilha.clientWidth) return;
+  const novoIdx = Math.round(trilha.scrollLeft / trilha.clientWidth);
+  if (novoIdx !== slideAtual && novoIdx >= 0 && novoIdx < fotosLista.length) {
+    slideAtual = novoIdx;
+    atualizarBolinhas();
+  }
+});
+
+$("btnFotoPrev").addEventListener("click", () => irParaSlide(slideAtual - 1));
+$("btnFotoNext").addEventListener("click", () => irParaSlide(slideAtual + 1));
+
+renderizarCarrossel();
+
+async function carregarFotoDemonstracao() {
+  try {
+    const snap = await getDoc(DOC_FOTO_DEMO);
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      if (Array.isArray(data.fotosUrl) && data.fotosUrl.length) {
+        fotosLista = data.fotosUrl.map(u => String(u).trim()).filter(Boolean);
+      } else if (data.fotoUrl) {
+        fotosLista = [String(data.fotoUrl).trim(), ...FOTOS_BONE.slice(1)];
+      }
+      renderizarCarrossel();
+    }
+  } catch (err) {
+    console.warn("Não foi possível carregar fotos de demonstração:", err);
+  }
+}
 
 carregarFotoDemonstracao();
 
