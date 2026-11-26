@@ -53,7 +53,6 @@ th{background:#eee}
 .foto-box img{max-width:240px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 
-/* Modal de visualização do comprovante */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
 .modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,760px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .modal-head{background:#202020;color:#ffd400;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -204,7 +203,6 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 </section>
 </main>
 
-<!-- Modal para visualizar comprovante -->
 <div id="modalComprovante" class="modal-overlay oculto">
   <div class="modal-card">
     <div class="modal-head">
@@ -237,13 +235,6 @@ import {
   orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBDGMKQW7e_2gl3_VEPxBfxAD2nubvmFwQ",
@@ -258,12 +249,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch (e) {}
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 const COLECAO_PEDIDOS = "pedidos_bone_pmrv";
 const SENHA_VISUALIZACAO = "rodomega";
 const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc5G8pFH1L_T0aL-QLwEvKHWrJK9cI5fMkzbfsc_BKGgj3Eyr1rJyjz3d8xt01PArb/exec";
 
 const $ = id => document.getElementById(id);
 let pedidos = [];
@@ -363,28 +354,39 @@ $("formPedido").addEventListener("submit", async (e) => {
 
   carregando = true;
   $("btnEnviar").disabled = true;
-  setStatus("statusForm", "Enviando comprovante e registrando pedido...");
+  setStatus("statusForm", "Enviando comprovante ao Google Drive...");
 
   try {
-    const ext = (arquivo.name && arquivo.name.includes("."))
-      ? arquivo.name.split(".").pop().toLowerCase()
-      : (arquivo.type === "application/pdf" ? "pdf" : "jpg");
-
-    const baseNome = `PIX_${dados.opm}_${dados.subunidade}_${dados.graduacao}_${dados.nomeGuerra}_${dados.re}`
-      .replace(/[^a-zA-Z0-9_-]/g, "_");
-    const storagePath = `comprovantes_bone/${Date.now()}_${baseNome}.${ext}`;
-    const storageRef = ref(storage, storagePath);
-
-    await uploadBytes(storageRef, arquivo, {
-      contentType: arquivo.type || "application/octet-stream"
+    const fileBase64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => resolve(ev.target.result.split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(arquivo);
     });
-    const comprovanteUrl = await getDownloadURL(storageRef);
 
+    setStatus("statusForm", "Salvando no Google Drive...");
+    const gasResponse = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        fileName: arquivo.name || "comprovante",
+        mimeType: arquivo.type || "application/octet-stream",
+        fileContent: fileBase64
+      })
+    });
+
+    const gasResult = await gasResponse.json();
+
+    if (!gasResult.success) {
+      throw new Error("Apps Script: " + (gasResult.error || "erro desconhecido"));
+    }
+
+    const comprovanteUrl = gasResult.fileUrl;
+
+    setStatus("statusForm", "Salvando pedido no Firestore...");
     await addDoc(collection(db, COLECAO_PEDIDOS), {
       ...dados,
       comprovanteUrl,
-      comprovantePath: storagePath,
-      comprovanteNome: arquivo.name || `${baseNome}.${ext}`,
+      comprovanteNome: arquivo.name || "",
       comprovanteTipo: arquivo.type || "",
       criadoEm: serverTimestamp()
     });
@@ -400,7 +402,7 @@ $("formPedido").addEventListener("submit", async (e) => {
     }
   } catch (err) {
     console.error(err);
-    setStatus("statusForm", "Erro ao salvar no Firebase: " + (err.message || err));
+    setStatus("statusForm", "Erro ao salvar: " + (err.message || err));
   } finally {
     carregando = false;
     $("btnEnviar").disabled = false;
@@ -475,7 +477,6 @@ async function carregarPedidos() {
         quantidade: qtd,
         valorTotal: val > 0 ? val : qtd * VALOR_UNITARIO,
         comprovanteUrl: String(d.comprovanteUrl || "").trim(),
-        comprovantePath: String(d.comprovantePath || "").trim(),
         comprovanteTipo: String(d.comprovanteTipo || "").trim()
       };
     });
@@ -555,11 +556,6 @@ async function excluirPedido(pedido) {
   setStatus("statusAcoes", "Excluindo registro...");
   try {
     await deleteDoc(doc(db, COLECAO_PEDIDOS, pedido.id));
-    if (pedido.comprovantePath) {
-      try {
-        await deleteObject(ref(storage, pedido.comprovantePath));
-      } catch (e) {}
-    }
     await carregarPedidos();
   } catch (err) {
     console.error(err);
@@ -786,11 +782,6 @@ $("btnLimparLista").addEventListener("click", async () => {
   try {
     for (const p of pedidos) {
       await deleteDoc(doc(db, COLECAO_PEDIDOS, p.id));
-      if (p.comprovantePath) {
-        try {
-          await deleteObject(ref(storage, p.comprovantePath));
-        } catch (e) {}
-      }
     }
     pedidos = [];
     renderizarLista();
