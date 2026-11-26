@@ -332,40 +332,40 @@ $("formPedido").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (carregando) return;
 
-  const qtd = parseInt($("quantidade").value, 10);
-  const arquivo = $("comprovantePix").files?.[0];
-
-  const dados = {
-    graduacao: $("graduacao").value.trim(),
-    re: $("re").value.trim(),
-    nomeGuerra: $("nomeGuerra").value.trim(),
-    nomeCompleto: $("nomeCompleto").value.trim(),
-    opm: $("opm").value.trim().toUpperCase(),
-    subunidade: $("subunidade").value.trim(),
-    quantidade: qtd,
-    valorTotal: qtd * VALOR_UNITARIO
-  };
-
-  if (!dados.graduacao || !dados.re || !dados.nomeGuerra || !dados.nomeCompleto || !dados.opm || !dados.subunidade || !Number.isInteger(qtd) || qtd < 1) {
-    setStatus("statusForm", "Preencha todos os campos obrigatórios corretamente.");
-    return;
-  }
-
-  if (!arquivo) {
-    setStatus("statusForm", "Anexe o comprovante de pagamento Pix antes de enviar.");
-    return;
-  }
-
-  if (arquivo.size > 6 * 1024 * 1024) {
-    setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem ou PDF mais leve.");
-    return;
-  }
-
   carregando = true;
   $("btnEnviar").disabled = true;
-  setStatus("statusForm", "Enviando comprovante ao Google Drive...");
 
   try {
+    const qtd = parseInt($("quantidade").value, 10);
+    const arquivo = $("comprovantePix").files?.[0];
+
+    const dados = {
+      graduacao: $("graduacao").value.trim(),
+      re: $("re").value.trim(),
+      nomeGuerra: $("nomeGuerra").value.trim(),
+      nomeCompleto: $("nomeCompleto").value.trim(),
+      opm: $("opm").value.trim().toUpperCase(),
+      subunidade: $("subunidade").value.trim(),
+      quantidade: qtd,
+      valorTotal: qtd * VALOR_UNITARIO
+    };
+
+    if (!dados.graduacao || !dados.re || !dados.nomeGuerra || !dados.nomeCompleto || !dados.opm || !dados.subunidade || !Number.isInteger(qtd) || qtd < 1) {
+      setStatus("statusForm", "Preencha todos os campos obrigatórios corretamente.");
+      return;
+    }
+
+    if (!arquivo) {
+      setStatus("statusForm", "Anexe o comprovante de pagamento Pix antes de enviar.");
+      return;
+    }
+
+    if (arquivo.size > 6 * 1024 * 1024) {
+      setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem ou PDF mais leve.");
+      return;
+    }
+
+    setStatus("statusForm", "Enviando comprovante ao Google Drive...");
     const fileBase64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (ev) => resolve(ev.target.result.split(",")[1]);
