@@ -34,8 +34,9 @@ button:disabled{opacity:.55;cursor:wait}
 .pix-chave-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;background:#2e2e2e;padding:8px 10px;border-radius:7px}
 .pix-chave-row code{font-size:16px;font-weight:bold;color:var(--amarelo);letter-spacing:.5px}
 .comprovante-box{background:#f8fafc;border:1px dashed #999;border-radius:8px;padding:12px;margin:12px 0}
-.foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px}
-.foto-box img{max-width:260px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px;cursor:pointer}
+.demo-limpo{display:flex;flex-direction:column;align-items:center;text-align:center;margin:4px auto 18px;max-width:300px}
+.demo-limpo img{max-width:260px;width:100%;height:auto;border-radius:8px;cursor:pointer;display:block}
+.demo-legenda{font-size:12px;color:#666;margin-top:6px}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
@@ -52,14 +53,10 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <body>
 <header><h1>BONÉ PMRv</h1></header>
 <main>
-<section class="painel">
-<h2>Modelo de demonstração</h2>
-<div class="foto-box">
+<div class="demo-limpo">
   <img id="fotoBonePublica" src="33045.jpg" alt="Foto do Boné PMRv">
-  <strong>Boné PMRv — Valor unitário: R$ 30,00</strong>
-  <span class="status" style="margin-top:4px">Clique na imagem para ampliar na própria página.</span>
+  <span class="demo-legenda">toque para ampliar</span>
 </div>
-</section>
 
 <section class="painel">
 <h2>Preencher pedido</h2>
@@ -158,7 +155,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <div id="modalFoto" class="modal-overlay oculto">
   <div class="modal-card">
     <div class="modal-head">
-      <strong>Modelo de Demonstração — Boné PMRv</strong>
+      <strong>Boné PMRv</strong>
       <button type="button" id="btnFecharModalTopo" class="perigo btn-mini">FECHAR</button>
     </div>
     <div id="modalConteudo" class="modal-body"></div>
@@ -257,7 +254,7 @@ $("fotoBonePublica").addEventListener("error", () => {
 $("fotoBonePublica").addEventListener("click", () => {
   const imgSrc = $("fotoBonePublica").currentSrc || $("fotoBonePublica").src;
   $("linkAbrirNovaAba").href = fotoDemoUrlAtual || imgSrc;
-  $("modalConteudo").innerHTML = `<img src="${esc(imgSrc)}" alt="Modelo do Boné PMRv">`;
+  $("modalConteudo").innerHTML = `<img src="${esc(imgSrc)}" alt="Foto do Boné PMRv">`;
   $("modalFoto").classList.remove("oculto");
 });
 
