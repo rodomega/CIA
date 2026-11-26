@@ -29,8 +29,14 @@ button:disabled{opacity:.55;cursor:wait}
 .oculto{display:none!important}
 .status{font-size:13px;color:#444;margin-top:8px;white-space:pre-wrap}
 .aviso{font-size:13px;color:#8a6900;font-weight:bold}
-.preco{background:#fffbea;border:1px solid #e6d47a;border-radius:8px;padding:12px;margin:12px 0;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.preco{background:#fffbea;border:1px solid #e6d47a;border-radius:8px;padding:12px;margin:12px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .preco strong{font-size:19px;color:#9b7900}
+.pix-box{background:#202020;color:#fff;border-left:5px solid var(--amarelo);border-radius:10px;padding:14px;margin:14px 0}
+.pix-box h3{margin:0 0 8px;color:var(--amarelo);font-size:16px}
+.pix-dados{font-size:14px;line-height:1.6}
+.pix-chave-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;background:#2e2e2e;padding:8px 10px;border-radius:7px}
+.pix-chave-row code{font-size:16px;font-weight:bold;color:var(--amarelo);letter-spacing:.5px}
+.comprovante-box{background:#f8fafc;border:1px dashed #999;border-radius:8px;padding:12px;margin:12px 0}
 .resumo{background:#fffbea;border:1px solid #e4d47b;border-radius:8px;padding:12px;margin:14px 0;display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}
 .resumo strong{display:block;color:#8b6b00;font-size:18px}
 .resumo span{font-size:12px;color:#555}
@@ -41,6 +47,8 @@ button:disabled{opacity:.55;cursor:wait}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{border:1px solid #ddd;padding:8px;text-align:left;white-space:nowrap}
 th{background:#eee}
+.link-comp{color:var(--verde);font-weight:bold;text-decoration:none}
+.link-comp:hover{text-decoration:underline}
 .acoes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px}
 .foto-box img{max-width:240px;width:100%;height:auto;border-radius:8px;border:2px solid var(--amarelo);margin-bottom:10px}
@@ -119,6 +127,25 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
     <strong id="valorPrevisto">R$ 30,00</strong>
   </div>
 
+  <div class="pix-box">
+    <h3>Dados para Pagamento via Pix</h3>
+    <div class="pix-dados">
+      <div><strong>Favorecido:</strong> Mateus Espeleta dos Santos</div>
+      <div><strong>Instituição:</strong> Banco C6</div>
+      <div class="pix-chave-row">
+        <span>Chave Pix (Celular):</span>
+        <code id="chavePix">19992951979</code>
+        <button type="button" id="btnCopiarPix" style="margin:0;padding:7px 12px">COPIAR CHAVE PIX</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="comprovante-box">
+    <label for="comprovantePix">Anexar Comprovante de Pagamento (Imagem ou PDF) *</label>
+    <input id="comprovantePix" type="file" accept="image/*,application/pdf" required>
+    <div id="infoArquivo" class="status" style="margin-top:6px">Tamanho máximo recomendado: 5 MB.</div>
+  </div>
+
   <button type="submit" class="sucesso" id="btnEnviar">ADICIONAR À LISTA</button>
   <button type="button" class="secundario" id="btnLimparForm">LIMPAR CAMPOS</button>
   <p id="statusForm" class="status"></p>
@@ -169,9 +196,9 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 <footer>BONÉ PMRv — Coleta de Pedidos</footer>
 
 <script>
-const APPS_SCRIPT_ID = "AKfycbyNxv2gxROgWHzDFVNfqGU9B9z7I8gQlGU-wuL7kwk5D0f2TnKq8cmgigeVPUqH1H-kZg";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNxv2gxROgWHzDFVNfqGU9B9z7I8gQlGU-wuL7kwk5D0f2TnKq8cmgigeVPUqH1H-kZg/exec";
 const SENHA_VISUALIZACAO = "rodomega";
+const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
 const STORAGE_KEY = "bone_pmrv_cache_v1";
 
@@ -203,6 +230,23 @@ function lerCacheLocal() {
   } catch (e) {
     return [];
   }
+}
+
+function lerArquivoBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const base64 = result.includes(",") ? result.split(",")[1] : result;
+      resolve({
+        base64,
+        mimeType: file.type || "application/octet-stream",
+        name: file.name || "comprovante"
+      });
+    };
+    reader.onerror = () => reject(new Error("Falha ao ler o arquivo do comprovante."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function jsonpRequest(paramsObj) {
@@ -265,10 +309,38 @@ function atualizarValorPrevisto() {
 $("quantidade").addEventListener("input", atualizarValorPrevisto);
 atualizarValorPrevisto();
 
+$("btnCopiarPix").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(CHAVE_PIX);
+    $("btnCopiarPix").textContent = "CHAVE COPIADA!";
+    setTimeout(() => { $("btnCopiarPix").textContent = "COPIAR CHAVE PIX"; }, 2500);
+  } catch (e) {
+    const t = document.createElement("textarea");
+    t.value = CHAVE_PIX;
+    document.body.appendChild(t);
+    t.select();
+    document.execCommand("copy");
+    t.remove();
+    $("btnCopiarPix").textContent = "CHAVE COPIADA!";
+    setTimeout(() => { $("btnCopiarPix").textContent = "COPIAR CHAVE PIX"; }, 2500);
+  }
+});
+
+$("comprovantePix").addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (!file) {
+    setStatus("infoArquivo", "Tamanho máximo recomendado: 5 MB.");
+    return;
+  }
+  const mb = (file.size / (1024 * 1024)).toFixed(2);
+  setStatus("infoArquivo", `Arquivo selecionado: ${file.name} (${mb} MB)`);
+});
+
 $("btnLimparForm").addEventListener("click", () => {
   $("formPedido").reset();
   $("quantidade").value = 1;
   atualizarValorPrevisto();
+  setStatus("infoArquivo", "Tamanho máximo recomendado: 5 MB.");
   setStatus("statusForm", "");
 });
 
@@ -277,6 +349,8 @@ $("formPedido").addEventListener("submit", async (e) => {
   if (carregando) return;
 
   const qtd = parseInt($("quantidade").value, 10);
+  const arquivo = $("comprovantePix").files?.[0];
+
   const p = {
     graduacao: $("graduacao").value.trim(),
     re: $("re").value.trim(),
@@ -294,33 +368,46 @@ $("formPedido").addEventListener("submit", async (e) => {
     return;
   }
 
+  if (!arquivo) {
+    setStatus("statusForm", "Anexe o comprovante de pagamento Pix antes de enviar.");
+    return;
+  }
+
+  if (arquivo.size > 6 * 1024 * 1024) {
+    setStatus("statusForm", "O comprovante ultrapassa 6 MB. Envie uma imagem mais leve ou print da tela.");
+    return;
+  }
+
   carregando = true;
   $("btnEnviar").disabled = true;
-  setStatus("statusForm", "Salvando pedido...");
+  setStatus("statusForm", "Enviando pedido e comprovante para o Google Drive/Sheets...");
 
   try {
-    await jsonpRequest({
-      action: "add",
-      graduacao: p.graduacao,
-      re: p.re,
-      nomeGuerra: p.nomeGuerra,
-      nomeCompleto: p.nomeCompleto,
-      opm: p.opm,
-      subunidade: p.subunidade,
-      quantidade: String(p.quantidade),
-      valorTotal: String(p.valorTotal),
-      createdAt: p.createdAt,
-      payload: JSON.stringify(p)
+    const arqData = await lerArquivoBase64(arquivo);
+
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "add",
+        ...p,
+        comprovanteBase64: arqData.base64,
+        comprovanteMime: arqData.mimeType,
+        comprovanteNome: arqData.name
+      })
     });
 
-    pedidos.push(p);
+    pedidos.push({ ...p, comprovanteUrl: "" });
     salvarCacheLocal();
-    setStatus("statusForm", "Pedido adicionado com sucesso!");
+    setStatus("statusForm", "Pedido e comprovante enviados com sucesso!");
     $("formPedido").reset();
     $("quantidade").value = 1;
     atualizarValorPrevisto();
+    setStatus("infoArquivo", "Tamanho máximo recomendado: 5 MB.");
+
     if (listaDesbloqueada) {
-      await carregarPedidos();
+      setTimeout(carregarPedidos, 2000);
     }
   } catch (err) {
     console.error(err);
@@ -405,7 +492,8 @@ function normalizarLista(dados) {
       opm: String(item.opm || "").trim(),
       subunidade: String(item.subunidade || item.cia || "").trim(),
       quantidade: qtd,
-      valorTotal: valRaw > 0 ? valRaw : qtd * VALOR_UNITARIO
+      valorTotal: valRaw > 0 ? valRaw : qtd * VALOR_UNITARIO,
+      comprovanteUrl: String(item.comprovanteUrl || item.comprovante || "").trim()
     };
   });
 }
@@ -507,10 +595,15 @@ function renderizarLista() {
             <th>Nome completo</th>
             <th>Quantidade</th>
             <th>Valor a pagar</th>
+            <th>Comprovante</th>
           </tr>
         </thead><tbody>`;
 
       for (const p of gc.itens) {
+        const compHtml = p.comprovanteUrl
+          ? `<a class="link-comp" href="${esc(p.comprovanteUrl)}" target="_blank" rel="noopener">Ver comprovante</a>`
+          : `<span style="color:#888">Sem anexo</span>`;
+
         html += `<tr>
           <td>${esc(p.graduacao)}</td>
           <td>${esc(p.re)}</td>
@@ -518,6 +611,7 @@ function renderizarLista() {
           <td>${esc(p.nomeCompleto)}</td>
           <td>${Number(p.quantidade) || 0}</td>
           <td>${formatarMoeda(calcularValorItem(p))}</td>
+          <td>${compHtml}</td>
         </tr>`;
       }
       html += `</tbody></table></div>`;
@@ -536,7 +630,8 @@ function montarTextoCopia() {
     for (const gc of go.cias) {
       linhas.push("  [" + gc.cia + "]");
       gc.itens.forEach((p, idx) => {
-        linhas.push(`    ${idx + 1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}`);
+        const comp = p.comprovanteUrl ? ` | Comprovante: ${p.comprovanteUrl}` : "";
+        linhas.push(`    ${idx + 1}. ${p.graduacao} | RE: ${p.re} | ${p.nomeGuerra} | ${p.nomeCompleto} | Qtd: ${p.quantidade} | Valor: ${formatarMoeda(calcularValorItem(p))}${comp}`);
       });
     }
   }
@@ -593,10 +688,11 @@ $("btnGerarPdf").addEventListener("click", () => {
       docPdf.text("CIA: " + gc.cia, 16, y);
       docPdf.autoTable({
         startY: y + 2,
-        head: [["Graduação", "RE", "Nome de Guerra", "Nome completo", "Qtd", "Valor a pagar"]],
+        head: [["Graduação", "RE", "Nome de Guerra", "Nome completo", "Qtd", "Valor a pagar", "Pix"]],
         body: gc.itens.map((p) => [
           p.graduacao, p.re, p.nomeGuerra, p.nomeCompleto,
-          String(p.quantidade), formatarMoeda(calcularValorItem(p))
+          String(p.quantidade), formatarMoeda(calcularValorItem(p)),
+          p.comprovanteUrl ? "Anexado" : "Pendente"
         ]),
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [40, 40, 40], textColor: [255, 212, 0] },
@@ -631,14 +727,15 @@ $("btnGerarExcel").addEventListener("click", () => {
           "Nome completo": p.nomeCompleto,
           "Quantidade": Number(p.quantidade) || 0,
           "Valor unitário (R$)": VALOR_UNITARIO,
-          "Valor a pagar (R$)": calcularValorItem(p)
+          "Valor a pagar (R$)": calcularValorItem(p),
+          "Comprovante Pix": p.comprovanteUrl || "Sem anexo"
         });
       }
     }
   }
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = [{ wch: 18 }, { wch: 14 }, { wch: 17 }, { wch: 16 }, { wch: 22 }, { wch: 32 }, { wch: 12 }, { wch: 18 }, { wch: 18 }];
+  ws["!cols"] = [{ wch: 18 }, { wch: 14 }, { wch: 17 }, { wch: 16 }, { wch: 22 }, { wch: 32 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 45 }];
   XLSX.utils.book_append_sheet(wb, ws, "Pedidos Bone PMRv");
   XLSX.writeFile(wb, "Lista_Bone_PMRv.xlsx");
   setStatus("statusAcoes", "Arquivo Excel gerado com sucesso.");
