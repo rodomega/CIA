@@ -40,6 +40,7 @@ th{background:#eee}
 .acoes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px;margin:14px 0}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
+.credito-dev{margin-top:6px;font-weight:bold;color:#555}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999}
 .modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,820px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
@@ -97,7 +98,10 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
   </div>
 </div>
 
-<footer>BONÉ PMRv — Coleta de Pedidos</footer>
+<footer>
+  <div>BONÉ PMRv — Coleta de Pedidos</div>
+  <div class="credito-dev">desenvolvido pelo SD PM 194528-9 Guidini - 4° BPRv/4° Cia</div>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -156,6 +160,13 @@ function normalizarOpm(valor) {
     .trim()
     .toUpperCase()
     .replace(/\s+/g, " ");
+
+  if (/^CPRV\s*GT$/i.test(limpo)) {
+    return "CPRV GT";
+  }
+  if (/^CPRV\s*EM$/i.test(limpo)) {
+    return "CPRV EM";
+  }
 
   const matchBprv = limpo.match(/^([1-6])\s*[°ºª]?\s*BPRV$/i);
   if (matchBprv) {
