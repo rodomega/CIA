@@ -52,17 +52,13 @@ button:disabled{opacity:.55;cursor:wait}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 .credito-dev{margin-top:6px;font-weight:bold;color:#555}
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999;touch-action:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9999;touch-action:none}
 .modal-card{background:#fff;border-radius:12px;border-top:5px solid var(--amarelo);width:min(100%,820px);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .modal-head{background:#202020;color:#ffd400;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .modal-head strong{font-size:15px}
-.modal-body{padding:14px;overflow:auto;background:#f8f9fa;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:280px;max-height:70vh;gap:10px;touch-action:pan-x pan-y}
-.img-zoom-wrapper{overflow:auto;max-width:100%;max-height:62vh;display:flex;align-items:center;justify-content:center;padding:8px}
-.img-zoom-wrapper img{max-width:100%;max-height:60vh;border-radius:8px;border:1px solid #ccc;transition:transform .2s ease;transform-origin:center center;cursor:zoom-in}
-.img-zoom-wrapper img.zoom-2x{transform:scale(1.8);margin:35% 0;cursor:zoom-out}
-.img-zoom-wrapper img.zoom-3x{transform:scale(2.6);margin:65% 0;cursor:zoom-out}
+.modal-body{padding:10px;overflow:hidden;background:#181818;display:flex;align-items:center;justify-content:center;height:66vh;min-height:300px;position:relative;touch-action:none;user-select:none}
+.modal-body img{max-width:100%;max-height:100%;border-radius:8px;transform-origin:center center;will-change:transform;pointer-events:none;-webkit-user-drag:none}
 .modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.zoom-controles{display:flex;gap:6px;flex-wrap:wrap}
 
 @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}.painel{padding:14px}button{max-width:100%}}
 </style>
@@ -77,7 +73,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
     <button type="button" class="seta-carrossel next" id="btnFotoNext" aria-label="Próxima foto">&#8250;</button>
   </div>
   <div class="bolinhas" id="bolinhasCarrossel"></div>
-  <span class="demo-legenda">arraste para o lado • toque para ampliar</span>
+  <span class="demo-legenda">arraste para o lado • toque para ampliar com 2 dedos</span>
 </div>
 
 <section class="painel">
@@ -192,11 +188,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
     </div>
     <div id="modalConteudo" class="modal-body"></div>
     <div class="modal-foot">
-      <div class="zoom-controles">
-        <button type="button" id="btnZoom1x" class="secundario btn-mini">1x</button>
-        <button type="button" id="btnZoom2x" class="btn-mini">AMPLIAR (2x)</button>
-        <button type="button" id="btnZoom3x" class="btn-mini">ZOOM MÁX (3x)</button>
-      </div>
+      <button type="button" id="btnResetZoom" class="btn-mini">REDEFINIR ZOOM</button>
       <button type="button" id="btnFecharModalBase" class="secundario btn-mini">FECHAR</button>
     </div>
   </div>
@@ -246,7 +238,16 @@ const $ = id => document.getElementById(id);
 let carregando = false;
 let fotosLista = [...FOTOS_PADRAO];
 let slideAtual = 0;
-let nivelZoom = 1;
+
+// Controle de pinça e arrasto livre no modal da imagem
+let scale = 1;
+let posX = 0;
+let posY = 0;
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+let panStartX = 0;
+let panStartY = 0;
+let isPanning = false;
 
 document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
 document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
@@ -299,43 +300,112 @@ function resolverUrlImagem(url) {
   return url;
 }
 
-function aplicarZoomModal(nivel) {
-  nivelZoom = nivel;
+function distanciaToques(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+function limitarDeslocamento() {
+  const maxOffset = Math.max(0, (scale - 1) * 180);
+  if (scale <= 1) {
+    posX = 0;
+    posY = 0;
+    return;
+  }
+  posX = Math.max(-maxOffset, Math.min(maxOffset, posX));
+  posY = Math.max(-maxOffset, Math.min(maxOffset, posY));
+}
+
+function atualizarTransformZoom() {
   const img = $("imgZoomModal");
   if (!img) return;
-  img.classList.remove("zoom-2x", "zoom-3x");
-  if (nivel === 2) img.classList.add("zoom-2x");
-  if (nivel === 3) img.classList.add("zoom-3x");
+  img.style.transform = `translate3d(${posX}px, ${posY}px, 0) scale(${scale})`;
+}
+
+function resetarZoomLivre() {
+  scale = 1;
+  posX = 0;
+  posY = 0;
+  pinchStartDist = 0;
+  isPanning = false;
+  atualizarTransformZoom();
 }
 
 function abrirModalZoom(srcUrl, indice) {
-  nivelZoom = 1;
-  $("modalFotoTitulo").textContent = `Boné PMRv (${indice + 1}/${fotosLista.length}) — Toque na imagem para ampliar`;
-  $("modalConteudo").innerHTML = `
-    <div class="img-zoom-wrapper">
-      <img id="imgZoomModal" src="${esc(srcUrl)}" alt="Foto do Boné PMRv">
-    </div>
-  `;
-  const img = $("imgZoomModal");
-  if (img) {
-    img.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      const proximo = nivelZoom === 1 ? 2 : nivelZoom === 2 ? 3 : 1;
-      aplicarZoomModal(proximo);
-    });
-  }
+  resetarZoomLivre();
+  $("modalFotoTitulo").textContent = `Boné PMRv (${indice + 1}/${fotosLista.length}) — Pinça com 2 dedos`;
+  $("modalConteudo").innerHTML = `<img id="imgZoomModal" src="${esc(srcUrl)}" alt="Foto do Boné PMRv">`;
   $("modalFoto").classList.remove("oculto");
 }
 
 function fecharModalFoto() {
-  nivelZoom = 1;
+  resetarZoomLivre();
   $("modalFoto").classList.add("oculto");
   $("modalConteudo").innerHTML = "";
 }
 
-$("btnZoom1x").addEventListener("click", () => aplicarZoomModal(1));
-$("btnZoom2x").addEventListener("click", () => aplicarZoomModal(2));
-$("btnZoom3x").addEventListener("click", () => aplicarZoomModal(3));
+const modalBody = $("modalConteudo");
+
+modalBody.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    isPanning = false;
+    pinchStartDist = distanciaToques(e.touches);
+    pinchStartScale = scale;
+  } else if (e.touches.length === 1 && scale > 1) {
+    e.preventDefault();
+    isPanning = true;
+    panStartX = e.touches[0].clientX - posX;
+    panStartY = e.touches[0].clientY - posY;
+  }
+}, { passive: false });
+
+modalBody.addEventListener("touchmove", (e) => {
+  if (e.touches.length === 2) {
+    e.preventDefault();
+    const dist = distanciaToques(e.touches);
+    if (pinchStartDist > 0) {
+      const novaEscala = pinchStartScale * (dist / pinchStartDist);
+      scale = Math.max(1, Math.min(5, novaEscala));
+      limitarDeslocamento();
+      atualizarTransformZoom();
+    }
+  } else if (e.touches.length === 1 && isPanning && scale > 1) {
+    e.preventDefault();
+    posX = e.touches[0].clientX - panStartX;
+    posY = e.touches[0].clientY - panStartY;
+    limitarDeslocamento();
+    atualizarTransformZoom();
+  }
+}, { passive: false });
+
+modalBody.addEventListener("touchend", (e) => {
+  if (e.touches.length < 2) {
+    pinchStartDist = 0;
+    pinchStartScale = scale;
+  }
+  if (e.touches.length === 1 && scale > 1) {
+    isPanning = true;
+    panStartX = e.touches[0].clientX - posX;
+    panStartY = e.touches[0].clientY - posY;
+  } else if (e.touches.length === 0) {
+    isPanning = false;
+    if (scale <= 1.03) {
+      resetarZoomLivre();
+    }
+  }
+}, { passive: false });
+
+modalBody.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 0.25 : -0.25;
+  scale = Math.max(1, Math.min(5, scale + delta));
+  limitarDeslocamento();
+  atualizarTransformZoom();
+}, { passive: false });
+
+$("btnResetZoom").addEventListener("click", resetarZoomLivre);
 $("btnFecharModalTopo").addEventListener("click", fecharModalFoto);
 $("btnFecharModalBase").addEventListener("click", fecharModalFoto);
 $("modalFoto").addEventListener("click", (e) => {
