@@ -229,6 +229,22 @@ function corBonePorGraduacao(grad) {
   return "outros";
 }
 
+function calcularTotaisPorCor(lista) {
+  let verdes = 0;
+  let vermelhos = 0;
+  let amarelos = 0;
+
+  for (const p of lista) {
+    const qtd = Number(p.quantidade) || 0;
+    const cor = corBonePorGraduacao(p.graduacao);
+    if (cor === "verde") verdes += qtd;
+    else if (cor === "vermelho") vermelhos += qtd;
+    else if (cor === "amarelo") amarelos += qtd;
+  }
+
+  return { verdes, vermelhos, amarelos };
+}
+
 function normalizarOpm(valor) {
   const limpo = String(valor || "")
     .trim()
@@ -558,18 +574,7 @@ function renderizarLista() {
   const totalPessoas = pedidos.length;
   const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
   const totalValor = pedidos.reduce((acc, p) => acc + calcularValorItem(p), 0);
-
-  let qtdVerdes = 0;
-  let qtdVermelhos = 0;
-  let qtdAmarelos = 0;
-
-  for (const p of pedidos) {
-    const qtd = Number(p.quantidade) || 0;
-    const cor = corBonePorGraduacao(p.graduacao);
-    if (cor === "verde") qtdVerdes += qtd;
-    else if (cor === "vermelho") qtdVermelhos += qtd;
-    else if (cor === "amarelo") qtdAmarelos += qtd;
-  }
+  const cores = calcularTotaisPorCor(pedidos);
 
   $("resumoGeral").innerHTML = `
     <div><span>Total de pessoas</span><strong>${totalPessoas}</strong></div>
@@ -578,9 +583,9 @@ function renderizarLista() {
   `;
 
   $("resumoCoresBone").innerHTML = `
-    <div class="card-verde"><span>Bonés Verdes (Sd / Cb)</span><strong>${qtdVerdes}</strong></div>
-    <div class="card-vermelho"><span>Bonés Vermelhos (3° Sgt a Sub Ten)</span><strong>${qtdVermelhos}</strong></div>
-    <div class="card-amarelo"><span>Bonés Amarelos (Asp a Cel)</span><strong>${qtdAmarelos}</strong></div>
+    <div class="card-verde"><span>Bonés Verdes (Sd / Cb)</span><strong>${cores.verdes}</strong></div>
+    <div class="card-vermelho"><span>Bonés Vermelhos (3° Sgt a Sub Ten)</span><strong>${cores.vermelhos}</strong></div>
+    <div class="card-amarelo"><span>Bonés Amarelos (Asp a Cel)</span><strong>${cores.amarelos}</strong></div>
   `;
 
   if (!pedidos.length) {
@@ -676,7 +681,9 @@ function montarTextoCopia() {
   }
   const qtd = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
   const total = pedidos.reduce((acc, p) => acc + calcularValorItem(p), 0);
+  const cores = calcularTotaisPorCor(pedidos);
   linhas.push(`\nTOTAL GERAL: ${pedidos.length} pessoa(s) | ${qtd} boné(s) | ${formatarMoeda(total)}`);
+  linhas.push(`POR COR: Verdes (Sd/Cb): ${cores.verdes} | Vermelhos (3° Sgt a Sub Ten): ${cores.vermelhos} | Amarelos (Asp a Cel): ${cores.amarelos}`);
   return linhas.join("\n");
 }
 
@@ -713,8 +720,11 @@ $("btnGerarPdf").addEventListener("click", () => {
   y += 8;
   const qtd = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
   const total = pedidos.reduce((acc, p) => acc + calcularValorItem(p), 0);
+  const cores = calcularTotaisPorCor(pedidos);
   docPdf.setFontSize(10);
   docPdf.text(`Pessoas: ${pedidos.length} | Bonés: ${qtd} | Total: ${formatarMoeda(total)}`, 14, y);
+  y += 6;
+  docPdf.text(`Bonés Verdes (Sd/Cb): ${cores.verdes} | Bonés Vermelhos (3° Sgt a Sub Ten): ${cores.vermelhos} | Bonés Amarelos (Asp a Cel): ${cores.amarelos}`, 14, y);
   y += 8;
 
   for (const go of agruparPorOpmECia(pedidos)) {
