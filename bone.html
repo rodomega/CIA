@@ -240,16 +240,11 @@ const CHAVE_PIX = "19992951979";
 const VALOR_UNITARIO = 30;
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc5G8pFH1L_T0aL-QLwEvKHWrJK9cI5fMkzbfsc_BKGgj3Eyr1rJyjz3d8xt01PArb/exec";
 
-// Substitua foto2.jpg e foto3.jpg pelas outras 2 imagens do boné
-const FOTOS_BONE = [
-  "33045.jpg",
-  "foto2.jpg",
-  "foto3.jpg"
-];
+const FOTOS_PADRAO = ["33045.jpg"];
 
 const $ = id => document.getElementById(id);
 let carregando = false;
-let fotosLista = [...FOTOS_BONE];
+let fotosLista = [...FOTOS_PADRAO];
 let slideAtual = 0;
 let nivelZoom = 1;
 
@@ -369,6 +364,10 @@ function renderizarCarrossel() {
   trilha.innerHTML = "";
   bolinhasWrap.innerHTML = "";
 
+  const mostrarSetas = fotosLista.length > 1;
+  $("btnFotoPrev").classList.toggle("oculto", !mostrarSetas);
+  $("btnFotoNext").classList.toggle("oculto", !mostrarSetas);
+
   fotosLista.forEach((url, idx) => {
     const slide = document.createElement("div");
     slide.className = "carrossel-slide";
@@ -388,14 +387,17 @@ function renderizarCarrossel() {
     slide.appendChild(img);
     trilha.appendChild(slide);
 
-    const dot = document.createElement("button");
-    dot.type = "button";
-    dot.className = "bolinha" + (idx === slideAtual ? " ativa" : "");
-    dot.setAttribute("aria-label", `Foto ${idx + 1}`);
-    dot.addEventListener("click", () => irParaSlide(idx));
-    bolinhasWrap.appendChild(dot);
+    if (mostrarSetas) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "bolinha" + (idx === slideAtual ? " ativa" : "");
+      dot.setAttribute("aria-label", `Foto ${idx + 1}`);
+      dot.addEventListener("click", () => irParaSlide(idx));
+      bolinhasWrap.appendChild(dot);
+    }
   });
 
+  if (slideAtual >= fotosLista.length) slideAtual = 0;
   atualizarBolinhas();
 }
 
@@ -419,10 +421,14 @@ async function carregarFotoDemonstracao() {
     const snap = await getDoc(DOC_FOTO_DEMO);
     if (snap.exists()) {
       const data = snap.data() || {};
-      if (Array.isArray(data.fotosUrl) && data.fotosUrl.length) {
-        fotosLista = data.fotosUrl.map(u => String(u).trim()).filter(Boolean);
+      if (Array.isArray(data.slotsFotos)) {
+        const ativas = data.slotsFotos.map(u => String(u || "").trim()).filter(Boolean);
+        if (ativas.length) fotosLista = ativas;
+      } else if (Array.isArray(data.fotosUrl) && data.fotosUrl.length) {
+        const ativas = data.fotosUrl.map(u => String(u || "").trim()).filter(Boolean);
+        if (ativas.length) fotosLista = ativas;
       } else if (data.fotoUrl) {
-        fotosLista = [String(data.fotoUrl).trim(), ...FOTOS_BONE.slice(1)];
+        fotosLista = [String(data.fotoUrl).trim()];
       }
       renderizarCarrossel();
     }
