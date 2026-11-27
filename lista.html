@@ -18,7 +18,7 @@ main{width:min(100% - 24px,1050px);margin:22px auto}
 .painel{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 2px 8px #0000000a}
 h2{font-size:20px;margin:0 0 14px;border-bottom:2px solid var(--amarelo);padding-bottom:9px}
 label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}
-input{width:100%;padding:11px 12px;border:1px solid #ccc;border-radius:7px;font-size:15px;background:#fff;color:#222}
+input,select{width:100%;padding:11px 12px;border:1px solid #ccc;border-radius:7px;font-size:15px;background:#fff;color:#222}
 button{border:0;border-radius:7px;padding:11px 15px;margin:4px 4px 4px 0;font-weight:bold;cursor:pointer;background:var(--amarelo);color:#222;font-size:13px}
 button.secundario{background:#555;color:#fff}
 button.sucesso{background:var(--verde);color:#fff}
@@ -39,6 +39,11 @@ th,td{border:1px solid #ddd;padding:8px;text-align:left;white-space:nowrap}
 th{background:#eee}
 .acoes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .foto-box{display:flex;flex-direction:column;align-items:center;text-align:center;background:#f8f8f8;border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px;margin:14px 0}
+.foto-controles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:flex-end;width:100%;max-width:680px;margin-top:6px}
+.foto-controles > div{flex:1 1 180px;text-align:left}
+.slots-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:680px;margin-top:12px}
+.slot-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px}
+.slot-card img{width:84px;height:84px;object-fit:cover;border-radius:6px;border:1px solid #ccc}
 footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px solid #ddd;margin-top:32px}
 .credito-dev{margin-top:6px;font-weight:bold;color:#555}
 
@@ -51,7 +56,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
 .modal-body iframe{width:100%;height:68vh;border:1px solid #ccc;border-radius:8px;background:#fff}
 .modal-foot{padding:10px 16px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 
-@media(max-width:720px){.painel{padding:14px}button{max-width:100%}}
+@media(max-width:720px){.slots-preview{grid-template-columns:1fr}.painel{padding:14px}button{max-width:100%}}
 </style>
 </head>
 <body>
@@ -61,9 +66,25 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
   <h2>Lista de pedidos</h2>
 
   <div class="foto-box">
-    <label for="uploadFoto">Atualizar foto de demonstração do boné (salva no Google Drive):</label>
-    <input type="file" id="uploadFoto" accept="image/*" style="max-width:320px">
-    <button type="button" id="btnSalvarFotoDrive" class="sucesso" style="margin-top:8px">SALVAR FOTO NO DRIVE</button>
+    <label>Gerenciar fotos de demonstração do boné (até 3 fotos no Google Drive):</label>
+    <div class="foto-controles">
+      <div>
+        <label for="slotFoto">Posição da foto</label>
+        <select id="slotFoto">
+          <option value="0">Foto 1 (Principal)</option>
+          <option value="1">Foto 2</option>
+          <option value="2">Foto 3</option>
+        </select>
+      </div>
+      <div>
+        <label for="uploadFoto">Escolher imagem</label>
+        <input type="file" id="uploadFoto" accept="image/*">
+      </div>
+      <div>
+        <button type="button" id="btnSalvarFotoDrive" class="sucesso" style="width:100%;margin:0">SALVAR FOTO</button>
+      </div>
+    </div>
+    <div id="slotsPreview" class="slots-preview"></div>
     <p id="statusFoto" class="status"></p>
   </div>
 
@@ -110,6 +131,7 @@ import {
   getFirestore,
   collection,
   getDocs,
+  getDoc,
   setDoc,
   deleteDoc,
   doc,
@@ -155,6 +177,7 @@ const PESO_GRADUACAO = {
 
 const $ = id => document.getElementById(id);
 let pedidos = [];
+let slotsFotos = ["33045.jpg", "", ""];
 
 function formatarMoeda(v) {
   return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -242,7 +265,104 @@ async function enviarArquivoDrive(file) {
   return gasResult.fileUrl;
 }
 
+function renderizarSlotsFotos() {
+  const wrap = $("slotsPreview");
+  wrap.innerHTML = "";
+
+  [0, 1, 2].forEach((idx) => {
+    const url = slotsFotos[idx] || "";
+    const card = document.createElement("div");
+    card.className = "slot-card";
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = idx === 0 ? "Foto 1 (Principal)" : `Foto ${idx + 1}`;
+    card.appendChild(titulo);
+
+    if (url) {
+      const img = document.createElement("img");
+      img.src = resolverUrlImagem(url);
+      img.alt = `Foto ${idx + 1}`;
+      img.addEventListener("error", () => {
+        if (idx === 0 && img.src !== "33045.jpg") {
+          img.src = "33045.jpg";
+        }
+      });
+      card.appendChild(img);
+
+      const btnLimpar = document.createElement("button");
+      btnLimpar.type = "button";
+      btnLimpar.className = "perigo btn-mini";
+      btnLimpar.textContent = "REMOVER";
+      btnLimpar.addEventListener("click", () => removerSlotFoto(idx));
+      card.appendChild(btnLimpar);
+    } else {
+      const vazio = document.createElement("span");
+      vazio.style.color = "#777";
+      vazio.style.padding = "28px 0";
+      vazio.textContent = "Sem foto cadastrada";
+      card.appendChild(vazio);
+    }
+
+    wrap.appendChild(card);
+  });
+}
+
+async function salvarSlotsNoFirestore() {
+  const fotosAtivas = slotsFotos.filter(Boolean);
+  await setDoc(DOC_FOTO_DEMO, {
+    fotosUrl: fotosAtivas,
+    slotsFotos: slotsFotos,
+    fotoUrl: slotsFotos[0] || "33045.jpg",
+    atualizadoEm: serverTimestamp()
+  }, { merge: true });
+}
+
+async function removerSlotFoto(idx) {
+  if (!confirm(`Remover a Foto ${idx + 1} da demonstração?`)) return;
+  $("btnSalvarFotoDrive").disabled = true;
+  setStatus("statusFoto", `Removendo Foto ${idx + 1}...`);
+  try {
+    slotsFotos[idx] = idx === 0 ? "33045.jpg" : "";
+    await salvarSlotsNoFirestore();
+    renderizarSlotsFotos();
+    setStatus("statusFoto", `Foto ${idx + 1} removida com sucesso.`);
+  } catch (err) {
+    console.error(err);
+    setStatus("statusFoto", "Erro ao remover foto: " + (err.message || err));
+  } finally {
+    $("btnSalvarFotoDrive").disabled = false;
+  }
+}
+
+async function carregarSlotsFotos() {
+  try {
+    const snap = await getDoc(DOC_FOTO_DEMO);
+    if (snap.exists()) {
+      const d = snap.data() || {};
+      if (Array.isArray(d.slotsFotos)) {
+        slotsFotos = [
+          String(d.slotsFotos[0] || d.fotoUrl || "33045.jpg").trim(),
+          String(d.slotsFotos[1] || "").trim(),
+          String(d.slotsFotos[2] || "").trim()
+        ];
+      } else if (Array.isArray(d.fotosUrl) && d.fotosUrl.length) {
+        slotsFotos = [
+          String(d.fotosUrl[0] || "33045.jpg").trim(),
+          String(d.fotosUrl[1] || "").trim(),
+          String(d.fotosUrl[2] || "").trim()
+        ];
+      } else if (d.fotoUrl) {
+        slotsFotos = [String(d.fotoUrl).trim(), "", ""];
+      }
+    }
+  } catch (err) {
+    console.warn("Não foi possível carregar fotos de demonstração:", err);
+  }
+  renderizarSlotsFotos();
+}
+
 $("btnSalvarFotoDrive").addEventListener("click", async () => {
+  const idx = parseInt($("slotFoto").value, 10) || 0;
   const arquivo = $("uploadFoto").files?.[0];
   if (!arquivo) {
     setStatus("statusFoto", "Selecione uma imagem primeiro.");
@@ -258,16 +378,15 @@ $("btnSalvarFotoDrive").addEventListener("click", async () => {
   }
 
   $("btnSalvarFotoDrive").disabled = true;
-  setStatus("statusFoto", "Enviando foto do boné ao Google Drive...");
+  setStatus("statusFoto", `Enviando Foto ${idx + 1} ao Google Drive...`);
   try {
     const urlDrive = await enviarArquivoDrive(arquivo);
-    await setDoc(DOC_FOTO_DEMO, {
-      fotoUrl: urlDrive,
-      atualizadoEm: serverTimestamp()
-    }, { merge: true });
+    slotsFotos[idx] = urlDrive;
+    await salvarSlotsNoFirestore();
+    renderizarSlotsFotos();
 
     $("uploadFoto").value = "";
-    setStatus("statusFoto", "Foto publicada com sucesso na página de pedidos!");
+    setStatus("statusFoto", `Foto ${idx + 1} publicada com sucesso sem alterar as demais!`);
   } catch (err) {
     console.error(err);
     setStatus("statusFoto", "Erro ao salvar foto: " + (err.message || err));
@@ -628,6 +747,7 @@ $("btnLimparLista").addEventListener("click", async () => {
   }
 });
 
+carregarSlotsFotos();
 carregarPedidos();
 </script>
 </body>
