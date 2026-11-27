@@ -30,6 +30,9 @@ button:disabled{opacity:.55;cursor:wait}
 .resumo{background:#fffbea;border:1px solid #e4d47b;border-radius:8px;padding:12px;margin:14px 0;display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}
 .resumo strong{display:block;color:#8b6b00;font-size:18px}
 .resumo span{font-size:12px;color:#555}
+.card-verde{border-left:4px solid var(--verde);padding-left:10px}
+.card-vermelho{border-left:4px solid var(--vermelho);padding-left:10px}
+.card-amarelo{border-left:4px solid #d4a800;padding-left:10px}
 .grupo-opm{border:1px solid #ddd;border-left:4px solid var(--amarelo);border-radius:10px;padding:14px;margin:14px 0;background:#fff}
 .grupo-opm-titulo{font-weight:bold;font-size:17px;padding-bottom:8px;border-bottom:1px solid #ddd}
 .grupo-cia-titulo{font-weight:bold;background:#eee;padding:9px 10px;border-radius:6px;margin:12px 0 8px}
@@ -89,6 +92,7 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px;border-top:1px s
   </div>
 
   <div id="resumoGeral" class="resumo"></div>
+  <div id="resumoCoresBone" class="resumo"></div>
 
   <div class="acoes">
     <button id="btnCopiarLista" type="button">COPIAR LISTA INTEIRA</button>
@@ -196,6 +200,33 @@ function esc(s) {
 
 function pesoGraduacao(grad) {
   return PESO_GRADUACAO[String(grad || "").trim()] ?? 99;
+}
+
+function corBonePorGraduacao(grad) {
+  const g = String(grad || "").trim();
+  if (g === "Soldado" || g === "Cabo") {
+    return "verde";
+  }
+  if (
+    g === "3° Sargento" ||
+    g === "2° Sargento" ||
+    g === "1° Sargento" ||
+    g === "Sub Tenente"
+  ) {
+    return "vermelho";
+  }
+  if (
+    g === "Aspirante" ||
+    g === "2° Tenente" ||
+    g === "1° Tenente" ||
+    g === "Capitão" ||
+    g === "Major" ||
+    g === "Tenente Coronel" ||
+    g === "Coronel"
+  ) {
+    return "amarelo";
+  }
+  return "outros";
 }
 
 function normalizarOpm(valor) {
@@ -528,10 +559,28 @@ function renderizarLista() {
   const totalBones = pedidos.reduce((acc, p) => acc + (Number(p.quantidade) || 0), 0);
   const totalValor = pedidos.reduce((acc, p) => acc + calcularValorItem(p), 0);
 
+  let qtdVerdes = 0;
+  let qtdVermelhos = 0;
+  let qtdAmarelos = 0;
+
+  for (const p of pedidos) {
+    const qtd = Number(p.quantidade) || 0;
+    const cor = corBonePorGraduacao(p.graduacao);
+    if (cor === "verde") qtdVerdes += qtd;
+    else if (cor === "vermelho") qtdVermelhos += qtd;
+    else if (cor === "amarelo") qtdAmarelos += qtd;
+  }
+
   $("resumoGeral").innerHTML = `
     <div><span>Total de pessoas</span><strong>${totalPessoas}</strong></div>
     <div><span>Total de bonés</span><strong>${totalBones}</strong></div>
     <div><span>Valor total previsto</span><strong>${formatarMoeda(totalValor)}</strong></div>
+  `;
+
+  $("resumoCoresBone").innerHTML = `
+    <div class="card-verde"><span>Bonés Verdes (Sd / Cb)</span><strong>${qtdVerdes}</strong></div>
+    <div class="card-vermelho"><span>Bonés Vermelhos (3° Sgt a Sub Ten)</span><strong>${qtdVermelhos}</strong></div>
+    <div class="card-amarelo"><span>Bonés Amarelos (Asp a Cel)</span><strong>${qtdAmarelos}</strong></div>
   `;
 
   if (!pedidos.length) {
